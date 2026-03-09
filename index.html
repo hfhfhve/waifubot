@@ -2553,128 +2553,47 @@
         // --- НОВАЯ ЛОГИКА: МГНОВЕННАЯ ОПЛАТА ---
 
         function confirmPayment(method) {
-
             tg.HapticFeedback.selectionChanged();
-
             
-
-            if (WEBHOOK_URL.includes("ВСТАВЬ_СЮДА")) {
-
-                tg.showAlert("Ошибка: Не настроен Webhook!");
-
-                return;
-
-            }
-
-        
-
             const modalTitle = document.getElementById('modal-title');
-
             const originalText = modalTitle.innerText;
-
-            
-
-            // Показываем загрузку
-
             modalTitle.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Создаем счет...';
-
         
-
             const userId = tg.initDataUnsafe?.user?.id;
-
             
-
-            // 1. Просим n8n создать ссылку на оплату
-
             fetch(WEBHOOK_URL, {
-                
                 method: 'POST',
-                
                 headers: { 'Content-Type': 'application/json' },
-                
                 body: JSON.stringify({
-                    
                     action: "buy_invoice", 
-                    
                     pack_id: currentItem.id,
-                    
                     amount: method === 'stars' ? currentItem.amountStars : currentItem.amountRub,
-                    
                     currency: method === 'stars' ? 'XTR' : 'RUB', 
-                    
                     method: method,
-                    
                     chat_id: userId
-                    
                 })
-                
             })
-                
             .then(response => response.json())
-                
             .then(data => {
-                
                 if (data.ok && method === 'stars') {
-                    
                     tg.openInvoice(data.result, (status) => {
-                        
                         if (status === 'paid') { tg.showAlert("Успешная оплата! 🎉"); closePaymentModal(); }
-                        
                     });
-                    
                 } else if (data.ok && method === 'crypto' && data.pay_url) {
-                    
-                    // ТЕПЕРЬ ФРОНТ ИЩЕТ PAY_URL, КОТОРЫЙ И ПРИСЫЛАЕТ N8N
+                    // Открываем ссылку на кассу NOWPayments
                     tg.openLink(data.pay_url);
-                    
                     closePaymentModal();
-                    
                 } else {
-                    
+                    // Если что-то пошло не так, выводим ошибку на экран
                     tg.showAlert("Странный ответ: " + JSON.stringify(data).substring(0, 100));
-                    
                 }
-                
             })
-                
             .catch(error => {
-                
                 tg.showAlert("Ошибка связи: " + error.message);
-                
             })
-                
             .finally(() => {
-                
                 modalTitle.innerText = originalText;
-                
             });
-
-                } else {
-
-                    console.error(data);
-
-                    tg.showAlert("Ошибка создания счета (см. консоль)");
-
-                }
-
-            })
-
-            .catch(error => {
-
-                console.error('Error:', error);
-
-                tg.showAlert("Ошибка сети.");
-
-            })
-
-            .finally(() => {
-
-                // Возвращаем текст заголовка
-
-                modalTitle.innerText = originalText;
-
-            });
-
         }
 
 
