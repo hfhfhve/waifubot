@@ -1,0 +1,2909 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Your Waifu 2.4</title>
+
+    
+
+    <!-- Подключаем Tailwind CSS -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Подключаем Telegram WebApp SDK -->
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Иконки FontAwesome -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Шрифт Inter & Orbitron -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+
+
+
+    <style>
+
+        .admin-input {
+
+            background: #111; border: 1px solid #333; color: white;
+
+            padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 10px;
+
+        }
+
+        .admin-btn {
+
+            background: #2563eb; color: white; padding: 10px;
+
+            border-radius: 10px; width: 100%; font-weight: bold;
+
+        }
+
+        /* === ПРОДВИНУТЫЕ НАСТРОЙКИ ДИЗАЙНА === */
+
+        :root {
+
+            --bg-dark: #050505;
+
+            --glass-bg: rgba(255, 255, 255, 0.03);
+
+            --glass-border: rgba(255, 255, 255, 0.08);
+
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+
+            
+
+            --primary-gradient: linear-gradient(135deg, #ff0080 0%, #7928ca 100%);
+
+            --accent-pink: #ff3b9a;
+
+            --text-main: #ffffff;
+
+        }
+
+
+
+        body {
+
+            background-color: var(--bg-dark);
+
+            color: var(--text-main);
+
+            font-family: 'Inter', sans-serif;
+
+            -webkit-tap-highlight-color: transparent;
+
+            overflow-x: hidden;
+
+            padding-bottom: 110px;
+
+            position: relative;
+
+        }
+
+
+
+        /* Живой фон (Floating Orbs) */
+
+        .orb {
+
+            position: fixed;
+
+            border-radius: 50%;
+
+            filter: blur(80px);
+
+            z-index: -1;
+
+            animation: floatOrb 10s infinite ease-in-out;
+
+            opacity: 0.4;
+
+        }
+
+        .orb-1 {
+
+            top: -10%; left: -10%; width: 300px; height: 300px;
+
+            background: #7928ca;
+
+            animation-delay: 0s;
+
+        }
+
+        .orb-2 {
+
+            bottom: 20%; right: -10%; width: 250px; height: 250px;
+
+            background: #ff0080;
+
+            animation-delay: -5s;
+
+        }
+
+        
+
+        @keyframes floatOrb {
+
+            0%, 100% { transform: translate(0, 0); }
+
+            50% { transform: translate(20px, 40px); }
+
+        }
+
+
+
+        /* Скрытие скроллбара */
+
+        ::-webkit-scrollbar { display: none; }
+
+
+
+        /* === ЭФФЕКТЫ СТЕКЛА === */
+
+        .glass-panel {
+
+            background: var(--glass-bg);
+
+            backdrop-filter: blur(20px);
+
+            -webkit-backdrop-filter: blur(20px);
+
+            border: 1px solid var(--glass-border);
+
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+        }
+
+
+
+        .glass-nav {
+
+            background: rgba(10, 10, 10, 0.85);
+
+            backdrop-filter: blur(20px);
+
+            -webkit-backdrop-filter: blur(20px);
+
+            border-top: 1px solid var(--glass-border);
+
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+
+        }
+
+
+
+        /* === КАРТОЧКИ === */
+
+        .premium-card {
+
+            background: linear-gradient(180deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%);
+
+            border: 1px solid var(--glass-border);
+
+            border-radius: 24px;
+
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        
+
+        .premium-card::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0; left: 0; right: 0; height: 1px;
+
+            background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+
+            opacity: 0.5;
+
+        }
+
+
+
+        .premium-card:active {
+
+            transform: scale(0.97);
+
+            border-color: rgba(255, 255, 255, 0.2);
+
+        }
+
+
+
+        /* Переключатели */
+
+        .custom-tab-bg {
+
+            background: rgba(0, 0, 0, 0.4);
+
+            border-radius: 16px;
+
+            padding: 4px;
+
+            border: 1px solid var(--glass-border);
+
+        }
+
+
+
+        .tab-active {
+
+            background: #222;
+
+            color: white;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            position: relative;
+
+            border-radius: 12px;
+
+        }
+
+        
+
+        .tab-inactive {
+
+            color: #666;
+
+            transition: color 0.3s;
+
+        }
+
+        .tab-inactive:hover { color: #aaa; }
+
+
+
+        /* === АНИМАЦИИ === */
+
+        @keyframes fadeUp {
+
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+
+            to { opacity: 1; transform: translateY(0) scale(1); }
+
+        }
+
+        
+
+        .animate-fade-up {
+
+            animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+        }
+
+        .delay-100 { animation-delay: 0.05s; }
+
+        .delay-200 { animation-delay: 0.1s; }
+
+        
+
+        @keyframes shine {
+
+            0% { transform: translateX(-100%) skewX(-20deg); }
+
+            100% { transform: translateX(200%) skewX(-20deg); }
+
+        }
+
+        .shine-anim::after {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0; left: 0; width: 100%; height: 100%;
+
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+
+            transform: translateX(-100%);
+
+            animation: shine 3s infinite;
+
+        }
+
+
+
+        /* === МОДАЛЬНОЕ ОКНО === */
+
+        .modal-overlay {
+
+            background: rgba(0, 0, 0, 0.85);
+
+            backdrop-filter: blur(12px);
+
+            transition: opacity 0.3s ease;
+
+        }
+
+        .modal-content {
+
+            background: #111;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+            border-radius: 32px 32px 0 0;
+
+            transform: translateY(100%);
+
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.8);
+
+            background: linear-gradient(to bottom, #1a1a1a, #000);
+
+        }
+
+        .modal-open .modal-content { transform: translateY(0); }
+
+        
+
+        /* Модальное окно персонажа (на весь экран) */
+
+        .char-modal-content {
+
+            height: 90vh;
+
+            border-radius: 32px 32px 0 0;
+
+        }
+
+
+
+        /* Навигация */
+
+        .nav-icon-container {
+
+            width: 48px; height: 32px;
+
+            display: flex; align-items: center; justify-content: center;
+
+            border-radius: 16px; transition: all 0.3s;
+
+        }
+
+        .nav-active .nav-icon-container {
+
+            background: rgba(255, 255, 255, 0.1);
+
+            color: #fff;
+
+        }
+
+        .nav-active i {
+
+            text-shadow: 0 0 10px rgba(255,255,255,0.6);
+
+        }
+
+
+
+        /* Видимый скроллбар только для описания персонажа */
+
+        .custom-scroll::-webkit-scrollbar { 
+
+            display: block; 
+
+            width: 4px; 
+
+        }
+
+        .custom-scroll::-webkit-scrollbar-track { 
+
+            background: rgba(255, 255, 255, 0.05); 
+
+            border-radius: 4px; 
+
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb { 
+
+            background: rgba(255, 255, 255, 0.2); 
+
+            border-radius: 4px; 
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <!-- Живой фон -->
+
+    <div class="orb orb-1"></div>
+
+    <div class="orb orb-2"></div>
+
+
+
+    <!-- ================= ВЕРХНЯЯ ШАПКА ================= -->
+
+    <div class="fixed top-0 left-0 w-full z-50 px-4 pt-3 pb-2 transition-all duration-300" style="background: linear-gradient(to bottom, rgba(5,5,5,1) 0%, rgba(5,5,5,0.9) 85%, transparent 100%);">
+
+        <div class="flex justify-between items-center mb-5">
+
+            <!-- Приветствие -->
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-600 to-purple-600 p-[2px] shadow-[0_0_10px_rgba(219,39,119,0.5)]">
+
+                    <div class="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
+
+                        <img src="https://placehold.co/100x100/333/fff?text=U" class="w-full h-full object-cover">
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <div class="flex items-center gap-1 text-sm font-bold text-gray-200">
+
+                        <span data-i18n="hello">Привет</span>, <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 font-extrabold" data-i18n="player">Игрок</span>
+
+                    </div>
+
+                    <!-- Улучшенный статус -->
+
+                    <div class="flex items-center">
+
+                        <div class="flex items-center bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-md text-[10px] tracking-wide text-green-400 font-bold shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse shadow-[0_0_5px_#22c55e]"></div>
+
+                            <span data-i18n="online">ONLINE</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Баланс -->
+
+            <div class="glass-panel rounded-2xl p-1.5 pl-3 flex items-center gap-3">
+
+                <div class="flex flex-col items-end leading-none">
+
+                    <span id="balance-gems" class="text-sm font-black text-cyan-300 drop-shadow-[0_0_5px_rgba(103,232,249,0.5)]">0</span>
+
+                    <i class="fa-solid fa-gem text-[8px] text-cyan-500/80 mt-0.5"></i>
+
+                </div>
+
+                <div class="w-[1px] h-6 bg-white/10"></div>
+
+                <div class="flex flex-col items-start leading-none">
+
+                    <span id="balance-stars" class="text-sm font-black text-yellow-300 drop-shadow-[0_0_5px_rgba(253,224,71,0.5)]">0</span>
+
+                    <i class="fa-solid fa-bolt text-[8px] text-yellow-500/80 mt-0.5"></i>
+
+                </div>
+
+                <button onclick="switchTab('shop')" class="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center active:scale-90 transition-transform shadow-[0_0_10px_rgba(236,72,153,0.4)] relative overflow-hidden shine-anim">
+
+                    <i class="fa-solid fa-plus text-white text-xs relative z-10"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Переключатель (Главная) -->
+
+        <div id="gender-switch" class="custom-tab-bg flex p-1 gap-1">
+
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-[#1f1f1f] text-white shadow-lg flex items-center justify-center gap-2 border border-white/10 relative overflow-hidden group">
+
+                <i class="fa-solid fa-venus text-pink-400 group-hover:scale-110 transition-transform"></i> 
+
+                <span data-i18n="girls" class="tracking-wide">GIRLS</span>
+
+                <div class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-pink-500 to-purple-500"></div>
+
+            </button>
+
+            <button class="flex-1 py-2.5 rounded-xl text-xs font-medium text-gray-500 hover:text-gray-300 transition-colors flex items-center justify-center gap-2">
+
+                <i class="fa-solid fa-mars"></i> 
+
+                <span data-i18n="guys" class="tracking-wide">BOYS</span>
+
+            </button>
+
+        </div>
+
+        
+
+        <!-- Переключатель (Магазин) -->
+
+        <div id="shop-switch" class="hidden custom-tab-bg flex p-1 relative">
+
+            <button onclick="switchShopSubTab('packs')" id="btn-sub-packs" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
+
+                <span data-i18n="packs">ПАКЕТЫ</span>
+
+            </button>
+
+            <button onclick="switchShopSubTab('energy')" id="btn-sub-energy" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
+
+                <span data-i18n="energy">ЭНЕРГИЯ</span>
+
+            </button>
+
+            <button onclick="switchShopSubTab('gems')" id="btn-sub-gems" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
+
+                <span data-i18n="gems">ГЕМЫ</span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ОТСТУП -->
+
+    <div class="h-36 w-full"></div>
+
+
+
+    <!-- ================= ГЛАВНАЯ ================= -->
+
+    <div id="tab-home" class="px-3 min-h-screen">
+
+        
+
+        <!-- Daily Bonus -->
+
+        <div class="mb-4 animate-fade-up">
+            <div id="bonus-card" onclick="claimDailyBonus()" class="w-full p-4 rounded-3xl relative overflow-hidden border border-yellow-500/20 bg-gradient-to-r from-[#1a1500] to-[#2a1a00] group cursor-pointer active:scale-98 transition-transform shadow-lg">
+                <div class="flex justify-between items-center relative z-10">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] font-black uppercase text-yellow-500 tracking-wider bg-yellow-500/10 px-2 py-0.5 rounded" data-i18n="bonus">Bonus</span>
+                            <div class="flex gap-0.5">
+                                <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-yellow-500/30"></div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-white" id="daily-title" data-i18n="day_3">День 3</h3>
+                        <p class="text-xs text-gray-400" id="daily-text">Заходи завтра за <span class="text-yellow-400 font-bold">500 монет</span></p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-b from-yellow-300 to-orange-500 flex items-center justify-center shadow-[0_0_20px_rgba(255,165,0,0.4)] animate-pulse">
+                        <i class="fa-solid fa-gift text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Grid -->
+
+        <div class="grid grid-cols-2 gap-3 pb-6" id="characters-container">
+
+            <!-- JS -->
+
+        </div>
+
+        <div class="h-10"></div>
+
+    </div>
+
+
+
+    <!-- ================= МАГАЗИН ================= -->
+
+    <div id="tab-shop" class="hidden px-4 min-h-screen">
+
+        
+
+        <!-- 1. ПАКЕТЫ -->
+
+        <div id="shop-section-packs" class="space-y-5 animate-fade-up">
+
+            <!-- Starter Pack -->
+
+            <div class="premium-card p-5 group cursor-pointer" onclick="openPaymentModal('pack_starter', 'Starter Pack', 350, 499)">
+
+                <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition-colors"></div>
+
+                <div class="flex justify-between items-start mb-4 relative z-10">
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">📦</div>
+
+                        <div>
+
+                            <span class="block font-bold text-lg text-white">Starter</span>
+
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider" data-i18n="pack_starter_desc">Набор новичка</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex gap-2 mb-4">
+
+                    <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+
+                        <span class="font-black text-lg text-white">300</span>
+
+                        <div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span data-i18n="energy_unit">Энергии</span></div>
+
+                    </div>
+
+                    <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+
+                        <span class="font-black text-lg text-white">60</span>
+
+                        <div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span data-i18n="gems_unit">Гемов</span></div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex gap-2">
+
+                    <div class="flex-1 bg-[#1a3a4a] border border-cyan-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden">
+
+                        <span class="text-xs font-bold text-cyan-300">499 ₽</span>
+
+                        <div class="absolute bottom-0 w-full h-0.5 bg-cyan-500/50"></div>
+
+                    </div>
+
+                    <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden">
+
+                        <span class="text-xs font-bold text-yellow-300">350 ⭐️</span>
+
+                        <div class="absolute bottom-0 w-full h-0.5 bg-yellow-500/50"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Premium Pack -->
+
+            <div class="premium-card p-5 group cursor-pointer border-purple-500/30" onclick="openPaymentModal('pack_premium', 'Premium Pack', 1000, 1499)">
+
+                <div class="absolute -right-8 -top-8 w-28 h-28 bg-purple-500/20 rounded-full blur-2xl"></div>
+
+                <div class="absolute top-0 right-0 bg-purple-600 text-[9px] font-bold text-white px-3 py-1 rounded-bl-xl z-20">POPULAR</div>
+
+                <div class="flex justify-between items-start mb-4 relative z-10">
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">💎</div>
+
+                        <div>
+
+                            <span class="block font-bold text-lg text-white">Premium</span>
+
+                            <span class="text-[10px] text-purple-300 uppercase tracking-wider" data-i18n="pack_premium_desc">Выгодный выбор</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex gap-2 mb-4">
+
+                    <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+
+                        <span class="font-black text-lg text-white">1000</span>
+
+                        <div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span data-i18n="energy_unit">Энергии</span></div>
+
+                    </div>
+
+                    <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+
+                        <span class="font-black text-lg text-white">200</span>
+
+                        <div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span data-i18n="gems_unit">Гемов</span></div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex gap-2">
+
+                    <div class="flex-1 bg-[#2d1b3a] border border-purple-500/40 rounded-xl py-2 flex flex-col items-center justify-center">
+
+                        <span class="text-xs font-bold text-purple-200">1 499 ₽</span>
+
+                    </div>
+
+                    <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center">
+
+                        <span class="text-xs font-bold text-yellow-300">1 000 ⭐️</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Ultimate Pack -->
+
+            <div class="premium-card p-0 group cursor-pointer border-pink-500/50 shadow-[0_0_25px_rgba(236,72,153,0.15)]" onclick="openPaymentModal('pack_ultimate', 'Ultimate Pack', 2500, 3999)">
+
+                <div class="absolute inset-0 bg-gradient-to-r from-pink-900/40 to-black/80 z-0"></div>
+
+                <img src="https://placehold.co/400x150/500/f0f?text=MAX" class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-overlay">
+
+                <div class="p-5 relative z-10">
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">👑</div>
+
+                        <div>
+
+                            <span class="block font-black text-xl italic text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-200">ULTIMATE</span>
+
+                            <span class="text-[10px] text-pink-200 font-bold tracking-wider uppercase" data-i18n="pack_ultimate_desc">Всё включено</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex gap-2 mb-4">
+
+                        <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center">
+
+                            <span class="font-black text-white block">2500</span>
+
+                            <span class="text-[9px] text-yellow-400 font-bold uppercase"><i class="fa-solid fa-bolt"></i> Energy</span>
+
+                        </div>
+
+                        <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center">
+
+                            <span class="font-black text-white block">500</span>
+
+                            <span class="text-[9px] text-cyan-400 font-bold uppercase"><i class="fa-solid fa-gem"></i> Gems</span>
+
+                        </div>
+
+                    </div>
+
+                      <div class="flex gap-2">
+
+                        <div class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl py-2.5 text-center shadow-lg">
+
+                            <span class="text-sm font-black text-white">3 999 ₽</span>
+
+                        </div>
+
+                          <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2.5 text-center">
+
+                            <span class="text-sm font-bold text-yellow-400">2 500 ⭐️</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- 2. ЭНЕРГИЯ -->
+
+        <div id="shop-section-energy" class="hidden space-y-3 animate-fade-up">
+
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_energy">Пополнение Энергии</div>
+
+            
+
+            <!-- 50 Energy -->
+
+             <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('energy_50', '50 Энергии', 50, 69)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-yellow-400 text-lg relative">
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="energy_50">50 Энергии</div>
+
+                        <div class="text-xs text-gray-500">69 ₽ / 50 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+
+
+            <!-- 150 Energy (New) -->
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('energy_150', '150 Энергии', 125, 169)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-yellow-400 text-lg relative">
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="energy_150">150 Энергии</div>
+
+                        <div class="text-xs text-gray-500">169 ₽ / 125 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+            
+
+            <!-- 500 Energy -->
+
+             <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform border-yellow-500/30 bg-yellow-900/10" onclick="openPaymentModal('energy_500', '500 Энергии', 350, 449)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-xl"><i class="fa-solid fa-fire"></i></div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="energy_500">500 Энергии</div>
+
+                        <div class="text-xs text-yellow-500 font-bold">449 ₽ / 350 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-yellow-500 text-black flex items-center justify-center shadow-lg shadow-yellow-500/20"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+
+
+            <!-- 1200 Energy (New) -->
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('energy_1200', '1200 Энергии', 750, 899)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-yellow-400 text-lg relative">
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="energy_1200">1200 Энергии</div>
+
+                        <div class="text-xs text-gray-500">899 ₽ / 750 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+
+
+            <!-- 3000 Energy -->
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('energy_3000', '3000 Энергии', 1500, 1790)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-yellow-400 text-lg relative">
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="energy_3000">3000 Энергии</div>
+
+                        <div class="text-xs text-gray-500">1790 ₽ / 1 500 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- 3. ГЕМЫ -->
+
+        <div id="shop-section-gems" class="hidden space-y-3 animate-fade-up">
+
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_gems">Пополнение Гемов</div>
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('gems_50', '10 Гемов', 50, 69)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-cyan-400 text-lg relative">
+
+                        <i class="fa-regular fa-gem"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="gems_50">10 Гемов</div>
+
+                        <div class="text-xs text-gray-500">69 ₽ / 50 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('gems_150', '30 Гемов', 125, 169)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-cyan-400 text-lg relative">
+
+                        <i class="fa-regular fa-gem"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="gems_150">30 Гемов</div>
+
+                        <div class="text-xs text-gray-500">169 ₽ / 125 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform border-cyan-500/30 bg-cyan-900/10" onclick="openPaymentModal('gems_500', '100 Гемов', 350, 449)">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl shadow-lg shadow-cyan-500/20">
+
+                        <i class="fa-solid fa-gem"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="gems_500">100 Гемов</div>
+
+                        <div class="text-xs text-cyan-300 font-bold">449 ₽ / 350 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-cyan-500 text-black flex items-center justify-center shadow-lg shadow-cyan-500/20"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('gems_1200', '240 Гемов', 750, 899)">
+
+                 <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-cyan-400 text-lg relative">
+
+                        <i class="fa-solid fa-sack-dollar"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="gems_1200">240 Гемов</div>
+
+                        <div class="text-xs text-gray-500">899 ₽ / 750 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+            <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform" onclick="openPaymentModal('gems_3000', '600 Гемов', 1500, 1790)">
+
+                 <div class="flex items-center gap-4">
+
+                    <div class="w-12 h-12 rounded-xl bg-[#1f1f1f] border border-white/5 flex items-center justify-center text-cyan-400 text-lg relative">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-white" data-i18n="gems_3000">600 Гемов</div>
+
+                        <div class="text-xs text-gray-500">1790 ₽ / 1 500 ⭐️</div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400"><i class="fa-solid fa-plus"></i></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= ПРОФИЛЬ ================= -->
+
+    <div id="tab-profile" class="hidden px-4 animate-fade pb-20 min-h-screen">
+
+        <div class="flex flex-col items-center pt-10 mb-6 relative">
+
+             <div class="absolute top-12 left-1/2 -translate-x-1/2 w-40 h-40 bg-pink-600/20 rounded-full blur-[50px] pointer-events-none"></div>
+
+            <div class="relative group active:scale-95 transition-transform cursor-pointer">
+
+                <div class="w-32 h-32 rounded-full overflow-hidden border-[3px] border-[#222] shadow-2xl relative z-10">
+
+                    <img id="profile-avatar" src="https://placehold.co/200x200/222/fff?text=U" class="w-full h-full object-cover">
+
+                </div>
+
+                <div class="absolute bottom-1 right-1 z-20 bg-[#222] w-8 h-8 rounded-full flex items-center justify-center border border-white/10 text-white">
+
+                    <i class="fa-solid fa-camera text-xs"></i>
+
+                </div>
+
+            </div>
+
+            <h2 id="profile-name" class="text-3xl font-black mt-4 text-white tracking-tight">Настройки</h2>
+
+            <button onclick="copyId()" id="copy-btn" class="flex items-center gap-2 mt-2 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/5 transition-all active:scale-95">
+
+                <span class="text-xs text-gray-400 font-mono tracking-wider">ID: 84932921</span>
+
+                <i class="fa-regular fa-copy text-[10px] text-gray-500"></i>
+
+            </button>
+
+            <div id="copy-feedback" class="text-[10px] text-green-400 mt-1 opacity-0 transition-opacity font-bold" data-i18n="copied">Скопировано!</div>
+
+        </div>
+
+
+
+        <div class="relative w-full h-32 rounded-3xl overflow-hidden mb-6 flex border border-white/10 shadow-lg">
+
+            <div class="absolute top-3 left-4 z-10 text-[10px] font-black text-white/50 tracking-[0.2em] uppercase backdrop-blur-sm px-2 py-1 rounded bg-black/20">Visual Style</div>
+
+            <div class="w-1/2 h-full relative bg-gray-900 border-r border-white/5 active:opacity-90 transition-opacity cursor-pointer group" onclick="selectStyle('real')">
+
+                <img src="https://placehold.co/300x200/111/444?text=Realistic" class="w-full h-full object-cover opacity-40 grayscale transition-all duration-500" id="img-real">
+
+                <div class="absolute inset-0 flex flex-col items-center justify-end pb-4 bg-gradient-to-t from-black/80 to-transparent">
+
+                    <div id="check-real" class="w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300"></div>
+
+                    <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">REAL</span>
+
+                </div>
+
+            </div>
+
+            <div class="w-1/2 h-full relative bg-gray-800 active:opacity-90 transition-opacity cursor-pointer group" onclick="selectStyle('anime')">
+
+                <img src="https://placehold.co/300x200/220011/ff3b9a?text=Anime" class="w-full h-full object-cover opacity-80 transition-all duration-500" id="img-anime">
+
+                <div class="absolute inset-0 flex flex-col items-center justify-end pb-4 bg-gradient-to-t from-black/80 to-transparent">
+
+                    <div id="check-anime" class="w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300">
+
+                        <i class="fa-solid fa-check"></i>
+
+                    </div>
+
+                    <span class="text-xs font-bold text-white">ANIME</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="space-y-3">
+
+            <div class="premium-card p-4 flex justify-between items-center group cursor-pointer active:scale-98" onclick="toggleLanguage()">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center text-gray-400 border border-white/5">
+
+                        <i class="fa-solid fa-globe"></i>
+
+                    </div>
+
+                    <span data-i18n="language" class="font-medium text-sm text-gray-200">Язык</span>
+
+                </div>
+
+                <div class="flex items-center gap-3">
+
+                    <div class="flex items-center gap-2 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+
+                        <img id="flag-icon" src="https://flagcdn.com/w20/ru.png" class="w-4 rounded-sm shadow-sm">
+
+                        <span id="lang-text" class="text-xs font-bold text-gray-300">RU</span>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right text-xs text-gray-600 group-hover:text-white transition-colors"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <button onclick="usePromoCode()" class="w-full h-14 bg-gradient-to-r from-pink-600 to-purple-700 rounded-2xl font-bold mt-6 shadow-[0_10px_20px_rgba(219,39,119,0.2)] active:scale-98 transition-all flex items-center justify-center gap-2 border border-white/10 group overflow-hidden relative">
+
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] translate-x-[-150%] group-hover:animate-shine transition-all duration-1000"></div>
+
+            <i class="fa-solid fa-ticket text-white/80"></i> 
+
+            <span data-i18n="promo" class="tracking-wide">АКТИВИРОВАТЬ ПРОМОКОД</span>
+
+        </button>
+
+
+
+        
+
+        <div class="text-center mt-8 text-[10px] text-gray-600 font-mono opacity-50">
+
+            Build 2.4.0 (Prices Optimized)
+
+        </div>
+
+    </div>
+
+    <div id="tab-admin" class="hidden px-4 animate-fade pb-24 min-h-screen">
+
+        <h2 class="text-2xl font-black mt-6 text-white mb-4">👑 God Mode</h2>
+
+    
+
+        <div class="glass-panel p-4 rounded-2xl mb-6">
+
+            <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase">Начислить игроку</h3>
+
+            <input type="number" id="admin-target-id" placeholder="ID игрока (chat_id)" class="admin-input">
+
+            <div class="flex gap-2">
+
+                <input type="number" id="admin-amount-stars" placeholder="Stars" class="admin-input">
+
+                <input type="number" id="admin-amount-gems" placeholder="Gems" class="admin-input">
+
+            </div>
+
+            <button onclick="adminGiveResource()" class="admin-btn active:scale-95 transition-transform">ОТПРАВИТЬ</button>
+
+        </div>
+
+    
+
+        <div class="glass-panel p-4 rounded-2xl">
+
+            <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase">Создать Промокод</h3>
+
+            <input type="text" id="admin-promo-code" placeholder="Код (например HELLO)" class="admin-input uppercase">
+
+            <div class="flex gap-2">
+
+                <input type="number" id="admin-promo-stars" placeholder="Stars" class="admin-input">
+
+                <input type="number" id="admin-promo-gems" placeholder="Gems" class="admin-input">
+
+            </div>
+
+            <input type="number" id="admin-promo-uses" placeholder="Кол-во активаций" value="100" class="admin-input">
+
+            <button onclick="adminCreatePromo()" class="admin-btn bg-green-600 active:scale-95 transition-transform">СОЗДАТЬ КОД</button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= НИЖНЕЕ МЕНЮ ================= -->
+
+    <div class="fixed bottom-6 left-4 right-4 z-50">
+
+        <div class="glass-nav rounded-2xl h-[70px] flex justify-around items-center px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10">
+
+            <button onclick="showTab('home')" class="nav-btn w-full h-full flex flex-col items-center justify-center gap-1 text-white relative nav-active transition-all group" id="nav-home">
+
+                <div class="nav-icon-container"><i class="fa-solid fa-gamepad text-xl group-hover:text-pink-400 transition-colors"></i></div>
+
+                <span class="text-[9px] font-bold tracking-wider opacity-100 transition-opacity" data-i18n="nav_home">ГЛАВНАЯ</span>
+
+                <div class="absolute bottom-1 w-1 h-1 bg-pink-500 rounded-full opacity-100 transition-opacity" id="dot-home"></div>
+
+            </button>
+
+            <button onclick="showTab('admin')" class="nav-btn hidden w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-admin">
+
+                <div class="nav-icon-container"><i class="fa-solid fa-lock text-xl group-hover:text-red-500 transition-colors"></i></div>
+
+                <span class="text-[9px] font-bold tracking-wider opacity-70">ADMIN</span>
+
+                <div class="absolute bottom-1 w-1 h-1 bg-red-500 rounded-full opacity-0 transition-opacity" id="dot-admin"></div>
+
+            </button>
+
+            <button onclick="showTab('shop')" class="nav-btn w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-shop">
+
+                <div class="nav-icon-container"><i class="fa-solid fa-store text-xl group-hover:text-white transition-colors"></i></div>
+
+                <span class="text-[9px] font-bold tracking-wider opacity-70" data-i18n="nav_shop">МАГАЗИН</span>
+
+                <div class="absolute bottom-1 w-1 h-1 bg-pink-500 rounded-full opacity-0 transition-opacity" id="dot-shop"></div>
+
+            </button>
+
+            <button onclick="showTab('profile')" class="nav-btn w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-profile">
+
+                <div class="nav-icon-container"><i class="fa-solid fa-user text-xl group-hover:text-white transition-colors"></i></div>
+
+                <span class="text-[9px] font-bold tracking-wider opacity-70" data-i18n="nav_profile">ПРОФИЛЬ</span>
+
+                <div class="absolute bottom-1 w-1 h-1 bg-pink-500 rounded-full opacity-0 transition-opacity" id="dot-profile"></div>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= МОДАЛКА ОПЛАТЫ ================= -->
+
+    <div id="payment-modal" class="fixed inset-0 z-[100] hidden">
+
+        <div class="absolute inset-0 modal-overlay" onclick="closePaymentModal()"></div>
+
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12">
+
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-8 opacity-50"></div>
+
+            <div class="flex items-start justify-between mb-6">
+
+                <div>
+
+                    <h3 class="text-2xl font-black text-white leading-tight" id="modal-title" data-i18n="purchase_title">Покупка</h3>
+
+                    <p class="text-sm text-gray-400 mt-1 font-medium" data-i18n="secure_transaction">Безопасная транзакция</p>
+
+                </div>
+
+                <div class="w-14 h-14 bg-gradient-to-br from-gray-800 to-black rounded-2xl border border-white/10 flex items-center justify-center shadow-lg">
+
+                    <span class="text-2xl animate-bounce">🛍️</span>
+
+                </div>
+
+            </div>
+
+            <div class="bg-white/5 rounded-2xl p-4 mb-6 border border-white/5 flex justify-between items-center">
+
+                <span class="text-gray-400 text-sm" data-i18n="total_price">К оплате:</span>
+
+                <div class="flex flex-col items-end">
+
+                    <span class="text-xl font-bold text-white" id="modal-price-rub-display">0 ₽</span>
+
+                    <span class="text-xs text-yellow-400 font-medium" id="modal-price-stars-display">или 0 ⭐️</span>
+
+                </div>
+
+            </div>
+
+            <div class="space-y-3">
+
+                <button onclick="confirmPayment('stars')" class="w-full bg-[#1e1e1e] border border-white/5 hover:border-yellow-500/50 rounded-2xl p-4 flex items-center justify-between group active:scale-98 transition-all">
+
+                    <div class="flex items-center gap-4">
+
+                        <div class="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20"><i class="fa-solid fa-star text-yellow-400 text-lg"></i></div>
+
+                        <div class="text-left">
+
+                            <div class="text-base font-bold text-white">Telegram Stars</div>
+
+                            <div class="text-[11px] text-gray-500" data-i18n="instant">Моментально</div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bg-yellow-500/10 px-4 py-2 rounded-xl border border-yellow-500/20">
+
+                        <span class="text-sm text-yellow-400 font-bold" id="modal-price-stars">0 ⭐️</span>
+
+                    </div>
+
+                </button>
+
+                <button onclick="confirmPayment('card')" class="w-full bg-[#1e1e1e] border border-white/5 hover:border-blue-500/50 rounded-2xl p-4 flex items-center justify-between group active:scale-98 transition-all">
+
+                    <div class="flex items-center gap-4">
+
+                        <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20"><i class="fa-regular fa-credit-card text-blue-400 text-lg"></i></div>
+
+                        <div class="text-left">
+
+                            <div class="text-base font-bold text-white" data-i18n="bank_card">Банковская карта</div>
+
+                            <div class="text-[11px] text-gray-500">RF Cards / SBP</div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
+
+                        <span class="text-sm text-blue-400 font-bold" id="modal-price-rub">0 ₽</span>
+
+                    </div>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= МОДАЛКА ПЕРСОНАЖА ================= -->
+
+    <div id="character-modal" class="fixed inset-0 z-[100] hidden">
+
+        <div class="absolute inset-0 modal-overlay" onclick="closeCharacterModal()"></div>
+
+        <div class="absolute bottom-0 left-0 w-full char-modal-content bg-[#111] overflow-hidden flex flex-col">
+
+            <div class="relative w-full h-1/2">
+
+                <img id="char-modal-img" src="" class="w-full h-full object-cover">
+
+                <div class="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent"></div>
+
+                <button onclick="closeCharacterModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            
+
+            <div class="flex-1 min-h-0 px-6 pt-6 pb-4 flex flex-col relative -mt-12 z-10">
+
+                <div class="flex items-center gap-2 mb-3 shrink-0" id="char-modal-tags">
+
+                    </div>
+
+                
+
+                <h2 id="char-modal-name" class="text-3xl font-black text-white mb-2 leading-none shrink-0">Name</h2>
+
+                
+
+                <div class="flex-1 overflow-y-auto pr-3 mb-4 text-sm text-gray-300 leading-relaxed custom-scroll" id="char-modal-desc">
+
+                    Description goes here...
+
+                </div>
+
+                
+
+                <button onclick="launchCharacter()" class="shrink-0 mt-auto w-full h-12 bg-gradient-to-r from-pink-600 to-purple-700 rounded-xl font-bold text-base shadow-[0_5px_15px_rgba(219,39,119,0.3)] active:scale-98 transition-all flex items-center justify-center gap-3 border border-white/10 relative overflow-hidden group">
+
+                    <span class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+
+                    <i class="fa-solid fa-play"></i>
+
+                    <span data-i18n="launch">ЗАПУСТИТЬ</span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl transition-all duration-400 transform -translate-y-24 opacity-0 border w-[90%] max-w-sm pointer-events-none">
+        <div id="toast-icon" class="text-2xl drop-shadow-md"></div>
+        <div id="toast-text" class="text-sm font-bold text-white whitespace-pre-line leading-tight"></div>
+    </div>
+
+
+
+    <!-- ================= JS ================= -->
+
+    <script>
+
+
+        // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
+        let toastTimeout;
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('custom-toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.innerText = message;
+
+            // Настраиваем цвета и иконки в зависимости от типа
+            if (type === 'success') {
+                toast.className = "fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-[0_10px_40px_rgba(219,39,119,0.3)] transition-all duration-400 transform bg-[#1a0f14] border border-pink-500/50 w-[90%] max-w-sm pointer-events-none";
+                icon.innerHTML = '🎁';
+                tg.HapticFeedback.notificationOccurred('success');
+            } else if (type === 'wait' || type === 'error') {
+                toast.className = "fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-[0_10px_40px_rgba(234,179,8,0.2)] transition-all duration-400 transform bg-[#1a1500] border border-yellow-500/50 w-[90%] max-w-sm pointer-events-none";
+                icon.innerHTML = '⏱';
+                tg.HapticFeedback.notificationOccurred('warning');
+            }
+
+            // Показываем плашку (выезжает сверху)
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            // Очищаем старый таймер, если юзер быстро нажал дважды
+            clearTimeout(toastTimeout);
+
+            // Прячем через 3.5 секунды
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        // 2. Функция обновления баланса
+        function fetchUserData() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            
+            // Если мы локально тестим без телеги, ставим заглушку, иначе код упадет
+            if (!userId) {
+                console.log("Нет User ID (тест в браузере?), ставим демо-данные");
+                return; 
+            }
+        
+            fetch(WEBHOOK_GET_USER, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: userId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const user = Array.isArray(data) ? data[0] : data;
+        
+                if (user) {
+                    // 1. Обновляем баланс
+                    if(document.getElementById('balance-stars')) 
+                        document.getElementById('balance-stars').innerText = user.stars || 0;
+                    if(document.getElementById('balance-gems')) 
+                        document.getElementById('balance-gems').innerText = user.gems || 0;
+
+                    // 2. Считаем, какой сейчас день серии
+                    let nextDay = 1;
+                    let isSameDay = false;
+                    let hoursLeft = 0;
+
+                    if (user.last_bonus_date) {
+                        const lastClaim = new Date(user.last_bonus_date);
+                        const now = new Date();
+                        
+                        // Получаем время в полночь по UTC
+                        const todayMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+                        const lastClaimMidnight = Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate());
+                        
+                        // Разница в днях
+                        const diffDays = (todayMidnight - lastClaimMidnight) / 86400000;
+
+                        if (diffDays === 1) {
+                            nextDay = (user.bonus_streak || 0) + 1;
+                            if (nextDay > 7) nextDay = 1;
+                        } else if (diffDays === 0) {
+                            nextDay = user.bonus_streak || 1; // Сегодня уже брали, показываем текущий день
+                            isSameDay = true;
+                            
+                            // Считаем часы до завтра
+                            const tomorrow = new Date(todayMidnight + 86400000);
+                            hoursLeft = Math.floor((tomorrow - now) / 3600000);
+                        } else {
+                            nextDay = 1; // Пропустил день, начинаем заново
+                        }
+                    }
+
+                    // 3. Пишем "День X" на карточке!
+                    const dailyTitle = document.getElementById('daily-title');
+                    if (dailyTitle) dailyTitle.innerText = "День " + nextDay;
+
+                    // 4. Логика блокировки, если сегодня уже забирал
+                    if (isSameDay) {
+                        const bonusCard = document.getElementById('bonus-card');
+                        if (bonusCard) {
+                            bonusCard.classList.remove('cursor-pointer', 'active:scale-98', 'bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                            bonusCard.classList.add('opacity-50', 'bg-[#1a1a1a]', 'cursor-not-allowed', 'border-white/5');
+                            bonusCard.onclick = null; 
+                        }
+                        
+                        const dailyText = document.getElementById('daily-text');
+                        if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">Обновится через ~${hoursLeft} ч.</span>`;
+                        
+                        const giftIcon = bonusCard.querySelector('.animate-pulse');
+                        if (giftIcon) giftIcon.classList.remove('animate-pulse');
+                    } else {
+                        // Если можно забрать прямо сейчас
+                        const dailyText = document.getElementById('daily-text');
+                        if (dailyText) dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
+                    }
+                }
+            })
+            .catch(err => console.error("Ошибка получения данных:", err));
+        }
+        
+
+        // 3. Вызываем функцию сразу, как только приложение загрузилось
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // ... твой старый код инициализации ...
+
+            fetchUserData(); // <--- ДОБАВЬ ВОТ ЭТО
+
+        });
+
+
+
+        const tg = window.Telegram.WebApp;
+
+        let currentItem = null; 
+
+        let selectedCharacterId = null; 
+
+
+
+        // ========================================================
+
+        // 🔴 ВАЖНО: Вставь сюда ссылку на Webhook из n8n!
+
+        const WEBHOOK_URL = "https://7eae-95-85-243-114.ngrok-free.app/webhook-test/shop-buy";
+
+        const WEBHOOK_LAUNCH = "https://f0aa-95-85-243-114.ngrok-free.app/webhook-test/start";
+
+        const WEBHOOK_GET_USER = "https://5c24-95-85-243-114.ngrok-free.app/webhook-test/get-user";
+
+        const WEBHOOK_ADMIN = "https://f4c7-144-31-90-51.ngrok-free.app/webhook-test/admin-action";
+
+        const WEBHOOK_USE_PROMO = "https://5b5d261635a0.ngrok-free.app/webhook-test/use-promo"; 
+
+        const WEBHOOK_BONUS = "https://5c24-95-85-243-114.ngrok-free.app/webhook-test/claim-bonus";
+
+        const WEBHOOK_CRYPTO_BUY = "https://7eae-95-85-243-114.ngrok-free.app/webhook-test/crypto-callback";
+
+        // ========================================================
+
+        
+
+        // --- LOCALIZATION ---
+
+        const translations = {
+
+            ru: {
+
+                hello: "Привет", player: "Игрок", girls: "ДЕВУШКИ", guys: "ПАРНИ", packs: "ПАКЕТЫ", energy: "ЭНЕРГИЯ", gems: "ГЕМЫ",
+
+                nav_home: "ГЛАВНАЯ", nav_shop: "МАГАЗИН", nav_profile: "ПРОФИЛЬ", language: "Язык", promo: "АКТИВИРОВАТЬ ПРОМОКОД",
+
+                online: "ONLINE", bonus: "БОНУС", day_3: "День 3", 
+
+                come_back: 'Заходи завтра за <span class="text-yellow-400 font-bold">500 монет</span>',
+
+                settings: "Настройки", copied: "Скопировано!", launch: "ЗАПУСТИТЬ",
+
+                purchase_title: "Покупка", secure_transaction: "Безопасная транзакция", total_price: "К оплате:",
+
+                instant: "Моментально", bank_card: "Банковская карта", or: "или",
+
+                pack_starter_desc: "Набор новичка", pack_premium_desc: "Выгодный выбор", pack_ultimate_desc: "Всё включено",
+
+                energy_unit: "Энергии", gems_unit: "Гемов",
+
+                refill_energy: "Пополнение Энергии", refill_gems: "Пополнение Гемов",
+
+                energy_50: "50 Энергии", energy_150: "150 Энергии", energy_500: "500 Энергии", energy_1200: "1200 Энергии", energy_3000: "3000 Энергии",
+
+                gems_50: "10 Гемов", gems_150: "30 Гемов", gems_500: "100 Гемов", gems_1200: "240 Гемов", gems_3000: "600 Гемов"
+
+            },
+
+            en: {
+
+                hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
+
+                nav_home: "HOME", nav_shop: "SHOP", nav_profile: "PROFILE", language: "Language", promo: "REDEEM CODE",
+
+                online: "ONLINE", bonus: "BONUS", day_3: "Day 3", 
+
+                come_back: 'Come back tomorrow for <span class="text-yellow-400 font-bold">500 coins</span>',
+
+                settings: "Settings", copied: "Copied!", launch: "LAUNCH",
+
+                purchase_title: "Purchase", secure_transaction: "Secure transaction", total_price: "Total:",
+
+                instant: "Instant", bank_card: "Bank Card", or: "or",
+
+                pack_starter_desc: "Starter Kit", pack_premium_desc: "Best Value", pack_ultimate_desc: "All Inclusive",
+
+                energy_unit: "Energy", gems_unit: "Gems",
+
+                refill_energy: "Energy Refill", refill_gems: "Gems Refill",
+
+                energy_50: "50 Energy", energy_150: "150 Energy", energy_500: "500 Energy", energy_1200: "1200 Energy", energy_3000: "3000 Energy",
+
+                gems_50: "10 Gems", gems_150: "30 Gems", gems_500: "100 Gems", gems_1200: "240 Gems", gems_3000: "600 Gems"
+
+            }
+
+        };
+
+
+
+        let currentLang = 'ru'; 
+
+
+
+        function setLanguage(lang) {
+
+            currentLang = lang;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+
+                const key = el.getAttribute('data-i18n');
+
+                if(translations[lang][key]) {
+
+                    if (key === 'come_back') {
+
+                        el.innerHTML = translations[lang][key];
+
+                    } else {
+
+                        el.innerText = translations[lang][key];
+
+                    }
+
+                }
+
+            });
+
+            const flag = document.getElementById('flag-icon');
+
+            const text = document.getElementById('lang-text');
+
+            if(lang === 'ru') { flag.src = "https://flagcdn.com/w20/ru.png"; text.innerText = "RU"; } 
+
+            else { flag.src = "https://flagcdn.com/w20/us.png"; text.innerText = "EN"; }
+
+            
+
+            renderCharacters();
+
+        }
+
+
+
+
+        function claimDailyBonus() {
+            tg.MainButton.showProgress();
+
+            fetch(WEBHOOK_BONUS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                if (data.success) {
+                    let msg = `Бонус за День ${data.newStreak} получен!\nНачислено: ⚡️ ${data.addedStars}`;
+                    if (data.addedGems > 0) msg += ` и 💎 ${data.addedGems}`;
+                    
+                    // ВЫЗЫВАЕМ НАШ КРАСИВЫЙ ТОСТ
+                    showToast(msg, 'success');
+                    
+                    fetchUserData(); 
+                } else {
+                    // ВЫЗЫВАЕМ ЖЕЛТЫЙ ТОСТ С ЧАСИКАМИ
+                    showToast(`Бонус пока недоступен.\nОсталось ждать: ~${data.hoursLeft} ч.`, 'wait');
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                showToast("Ошибка соединения с сервером.", 'error');
+            });
+        }
+
+
+
+        function toggleLanguage() {
+
+            setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+
+            tg.HapticFeedback.selectionChanged();
+
+        }
+
+
+
+        // --- DATA: MULTI-LANGUAGE CHARACTERS ---
+
+        const characters = [
+
+            { 
+
+                id: 'char:stella', 
+
+                name_ru: 'Стелла', name_en: 'Stella',
+
+                desc_ru: 'Уважаемая женщина-генерал, очень серьезная и развратная', desc_en: 'Respected female general, very serious and lewd',
+
+                fullDesc_ru: 'Генерал Стелла известна своей железной дисциплиной и бескомпромиссностью на службе. Но за закрытыми дверями её униформа скрывает ненасытную страсть. Она привыкла командовать, но, возможно, с тобой она захочет нарушить субординацию и показать свою истинную, развратную сущность.',
+
+                fullDesc_en: 'General Stella is known for her iron discipline and uncompromising attitude on duty. But behind closed doors, her uniform hides an insatiable passion. She is used to commanding, but perhaps with you, she will want to break subordination and show her true, lewd nature.',
+
+                image: 'https://imgfy.ru/ib/KL0Eh0I6PbcEIvZ_1772746929.webp', 
+
+                tags_ru: ['Властная', 'Военная'], tags_en: ['Dominant', 'Military'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:sauda', 
+
+                name_ru: 'Сауда', name_en: 'Sauda',
+
+                desc_ru: 'Темнокожая девушка из племени с прекрасными формами', desc_en: 'Dark-skinned tribal beauty with stunning curves',
+
+                fullDesc_ru: 'Сауда — экзотическая красавица из далекого племени, не тронутого цивилизацией. Её кожа словно темный шоколад, а формы сводят с ума. Она живет инстинктами, не знает современных табу и готова подарить тебе дикую, первобытную любовь, о которой ты мог только мечтать.',
+
+                fullDesc_en: 'Sauda is an exotic beauty from a distant tribe untouched by civilization. Her skin is like dark chocolate, and her curves are maddening. She lives by instincts, knows no modern taboos, and is ready to give you wild, primal love you could only dream of.',
+
+                image: 'https://placehold.co/400x600/444/fff?text=Sauda', 
+
+                tags_ru: ['Экзотика', 'Дикая'], tags_en: ['Exotic', 'Wild'],
+
+                online: false 
+
+            },
+
+            { 
+
+                id: 'char:lora', 
+
+                name_ru: 'Лора', name_en: 'Lora',
+
+                desc_ru: 'Инстаграмм модель', desc_en: 'Instagram model',
+
+                fullDesc_ru: 'Звезда соцсетей, чья жизнь кажется идеальной глянцевой картинкой. Миллионы лайков, роскошные курорты и бесконечное внимание. Но за экраном смартфона скрывается девушка, жаждущая реальных, а не виртуальных эмоций. Она покажет тебе изнанку роскошной жизни.',
+
+                fullDesc_en: 'A social media star whose life seems like a perfect glossy picture. Millions of likes, luxury resorts, and endless attention. But behind the smartphone screen hides a girl craving real, not virtual emotions. She will show you the flip side of the luxury life.',
+
+                image: 'https://placehold.co/400x600/111/fff?text=Lora', 
+
+                tags_ru: ['Модель', 'Гламур'], tags_en: ['Model', 'Glamour'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:alex', 
+
+                name_ru: 'Алекс', name_en: 'Alex',
+
+                desc_ru: 'Безумно красивая блондинка из села', desc_en: 'Insanely beautiful blonde from the countryside',
+
+                fullDesc_ru: 'Невинная на первый взгляд блондинка из глубинки, чья природная красота затмевает любых городских моделей. Она проста, доверчива и невероятно притягательна в своей естественности. Свежий воздух и парное молоко творят чудеса с фигурой!',
+
+                fullDesc_en: 'An innocent-looking blonde from the outback, whose natural beauty eclipses any city models. She is simple, trusting, and incredibly attractive in her naturalness. Fresh air and fresh milk work wonders for the figure!',
+
+                image: 'https://imgfy.ru/ib/kgeOug7vdlanntp_1772746875.webp', 
+
+                tags_ru: ['Невинная', 'Деревня'], tags_en: ['Innocent', 'Country'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:lina', 
+
+                name_ru: 'Лина', name_en: 'Lina',
+
+                desc_ru: 'Твоя соблазнительная одногруппница', desc_en: 'Your seductive classmate',
+
+                fullDesc_ru: 'Конец мая, золотистый закат льется сквозь окна пустой аудитории. Вы случайно остались вдвоем после тяжелого учебного года. Обычный разговор об экзаменах постепенно перерастает во флирт, взгляды становятся смелее, а напряжение между вами можно резать ножом. Она решает показать себя с лучшей стороны, и этот теплый весенний вечер вы точно не забудете.',
+
+                fullDesc_en: 'Late May, a golden sunset pours through the windows of an empty classroom. You accidentally stayed behind together after a hard school year. A casual conversation about exams gradually turns into flirtation, glances become bolder, and the tension between you can be cut with a knife. She decides to show off her best side, and you will definitely not forget this warm spring evening.',
+
+                image: 'https://imgfy.ru/ib/2HPhKSFfmgbbnl9_1772746830.webp', 
+
+                tags_ru: ['Одногруппница', 'Романтика'], tags_en: ['Classmate', 'Romance'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:bella', 
+
+                name_ru: 'Белла', name_en: 'Bella',
+
+                desc_ru: 'Соблазнительная учительница', desc_en: 'Seductive teacher',
+
+                fullDesc_ru: 'Строгая учительница, о которой мечтает каждый студент. Её очки и указка — лишь реквизит для игр, которые она придумывает, когда класс пустеет. Она готова оставить тебя после уроков на "дополнительные занятия", чтобы подтянуть по самым интересным предметам.',
+
+                fullDesc_en: 'A strict teacher every student dreams of. Her glasses and pointer are just props for the games she invents when the class is empty. She is ready to keep you after school for "extra classes" to catch up on the most interesting subjects.',
+
+                image: 'https://placehold.co/400x600/333/fff?text=Bella', 
+
+                tags_ru: ['Учитель', 'Roleplay'], tags_en: ['Teacher', 'Roleplay'],
+
+                online: false 
+
+            },
+
+            { 
+
+                id: 'char:aglaya', 
+
+                name_ru: 'Аглая', name_en: 'Aglaya',
+
+                desc_ru: 'Эскортница по вызову', desc_en: 'High-class escort',
+
+                fullDesc_ru: 'Элитная спутница для тех, кто может себе это позволить. Она знает все тайные желания мужчин и умеет их исполнять с профессиональным изяществом. С ней каждый вечер превращается в незабываемое приключение без обязательств и лишних вопросов.',
+
+                fullDesc_en: 'An elite companion for those who can afford it. She knows all the secret desires of men and knows how to fulfill them with professional grace. With her, every evening turns into an unforgettable adventure with no strings attached and no unnecessary questions.',
+
+                image: 'https://placehold.co/400x600/666/fff?text=Aglaya', 
+
+                tags_ru: ['VIP', 'Эскорт'], tags_en: ['VIP', 'Escort'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:adriana', 
+
+                name_ru: 'Адриана', name_en: 'Adriana',
+
+                desc_ru: 'Загорелая незнакомка на пустом пляже', desc_en: 'Tanned stranger on an empty beach',
+
+                fullDesc_ru: 'Ты прогуливался по безлюдному пляжу, наслаждаясь шумом океана, когда заметил её. Загорелая красавица в ярко-желтом бикини отдыхала на шезлонге совершенно одна. Горячее солнце, шум волн и внезапная встреча — идеальный повод завести разговор, который постепенно сотрет все границы.',
+
+                fullDesc_en: 'You were walking along a deserted beach, enjoying the sound of the ocean, when you noticed her. A tanned beauty in a bright yellow bikini was resting on a sunbed all alone. The hot sun, the sound of the waves, and a sudden meeting are the perfect excuse to start a conversation that will gradually erase all boundaries.',
+
+                image: 'https://imgfy.ru/ib/d7S5wRMyl6c2OPG_1772747657.webp', 
+
+                tags_ru: ['Пляж', 'Незнакомка'], tags_en: ['Beach', 'Stranger'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:tiffany', 
+
+                name_ru: 'Тиффани', name_en: 'Tiffany',
+
+                desc_ru: 'Глупая блондинка с большой грудью', desc_en: 'Bimbo blonde with big assets',
+
+                fullDesc_ru: 'Очаровательная глупышка, которая путает право и лево, но отлично знает, как пользоваться своими выдающимися достоинствами. С ней легко, весело и никогда не бывает скучно, особенно если не задавать сложных вопросов и просто наслаждаться моментом.',
+
+                fullDesc_en: 'A charming ditz who confuses left and right but knows perfectly well how to use her outstanding assets. It\'s easy, fun, and never boring with her, especially if you don\'t ask complex questions and just enjoy the moment.',
+
+                image: 'https://placehold.co/400x600/888/fff?text=Tiffany', 
+
+                tags_ru: ['Бимбо', 'Веселье'], tags_en: ['Bimbo', 'Fun'],
+
+                online: true 
+
+            },
+
+            { 
+
+                id: 'char:mika', 
+
+                name_ru: 'Мика', name_en: 'Mika',
+
+                desc_ru: 'Подруга, с которой все переростает во что то большее', desc_en: 'Friend turning into something more',
+
+                fullDesc_ru: 'Твоя лучшая подруга с детства. Вы делили секреты и игрушки, но теперь выросли, и невинные ночевки превращаются в нечто большее. Граница френдзоны вот-вот будет стерта, и старая дружба готова перерасти в страстную любовь.',
+
+                fullDesc_en: 'Your best friend since childhood. You shared secrets and toys, but now you\'ve grown up, and innocent sleepovers are turning into something more. The friend zone boundary is about to be erased, and old friendship is ready to grow into passionate love.',
+
+                image: 'https://placehold.co/400x600/999/fff?text=Mika', 
+
+                tags_ru: ['Подруга', 'Романтика'], tags_en: ['Friend', 'Romance'],
+
+                online: false 
+
+            }
+
+        ];
+
+
+
+        // 3. ЕДИНАЯ ТОЧКА ВХОДА (Запуск всего при загрузке)
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            tg.ready(); 
+
+            tg.expand(); 
+
+            tg.setHeaderColor('#050505'); 
+
+            tg.setBackgroundColor('#050505');
+
+            
+
+            renderCharacters(); 
+
+            setLanguage('ru');
+
+            
+
+            // Запрашиваем баланс
+
+            fetchUserData(); 
+
+            
+
+            // Проверяем, админ ли это
+
+            checkAdmin(); 
+
+
+
+            // ===== НОВЫЙ КОД: ПОДТЯГИВАЕМ ДАННЫЕ ЮЗЕРА =====
+
+            const user = tg.initDataUnsafe?.user;
+
+            if (user) {
+
+                // Вставляем имя юзера
+
+                const profileName = document.getElementById('profile-name');
+
+                if (profileName) {
+
+                    profileName.innerText = user.first_name || 'Игрок';
+
+                }
+
+
+
+                // Вставляем аватарку юзера (если она у него есть и не скрыта настройками приватности)
+
+                const profileAvatar = document.getElementById('profile-avatar');
+
+                if (profileAvatar && user.photo_url) {
+
+                    profileAvatar.src = user.photo_url;
+
+                } else if (profileAvatar && user.first_name) {
+
+                    // Если аватарки нет, ставим первую букву его имени на заглушку
+
+                    const firstLetter = user.first_name.charAt(0).toUpperCase();
+
+                    profileAvatar.src = `https://placehold.co/200x200/222/fff?text=${firstLetter}`;
+
+                }
+
+                
+
+                // Бонус: вставляем реальный ID юзера под именем вместо "84932921"
+
+                const idDisplay = document.querySelector('#copy-btn span');
+
+                if (idDisplay) {
+
+                    idDisplay.innerText = `ID: ${user.id}`;
+
+                }
+
+            }
+
+            // ===============================================
+
+        });
+
+
+
+        function renderCharacters() {
+
+            const container = document.getElementById('characters-container');
+
+            container.innerHTML = characters.map((char, index) => {
+
+                // Select language specific fields
+
+                const tags = char['tags_' + currentLang];
+
+                const name = char['name_' + currentLang];
+
+                const desc = char['desc_' + currentLang];
+
+
+
+                const tagsHtml = tags.map(tag => `<span class="bg-black/60 backdrop-blur-sm border border-white/10 px-1.5 py-0.5 rounded text-[9px] font-bold text-gray-300">${tag}</span>`).join('');
+
+                const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
+
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+
+
+
+                return `
+
+                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+
+                    <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
+
+                    ${statusHtml}
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+
+                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
+
+                        <div class="flex gap-1 mb-2">${tagsHtml}</div>
+
+                        <h3 class="text-xl font-black text-white leading-tight drop-shadow-md mb-1">${name}</h3>
+
+                        <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed opacity-90">${desc}</p>
+
+                        <div class="w-full h-[2px] bg-gradient-to-r from-pink-500 to-transparent mt-3 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                    </div>
+
+                </div>
+
+            `}).join('');
+
+        }
+
+
+
+        // --- Character Modal Logic ---
+
+        function openCharacterModal(charId) {
+
+            tg.HapticFeedback.impactOccurred('medium');
+
+            const char = characters.find(c => c.id === charId);
+
+            if (!char) return;
+
+
+
+            selectedCharacterId = charId;
+
+
+
+            // Get localized data
+
+            const name = char['name_' + currentLang];
+
+            const fullDesc = char['fullDesc_' + currentLang] || char['desc_' + currentLang];
+
+            const tags = char['tags_' + currentLang];
+
+
+
+            // Populate Modal
+
+            document.getElementById('char-modal-img').src = char.image;
+
+            document.getElementById('char-modal-name').innerText = name;
+
+            document.getElementById('char-modal-desc').innerText = fullDesc;
+
+            
+
+            // Tags
+
+            const tagsContainer = document.getElementById('char-modal-tags');
+
+            tagsContainer.innerHTML = tags.map(tag => 
+
+                `<span class="bg-pink-600/20 text-pink-300 px-2 py-1 rounded-lg text-xs font-bold border border-pink-500/20">${tag}</span>`
+
+            ).join('');
+
+
+
+            // Show Modal
+
+            const modal = document.getElementById('character-modal');
+
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+
+                modal.classList.add('modal-open');
+
+            }, 10);
+
+        }
+
+
+
+        function closeCharacterModal() {
+
+            const modal = document.getElementById('character-modal');
+
+            modal.classList.remove('modal-open');
+
+            setTimeout(() => {
+
+                modal.classList.add('hidden');
+
+                selectedCharacterId = null;
+
+            }, 300);
+
+        }
+
+
+
+        // --- ЛОГИКА ЗАПУСКА ПЕРСОНАЖА (ЗАКРЫВАЕТ ОКНО) ---
+
+        function launchCharacter() {
+
+            if (!selectedCharacterId) return;
+
+            tg.HapticFeedback.notificationOccurred('success');
+
+        
+
+            // Шлем запрос на НОВЫЙ вебхук
+
+            fetch(WEBHOOK_LAUNCH, { 
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({
+
+                    character_id: selectedCharacterId,
+
+                    chat_id: tg.initDataUnsafe?.user?.id,
+
+                    first_name: tg.initDataUnsafe?.user?.first_name
+
+                })
+
+            })
+
+            .then(() => {
+
+                tg.close(); // Закрываем окно, всё ок
+
+            })
+
+            .catch(err => {
+
+                console.error(err);
+
+                tg.showAlert("Ошибка. Проверь консоль.");
+
+            });
+
+        }
+
+
+
+        // --- EXISTING LOGIC ---
+
+        function showTab(tabId) {
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            
+
+            // 1. ЖЕСТКО СКРЫВАЕМ АБСОЛЮТНО ВСЕ ВКЛАДКИ
+
+            document.getElementById('tab-home').classList.add('hidden');
+
+            document.getElementById('tab-shop').classList.add('hidden');
+
+            document.getElementById('tab-profile').classList.add('hidden');
+
+            document.getElementById('tab-admin').classList.add('hidden'); // Админка скрывается тут!
+
+            
+
+            // 2. Сбрасываем стили со всех кнопок меню
+
+            ['home', 'shop', 'profile', 'admin'].forEach(id => {
+
+                const navBtn = document.getElementById(`nav-${id}`);
+
+                const dot = document.getElementById(`dot-${id}`);
+
+                if (navBtn && dot) {
+
+                    navBtn.classList.remove('nav-active', 'text-white');
+
+                    navBtn.classList.add('text-gray-500');
+
+                    dot.classList.replace('opacity-100', 'opacity-0');
+
+                }
+
+            });
+
+
+
+            // 3. Показываем ТОЛЬКО ту вкладку, на которую нажали
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+
+            if (activeTab) {
+
+                activeTab.classList.remove('hidden');
+
+                activeTab.classList.remove('animate-fade-up');
+
+                void activeTab.offsetWidth; // Перезапуск анимации
+
+                activeTab.classList.add('animate-fade-up');
+
+            }
+
+
+
+            // 4. Подсвечиваем активную кнопку в нижнем меню
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+
+            const activeDot = document.getElementById(`dot-${tabId}`);
+
+            if (activeNav && activeDot) {
+
+                activeNav.classList.add('nav-active', 'text-white');
+
+                activeNav.classList.remove('text-gray-500');
+
+                activeDot.classList.replace('opacity-0', 'opacity-100');
+
+            }
+
+
+
+            // 5. Логика переключателей в верхней шапке
+
+            const genderSwitch = document.getElementById('gender-switch');
+
+            const shopSwitch = document.getElementById('shop-switch');
+
+            if (tabId === 'shop') { 
+
+                genderSwitch.classList.add('hidden'); 
+
+                shopSwitch.classList.remove('hidden'); 
+
+            } else if (tabId === 'home') { 
+
+                shopSwitch.classList.add('hidden'); 
+
+                genderSwitch.classList.remove('hidden'); 
+
+            } else { 
+
+                shopSwitch.classList.add('hidden'); 
+
+                genderSwitch.classList.add('hidden'); 
+
+            }
+
+            
+
+            // Скроллим страницу наверх
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        }
+
+
+
+        function switchShopSubTab(subTabName) {
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            ['packs', 'energy', 'gems'].forEach(n => document.getElementById(`shop-section-${n}`).classList.add('hidden'));
+
+            const section = document.getElementById(`shop-section-${subTabName}`);
+
+            section.classList.remove('hidden'); section.classList.remove('animate-fade-up'); void section.offsetWidth; section.classList.add('animate-fade-up');
+
+
+
+            ['packs', 'energy', 'gems'].forEach(name => {
+
+                const btn = document.getElementById(`btn-sub-${name}`);
+
+                if (name === subTabName) { btn.classList.add('tab-active', 'font-bold'); btn.classList.remove('tab-inactive', 'font-medium'); } 
+
+                else { btn.classList.remove('tab-active', 'font-bold'); btn.classList.add('tab-inactive', 'font-medium'); }
+
+            });
+
+        }
+
+        function switchTab(tabId) { showTab(tabId); }
+
+
+
+        function selectStyle(style) {
+
+            tg.HapticFeedback.impactOccurred('medium');
+
+            const checkReal = document.getElementById('check-real'); const checkAnime = document.getElementById('check-anime');
+
+            const imgReal = document.getElementById('img-real'); const imgAnime = document.getElementById('img-anime');
+
+            if (style === 'real') {
+
+                checkReal.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300";
+
+                checkReal.innerHTML = '<i class="fa-solid fa-check"></i>'; imgReal.classList.remove('grayscale', 'opacity-40');
+
+                checkAnime.className = "w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300";
+
+                checkAnime.innerHTML = ''; imgAnime.classList.add('grayscale', 'opacity-40');
+
+            } else {
+
+                checkAnime.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300";
+
+                checkAnime.innerHTML = '<i class="fa-solid fa-check"></i>'; imgAnime.classList.remove('grayscale', 'opacity-40');
+
+                checkReal.className = "w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300";
+
+                checkReal.innerHTML = ''; imgReal.classList.add('grayscale', 'opacity-40');
+
+            }
+
+        }
+
+
+
+        function openPaymentModal(packId, title, priceStars, priceRub) {
+
+            tg.HapticFeedback.impactOccurred('medium');
+
+            currentItem = { id: packId, amountStars: priceStars, amountRub: priceRub };
+
+            document.getElementById('modal-title').innerText = translations[currentLang].purchase_title;
+
+            document.getElementById('modal-price-stars').innerText = priceStars + " ⭐️";
+
+            document.getElementById('modal-price-rub').innerText = priceRub + " ₽";
+
+            document.getElementById('modal-price-rub-display').innerText = priceRub + " ₽";
+
+            document.getElementById('modal-price-stars-display').innerText = translations[currentLang].or + " " + priceStars + " ⭐️";
+
+            const modal = document.getElementById('payment-modal');
+
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-open'), 10);
+
+        }
+
+
+
+        function closePaymentModal() {
+
+            const modal = document.getElementById('payment-modal');
+
+            modal.classList.remove('modal-open'); setTimeout(() => modal.classList.add('hidden'), 300);
+
+        }
+
+
+
+        // --- ЛОГИКА ОПЛАТЫ (НЕ ЗАКРЫВАЕТ ОКНО) ---
+
+        // --- НОВАЯ ЛОГИКА: МГНОВЕННАЯ ОПЛАТА ---
+
+        function confirmPayment(method) {
+
+            tg.HapticFeedback.selectionChanged();
+
+            
+
+            if (WEBHOOK_URL.includes("ВСТАВЬ_СЮДА")) {
+
+                tg.showAlert("Ошибка: Не настроен Webhook!");
+
+                return;
+
+            }
+
+        
+
+            const modalTitle = document.getElementById('modal-title');
+
+            const originalText = modalTitle.innerText;
+
+            
+
+            // Показываем загрузку
+
+            modalTitle.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Создаем счет...';
+
+        
+
+            const userId = tg.initDataUnsafe?.user?.id;
+
+            
+
+            // 1. Просим n8n создать ссылку на оплату
+
+            fetch(WEBHOOK_URL, {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({
+
+                    action: "buy_invoice", 
+
+                    pack_id: currentItem.id,
+
+                    amount: method === 'stars' ? currentItem.amountStars : currentItem.amountRub,
+
+                    currency: method === 'stars' ? 'XTR' : 'RUB', 
+
+                    method: method,
+
+                    chat_id: userId
+
+                })
+
+            })
+
+            .then(response => response.json()) // Превращаем ответ в объект
+
+            .then(data => {
+
+                // n8n вернет ответ от Telegram. Ссылка лежит в поле 'result'
+
+                if (data.ok && data.result) {
+
+                    // 2. ОТКРЫВАЕМ НАТИВНОЕ ОКНО ОПЛАТЫ
+
+                    tg.openInvoice(data.result, (status) => {
+
+                        // Эта функция сработает, когда юзер закроет окно оплаты
+
+                        if (status === 'paid') {
+
+                            tg.showAlert("Успешная оплата! 🎉\nВалюта начислена.");
+
+                            closePaymentModal();
+
+                            // Тут можно обновить баланс на экране, если хочешь
+
+                        } else if (status === 'cancelled') {
+
+                            tg.showAlert("Оплата отменена.");
+
+                        } else if (status === 'pending') {
+
+                            tg.showAlert("Оплата обрабатывается...");
+
+                        } else {
+
+                            tg.showAlert("Статус оплаты: " + status);
+
+                        }
+
+                    });
+
+                } else {
+
+                    console.error(data);
+
+                    tg.showAlert("Ошибка создания счета (см. консоль)");
+
+                }
+
+            })
+
+            .catch(error => {
+
+                console.error('Error:', error);
+
+                tg.showAlert("Ошибка сети.");
+
+            })
+
+            .finally(() => {
+
+                // Возвращаем текст заголовка
+
+                modalTitle.innerText = originalText;
+
+            });
+
+        }
+
+
+
+        function copyId() {
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            const feedback = document.getElementById('copy-feedback');
+
+            feedback.style.opacity = '1';
+
+            setTimeout(() => feedback.style.opacity = '0', 2000);
+
+        }
+
+        // 1. Твой ID (возьми его из профиля в боте или get-user вебхука)
+
+        const ADMIN_IDS = [7672744848, 6546116205]; // Замени на свой реальный ID! 
+
+
+
+
+
+            // 1. Ссылка на новый вебхук (создадим его на Этапе 3)
+
+        // Пока поставь заглушку или ngrok адрес, потом заменишь на реальный из n8n
+
+        
+
+        function usePromoCode() {
+
+            // Простое окно ввода
+
+            let code = prompt("Введите промокод:");
+
+            
+
+            // Если нажал отмену или ничего не ввел
+
+            if (!code) return;
+
+        
+
+            // Убираем пробелы и делаем капсом (чтобы hello и HELLO было одним и тем же)
+
+            code = code.trim().toUpperCase();
+
+        
+
+            // Показываем крутилку загрузки
+
+            tg.MainButton.showProgress();
+
+        
+
+            fetch(WEBHOOK_USE_PROMO, {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({
+
+                    chat_id: tg.initDataUnsafe?.user?.id,
+
+                    code: code
+
+                })
+
+            })
+
+            .then(res => res.json())
+
+            .then(data => {
+
+                tg.MainButton.hideProgress(); // Убираем крутилку
+
+                
+
+                if (data.success) {
+
+                    // Если успех
+
+                    tg.showAlert(`✅ Активировано!\nПолучено:\n⚡ ${data.stars}\n💎 ${data.gems}`);
+
+                    fetchUserData(); // Обновляем цифры на экране сразу
+
+                } else {
+
+                    // Если ошибка (код неверный или уже использован)
+
+                    tg.showAlert("❌ Ошибка: " + (data.message || "Неверный код"));
+
+                }
+
+            })
+
+            .catch(err => {
+
+                tg.MainButton.hideProgress();
+
+                tg.showAlert("Ошибка соединения");
+
+                console.error(err);
+
+            });
+
+        }
+
+        
+
+        // 2. Проверка админа при загрузке
+
+        function checkAdmin() {
+
+            const userId = tg.initDataUnsafe?.user?.id;
+
+            if (ADMIN_IDS.includes(userId)) {
+
+                document.getElementById('nav-admin').classList.remove('hidden'); // Показываем кнопку
+
+            }
+
+        }
+
+        
+
+        // Добавь вызов checkAdmin() в document.addEventListener('DOMContentLoaded', ...)
+
+        // document.addEventListener('DOMContentLoaded', () => {
+
+        //    ... fetchUserData();
+
+        //    checkAdmin(); <--- ВОТ СЮДА
+
+        // });
+
+        
+
+        // 3. Функции действий
+
+        function adminGiveResource() {
+
+            const targetId = document.getElementById('admin-target-id').value;
+
+            const stars = document.getElementById('admin-amount-stars').value || 0;
+
+            const gems = document.getElementById('admin-amount-gems').value || 0;
+
+        
+
+            if(!targetId) return tg.showAlert("Введи ID игрока!");
+
+        
+
+            fetch(WEBHOOK_ADMIN, {
+
+                method: 'POST',
+
+                headers: {'Content-Type': 'application/json'},
+
+                body: JSON.stringify({
+
+                    action: 'give_resource',
+
+                    admin_id: tg.initDataUnsafe?.user?.id, // Для проверки на сервере
+
+                    target_id: targetId,
+
+                    stars: parseInt(stars),
+
+                    gems: parseInt(gems)
+
+                })
+
+            }).then(() => tg.showAlert("Отправлено!"))
+
+              .catch(() => tg.showAlert("Ошибка"));
+
+        }
+
+        
+
+        function adminCreatePromo() {
+
+            const code = document.getElementById('admin-promo-code').value;
+
+            const stars = document.getElementById('admin-promo-stars').value || 0;
+
+            const gems = document.getElementById('admin-promo-gems').value || 0;
+
+            const uses = document.getElementById('admin-promo-uses').value || 1;
+
+        
+
+            if(!code) return tg.showAlert("Введи код!");
+
+        
+
+            fetch(WEBHOOK_ADMIN, {
+
+                method: 'POST',
+
+                headers: {'Content-Type': 'application/json'},
+
+                body: JSON.stringify({
+
+                    action: 'create_promo',
+
+                    admin_id: tg.initDataUnsafe?.user?.id,
+
+                    code: code,
+
+                    stars: parseInt(stars),
+
+                    gems: parseInt(gems),
+
+                    uses: parseInt(uses)
+
+                })
+
+            }).then(() => tg.showAlert("Промокод создан!"))
+
+              .catch(() => tg.showAlert("Ошибка"));
+
+        }
+
+    </script>
+
+</body>
+
+</html>
