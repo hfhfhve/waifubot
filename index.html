@@ -2575,21 +2575,24 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.ok && method === 'stars') {
-                    tg.openInvoice(data.result, (status) => {
-                        if (status === 'paid') { tg.showAlert("Успешная оплата! 🎉"); closePaymentModal(); }
-                    });
-                } else if (data.ok && method === 'crypto' && data.pay_url) {
-                    // Открываем ссылку на кассу NOWPayments
+                // 1. Если пришла ссылка на оплату криптой (NOWPayments)
+                if (data.pay_url) {
                     tg.openLink(data.pay_url);
                     closePaymentModal();
-                } else {
-                    // Если что-то пошло не так, выводим ошибку на экран
-                    tg.showAlert("Странный ответ: " + JSON.stringify(data).substring(0, 100));
+                } 
+                // 2. Если пришла форма оплаты Звездами (Telegram)
+                else if (data.ok && data.result) {
+                    tg.openInvoice(data.result, (status) => {
+                        if (status === 'paid') { 
+                            tg.showAlert("Успешная оплата! 🎉"); 
+                            closePaymentModal(); 
+                        }
+                    });
+                } 
+                // 3. Защита от непредвиденных ошибок
+                else {
+                    tg.showAlert("Что-то пошло не так: " + JSON.stringify(data).substring(0, 100));
                 }
-            })
-            .catch(error => {
-                tg.showAlert("Ошибка связи: " + error.message);
             })
             .finally(() => {
                 modalTitle.innerText = originalText;
