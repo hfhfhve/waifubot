@@ -2587,66 +2587,67 @@
             // 1. Просим n8n создать ссылку на оплату
 
             fetch(WEBHOOK_URL, {
-
+                
                 method: 'POST',
-
+                
                 headers: { 'Content-Type': 'application/json' },
-
+                
                 body: JSON.stringify({
-
+                    
                     action: "buy_invoice", 
-
+                    
                     pack_id: currentItem.id,
-
+                    
                     amount: method === 'stars' ? currentItem.amountStars : currentItem.amountRub,
-
+                    
                     currency: method === 'stars' ? 'XTR' : 'RUB', 
-
+                    
                     method: method,
-
+                    
                     chat_id: userId
-
+                    
                 })
-
+                
             })
-
-            .then(response => response.json()) // Превращаем ответ в объект
-
+                
+            .then(response => response.json())
+                
             .then(data => {
-
-                // n8n вернет ответ от Telegram. Ссылка лежит в поле 'result'
-
-                if (data.ok && data.result) {
-
-                    // 2. ОТКРЫВАЕМ НАТИВНОЕ ОКНО ОПЛАТЫ
-
+                
+                if (data.ok && method === 'stars') {
+                    
                     tg.openInvoice(data.result, (status) => {
-
-                        // Эта функция сработает, когда юзер закроет окно оплаты
-
-                        if (status === 'paid') {
-
-                            tg.showAlert("Успешная оплата! 🎉\nВалюта начислена.");
-
-                            closePaymentModal();
-
-                            // Тут можно обновить баланс на экране, если хочешь
-
-                        } else if (status === 'cancelled') {
-
-                            tg.showAlert("Оплата отменена.");
-
-                        } else if (status === 'pending') {
-
-                            tg.showAlert("Оплата обрабатывается...");
-
-                        } else {
-
-                            tg.showAlert("Статус оплаты: " + status);
-
-                        }
-
+                        
+                        if (status === 'paid') { tg.showAlert("Успешная оплата! 🎉"); closePaymentModal(); }
+                        
                     });
+                    
+                } else if (data.ok && method === 'crypto' && data.pay_url) {
+                    
+                    // ТЕПЕРЬ ФРОНТ ИЩЕТ PAY_URL, КОТОРЫЙ И ПРИСЫЛАЕТ N8N
+                    tg.openLink(data.pay_url);
+                    
+                    closePaymentModal();
+                    
+                } else {
+                    
+                    tg.showAlert("Странный ответ: " + JSON.stringify(data).substring(0, 100));
+                    
+                }
+                
+            })
+                
+            .catch(error => {
+                
+                tg.showAlert("Ошибка связи: " + error.message);
+                
+            })
+                
+            .finally(() => {
+                
+                modalTitle.innerText = originalText;
+                
+            });
 
                 } else {
 
