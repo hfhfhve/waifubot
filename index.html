@@ -211,6 +211,19 @@
 </head>
 <body>
 
+    <div id="loading-screen" class="fixed inset-0 z-[999] bg-[#050505] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="relative w-20 h-20 mb-6">
+            <div class="absolute inset-0 border-4 border-pink-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-pink-500 text-xl">
+                <i class="fa-solid fa-heart animate-pulse"></i>
+            </div>
+        </div>
+        <div class="text-pink-500 font-black tracking-[0.3em] text-sm animate-pulse drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]">
+            ЗАГРУЗКА...
+        </div>
+    </div>
+
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
@@ -778,10 +791,26 @@
             }, 3500);
         }
 
+        function hideLoadingScreen() {
+            const loader = document.getElementById('loading-screen');
+            if (loader) {
+                // Сначала делаем его прозрачным (плавное исчезновение)
+                loader.classList.add('opacity-0');
+                // Через 500мс (когда анимация прозрачности закончится), полностью удаляем/прячем
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 500);
+            }
+        }
+
         function fetchUserData() {
             const userId = tg.initDataUnsafe?.user?.id;
+            
+            // Если мы в браузере или ID не получен
             if (!userId) {
                 console.log("Нет User ID (тест в браузере?), ставим демо-данные");
+                // Прячем загрузку, так как данных не будет
+                hideLoadingScreen(); 
                 return; 
             }
         
@@ -792,59 +821,92 @@
             })
             .then(res => res.json())
             .then(data => {
+                // n8n может вернуть массив или объект, делаем проверку
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    if(document.getElementById('balance-stars')) document.getElementById('balance-stars').innerText = user.stars || 0;
-                    if(document.getElementById('balance-gems')) document.getElementById('balance-gems').innerText = user.gems || 0;
-
-                    let nextDay = 1; let isSameDay = false; let hoursLeft = 0;
+                    // Обновляем баланс
+                    if(document.getElementById('balance-stars')) {
+                        document.getElementById('balance-stars').innerText = user.stars || 0;
+                    }
+                    if(document.getElementById('balance-gems')) {
+                        document.getElementById('balance-gems').innerText = user.gems || 0;
+                    }
+        
+                    // Логика ежедневного бонуса
+                    let nextDay = 1; 
+                    let isSameDay = false; 
+                    let hoursLeft = 0;
+        
                     if (user.last_bonus_date) {
                         const lastClaim = new Date(user.last_bonus_date);
                         const now = new Date();
+                        
+                        // Считаем полночь для сравнения дней
                         const todayMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
                         const lastClaimMidnight = Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate());
                         const diffDays = (todayMidnight - lastClaimMidnight) / 86400000;
-
+        
                         if (diffDays === 1) {
+                            // Зашел на следующий день
                             nextDay = (user.bonus_streak || 0) + 1;
                             if (nextDay > 7) nextDay = 1;
                         } else if (diffDays === 0) {
+                            // Уже забирал сегодня
                             nextDay = user.bonus_streak || 1; 
                             isSameDay = true;
                             const tomorrow = new Date(todayMidnight + 86400000);
                             hoursLeft = Math.floor((tomorrow - now) / 3600000);
                         } else {
+                            // Пропустил много дней, сброс серии
                             nextDay = 1;
                         }
                     }
-
+        
                     const dailyTitle = document.getElementById('daily-title');
                     if (dailyTitle) dailyTitle.innerText = "День " + nextDay;
-
+        
+                    const bonusCard = document.getElementById('bonus-card');
+                    const dailyText = document.getElementById('daily-text');
+        
                     if (isSameDay) {
-                        const bonusCard = document.getElementById('bonus-card');
+                        // Если бонус уже взят — деактивируем карточку
                         if (bonusCard) {
                             bonusCard.classList.remove('cursor-pointer', 'active:scale-98', 'bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
                             bonusCard.classList.add('opacity-50', 'bg-[#1a1a1a]', 'cursor-not-allowed', 'border-white/5');
                             bonusCard.onclick = null; 
+                            
+                            const giftIcon = bonusCard.querySelector('.animate-pulse');
+                            if (giftIcon) giftIcon.classList.remove('animate-pulse');
                         }
-                        const dailyText = document.getElementById('daily-text');
-                        if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">Обновится через ~${hoursLeft} ч.</span>`;
-                        const giftIcon = bonusCard.querySelector('.animate-pulse');
-                        if (giftIcon) giftIcon.classList.remove('animate-pulse');
+                        if (dailyText) {
+                            dailyText.innerHTML = `<span class="text-gray-500">Обновится через ~${hoursLeft} ч.</span>`;
+                        }
                     } else {
-                        const dailyText = document.getElementById('daily-text');
-                        if (dailyText) dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
+                        // Если можно забрать — делаем карточку активной
+                        if (dailyText) {
+                            dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
+                        }
                     }
                 }
             })
-            .catch(err => console.error("Ошибка получения данных:", err));
+            .catch(err => {
+                console.error("Ошибка получения данных:", err);
+            })
+            .finally(() => {
+                // Прячем экран загрузки в любом случае: при успехе или при ошибке
+                hideLoadingScreen();
+            });
         }
         
         document.addEventListener('DOMContentLoaded', () => {
             fetchUserData();
             checkAdmin();
+            
+            // Запасной план: принудительно убрать лоадер через 5 секунд, если API зависло
+            setTimeout(() => {
+                hideLoadingScreen();
+            }, 10000);
         });
 
         const tg = window.Telegram.WebApp;
