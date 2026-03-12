@@ -921,6 +921,7 @@
         const WEBHOOK_USE_PROMO = "https://9f01-95-85-243-114.ngrok-free.app/webhook/use-promo"; 
         const WEBHOOK_BONUS = "https://9f01-95-85-243-114.ngrok-free.app/webhook/claim-bonus";
         const WEBHOOK_CRYPTO_BUY = "https://9f01-95-85-243-114.ngrok-free.app/webhook/crypto-callback";
+        const webhookUrl = "https://9f01-95-85-243-114.ngrok-free.app/webhook-test/set-language";
         // ========================================================
         
         // --- LOCALIZATION ---
@@ -1068,6 +1069,29 @@
                     </div>
                 </div>
             `}).join('');
+        }
+
+        async function saveLanguageToServer(chatId, newLangCode) {    
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId, // ID юзера из Telegram WebApp
+                        language_code: newLangCode // например, 'en' или 'ru'
+                    })
+                });
+        
+                const data = await response.json();
+                if (data.success) {
+                    console.log("Язык успешно сохранен в базе:", data.language);
+                    // Тут можешь менять интерфейс самого Mini App
+                }
+            } catch (error) {
+                console.error("Ошибка при сохранении языка:", error);
+            }
         }
 
         function openCharacterModal(charId) {
