@@ -1004,8 +1004,20 @@
         }
 
         function toggleLanguage() {
-            setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+            // 1. Определяем новый язык
+            const newLang = currentLang === 'ru' ? 'en' : 'ru';
+            
+            // 2. Меняем интерфейс
+            setLanguage(newLang);
             tg.HapticFeedback.selectionChanged();
+        
+            // 3. ОТПРАВЛЯЕМ ВЕБХУК В n8n!
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (userId) {
+                saveLanguageToServer(userId, newLang);
+            } else {
+                console.log("Тестовый режим (нет ID): вебхук не отправлен");
+            }
         }
 
         const characters = [
