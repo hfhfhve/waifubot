@@ -876,7 +876,10 @@
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId })
+                body: JSON.stringify({ 
+                    chat_id: userId,
+                    initData: tg.initData
+                })
             })
             .then(res => res.json())
             .then(data => {
@@ -986,7 +989,7 @@
                 pack_starter_desc: "Набор новичка", pack_premium_desc: "Выгодный выбор", pack_ultimate_desc: "Всё включено",
                 energy_unit: "Энергии", gems_unit: "Гемов",
                 refill_energy: "Пополнение Энергии", refill_gems: "Пополнение Гемов",
-                energy_50: "50 Энергии", energy_150: "150 Энергии", energy_500: "500 Энергии", energy_1200: "1200 Энергии", energy_3000: "3000 Энергии", // <-- ВОТ ТУТ НУЖНА ЗАПЯТАЯ
+                energy_50: "50 Энергии", energy_150: "150 Энергии", energy_500: "500 Энергии", energy_1200: "1200 Энергии", energy_3000: "3000 Энергии",
 
                 invite_title: "Пригласи друга",
                 invite_desc: 'Получи <span class="text-yellow-400 font-bold">20 ⭐️</span> и <span class="text-cyan-400 font-bold">3 💎</span> за каждого нового игрока!',
@@ -1014,7 +1017,7 @@
                 pack_starter_desc: "Starter Kit", pack_premium_desc: "Best Value", pack_ultimate_desc: "All Inclusive",
                 energy_unit: "Energy", gems_unit: "Gems",
                 refill_energy: "Energy Refill", refill_gems: "Gems Refill",
-                energy_50: "50 Energy", energy_150: "150 Energy", energy_500: "500 Energy", energy_1200: "1200 Energy", energy_3000: "3000 Energy", // <-- И ВОТ ТУТ НУЖНА ЗАПЯТАЯ
+                energy_50: "50 Energy", energy_150: "150 Energy", energy_500: "500 Energy", energy_1200: "1200 Energy", energy_3000: "3000 Energy",
 
                 invite_title: "Invite a friend",
                 invite_desc: 'Get <span class="text-yellow-400 font-bold">20 ⭐️</span> and <span class="text-cyan-400 font-bold">3 💎</span> for each new player!',
@@ -1162,7 +1165,10 @@
             fetch(WEBHOOK_BONUS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id })
+                body: JSON.stringify({ 
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
             })
             .then(res => res.json())
             .then(data => {
@@ -1308,15 +1314,15 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        chat_id: chatId, // ID юзера из Telegram WebApp
-                        language_code: newLangCode // например, 'en' или 'ru'
+                        chat_id: chatId, 
+                        language_code: newLangCode,
+                        initData: tg.initData
                     })
                 });
         
                 const data = await response.json();
                 if (data.success) {
                     console.log("Язык успешно сохранен в базе:", data.language);
-                    // Тут можешь менять интерфейс самого Mini App
                 }
             } catch (error) {
                 console.error("Ошибка при сохранении языка:", error);
@@ -1364,7 +1370,8 @@
                 body: JSON.stringify({
                     character_id: selectedCharacterId,
                     chat_id: tg.initDataUnsafe?.user?.id,
-                    first_name: tg.initDataUnsafe?.user?.first_name
+                    first_name: tg.initDataUnsafe?.user?.first_name,
+                    initData: tg.initData
                 })
             })
             .then(() => { tg.close(); })
@@ -1447,7 +1454,6 @@
             }
         }
 
-        // --- ОБНОВЛЕНО: Передаем доллары вместо рублей ---
         function openPaymentModal(packId, title, priceStars, priceUsd) {
             tg.HapticFeedback.impactOccurred('medium');
             currentItem = { id: packId, amountStars: priceStars, amountUsd: priceUsd };
@@ -1465,7 +1471,6 @@
             modal.classList.remove('modal-open'); setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // --- ОБНОВЛЕНО: Отправляем USD на сервер ---
         function confirmPayment(method) {
             tg.HapticFeedback.selectionChanged();
             
@@ -1484,7 +1489,8 @@
                     amount: method === 'stars' ? currentItem.amountStars : currentItem.amountUsd,
                     currency: method === 'stars' ? 'XTR' : 'USD', 
                     method: method,
-                    chat_id: userId
+                    chat_id: userId,
+                    initData: tg.initData
                 })
             })
             .then(response => response.json())
@@ -1571,7 +1577,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: tg.initDataUnsafe?.user?.id,
-                    code: code
+                    code: code,
+                    initData: tg.initData
                 })
             })
             .then(res => res.json())
@@ -1616,10 +1623,6 @@
         }
 
         // --- ЛОГИКА РЕФЕРАЛОВ ---
-        // ВАЖНО: Добавь эту ссылку в блок констант сверху (где WEBHOOK_URL и тд)
-        // const WEBHOOK_GET_REFS = "https://твоя-ссылка-ngrok.app/webhook/get-referrals";
-
-// --- ЛОГИКА РЕФЕРАЛОВ ---
         function getRefLink() {
             const botUsername = "midnight_rpbot"; // Твой бот
             const userId = tg.initDataUnsafe?.user?.id;
@@ -1666,7 +1669,10 @@
             fetch(WEBHOOK_GET_REFS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId })
+                body: JSON.stringify({ 
+                    chat_id: userId,
+                    initData: tg.initData
+                })
             })
             .then(res => res.json())
             .then(data => {
