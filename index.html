@@ -758,7 +758,7 @@
 
     <div id="referral-modal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closeReferralModal()"></div>
-        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-10 flex flex-col h-[75vh]">
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-10 flex flex-col h-[85vh]">
             <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-5 opacity-50 shrink-0"></div>
             
             <div class="text-center shrink-0 mb-6">
@@ -958,7 +958,7 @@
         const WEBHOOK_BONUS = "https://9f01-95-85-243-114.ngrok-free.app/webhook/claim-bonus";
         const WEBHOOK_CRYPTO_BUY = "https://9f01-95-85-243-114.ngrok-free.app/webhook/crypto-callback";
         const webhookUrl = "https://9f01-95-85-243-114.ngrok-free.app/webhook/set-language";
-        const WEBHOOK_GET_REFS = "https://9f01-95-85-243-114.ngrok-free.app/webhook-test/get-referrals";
+        const WEBHOOK_GET_REFS = "https://9f01-95-85-243-114.ngrok-free.app/webhook/get-referrals";
         // ========================================================
         
         // --- LOCALIZATION ---
@@ -1439,6 +1439,7 @@
         // ВАЖНО: Добавь эту ссылку в блок констант сверху (где WEBHOOK_URL и тд)
         // const WEBHOOK_GET_REFS = "https://твоя-ссылка-ngrok.app/webhook/get-referrals";
 
+// --- ЛОГИКА РЕФЕРАЛОВ ---
         function getRefLink() {
             const botUsername = "midnight_rpbot"; // Твой бот
             const userId = tg.initDataUnsafe?.user?.id;
@@ -1451,7 +1452,7 @@
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
             
-            // Запрашиваем список друзей с сервера
+            // Сразу запрашиваем список при открытии
             fetchReferralsList();
         }
 
@@ -1478,30 +1479,30 @@
         }
 
         function fetchReferralsList() {
-             const userId = tg.initDataUnsafe?.user?.id;
-             if (!userId) return;
-    
-             // Отправляем запрос в n8n
-             fetch(WEBHOOK_GET_REFS, {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify({ chat_id: userId })
-             })
-             .then(res => res.json())
-             .then(data => {
-                 // n8n возвращает нам { referrals: [...] }
-                 renderReferrals(data.referrals || []);
-             })
-             .catch(err => {
-                 console.error("Ошибка загрузки рефералов", err);
-                 renderReferrals([]); // В случае ошибки показываем, что пусто
-             });
-         }
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) return;
+
+            // Реальный запрос в n8n за списком друзей
+            fetch(WEBHOOK_GET_REFS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: userId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                renderReferrals(data.referrals || []);
+            })
+            .catch(err => {
+                console.error("Ошибка загрузки рефералов", err);
+                renderReferrals([]);
+            });
+        }
 
         function renderReferrals(referrals) {
             const listContainer = document.getElementById('referrals-list');
             document.getElementById('ref-count').innerText = referrals.length;
 
+            // Если список пустой
             if (referrals.length === 0) {
                 listContainer.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full opacity-40 pt-10">
@@ -1515,47 +1516,31 @@
                 return;
             }
 
-            // Рисуем список, если друзья есть
+            // Если друзья есть - рисуем карточки со Звездами и Гемами
             listContainer.innerHTML = referrals.map(ref => `
                 <div class="bg-[#1a1a1a] rounded-xl p-3 flex items-center justify-between border border-white/5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0">
                             <i class="fa-solid fa-user"></i>
                         </div>
-                        <div>
-                            <div class="text-xs font-bold text-white">${ref.name || 'Игрок ' + ref.id}</div>
-                            <div class="text-[9px] text-gray-500 font-mono">ID: ${ref.id}</div>
+                        <div class="overflow-hidden">
+                            <div class="text-xs font-bold text-white truncate">${ref.name || 'Игрок ' + ref.id}</div>
+                            <div class="text-[9px] text-gray-500 font-mono truncate">ID: ${ref.id}</div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
-                        <span class="text-[10px] font-bold text-yellow-400">+20</span>
-                        <i class="fa-solid fa-star text-[8px] text-yellow-500"></i>
+                    
+                    <div class="flex items-center gap-1.5 shrink-0 pl-2">
+                        <div class="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-1 rounded-md border border-yellow-500/20">
+                            <span class="text-[10px] font-bold text-yellow-400">+20</span>
+                            <i class="fa-solid fa-star text-[8px] text-yellow-500"></i>
+                        </div>
+                        <div class="flex items-center gap-1 bg-cyan-500/10 px-1.5 py-1 rounded-md border border-cyan-500/20">
+                            <span class="text-[10px] font-bold text-cyan-400">+3</span>
+                            <i class="fa-solid fa-gem text-[8px] text-cyan-500"></i>
+                        </div>
                     </div>
                 </div>
             `).join('');
-        }
-        
-        function adminCreatePromo() {
-            const code = document.getElementById('admin-promo-code').value.toUpperCase().trim();
-            const stars = document.getElementById('admin-promo-stars').value || 0;
-            const gems = document.getElementById('admin-promo-gems').value || 0;
-            const uses = document.getElementById('admin-promo-uses').value || 1;
-        
-            if(!code) return tg.showAlert("Введи код!");
-        
-            fetch(WEBHOOK_ADMIN, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    action: 'create_promo',
-                    initData: tg.initData, // <-- ВОТ ТУТ МЕНЯЕМ ТОЖЕ
-                    code: code,
-                    stars: parseInt(stars),
-                    gems: parseInt(gems),
-                    uses: parseInt(uses)
-                })
-            }).then(() => tg.showAlert("Промокод создан!"))
-              .catch(() => tg.showAlert("Ошибка"));
         }
     </script>
 </body>
