@@ -932,8 +932,6 @@
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
 
                     // Меняем дизайн карточки на главной, но оставляем её КЛИКАБЕЛЬНОЙ всегда!
-                    const bonusCard = document.getElementById('bonus-card');
-                    const dailyText = document.getElementById('daily-text');
                     const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift').parentElement : null;
 
                     if (isSameDay) {
