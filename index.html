@@ -277,7 +277,7 @@
         </div>
     </div>
 
-    <div class="h-36 w-full"></div>
+    <div class="h-20 w-full"></div>
 
     <div id="tab-home" class="px-3 min-h-screen">
         
@@ -1322,7 +1322,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     action: 'give_resource',
-                    admin_id: tg.initDataUnsafe?.user?.id, 
+                    initData: tg.initData, // <-- ПЕРЕДАЕМ КРИПТОГРАФИЧЕСКУЮ ПОДПИСЬ
                     target_id: targetId,
                     stars: parseInt(stars),
                     gems: parseInt(gems)
@@ -1344,7 +1344,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     action: 'create_promo',
-                    admin_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData, // <-- ВОТ ТУТ МЕНЯЕМ ТОЖЕ
                     code: code,
                     stars: parseInt(stars),
                     gems: parseInt(gems),
