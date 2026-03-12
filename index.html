@@ -293,7 +293,7 @@
                                 <div class="w-1.5 h-1.5 rounded-full bg-yellow-500/30"></div>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold text-white" id="daily-title" data-i18n="day_3">День 3</h3>
+                        <h3 class="text-lg font-bold text-white" id="daily-title">День 1</h3>
                         <p class="text-xs text-gray-400" id="daily-text">Заходи завтра за <span class="text-yellow-400 font-bold">500 монет</span></p>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-gradient-to-b from-yellow-300 to-orange-500 flex items-center justify-center shadow-[0_0_20px_rgba(255,165,0,0.4)] animate-pulse">
@@ -891,14 +891,14 @@
                     if(document.getElementById('balance-gems')) {
                         document.getElementById('balance-gems').innerText = user.gems || 0;
                     }
-                            // === ВСТАВИТЬ ЭТОТ БЛОК ===
+                    
                     // Применяем язык из БД и сразу сохраняем в кэш устройства
                     if (user.language_code) {
                         setLanguage(user.language_code);
                         localStorage.setItem('app_lang', user.language_code);
                     }
         
-                    // Логика ежедневного бонуса
+                    // Логика ежедневного бонуса (математика дней)
                     let nextDay = 1; 
                     let isSameDay = false; 
                     let hoursLeft = 0;
@@ -928,34 +928,14 @@
                         }
                     }
         
-                    const dailyTitle = document.getElementById('daily-title');
-                    if (dailyTitle) dailyTitle.innerText = "День " + nextDay;
-        
-                    const bonusCard = document.getElementById('bonus-card');
-                    const dailyText = document.getElementById('daily-text');
-        
                     // Сохраняем состояние для календаря
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
 
-                    // Меняем дизайн карточки на главной, но оставляем её КЛИКАБЕЛЬНОЙ всегда!
-                    const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift').parentElement : null;
-
-                    if (isSameDay) {
-                        if (bonusCard) {
-                            bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                            bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                        }
-                        if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                        if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
-                        if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">Доступно через ~${hoursLeft} ч.</span>`;
-                    } else {
-                        if (bonusCard) {
-                            bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                            bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                        }
-                        if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                        if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
-                        if (dailyText) dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
+                    // === ВОТ ОНО ===
+                    // Вызываем единую функцию обновления UI бонуса. 
+                    // Она сама возьмет правильный язык и раскрасит карточку.
+                    if (typeof updateBonusCardUI === 'function') {
+                        updateBonusCardUI();
                     }
                 }
             })
@@ -1017,7 +997,11 @@
                 btn_share: "Отправить",
                 invited_text: "Приглашенные",
                 no_friends_title: "У тебя пока нет приглашенных друзей",
-                no_friends_desc: "Отправь ссылку, чтобы получить бонусы"
+                no_friends_desc: "Отправь ссылку, чтобы получить бонусы",
+                day_prefix: "День ",
+                claim_now: '<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>',
+                available_in: 'Доступно через ~',
+                hours_short: ' ч.'
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1041,7 +1025,11 @@
                 btn_share: "Share",
                 invited_text: "Invited",
                 no_friends_title: "You don't have any invited friends yet.",
-                no_friends_desc: "Send a link to get bonuses"
+                no_friends_desc: "Send a link to get bonuses",
+                day_prefix: "Day ",
+                claim_now: '<span class="text-yellow-400 font-bold">Click to claim!</span>',
+                available_in: 'Available in ~',
+                hours_short: ' h.'
             }
         };
 
@@ -1064,7 +1052,8 @@
             const text = document.getElementById('lang-text');
             if(lang === 'ru') { flag.src = "https://flagcdn.com/w20/ru.png"; text.innerText = "RU"; } 
             else { flag.src = "https://flagcdn.com/w20/us.png"; text.innerText = "EN"; }
-            
+
+            updateBonusCardUI();
             renderCharacters();
         }
 
@@ -1251,6 +1240,40 @@
                 if (idDisplay) idDisplay.innerText = `ID: ${user.id}`;
             }
         });
+
+        function updateBonusCardUI() {
+            if (!window.dailyState) return; // Если данные с сервера еще не пришли, ждем
+            
+            const state = window.dailyState;
+            const lang = currentLang; // Берем текущий язык
+            
+            const dailyTitle = document.getElementById('daily-title');
+            const dailyText = document.getElementById('daily-text');
+            const bonusCard = document.getElementById('bonus-card');
+            const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift')?.parentElement : null;
+
+            // Обновляем заголовок (День X / Day X)
+            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
+
+            // Обновляем дизайн и текст
+            if (state.canClaim) {
+                if (bonusCard) {
+                    bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                    bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
+                }
+                if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
+                if (dailyText) dailyText.innerHTML = translations[lang].claim_now;
+            } else {
+                if (bonusCard) {
+                    bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                    bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
+                }
+                if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
+                if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">${translations[lang].available_in}${state.hoursLeft}${translations[lang].hours_short}</span>`;
+            }
+        }
 
         function renderCharacters() {
             const container = document.getElementById('characters-container');
