@@ -594,11 +594,11 @@
 
         <div class="premium-card p-4 mt-4 relative overflow-hidden group">
             <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/20 rounded-full blur-xl"></div>
-            <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-users text-blue-400 mr-1"></i> Пригласи друга</h3>
-            <p class="text-[10px] text-gray-400 mb-3 leading-tight">Получи <span class="text-yellow-400 font-bold">20 ⭐️</span> и <span class="text-cyan-400 font-bold">3 💎</span> за каждого нового игрока!</p>
+            <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-users text-blue-400 mr-1"></i> <span data-i18n="invite_title">Пригласи друга</span></h3>
+            <p class="text-[10px] text-gray-400 mb-3 leading-tight" data-i18n="invite_desc">Получи <span class="text-yellow-400 font-bold">20 ⭐️</span> и <span class="text-cyan-400 font-bold">3 💎</span> за каждого нового игрока!</p>
             
             <button onclick="openReferralModal()" class="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(37,99,235,0.3)] active:scale-95 transition-all">
-                <i class="fa-solid fa-user-plus"></i> ПРИГЛАСИТЬ
+                <i class="fa-solid fa-user-plus"></i> <span data-i18n="invite_btn">ПРИГЛАСИТЬ</span>
             </button>
         </div>
 
@@ -787,23 +787,23 @@
                 <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30 mb-3">
                     <i class="fa-solid fa-gem text-white"></i>
                 </div>
-                <h3 class="text-2xl font-black text-white leading-tight">Твои друзья</h3>
-                <p class="text-xs text-gray-400 mt-1">Зови друзей и получай награды</p>
+                <h3 class="text-2xl font-black text-white leading-tight" data-i18n="ref_modal_title">Твои друзья</h3>
+                <p class="text-xs text-gray-400 mt-1" data-i18n="ref_modal_desc">Зови друзей и получай награды</p>
             </div>
 
             <div class="flex gap-3 mb-6 shrink-0">
-                <button onclick="copyReferralLink()" class="flex-1 bg-[#1a1a1a] border border-white/10 hover:border-blue-500/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all group">
-                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-300 group-hover:text-blue-400 transition-colors"><i class="fa-solid fa-copy text-lg"></i></div>
-                    <span class="text-[11px] font-bold text-gray-300">Копировать</span>
+                <button onclick="copyReferralLink()" class="...">
+                    <div class="..."><i class="fa-solid fa-copy text-lg"></i></div>
+                    <span class="text-[11px] font-bold text-gray-300" data-i18n="btn_copy">Копировать</span>
                 </button>
-                <button onclick="shareReferral()" class="flex-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_10px_20px_rgba(37,99,235,0.2)]">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white"><i class="fa-solid fa-paper-plane text-lg"></i></div>
-                    <span class="text-[11px] font-bold text-white">Отправить</span>
+                <button onclick="shareReferral()" class="...">
+                    <div class="..."><i class="fa-solid fa-paper-plane text-lg"></i></div>
+                    <span class="text-[11px] font-bold text-white" data-i18n="btn_share">Отправить</span>
                 </button>
             </div>
 
             <div class="flex items-center justify-between mb-3 shrink-0 px-1">
-                <span class="font-bold text-white text-sm">Приглашенные</span>
+                <span class="font-bold text-white text-sm" data-i18n="invited_text">Приглашенные</span>
                 <span class="bg-blue-500/20 text-blue-400 px-2.5 py-0.5 rounded-lg text-xs font-bold" id="ref-count">0</span>
             </div>
             
@@ -1054,7 +1054,8 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
-                    if (key === 'come_back') {
+                    // ОБНОВЛЕНО: Добавили 'invite_desc' в исключение для innerHTML
+                    if (key === 'come_back' || key === 'invite_desc') {
                         el.innerHTML = translations[lang][key];
                     } else {
                         el.innerText = translations[lang][key];
@@ -1667,8 +1668,8 @@
                         <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
                             <i class="fa-solid fa-user-xmark text-xl"></i>
                         </div>
-                        <p class="text-xs text-gray-300 font-medium">У тебя пока нет друзей</p>
-                        <p class="text-[10px] text-gray-500 text-center mt-1">Отправь ссылку, чтобы получить бонусы</p>
+                        <p class="text-xs text-gray-300 font-medium" data-i18n="no_friends_title">${translations[currentLang].no_friends_title}</p>
+                        <p class="text-[10px] text-gray-500 text-center mt-1" data-i18n="no_friends_desc">${translations[currentLang].no_friends_desc}</p>
                     </div>
                 `;
                 return;
