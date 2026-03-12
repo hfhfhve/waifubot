@@ -891,6 +891,12 @@
                     if(document.getElementById('balance-gems')) {
                         document.getElementById('balance-gems').innerText = user.gems || 0;
                     }
+                            // === ВСТАВИТЬ ЭТОТ БЛОК ===
+                    // Применяем язык из БД и сразу сохраняем в кэш устройства
+                    if (user.language_code) {
+                        setLanguage(user.language_code);
+                        localStorage.setItem('app_lang', user.language_code);
+                    }
         
                     // Логика ежедневного бонуса
                     let nextDay = 1; 
@@ -1173,6 +1179,7 @@
             
             // 2. Меняем интерфейс
             setLanguage(newLang);
+            localStorage.setItem('app_lang', newLang);
             tg.HapticFeedback.selectionChanged();
         
             // 3. ОТПРАВЛЯЕМ ВЕБХУК В n8n!
@@ -1203,11 +1210,13 @@
             tg.setHeaderColor('#050505'); 
             tg.setBackgroundColor('#050505');
             
-            renderCharacters(); 
-            setLanguage('ru');
+            // Читаем язык из кэша (если нет, ставим 'ru')
+            const savedLang = localStorage.getItem('app_lang') || 'ru';
+            setLanguage(savedLang);
             
             const user = tg.initDataUnsafe?.user;
             if (user) {
+                // ... дальше идет код с аватаркой, его не трогаем ...
                 const profileName = document.getElementById('profile-name');
                 if (profileName) profileName.innerText = user.first_name || 'Игрок';
                 const profileAvatar = document.getElementById('profile-avatar');
