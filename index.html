@@ -1301,7 +1301,15 @@
             setTimeout(() => feedback.style.opacity = '0', 2000);
         }
 
-        const ADMIN_IDS = [7672744848, 6546116205]; 
+        const ADMIN_IDS = [7672744848, 6546116205];
+
+        function checkAdmin() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (ADMIN_IDS.includes(userId)) {
+                document.getElementById('nav-admin').classList.remove('hidden'); 
+            }
+        }
+
 
         // --- ЛОГИКА ПРОМОКОДОВ ---
         function openPromoModal() {
