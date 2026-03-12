@@ -282,7 +282,7 @@
     <div id="tab-home" class="px-3 min-h-screen">
         
         <div class="mb-4 animate-fade-up">
-            <div id="bonus-card" onclick="claimDailyBonus()" class="w-full p-4 rounded-3xl relative overflow-hidden border border-yellow-500/20 bg-gradient-to-r from-[#1a1500] to-[#2a1a00] group cursor-pointer active:scale-98 transition-transform shadow-lg">
+            <div id="bonus-card" onclick="openDailyModal()" class="w-full p-4 rounded-3xl relative overflow-hidden border border-yellow-500/20 bg-gradient-to-r from-[#1a1500] to-[#2a1a00] group cursor-pointer active:scale-98 transition-transform shadow-lg">
                 <div class="flex justify-between items-center relative z-10">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
@@ -756,6 +756,28 @@
         </div>
     </div>
 
+    <div id="daily-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeDailyModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12 flex flex-col items-center">
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-5 opacity-50 shrink-0"></div>
+            
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 mx-auto flex items-center justify-center text-3xl shadow-[0_0_25px_rgba(234,179,8,0.4)] mb-3 rotate-3">
+                    <i class="fa-solid fa-gift text-white -rotate-3"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white leading-tight">Ежедневный бонус</h3>
+                <p class="text-xs text-gray-400 mt-1">Заходи каждый день, чтобы забрать всё!</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 w-full mb-6" id="daily-grid">
+                </div>
+
+            <button id="daily-claim-btn" onclick="executeClaimBonus()" class="w-full h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl font-bold text-white shadow-[0_10px_20px_rgba(234,179,8,0.3)] active:scale-98 transition-all">
+                ЗАБРАТЬ ПОДАРОК
+            </button>
+        </div>
+    </div>
+
     <div id="referral-modal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closeReferralModal()"></div>
         <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-10 flex flex-col h-[85vh]">
@@ -906,24 +928,30 @@
                     const bonusCard = document.getElementById('bonus-card');
                     const dailyText = document.getElementById('daily-text');
         
+                    // Сохраняем состояние для календаря
+                    window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
+
+                    // Меняем дизайн карточки на главной, но оставляем её КЛИКАБЕЛЬНОЙ всегда!
+                    const bonusCard = document.getElementById('bonus-card');
+                    const dailyText = document.getElementById('daily-text');
+                    const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift').parentElement : null;
+
                     if (isSameDay) {
-                        // Если бонус уже взят — деактивируем карточку
                         if (bonusCard) {
-                            bonusCard.classList.remove('cursor-pointer', 'active:scale-98', 'bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                            bonusCard.classList.add('opacity-50', 'bg-[#1a1a1a]', 'cursor-not-allowed', 'border-white/5');
-                            bonusCard.onclick = null; 
-                            
-                            const giftIcon = bonusCard.querySelector('.animate-pulse');
-                            if (giftIcon) giftIcon.classList.remove('animate-pulse');
+                            bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                            bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
                         }
-                        if (dailyText) {
-                            dailyText.innerHTML = `<span class="text-gray-500">Обновится через ~${hoursLeft} ч.</span>`;
-                        }
+                        if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                        if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
+                        if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">Доступно через ~${hoursLeft} ч.</span>`;
                     } else {
-                        // Если можно забрать — делаем карточку активной
-                        if (dailyText) {
-                            dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
+                        if (bonusCard) {
+                            bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                            bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
                         }
+                        if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                        if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
+                        if (dailyText) dailyText.innerHTML = `<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>`;
                     }
                 }
             })
@@ -1015,8 +1043,108 @@
             renderCharacters();
         }
 
-        function claimDailyBonus() {
+        // --- ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА (КАЛЕНДАРЬ) ---
+        const DAILY_REWARDS = [
+            { day: 1, stars: 10, gems: 0 },
+            { day: 2, stars: 10, gems: 1 },
+            { day: 3, stars: 10, gems: 1 },
+            { day: 4, stars: 15, gems: 1 },
+            { day: 5, stars: 15, gems: 2 },
+            { day: 6, stars: 20, gems: 1 },
+            { day: 7, stars: 30, gems: 5 } // Супер-приз!
+        ];
+
+        function openDailyModal() {
+            tg.HapticFeedback.impactOccurred('medium');
+            renderDailyGrid();
+            const modal = document.getElementById('daily-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+
+        function closeDailyModal() {
+            const modal = document.getElementById('daily-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function renderDailyGrid() {
+            const state = window.dailyState || { streak: 1, canClaim: true, hoursLeft: 0 };
+            const grid = document.getElementById('daily-grid');
+            const btn = document.getElementById('daily-claim-btn');
+
+            let html = '';
+            DAILY_REWARDS.forEach(reward => {
+                // Логика состояний: прошедший день, сегодняшний, будущий
+                const isPast = reward.day < state.streak || (!state.canClaim && reward.day === state.streak);
+                const isCurrent = state.canClaim && reward.day === state.streak;
+
+                // Базовые стили карточки
+                let cardClass = "bg-[#1a1a1a] border border-white/5 rounded-2xl p-2.5 flex flex-col items-center justify-center relative overflow-hidden transition-all";
+                let textClass = "text-gray-500 font-bold";
+                let iconHtml = `<i class="fa-solid fa-gift text-gray-600 text-xl mb-1.5"></i>`;
+
+                // 7-й день растягиваем на все 3 колонки (Супер-приз)
+                if (reward.day === 7) cardClass += " col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-purple-900/20 to-[#1a1a1a]";
+
+                if (isPast) {
+                    cardClass += " opacity-50";
+                    iconHtml = `<div class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center mb-1.5 border border-green-500/30"><i class="fa-solid fa-check text-green-500 text-sm"></i></div>`;
+                    if (reward.day === 7) iconHtml = `<div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30"><i class="fa-solid fa-check text-green-500"></i></div>`;
+                } else if (isCurrent) {
+                    cardClass = "bg-gradient-to-b from-[#3a2a0a] to-[#1a1a00] border border-yellow-500/50 rounded-2xl p-2.5 flex flex-col items-center justify-center relative shadow-[0_0_15px_rgba(234,179,8,0.2)] scale-[1.02] z-10";
+                    textClass = "text-white font-black drop-shadow-md";
+                    iconHtml = `<i class="fa-solid fa-gift text-yellow-400 text-2xl mb-1.5 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse"></i>`;
+                    if (reward.day === 7) {
+                        cardClass = "col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-yellow-600/40 to-orange-600/40 border border-yellow-500/50 rounded-2xl shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02] z-10";
+                        iconHtml = `<i class="fa-solid fa-gem text-cyan-300 text-3xl drop-shadow-[0_0_10px_rgba(103,232,249,0.8)] animate-pulse"></i>`;
+                    }
+                }
+
+                // Сборка наград внутри карточки
+                let rewardsHtml = `<div class="flex items-center justify-center gap-1.5 ${reward.day === 7 ? 'flex-col items-end scale-110' : ''}">
+                    <div class="flex items-center gap-0.5 ${isCurrent ? 'text-yellow-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.stars}</span> <i class="fa-solid fa-star text-[8px]"></i></div>`;
+                if (reward.gems > 0) {
+                    rewardsHtml += `<div class="flex items-center gap-0.5 ${isCurrent ? 'text-cyan-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.gems}</span> <i class="fa-solid fa-gem text-[8px]"></i></div>`;
+                }
+                rewardsHtml += `</div>`;
+
+                // Итоговая сборка HTML карточки
+                if (reward.day === 7) {
+                    html += `<div class="${cardClass}">
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs ${textClass} mb-0.5 uppercase tracking-widest">Супер-приз</span>
+                            <span class="text-[10px] text-gray-400">День 7</span>
+                        </div>
+                        ${iconHtml}
+                        ${rewardsHtml}
+                    </div>`;
+                } else {
+                    html += `<div class="${cardClass}">
+                        <span class="text-[10px] ${textClass} mb-1.5 z-10">День ${reward.day}</span>
+                        ${iconHtml}
+                        <div class="z-10 mt-1">${rewardsHtml}</div>
+                    </div>`;
+                }
+            });
+
+            grid.innerHTML = html;
+
+            // Настройка кнопки
+            if (state.canClaim) {
+                btn.className = "w-full h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl font-bold text-white shadow-[0_10px_20px_rgba(234,179,8,0.3)] active:scale-98 transition-all";
+                btn.innerText = "ЗАБРАТЬ ПОДАРОК";
+                btn.onclick = executeClaimBonus;
+            } else {
+                btn.className = "w-full h-14 bg-[#1a1a1a] rounded-2xl font-bold text-gray-500 border border-white/5 cursor-not-allowed";
+                btn.innerText = `ДОСТУПНО ЧЕРЕЗ ~${state.hoursLeft} Ч.`;
+                btn.onclick = null;
+            }
+        }
+
+        function executeClaimBonus() {
             tg.MainButton.showProgress();
+            
             fetch(WEBHOOK_BONUS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1026,17 +1154,18 @@
             .then(data => {
                 tg.MainButton.hideProgress();
                 if (data.success) {
-                    let msg = `Бонус за День ${data.newStreak} получен!\nНачислено: ⚡️ ${data.addedStars}`;
+                    closeDailyModal(); // Закрываем только при успехе
+                    let msg = `✅ Подарок День ${data.newStreak} получен!\n⚡️ ${data.addedStars}`;
                     if (data.addedGems > 0) msg += ` и 💎 ${data.addedGems}`;
                     showToast(msg, 'success');
-                    fetchUserData(); 
+                    fetchUserData(); // Обновляем статусы
                 } else {
-                    showToast(`Бонус пока недоступен.\nОсталось ждать: ~${data.hoursLeft} ч.`, 'wait');
+                    showToast(`Подарок пока недоступен.\nЖдать: ~${data.hoursLeft} ч.`, 'wait');
                 }
             })
             .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast("Ошибка соединения с сервером.", 'error');
+                showToast("Ошибка соединения", 'error');
             });
         }
 
