@@ -1158,20 +1158,13 @@
                 activeDot.classList.replace('opacity-0', 'opacity-100');
             }
 
-            const genderSwitch = document.getElementById('gender-switch');
             const shopSwitch = document.getElementById('shop-switch');
             if (tabId === 'shop') { 
-                genderSwitch.classList.add('hidden'); 
                 shopSwitch.classList.remove('hidden'); 
-            } else if (tabId === 'home') { 
+             } else { 
                 shopSwitch.classList.add('hidden'); 
-                genderSwitch.classList.remove('hidden'); 
-            } else { 
-                shopSwitch.classList.add('hidden'); 
-                genderSwitch.classList.add('hidden'); 
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
 
         function switchShopSubTab(subTabName) {
             tg.HapticFeedback.impactOccurred('light');
