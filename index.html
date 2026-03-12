@@ -263,18 +263,6 @@
                 </button>
             </div>
         </div>
-
-        <div id="gender-switch" class="custom-tab-bg flex p-1 gap-1">
-            <button class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-[#1f1f1f] text-white shadow-lg flex items-center justify-center gap-2 border border-white/10 relative overflow-hidden group">
-                <i class="fa-solid fa-venus text-pink-400 group-hover:scale-110 transition-transform"></i> 
-                <span data-i18n="girls" class="tracking-wide">GIRLS</span>
-                <div class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-pink-500 to-purple-500"></div>
-            </button>
-            <button class="flex-1 py-2.5 rounded-xl text-xs font-medium text-gray-500 hover:text-gray-300 transition-colors flex items-center justify-center gap-2">
-                <i class="fa-solid fa-mars"></i> 
-                <span data-i18n="guys" class="tracking-wide">BOYS</span>
-            </button>
-        </div>
         
         <div id="shop-switch" class="hidden custom-tab-bg flex p-1 relative">
             <button onclick="switchShopSubTab('packs')" id="btn-sub-packs" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
@@ -578,26 +566,6 @@
                 <i class="fa-regular fa-copy text-[10px] text-gray-500"></i>
             </button>
             <div id="copy-feedback" class="text-[10px] text-green-400 mt-1 opacity-0 transition-opacity font-bold" data-i18n="copied">Скопировано!</div>
-        </div>
-
-        <div class="relative w-full h-32 rounded-3xl overflow-hidden mb-6 flex border border-white/10 shadow-lg">
-            <div class="absolute top-3 left-4 z-10 text-[10px] font-black text-white/50 tracking-[0.2em] uppercase backdrop-blur-sm px-2 py-1 rounded bg-black/20">Visual Style</div>
-            <div class="w-1/2 h-full relative bg-gray-900 border-r border-white/5 active:opacity-90 transition-opacity cursor-pointer group" onclick="selectStyle('real')">
-                <img src="https://placehold.co/300x200/111/444?text=Realistic" class="w-full h-full object-cover opacity-40 grayscale transition-all duration-500" id="img-real">
-                <div class="absolute inset-0 flex flex-col items-center justify-end pb-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <div id="check-real" class="w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300"></div>
-                    <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">REAL</span>
-                </div>
-            </div>
-            <div class="w-1/2 h-full relative bg-gray-800 active:opacity-90 transition-opacity cursor-pointer group" onclick="selectStyle('anime')">
-                <img src="https://placehold.co/300x200/220011/ff3b9a?text=Anime" class="w-full h-full object-cover opacity-80 transition-all duration-500" id="img-anime">
-                <div class="absolute inset-0 flex flex-col items-center justify-end pb-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <div id="check-anime" class="w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
-                    <span class="text-xs font-bold text-white">ANIME</span>
-                </div>
-            </div>
         </div>
 
         <div class="space-y-3">
