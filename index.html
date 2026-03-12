@@ -910,7 +910,6 @@
         const tg = window.Telegram.WebApp;
         let currentItem = null; 
         let selectedCharacterId = null; 
-
         // ========================================================
         const WEBHOOK_URL = "https://9f01-95-85-243-114.ngrok-free.app/webhook/shop-buy";
         const WEBHOOK_LAUNCH = "https://9f01-95-85-243-114.ngrok-free.app/webhook/start";
@@ -1408,7 +1407,7 @@
         }
         
         function adminCreatePromo() {
-            const code = document.getElementById('admin-promo-code').value;
+            const code = document.getElementById('admin-promo-code').value.toUpperCase().trim();
             const stars = document.getElementById('admin-promo-stars').value || 0;
             const gems = document.getElementById('admin-promo-gems').value || 0;
             const uses = document.getElementById('admin-promo-uses').value || 1;
