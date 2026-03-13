@@ -654,6 +654,23 @@
         </div>
     </div>
 
+    <div id="streak-lost-modal" class="fixed inset-0 z-[150] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeStreakLostModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-sm bg-[#111] rounded-3xl p-6 border border-red-500/30 shadow-[0_10px_40px_rgba(239,68,68,0.2)] flex flex-col items-center text-center z-10 opacity-0 scale-95 transition-all duration-300" id="streak-lost-content">
+
+            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-heart-crack text-3xl text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>
+            </div>
+
+            <h3 class="text-xl font-black text-white mb-2" data-i18n="streak_lost_title">Серия прервана!</h3>
+            <p class="text-sm text-gray-400 mb-6" data-i18n="streak_lost_desc">Ты не заходил слишком долго, поэтому твой прогресс наград сбросился до 1-го дня.</p>
+
+            <button onclick="closeStreakLostModal()" class="w-full h-12 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl font-bold text-white transition-all border border-white/5" data-i18n="got_it">
+                ПОНЯТНО
+            </button>
+        </div>
+    </div>
+
     <div id="payment-modal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closePaymentModal()"></div>
         <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12">
@@ -922,6 +939,11 @@
                         } else {
                             // Пропустил много дней, сброс серии
                             nextDay = 1;
+                            // Проверяем, была ли у него вообще серия до этого
+                            if (user.bonus_streak > 0) {
+                                // Если была — показываем модалку потери серии!
+                                setTimeout(() => showStreakLostModal(), 500); 
+                            }
                         }
                     }
         
@@ -984,7 +1006,6 @@
                 energy_unit: "Энергии", gems_unit: "Гемов",
                 refill_energy: "Пополнение Энергии", refill_gems: "Пополнение Гемов",
                 energy_50: "50 Энергии", energy_150: "150 Энергии", energy_500: "500 Энергии", energy_1200: "1200 Энергии", energy_3000: "3000 Энергии", // <-- ВОТ ТУТ НУЖНА ЗАПЯТАЯ
-
                 invite_title: "Пригласи друга",
                 invite_desc: 'Получи <span class="text-yellow-400 font-bold">20 ⭐️</span> и <span class="text-cyan-400 font-bold">3 💎</span> за каждого нового игрока!',
                 invite_btn: "ПРИГЛАСИТЬ",
@@ -998,7 +1019,10 @@
                 day_prefix: "День ",
                 claim_now: '<span class="text-yellow-400 font-bold">Нажми, чтобы забрать!</span>',
                 available_in: 'Доступно через ~',
-                hours_short: ' ч.'
+                hours_short: ' ч.',
+                streak_lost_title: "Серия прервана!",
+                streak_lost_desc: "Ты не заходил слишком долго, поэтому твой прогресс наград сбросился до 1-го дня.",
+                got_it: "ПОНЯТНО",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1012,7 +1036,6 @@
                 energy_unit: "Energy", gems_unit: "Gems",
                 refill_energy: "Energy Refill", refill_gems: "Gems Refill",
                 energy_50: "50 Energy", energy_150: "150 Energy", energy_500: "500 Energy", energy_1200: "1200 Energy", energy_3000: "3000 Energy", // <-- И ВОТ ТУТ НУЖНА ЗАПЯТАЯ
-
                 invite_title: "Invite a friend",
                 invite_desc: 'Get <span class="text-yellow-400 font-bold">20 ⭐️</span> and <span class="text-cyan-400 font-bold">3 💎</span> for each new player!',
                 invite_btn: "INVITE",
@@ -1026,7 +1049,10 @@
                 day_prefix: "Day ",
                 claim_now: '<span class="text-yellow-400 font-bold">Click to claim!</span>',
                 available_in: 'Available in ~',
-                hours_short: ' h.'
+                hours_short: ' h.',
+                streak_lost_title: "Streak Lost!",
+                streak_lost_desc: "You haven't logged in for a while, so your reward progress has been reset to Day 1.",
+                got_it: "GOT IT",
             }
         };
 
@@ -1369,6 +1395,28 @@
                 console.error(err);
                 tg.showAlert("Ошибка. Проверь консоль.");
             });
+        }
+
+        function showStreakLostModal() {
+            const modal = document.getElementById('streak-lost-modal');
+            const content = document.getElementById('streak-lost-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+            // Даем по рукам неприятной вибрацией
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
+
+        function closeStreakLostModal() {
+            const modal = document.getElementById('streak-lost-modal');
+            const content = document.getElementById('streak-lost-content');
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         function showTab(tabId) {
