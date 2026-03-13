@@ -779,8 +779,8 @@
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(234,179,8,0.4)] mb-2 rotate-3">
                     <i class="fa-solid fa-gift text-white -rotate-3"></i>
                 </div>
-                <h3 class="text-xl font-black text-white leading-tight">Ежедневный бонус</h3>
-                <p class="text-[11px] text-gray-400 mt-1">Заходи каждый день, чтобы забрать всё!</p>
+                <h3 class="text-xl font-black text-white leading-tight" data-i18n="daily_modal_title">Ежедневный бонус</h3>
+                <p class="text-[11px] text-gray-400 mt-1" data-i18n="daily_modal_desc">Заходи каждый день, чтобы забрать всё!</p>
             </div>
 
             <div class="grid grid-cols-3 gap-2 w-full mb-4 shrink-0" id="daily-grid">
@@ -1023,6 +1023,11 @@
                 streak_lost_title: "Серия прервана!",
                 streak_lost_desc: "Ты не заходил слишком долго, поэтому твой прогресс наград сбросился до 1-го дня.",
                 got_it: "ПОНЯТНО",
+                daily_modal_title: "Ежедневный бонус",
+                daily_modal_desc: "Заходи каждый день, чтобы забрать всё!",
+                super_prize: "Супер-приз",
+                claim_gift: "ЗАБРАТЬ ПОДАРОК",
+                available_btn: "ДОСТУПНО ЧЕРЕЗ ~",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1053,6 +1058,11 @@
                 streak_lost_title: "Streak Lost!",
                 streak_lost_desc: "You haven't logged in for a while, so your reward progress has been reset to Day 1.",
                 got_it: "GOT IT",
+                daily_modal_title: "Daily Bonus",
+                daily_modal_desc: "Log in every day to claim everything!",
+                super_prize: "Super Prize",
+                claim_gift: "CLAIM GIFT",
+                available_btn: "AVAILABLE IN ~",
             }
         };
 
@@ -1109,6 +1119,7 @@
             const state = window.dailyState || { streak: 1, canClaim: true, hoursLeft: 0 };
             const grid = document.getElementById('daily-grid');
             const btn = document.getElementById('daily-claim-btn');
+            const lang = currentLang;
 
             let html = '';
             DAILY_REWARDS.forEach(reward => {
@@ -1150,15 +1161,15 @@
                 if (reward.day === 7) {
                     html += `<div class="${cardClass}">
                         <div class="flex flex-col text-left">
-                            <span class="text-xs ${textClass} mb-0.5 uppercase tracking-widest">Супер-приз</span>
-                            <span class="text-[10px] text-gray-400">День 7</span>
+                            <span class="text-xs ${textClass} mb-0.5 uppercase tracking-widest">${translations[lang].super_prize}</span>
+                            <span class="text-[10px] text-gray-400">${translations[lang].day_prefix}7</span>
                         </div>
                         ${iconHtml}
                         ${rewardsHtml}
                     </div>`;
                 } else {
                     html += `<div class="${cardClass}">
-                        <span class="text-[10px] ${textClass} mb-1.5 z-10">День ${reward.day}</span>
+                        <span class="text-[10px] ${textClass} mb-1.5 z-10">${translations[lang].day_prefix}${reward.day}</span>
                         ${iconHtml}
                         <div class="z-10 mt-1">${rewardsHtml}</div>
                     </div>`;
@@ -1170,11 +1181,12 @@
             // Настройка кнопки
             if (state.canClaim) {
                 btn.className = "w-full h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl font-bold text-white shadow-[0_10px_20px_rgba(234,179,8,0.3)] active:scale-98 transition-all";
-                btn.innerText = "ЗАБРАТЬ ПОДАРОК";
+                btn.innerText = translations[lang].claim_gift;
                 btn.onclick = executeClaimBonus;
             } else {
                 btn.className = "w-full h-14 bg-[#1a1a1a] rounded-2xl font-bold text-gray-500 border border-white/5 cursor-not-allowed";
-                btn.innerText = `ДОСТУПНО ЧЕРЕЗ ~${state.hoursLeft} Ч.`;
+                // Собираем фразу: "ДОСТУПНО ЧЕРЕЗ ~" + часы + " Ч." и делаем большими буквами
+                btn.innerText = `${translations[lang].available_btn}${state.hoursLeft}${translations[lang].hours_short}`.toUpperCase();
                 btn.onclick = null;
             }
         }
