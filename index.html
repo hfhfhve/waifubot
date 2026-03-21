@@ -1328,8 +1328,11 @@
 
         function renderCharacters() {
             const container = document.getElementById('characters-container');
+            // Используем отфильтрованный список (если он пришел с сервера), иначе берем полный
             const listToRender = window.activeCharactersList || characters;
-            container.innerHTML = characters.map((char, index) => {
+            
+            // ВОТ ТУТ МЕНЯЕМ characters на listToRender
+            container.innerHTML = listToRender.map((char, index) => {
                 const tags = char['tags_' + currentLang];
                 const name = char['name_' + currentLang];
                 const desc = char['desc_' + currentLang];
