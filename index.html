@@ -955,6 +955,14 @@
                     // Сохраняем состояние для календаря
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
 
+                    // --- НОВОЕ: ФИЛЬТР ПЕРСОНАЖЕЙ ---
+                    if (user.active_characters) {
+                        // Оставляем только тех, чьи ID пришли из базы данных
+                        window.activeCharactersList = characters.filter(c => user.active_characters.includes(c.id));
+                    }
+                    renderCharacters(); // Сразу перерисовываем список
+                    // ---------------------------------
+
                     // === ВОТ ОНО ===
                     // Вызываем единую функцию обновления UI бонуса. 
                     // Она сама возьмет правильный язык и раскрасит карточку.
@@ -1320,6 +1328,7 @@
 
         function renderCharacters() {
             const container = document.getElementById('characters-container');
+            const listToRender = window.activeCharactersList || characters;
             container.innerHTML = characters.map((char, index) => {
                 const tags = char['tags_' + currentLang];
                 const name = char['name_' + currentLang];
