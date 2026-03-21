@@ -1682,6 +1682,51 @@
               .catch(() => tg.showAlert("Ошибка"));
         }
 
+        function adminCreatePromo() {
+            const code = document.getElementById('admin-promo-code').value.trim();
+            const stars = document.getElementById('admin-promo-stars').value || 0;
+            const gems = document.getElementById('admin-promo-gems').value || 0;
+            const uses = document.getElementById('admin-promo-uses').value || 100;
+
+            if (!code) {
+                return tg.showAlert("Введи название промокода!");
+            }
+
+            // Показываем, что загрузка пошла
+            tg.MainButton.showProgress();
+
+            fetch(WEBHOOK_ADMIN, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'create_promo',
+                    code: code,
+                    stars: parseInt(stars),
+                    gems: parseInt(gems),
+                    uses_left: parseInt(uses),
+                    initData: tg.initData // Обязательно передаем подпись для безопасности
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                if (data.success) {
+                    showToast(`✅ Промокод ${code.toUpperCase()} создан!`, "success");
+                    // Очищаем поля после успешного создания
+                    document.getElementById('admin-promo-code').value = '';
+                    document.getElementById('admin-promo-stars').value = '';
+                    document.getElementById('admin-promo-gems').value = '';
+                } else {
+                    tg.showAlert("Ошибка сервера: " + (data.detail || "Неизвестная ошибка"));
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                tg.showAlert("Ошибка связи с сервером");
+                console.error("Promo error:", err);
+            });
+        }
+
         // --- ЛОГИКА РЕФЕРАЛОВ ---
         function getRefLink() {
             const botUsername = "midnight_rpbot"; // Твой бот
