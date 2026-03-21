@@ -1285,6 +1285,20 @@
                 // ... дальше идет код с аватаркой, его не трогаем ...
                 const profileName = document.getElementById('profile-name');
                 if (profileName) profileName.innerText = user.first_name || 'Игрок';
+                // --- Обновление нашей новой шапки ---
+                const headerName = document.getElementById('header-name');
+                if (headerName) headerName.innerText = user.first_name || 'Игрок';
+
+                const headerAvatar = document.getElementById('header-avatar');
+                if (headerAvatar) {
+                    if (user.photo_url) {
+                        headerAvatar.src = user.photo_url;
+                    } else {
+                        // Если юзер скрыл фото, ставим красивую темную заглушку с его первой буквой
+                        const firstLetter = (user.first_name || 'U').charAt(0).toUpperCase();
+                        headerAvatar.src = `https://placehold.co/100x100/1a1a1a/fff?text=${firstLetter}`;
+                    }
+                }
                 const profileAvatar = document.getElementById('profile-avatar');
                 if (profileAvatar && user.photo_url) {
                     profileAvatar.src = user.photo_url;
