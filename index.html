@@ -230,29 +230,19 @@
     <div class="fixed top-0 left-0 w-full z-50 px-4 pt-3 pb-2 transition-all duration-300" style="background: linear-gradient(to bottom, rgba(5,5,5,1) 0%, rgba(5,5,5,0.9) 85%, transparent 100%);">
         <div class="flex justify-between items-center mb-5">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-600 to-purple-600 p-[2px] shadow-[0_0_10px_rgba(219,39,119,0.5)]">
-                    <div class="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
-                        <img src="https://placehold.co/100x100/333/fff?text=U" class="w-full h-full object-cover">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-pink-600/50 to-purple-900/50 border border-white/10 shadow-lg shadow-pink-500/20">
+                        <div class="w-full h-full rounded-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+                            <img id="header-avatar" src="" class="w-full h-full object-cover">
+                        </div>
                     </div>
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#050505] rounded-full shadow-[0_0_8px_#22c55e]"></div>
                 </div>
-                <div>
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
-                            <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-gray-700 to-gray-900 border border-white/5 shadow-lg">
-                                <div class="w-full h-full rounded-full bg-[#111] flex items-center justify-center overflow-hidden">
-                                    <img id="header-avatar" src="https://placehold.co/100x100/1a1a1a/fff?text=👤" class="w-full h-full object-cover">
-                                </div>
-                            </div>
-                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#050505] rounded-full shadow-[0_0_8px_#22c55e]"></div>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0.5">Midnight Club</span>
-                            <span id="header-name" class="text-sm font-black text-white leading-none tracking-wide">Игрок</span>
-                        </div>
-                    </div>
+                <div class="flex flex-col justify-center">
+                    <span class="text-[9px] text-pink-500/80 font-bold uppercase tracking-widest mb-0.5">Midnight Club</span>
+                    <span id="header-name" class="text-sm font-black text-white leading-none tracking-wide">Игрок</span>
                 </div>
             </div>
-
             <div class="glass-panel rounded-2xl p-1.5 pl-3 flex items-center gap-3">
                 <div class="flex flex-col items-end leading-none">
                     <span id="balance-gems" class="text-sm font-black text-cyan-300 drop-shadow-[0_0_5px_rgba(103,232,249,0.5)]">0</span>
@@ -1290,14 +1280,17 @@
                 if (headerName) headerName.innerText = user.first_name || 'Игрок';
 
                 const headerAvatar = document.getElementById('header-avatar');
+                const profileAvatar = document.getElementById('profile-avatar');
+                
+                // Крутая неоновая заглушка для тех, у кого скрыта аватарка
+                const coolPlaceholder = 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=200&h=200&fit=crop&q=80';
+
                 if (headerAvatar) {
-                    if (user.photo_url) {
-                        headerAvatar.src = user.photo_url;
-                    } else {
-                        // Если юзер скрыл фото, ставим красивую темную заглушку с его первой буквой
-                        const firstLetter = (user.first_name || 'U').charAt(0).toUpperCase();
-                        headerAvatar.src = `https://placehold.co/100x100/1a1a1a/fff?text=${firstLetter}`;
-                    }
+                    headerAvatar.src = user.photo_url || coolPlaceholder;
+                }
+                
+                if (profileAvatar) {
+                    profileAvatar.src = user.photo_url || coolPlaceholder;
                 }
                 const profileAvatar = document.getElementById('profile-avatar');
                 if (profileAvatar && user.photo_url) {
