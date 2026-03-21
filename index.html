@@ -937,12 +937,17 @@
                             const tomorrow = new Date(todayMidnight + 86400000);
                             hoursLeft = Math.floor((tomorrow - now) / 3600000);
                         } else {
-                            // Пропустил много дней, сброс серии
+                            // Пропустил больше одного дня, сброс серии
                             nextDay = 1;
-                            // Проверяем, была ли у него вообще серия до этого
-                            if (user.bonus_streak > 0) {
-                                // Если была — показываем модалку потери серии!
+                            
+                            // 1. Показываем только если прогресс реально был (серия 1 и больше)
+                            // 2. Проверяем в кэше телефона, не показывали ли мы уже табличку для этого конкретного сброса
+                            const lastNotified = localStorage.getItem('streak_lost_notified');
+                            
+                            if (user.bonus_streak >= 1 && lastNotified !== user.last_bonus_date) {
                                 setTimeout(() => showStreakLostModal(), 500); 
+                                // Запоминаем дату последней награды, чтобы не спамить табличкой при следующих заходах
+                                localStorage.setItem('streak_lost_notified', user.last_bonus_date);
                             }
                         }
                     }
