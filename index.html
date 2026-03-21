@@ -236,13 +236,18 @@
                     </div>
                 </div>
                 <div>
-                    <div class="flex items-center gap-1 text-sm font-bold text-gray-200">
-                        <span data-i18n="hello">Привет</span>, <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 font-extrabold" data-i18n="player">Игрок</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="flex items-center bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-md text-[10px] tracking-wide text-green-400 font-bold shadow-[0_0_8px_rgba(34,197,94,0.2)]">
-                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse shadow-[0_0_5px_#22c55e]"></div>
-                            <span data-i18n="online">ONLINE</span>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-gray-700 to-gray-900 border border-white/5 shadow-lg">
+                                <div class="w-full h-full rounded-full bg-[#111] flex items-center justify-center overflow-hidden">
+                                    <img id="header-avatar" src="https://placehold.co/100x100/1a1a1a/fff?text=👤" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#050505] rounded-full shadow-[0_0_8px_#22c55e]"></div>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0.5">Midnight Club</span>
+                            <span id="header-name" class="text-sm font-black text-white leading-none tracking-wide">Игрок</span>
                         </div>
                     </div>
                 </div>
