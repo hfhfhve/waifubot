@@ -981,15 +981,17 @@
         let currentItem = null; 
         let selectedCharacterId = null; 
         // ========================================================
-        const WEBHOOK_URL = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/shop-buy";
-        const WEBHOOK_LAUNCH = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/start";
-        const WEBHOOK_GET_USER = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/get-user";
-        const WEBHOOK_ADMIN = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/admin-action";
-        const WEBHOOK_USE_PROMO = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/use-promo"; 
-        const WEBHOOK_BONUS = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/claim-bonus";
-        const WEBHOOK_CRYPTO_BUY = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/crypto-callback";
-        const webhookUrl = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/set-language";
-        const WEBHOOK_GET_REFS = "https://shame-sustainable-dark-candle.trycloudflare.com/webhook/get-referrals";
+        const BASE_URL = "https://waifubot.website";
+
+        const WEBHOOK_URL = `${BASE_URL}/webhook/shop-buy`;
+        const WEBHOOK_LAUNCH = `${BASE_URL}/webhook/start`;
+        const WEBHOOK_GET_USER = `${BASE_URL}/webhook/get-user`;
+        const WEBHOOK_ADMIN = `${BASE_URL}/webhook/admin-action`;
+        const WEBHOOK_USE_PROMO = `${BASE_URL}/webhook/use-promo`; 
+        const WEBHOOK_BONUS = `${BASE_URL}/webhook/claim-bonus`;
+        const WEBHOOK_CRYPTO_BUY = `${BASE_URL}/webhook/crypto-callback`;
+        const webhookUrl = `${BASE_URL}/webhook/set-language`;
+        const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
         // ========================================================
         
         // --- LOCALIZATION ---
