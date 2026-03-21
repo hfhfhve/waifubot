@@ -1272,13 +1272,15 @@
             
             const user = tg.initDataUnsafe?.user;
             if (user) {
-                // ... дальше идет код с аватаркой, его не трогаем ...
+                // Имя в профиле
                 const profileName = document.getElementById('profile-name');
                 if (profileName) profileName.innerText = user.first_name || 'Игрок';
-                // --- Обновление нашей новой шапки ---
+                
+                // Имя в верхней шапке
                 const headerName = document.getElementById('header-name');
                 if (headerName) headerName.innerText = user.first_name || 'Игрок';
 
+                // Единая логика для аватарок (в шапке и в профиле)
                 const headerAvatar = document.getElementById('header-avatar');
                 const profileAvatar = document.getElementById('profile-avatar');
                 
@@ -1288,17 +1290,11 @@
                 if (headerAvatar) {
                     headerAvatar.src = user.photo_url || coolPlaceholder;
                 }
-                
                 if (profileAvatar) {
                     profileAvatar.src = user.photo_url || coolPlaceholder;
                 }
-                const profileAvatar = document.getElementById('profile-avatar');
-                if (profileAvatar && user.photo_url) {
-                    profileAvatar.src = user.photo_url;
-                } else if (profileAvatar && user.first_name) {
-                    const firstLetter = user.first_name.charAt(0).toUpperCase();
-                    profileAvatar.src = `https://placehold.co/200x200/222/fff?text=${firstLetter}`;
-                }
+
+                // ID пользователя
                 const idDisplay = document.querySelector('#copy-btn span');
                 if (idDisplay) idDisplay.innerText = `ID: ${user.id}`;
             }
