@@ -947,6 +947,9 @@
         
                     // Сохраняем состояние для календаря
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
+                    if (user.is_admin) {
+                        document.getElementById('nav-admin').classList.remove('hidden');
+                    }
 
                     // --- НОВОЕ: ФИЛЬТР ПЕРСОНАЖЕЙ ---
                     if (user.active_characters) {
@@ -1606,15 +1609,6 @@
             }).catch(err => {
                 console.error("Ошибка при копировании", err);
             });
-        }
-
-        const ADMIN_IDS = [7672744848, 6546116205];
-
-        function checkAdmin() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            if (ADMIN_IDS.includes(userId)) {
-                document.getElementById('nav-admin').classList.remove('hidden'); 
-            }
         }
 
 
