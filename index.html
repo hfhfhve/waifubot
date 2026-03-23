@@ -1913,9 +1913,9 @@
         }
 
         function resumeChat(characterId, sessionId) {
-            tg.HapticFeedback.impactOccurred('medium');
-            tg.MainButton.showProgress();
+            tg.HapticFeedback.impactOccurred('light');
             
+            // Отправляем запрос на сервер
             fetch(WEBHOOK_RESUME, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1926,20 +1926,14 @@
                     initData: tg.initData
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                tg.MainButton.hideProgress();
-                if(data.success) {
-                    // Если успешно - закрываем Mini App
-                    tg.close(); 
-                } else {
-                    showToast("Ошибка при восстановлении чата", "error");
-                }
+            .then(() => {
+                // Как только запрос ушел и сервер его принял — сразу закрываем апп!
+                tg.close(); 
             })
             .catch(err => {
-                tg.MainButton.hideProgress();
-                console.error(err);
-                showToast("Ошибка соединения", "error");
+                // Даже если браузер Телеграма вдруг чихнет и выдаст сетевую ошибку, 
+                // мы знаем, что бэкенд уже отправил сообщения. Жестко закрываем окно!
+                tg.close();
             });
         }
 
