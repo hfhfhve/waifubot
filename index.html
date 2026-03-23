@@ -1014,22 +1014,12 @@
             });
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchUserData();
-            checkAdmin();
-            
-            // Запасной план: принудительно убрать лоадер через 5 секунд, если API зависло
-            setTimeout(() => {
-                hideLoadingScreen();
-            }, 10000);
-        });
 
         const tg = window.Telegram.WebApp;
         let currentItem = null; 
         let selectedCharacterId = null; 
-        // ========================================================
+        
         const BASE_URL = "https://waifubot.website";
-
         const WEBHOOK_URL = `${BASE_URL}/webhook/shop-buy`;
         const WEBHOOK_LAUNCH = `${BASE_URL}/webhook/start`;
         const WEBHOOK_GET_USER = `${BASE_URL}/webhook/get-user`;
@@ -1043,7 +1033,48 @@
         const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
         const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
         // ========================================================
-        
+
+        // ЕДИНЫЙ БЛОК ЗАПУСКА ПРИЛОЖЕНИЯ
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Инициализация Telegram
+            tg.ready(); 
+            tg.expand(); 
+            tg.setHeaderColor('#050505'); 
+            tg.setBackgroundColor('#050505');
+            
+            // 2. Читаем язык из кэша
+            const savedLang = localStorage.getItem('app_lang') || 'ru';
+            setLanguage(savedLang);
+            
+            // 3. Заполняем базовые данные (аватарки и имена из ТГ)
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                const profileName = document.getElementById('profile-name');
+                if (profileName) profileName.innerText = user.first_name || 'Игрок';
+                
+                const headerName = document.getElementById('header-name');
+                if (headerName) headerName.innerText = user.first_name || 'Игрок';
+
+                const headerAvatar = document.getElementById('header-avatar');
+                const profileAvatar = document.getElementById('profile-avatar');
+                const coolPlaceholder = 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=200&h=200&fit=crop&q=80';
+
+                if (headerAvatar) headerAvatar.src = user.photo_url || coolPlaceholder;
+                if (profileAvatar) profileAvatar.src = user.photo_url || coolPlaceholder;
+
+                const idDisplay = document.querySelector('#copy-btn span');
+                if (idDisplay) idDisplay.innerText = `ID: ${user.id}`;
+            }
+
+            // 4. Идем на бэкенд за реальными данными (баланс, админка, персонажи)
+            fetchUserData();
+            
+            // 5. Запасной план: принудительно убрать лоадер через 10 секунд
+            setTimeout(() => {
+                hideLoadingScreen();
+            }, 10000);
+        });
+
         // --- LOCALIZATION ---
         const translations = {
             ru: {
@@ -1307,46 +1338,6 @@
             { id: 'char:tiffany', name_ru: 'Тиффани', name_en: 'Tiffany', desc_ru: 'Глупая блондинка с большой грудью', desc_en: 'Bimbo blonde with big assets', fullDesc_ru: 'Очаровательная глупышка, которая путает право и лево, но отлично знает, как пользоваться своими выдающимися достоинствами. С ней легко, весело и никогда не бывает скучно, особенно если не задавать сложных вопросов и просто наслаждаться моментом.', fullDesc_en: 'A charming ditz who confuses left and right but knows perfectly well how to use her outstanding assets. It\'s easy, fun, and never boring with her, especially if you don\'t ask complex questions and just enjoy the moment.', image: 'https://placehold.co/400x600/888/fff?text=Tiffany', online: false },
             { id: 'char:mika', name_ru: 'Мика', name_en: 'Mika', desc_ru: 'Подруга, с которой все переростает во что то большее', desc_en: 'Friend turning into something more', fullDesc_ru: 'Твоя лучшая подруга с детства. Вы делили секреты и игрушки, но теперь выросли, и невинные ночевки превращаются в нечто большее. Граница френдзоны вот-вот будет стерта, и старая дружба готова перерасти в страстную любовь.', fullDesc_en: 'Your best friend since childhood. You shared secrets and toys, but now you\'ve grown up, and innocent sleepovers are turning into something more. The friend zone boundary is about to be erased, and old friendship is ready to grow into passionate love.', image: 'https://imgfy.ru/ib/j5olFbHS05V5RHh_1774007874.webp', online: false }
         ];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            tg.ready(); 
-            tg.expand(); 
-            tg.setHeaderColor('#050505'); 
-            tg.setBackgroundColor('#050505');
-            
-            // Читаем язык из кэша (если нет, ставим 'ru')
-            const savedLang = localStorage.getItem('app_lang') || 'ru';
-            setLanguage(savedLang);
-            
-            const user = tg.initDataUnsafe?.user;
-            if (user) {
-                // Имя в профиле
-                const profileName = document.getElementById('profile-name');
-                if (profileName) profileName.innerText = user.first_name || 'Игрок';
-                
-                // Имя в верхней шапке
-                const headerName = document.getElementById('header-name');
-                if (headerName) headerName.innerText = user.first_name || 'Игрок';
-
-                // Единая логика для аватарок (в шапке и в профиле)
-                const headerAvatar = document.getElementById('header-avatar');
-                const profileAvatar = document.getElementById('profile-avatar');
-                
-                // Крутая неоновая заглушка для тех, у кого скрыта аватарка
-                const coolPlaceholder = 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=200&h=200&fit=crop&q=80';
-
-                if (headerAvatar) {
-                    headerAvatar.src = user.photo_url || coolPlaceholder;
-                }
-                if (profileAvatar) {
-                    profileAvatar.src = user.photo_url || coolPlaceholder;
-                }
-
-                // ID пользователя
-                const idDisplay = document.querySelector('#copy-btn span');
-                if (idDisplay) idDisplay.innerText = `ID: ${user.id}`;
-            }
-        });
 
         function updateBonusCardUI() {
             if (!window.dailyState) return; // Если данные с сервера еще не пришли, ждем
