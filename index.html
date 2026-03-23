@@ -857,14 +857,6 @@
                     <span class="font-bold text-white">Закрепить</span>
                 </button>
 
-                <button onclick="actionClearContext()" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-orange-500/30 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all">
-                    <div class="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400"><i class="fa-solid fa-rotate-right"></i></div>
-                    <div class="text-left flex-1">
-                        <div class="font-bold text-white">Очистить память</div>
-                        <div class="text-[10px] text-gray-500">Начать сюжет с чистого листа</div>
-                    </div>
-                </button>
-
                 <button onclick="actionDelete()" class="w-full bg-red-500/5 border border-red-500/20 hover:bg-red-500/20 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all mt-4">
                     <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500"><i class="fa-solid fa-trash-can"></i></div>
                     <span class="font-bold text-red-500">Удалить чат</span>
@@ -1053,6 +1045,7 @@
         const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
         const WEBHOOK_GET_CHATS = `${BASE_URL}/webhook/get-chats`;
         const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
+        const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
         // ========================================================
         
         // --- LOCALIZATION ---
@@ -2009,18 +2002,37 @@
             showToast("Чат успешно закреплен 📌", "success");
         }
 
-        function actionClearContext() {
-            closeChatOptionsModal();
-            showToast("Память персонажа очищена 🔄", "success");
-        }
-
         function actionDelete() {
-            closeChatOptionsModal();
-            tg.HapticFeedback.notificationOccurred('warning');
-            showToast("Чат удален 🗑️", "success");
-            // В будущем тут будет fetch-запрос на удаление с сервера
-        }
+            if (!activeOptionsSession) return;
+            const { sessionId, charId } = activeOptionsSession;
 
+            // Спрашиваем подтверждение перед удалением (стандарт Telegram)
+            tg.showConfirm("Точно удалить этот чат? Это действие нельзя отменить.", (confirmed) => {
+                if (confirmed) {
+                    closeChatOptionsModal();
+                    tg.MainButton.showProgress();
+
+                    fetch(WEBHOOK_CHAT_ACTION, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            action: 'delete', 
+                            session_id: sessionId, 
+                            chat_id: tg.initDataUnsafe?.user?.id,
+                            initData: tg.initData 
+                        })
+                    }).then(res => res.json()).then(data => {
+                        tg.MainButton.hideProgress();
+                        if (data.success) {
+                            tg.HapticFeedback.notificationOccurred('warning');
+                            showToast("Чат удален 🗑️", "success");
+                            fetchChatsList(); // Обновляем список чатов (чат пропадет)
+                        }
+                    }).catch(() => { tg.MainButton.hideProgress(); });
+                }
+            });
+        }
+        
         function renderReferrals(referrals) {
             const listContainer = document.getElementById('referrals-list');
             document.getElementById('ref-count').innerText = referrals.length;
