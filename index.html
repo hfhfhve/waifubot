@@ -838,6 +838,40 @@
             </div>
         </div>
     </div>
+
+    <div id="chat-options-modal" class="fixed inset-0 z-[160] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeChatOptionsModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-10 flex flex-col">
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-4 opacity-50 shrink-0"></div>
+            
+            <h3 id="options-modal-title" class="text-xl font-black text-white mb-5 text-center">Настройки чата</h3>
+
+            <div class="space-y-2.5">
+                <button onclick="actionRename()" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-blue-500/30 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-pen"></i></div>
+                    <span class="font-bold text-white">Переименовать</span>
+                </button>
+
+                <button onclick="actionPin()" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-yellow-500/30 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400"><i class="fa-solid fa-thumbtack"></i></div>
+                    <span class="font-bold text-white">Закрепить</span>
+                </button>
+
+                <button onclick="actionClearContext()" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-orange-500/30 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400"><i class="fa-solid fa-rotate-right"></i></div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-white">Очистить память</div>
+                        <div class="text-[10px] text-gray-500">Начать сюжет с чистого листа</div>
+                    </div>
+                </button>
+
+                <button onclick="actionDelete()" class="w-full bg-red-500/5 border border-red-500/20 hover:bg-red-500/20 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all mt-4">
+                    <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500"><i class="fa-solid fa-trash-can"></i></div>
+                    <span class="font-bold text-red-500">Удалить чат</span>
+                </button>
+            </div>
+        </div>
+    </div>
     
     <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl transition-all duration-400 transform -translate-y-24 opacity-0 border w-[90%] max-w-sm pointer-events-none">
         <div id="toast-icon" class="text-2xl drop-shadow-md"></div>
@@ -1902,10 +1936,10 @@
                         <p class="text-xs text-gray-400 truncate italic">${prefix}${chat.last_message}</p>
                     </div>
                     
-                    <div class="shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-pink-400 group-hover:bg-pink-500/10 transition-all">
-                            <i class="fa-solid fa-chevron-right text-xs"></i>
-                        </div>
+                    <div class="shrink-0 flex items-center">
+                        <button onclick="event.stopPropagation(); openChatOptions('${char.id}', '${chat.session_id}', '${name}')" class="w-10 h-10 rounded-full bg-transparent flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 active:scale-90 transition-all">
+                            <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+                        </button>
                     </div>
                 </div>
                 `;
@@ -1935,6 +1969,56 @@
                 // мы знаем, что бэкенд уже отправил сообщения. Жестко закрываем окно!
                 tg.close();
             });
+        }
+
+        // --- ЛОГИКА НАСТРОЕК ЧАТА (ТРИ ТОЧКИ) ---
+        let activeOptionsSession = null;
+
+        function openChatOptions(charId, sessionId, charName) {
+            tg.HapticFeedback.impactOccurred('light');
+            
+            // Запоминаем, какой чат сейчас редактируем
+            activeOptionsSession = { charId, sessionId, charName };
+            
+            // Меняем заголовок шторки
+            document.getElementById('options-modal-title').innerText = `Чат с ${charName}`;
+            
+            // Открываем шторку
+            const modal = document.getElementById('chat-options-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+
+        function closeChatOptionsModal() {
+            const modal = document.getElementById('chat-options-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                activeOptionsSession = null;
+            }, 300);
+        }
+
+        // --- ДЕЙСТВИЯ (Пока заглушки с красивыми тостами) ---
+        function actionRename() {
+            closeChatOptionsModal();
+            showToast("Функция переименования скоро появится! ✏️", "info");
+        }
+
+        function actionPin() {
+            closeChatOptionsModal();
+            showToast("Чат успешно закреплен 📌", "success");
+        }
+
+        function actionClearContext() {
+            closeChatOptionsModal();
+            showToast("Память персонажа очищена 🔄", "success");
+        }
+
+        function actionDelete() {
+            closeChatOptionsModal();
+            tg.HapticFeedback.notificationOccurred('warning');
+            showToast("Чат удален 🗑️", "success");
+            // В будущем тут будет fetch-запрос на удаление с сервера
         }
 
         function renderReferrals(referrals) {
