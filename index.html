@@ -1017,6 +1017,7 @@
         const WEBHOOK_CRYPTO_BUY = `${BASE_URL}/webhook/crypto-callback`;
         const webhookUrl = `${BASE_URL}/webhook/set-language`;
         const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
+        const WEBHOOK_GET_CHATS = `${BASE_URL}/webhook/get-chats`;
         // ========================================================
         
         // --- LOCALIZATION ---
@@ -1518,6 +1519,10 @@
                 shopSwitch.classList.add('hidden'); 
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Если открыли вкладку чатов - запрашиваем свежие данные с сервера
+            if (tabId === 'chats') {
+                fetchChatsList();
+            }
         }
 
         function switchShopSubTab(subTabName) {
@@ -1816,6 +1821,93 @@
                 console.error("Ошибка загрузки рефералов", err);
                 renderReferrals([]);
             });
+        }
+
+        // --- ЛОГИКА ИСТОРИИ ЧАТОВ ---
+        function fetchChatsList() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            const container = document.getElementById('chats-list-container');
+            
+            if (!userId) {
+                container.innerHTML = `<p class="text-center text-gray-500 mt-10">Доступно только в Telegram</p>`;
+                return;
+            }
+
+            // Показываем анимацию загрузки, пока ждем ответ от сервера
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center pt-20 opacity-50">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-4"></i>
+                    <p class="text-sm text-gray-400">Загрузка...</p>
+                </div>
+            `;
+
+            fetch(WEBHOOK_GET_CHATS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.chats && data.chats.length > 0) {
+                    renderChats(data.chats);
+                } else {
+                    // Если переписок еще нет
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center pt-20 opacity-40">
+                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-message text-2xl text-gray-500"></i>
+                            </div>
+                            <p class="text-sm font-bold text-gray-400" data-i18n="no_chats">${translations[currentLang].no_chats}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Ошибка загрузки чатов:", err);
+                container.innerHTML = `<p class="text-center text-red-500 mt-10 font-bold">Ошибка соединения</p>`;
+            });
+        }
+
+        function renderChats(chats) {
+            const container = document.getElementById('chats-list-container');
+            
+            container.innerHTML = chats.map(chat => {
+                // Ищем персонажа в нашем основном массиве characters по ID
+                const char = characters.find(c => c.id === chat.character_id);
+                if (!char) return ''; // Если перса удалили из кода, просто пропускаем
+                
+                const name = char['name_' + currentLang];
+                const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
+                
+                // Добавляем приписку "Вы:", если последнее сообщение было от пользователя
+                const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
+
+                // При клике открываем карточку персонажа (ты можешь заменить это на прямой переход в чат бота)
+                return `
+                <div onclick="openCharacterModal('${char.id}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
+                    <div class="relative shrink-0">
+                        <div class="w-14 h-14 rounded-full overflow-hidden border border-white/10 group-hover:border-pink-500/50 transition-colors">
+                            <img src="${char.image}" class="w-full h-full object-cover">
+                        </div>
+                        ${statusHtml}
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h3 class="text-sm font-bold text-white truncate">${name}</h3>
+                            <span class="text-[10px] text-gray-500 shrink-0 font-mono">${chat.time}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 truncate italic">${prefix}${chat.last_message}</p>
+                    </div>
+                    
+                    <div class="shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-pink-400 group-hover:bg-pink-500/10 transition-all">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
 
         function renderReferrals(referrals) {
