@@ -1943,51 +1943,6 @@
             });
         }
 
-        function resumeChat(characterId, sessionId) {
-            tg.HapticFeedback.impactOccurred('medium');
-            tg.MainButton.showProgress();
-            
-            // Находим имя персонажа для красивого уведомления
-            const char = characters.find(c => c.id === characterId);
-            const charName = char ? char['name_' + currentLang] : '';
-
-            fetch(WEBHOOK_RESUME, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    character_id: characterId,
-                    session_id: sessionId,
-                    chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                tg.MainButton.hideProgress();
-                if(data.success) {
-                    // Показываем красивое уведомление (с учетом языка)
-                    const msg = currentLang === 'ru' ? 
-                        `Переходим в диалог с ${charName}... 💬` : 
-                        `Resuming chat with ${charName}... 💬`;
-                        
-                    showToast(msg, 'success');
-                    
-                    // Даем юзеру 1.5 секунды насладиться анимацией тоста и закрываем апп
-                    setTimeout(() => {
-                        tg.close(); 
-                    }, 1500);
-                    
-                } else {
-                    showToast("Ошибка при восстановлении чата", "error");
-                }
-            })
-            .catch(err => {
-                tg.MainButton.hideProgress();
-                console.error(err);
-                showToast("Ошибка соединения", "error");
-            });
-        }
-
         function renderReferrals(referrals) {
             const listContainer = document.getElementById('referrals-list');
             document.getElementById('ref-count').innerText = referrals.length;
