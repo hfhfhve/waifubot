@@ -1911,6 +1911,15 @@
                 const char = characters.find(c => c.id === chat.character_id);
                 if (!char) return '';
                 
+                // --- ВОТ ТУТ МАГИЯ ВРЕМЕНИ ---
+                // Берем таймстамп (секунды), умножаем на 1000 (миллисекунды для JS)
+                const date = new Date(chat.created_at_ts * 1000);
+                // JS сам определит часовой пояс телефона юзера и достанет нужные часы и минуты
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const localTime = `${hours}:${minutes}`;
+                // -----------------------------
+
                 const displayName = chat.custom_name || char['name_' + currentLang];
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
                 const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
@@ -1929,7 +1938,7 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline mb-1">
                             <h3 class="text-sm font-bold text-white truncate">${pinIcon}${displayName}</h3>
-                            <span class="text-[10px] text-gray-500 shrink-0 font-mono">${chat.time}</span>
+                            <span class="text-[10px] text-gray-500 shrink-0 font-mono">${localTime}</span>
                         </div>
                         <p class="text-xs text-gray-400 truncate italic">${prefix}${chat.last_message}</p>
                     </div>
