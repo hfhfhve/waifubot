@@ -853,8 +853,8 @@
                 </button>
 
                 <button onclick="actionPin()" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-yellow-500/30 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all">
-                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400"><i class="fa-solid fa-thumbtack"></i></div>
-                    <span class="font-bold text-white">Закрепить</span>
+                    <div id="pin-btn-icon" class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400"><i class="fa-solid fa-thumbtack"></i></div>
+                    <span id="pin-btn-text" class="font-bold text-white">Закрепить</span>
                 </button>
 
                 <button onclick="actionDelete()" class="w-full bg-red-500/5 border border-red-500/20 hover:bg-red-500/20 active:scale-98 rounded-2xl p-3.5 flex items-center gap-4 transition-all mt-4">
@@ -1901,17 +1901,20 @@
             const container = document.getElementById('chats-list-container');
             
             container.innerHTML = chats.map(chat => {
-                // Ищем персонажа в нашем основном массиве characters по ID
                 const char = characters.find(c => c.id === chat.character_id);
-                if (!char) return ''; // Если перса удалили из кода, просто пропускаем
+                if (!char) return '';
                 
-                const name = char['name_' + currentLang];
+                // Используем кастомное имя, если есть, иначе стандартное
+                const displayName = chat.custom_name || char['name_' + currentLang];
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
-                
-                // Добавляем приписку "Вы:", если последнее сообщение было от пользователя
                 const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
+                
+                // Иконка закрепа (под наклоном)
+                const pinIcon = chat.is_pinned ? `<i class="fa-solid fa-thumbtack text-yellow-500 text-xs mr-1.5 transform -rotate-45"></i>` : '';
 
-                // При клике открываем карточку персонажа (ты можешь заменить это на прямой переход в чат бота)
+                // Очищаем имя от кавычек для передачи в функцию, чтобы не ломался JS
+                const safeName = displayName.replace(/'/g, "\\'");
+
                 return `
                 <div onclick="resumeChat('${char.id}', '${chat.session_id}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
@@ -1923,14 +1926,14 @@
                     
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="text-sm font-bold text-white truncate">${name}</h3>
+                            <h3 class="text-sm font-bold text-white truncate">${pinIcon}${displayName}</h3>
                             <span class="text-[10px] text-gray-500 shrink-0 font-mono">${chat.time}</span>
                         </div>
                         <p class="text-xs text-gray-400 truncate italic">${prefix}${chat.last_message}</p>
                     </div>
                     
                     <div class="shrink-0 flex items-center">
-                        <button onclick="event.stopPropagation(); openChatOptions('${char.id}', '${chat.session_id}', '${name}')" class="w-10 h-10 rounded-full bg-transparent flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 active:scale-90 transition-all">
+                        <button onclick="event.stopPropagation(); openChatOptions('${char.id}', '${chat.session_id}', '${safeName}', ${chat.is_pinned})" class="w-10 h-10 rounded-full bg-transparent flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 active:scale-90 transition-all">
                             <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
                         </button>
                     </div>
@@ -1967,16 +1970,23 @@
         // --- ЛОГИКА НАСТРОЕК ЧАТА (ТРИ ТОЧКИ) ---
         let activeOptionsSession = null;
 
-        function openChatOptions(charId, sessionId, charName) {
+        function openChatOptions(charId, sessionId, charName, isPinned) {
             tg.HapticFeedback.impactOccurred('light');
+            activeOptionsSession = { charId, sessionId, charName, isPinned }; // Сохраняем статус закрепа
             
-            // Запоминаем, какой чат сейчас редактируем
-            activeOptionsSession = { charId, sessionId, charName };
+            document.getElementById('options-modal-title').innerText = `Настройки: ${charName}`;
             
-            // Меняем заголовок шторки
-            document.getElementById('options-modal-title').innerText = `Чат с ${charName}`;
+            // Меняем дизайн кнопки закрепа
+            const pinBtnSpan = document.getElementById('pin-btn-text');
+            const pinBtnIcon = document.getElementById('pin-btn-icon');
+            if (isPinned) {
+                pinBtnSpan.innerText = "Открепить";
+                pinBtnIcon.className = "w-10 h-10 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400";
+            } else {
+                pinBtnSpan.innerText = "Закрепить";
+                pinBtnIcon.className = "w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400";
+            }
             
-            // Открываем шторку
             const modal = document.getElementById('chat-options-modal');
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
@@ -1993,13 +2003,59 @@
 
         // --- ДЕЙСТВИЯ (Пока заглушки с красивыми тостами) ---
         function actionRename() {
+            if (!activeOptionsSession) return;
+            const { sessionId, charName } = activeOptionsSession;
             closeChatOptionsModal();
-            showToast("Функция переименования скоро появится! ✏️", "info");
+            
+            // Вызываем нативное окно ввода (в Telegram работает отлично)
+            const newName = prompt("Введите новое имя для чата:", charName);
+            if (newName !== null && newName.trim() !== "") {
+                tg.MainButton.showProgress();
+                fetch(WEBHOOK_CHAT_ACTION, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'rename', 
+                        session_id: sessionId, 
+                        new_name: newName.trim(),
+                        chat_id: tg.initDataUnsafe?.user?.id,
+                        initData: tg.initData 
+                    })
+                }).then(res => res.json()).then(data => {
+                    tg.MainButton.hideProgress();
+                    if (data.success) {
+                        showToast("Чат переименован ✏️", "success");
+                        fetchChatsList(); // Перерисовываем список
+                    }
+                }).catch(() => { tg.MainButton.hideProgress(); });
+            }
         }
 
         function actionPin() {
+            if (!activeOptionsSession) return;
+            const { sessionId, isPinned } = activeOptionsSession;
             closeChatOptionsModal();
-            showToast("Чат успешно закреплен 📌", "success");
+            tg.MainButton.showProgress();
+
+            const newPinStatus = !isPinned; // Инвертируем текущий статус
+
+            fetch(WEBHOOK_CHAT_ACTION, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: 'pin', 
+                    session_id: sessionId, 
+                    is_pinned: newPinStatus,
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData 
+                })
+            }).then(res => res.json()).then(data => {
+                tg.MainButton.hideProgress();
+                if (data.success) {
+                    showToast(newPinStatus ? "Чат закреплен 📌" : "Чат откреплен", "success");
+                    fetchChatsList(); // Обновляем (закрепленные улетят наверх)
+                }
+            }).catch(() => { tg.MainButton.hideProgress(); });
         }
 
         function actionDelete() {
