@@ -1018,6 +1018,7 @@
         const webhookUrl = `${BASE_URL}/webhook/set-language`;
         const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
         const WEBHOOK_GET_CHATS = `${BASE_URL}/webhook/get-chats`;
+        const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
         // ========================================================
         
         // --- LOCALIZATION ---
@@ -1885,7 +1886,7 @@
 
                 // При клике открываем карточку персонажа (ты можешь заменить это на прямой переход в чат бота)
                 return `
-                <div onclick="openCharacterModal('${char.id}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
+                <div onclick="resumeChat('${char.id}', '${chat.session_id}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
                         <div class="w-14 h-14 rounded-full overflow-hidden border border-white/10 group-hover:border-pink-500/50 transition-colors">
                             <img src="${char.image}" class="w-full h-full object-cover">
@@ -1909,6 +1910,37 @@
                 </div>
                 `;
             }).join('');
+        }
+
+        function resumeChat(characterId, sessionId) {
+            tg.HapticFeedback.impactOccurred('medium');
+            tg.MainButton.showProgress();
+            
+            fetch(WEBHOOK_RESUME, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    character_id: characterId,
+                    session_id: sessionId,
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                if(data.success) {
+                    // Если успешно - закрываем Mini App
+                    tg.close(); 
+                } else {
+                    showToast("Ошибка при восстановлении чата", "error");
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                console.error(err);
+                showToast("Ошибка соединения", "error");
+            });
         }
 
         function renderReferrals(referrals) {
