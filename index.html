@@ -714,13 +714,14 @@
         function hideLoadingScreen() {
             const loader = document.getElementById('loading-screen');
             if (loader) {
-                // Сначала делаем его прозрачным (плавное исчезновение)
                 loader.classList.add('opacity-0');
-                // Через 500мс (когда анимация прозрачности закончится), полностью удаляем/прячем
                 setTimeout(() => {
                     loader.classList.add('hidden');
-                    // Сразу после исчезновения заставки проверяем, есть ли юзеру 18
-                    checkAgeVerification();
+                    
+                    // Проверяем: если сервер сказал, что 18+ НЕ подтверждено — показываем окно
+                    if (window.isAgeVerified === false) {
+                        checkAgeVerification();
+                    }
                 }, 500);
             }
         }
@@ -747,6 +748,7 @@
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
+                    window.isAgeVerified = user.is_age_verified;
                     // Обновляем баланс
                     if(document.getElementById('balance-stars')) {
                         document.getElementById('balance-stars').innerText = user.stars || 0;
@@ -850,6 +852,7 @@
         const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
         const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
         const WEBHOOK_GET_SHOP = `${BASE_URL}/webhook/get-shop`;
+        const WEBHOOK_VERIFY_AGE = `${BASE_URL}/webhook/verify-age`;
         // ========================================================
 
         // ЕДИНЫЙ БЛОК ЗАПУСКА ПРИЛОЖЕНИЯ
@@ -1954,41 +1957,39 @@
             }
         }
 
-        // --- ЛОГИКА ПРОВЕРКИ ВОЗРАСТА 18+ ---
+        // --- ЛОГИКА ПРОВЕРКИ ВОЗРАСТА 18+ (ИЗ БД) ---
         function checkAgeVerification() {
-            // Проверяем, нажимал ли юзер кнопку ранее (сохраняется в памяти телефона)
-            const isVerified = localStorage.getItem('age_verified');
-            
-            if (!isVerified) {
-                const modal = document.getElementById('age-verification-modal');
-                const content = document.getElementById('age-modal-content');
-                
-                // Делаем окно видимым (flex вместо hidden)
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                
-                // Запускаем красивую анимацию появления
-                setTimeout(() => {
-                    modal.classList.add('opacity-100');
-                    content.classList.remove('scale-95', 'opacity-0');
-                    content.classList.add('scale-100', 'opacity-100');
-                }, 50);
-            }
-        }
-
-        function confirmAge() {
-            tg.HapticFeedback.impactOccurred('heavy'); // Мощная вибрация
-            localStorage.setItem('age_verified', 'true'); // Запоминаем выбор пользователя
-            
             const modal = document.getElementById('age-verification-modal');
             const content = document.getElementById('age-modal-content');
             
-            // Запускаем обратную анимацию исчезновения
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function confirmAge() {
+            tg.HapticFeedback.impactOccurred('heavy');
+            
+            // Отправляем запрос на наш сервер, чтобы записать в БД
+            fetch(WEBHOOK_VERIFY_AGE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
+            }).catch(err => console.error("Ошибка верификации:", err));
+            
+            // Прячем окно
+            const modal = document.getElementById('age-verification-modal');
+            const content = document.getElementById('age-modal-content');
+            
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
             modal.classList.remove('opacity-100');
             
-            // Через полсекунды (когда анимация закончена) прячем окно
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
@@ -1996,8 +1997,8 @@
         }
 
         function rejectAge() {
-            tg.HapticFeedback.notificationOccurred('error'); // Вибрация "ошибка"
-            // Человек признался, что он ребенок. Закрываем окно Telegram Mini App.
+            tg.HapticFeedback.notificationOccurred('error');
+            // Закрываем Mini App
             tg.close(); 
         }
 
