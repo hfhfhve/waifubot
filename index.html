@@ -224,6 +224,36 @@
         </div>
     </div>
 
+    <div id="age-verification-modal" class="fixed inset-0 z-[1000] hidden bg-[#050505]/95 backdrop-blur-xl flex-col items-center justify-center px-4 transition-all duration-500">
+        <div class="bg-[#111] border border-pink-500/30 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(236,72,153,0.15)] flex flex-col items-center text-center transform scale-95 opacity-0 transition-all duration-500" id="age-modal-content">
+            
+            <div class="w-20 h-20 rounded-full bg-pink-500/10 flex items-center justify-center mb-5 border border-pink-500/20 shadow-[0_0_20px_rgba(236,72,153,0.3)]">
+                <span class="text-4xl drop-shadow-[0_0_10px_rgba(236,72,153,0.8)]">🔞</span>
+            </div>
+            
+            <h2 class="text-2xl font-black text-white mb-3 tracking-wide" data-i18n="age_title">Внимание: 18+</h2>
+            
+            <p class="text-sm text-gray-300 mb-2 leading-relaxed font-medium" data-i18n="age_desc1">
+                Этот сервис содержит откровенные материалы, предназначенные только для взрослых.
+            </p>
+            
+            <div class="bg-black/50 border border-white/5 rounded-xl p-3 mb-8">
+                <p class="text-[11px] text-gray-500 leading-relaxed font-mono" data-i18n="age_desc2">
+                    * Все персонажи являются вымышленными, сгенерированы нейросетью и достигли совершеннолетия (18 лет и старше).
+                </p>
+            </div>
+            
+            <div class="w-full space-y-3">
+                <button onclick="confirmAge()" class="w-full h-14 bg-gradient-to-r from-pink-600 to-purple-700 rounded-xl font-black text-white text-sm shadow-[0_5px_20px_rgba(219,39,119,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2 border border-pink-500/50">
+                    <i class="fa-solid fa-check text-lg"></i> <span data-i18n="age_yes">МНЕ ЕСТЬ 18 ЛЕТ</span>
+                </button>
+                <button onclick="rejectAge()" class="w-full h-12 bg-transparent border border-white/10 rounded-xl font-bold text-gray-500 text-sm hover:bg-white/5 active:scale-95 transition-all" data-i18n="age_no">
+                    МНЕ НЕТ 18 ЛЕТ
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
@@ -689,6 +719,8 @@
                 // Через 500мс (когда анимация прозрачности закончится), полностью удаляем/прячем
                 setTimeout(() => {
                     loader.classList.add('hidden');
+                    // Сразу после исчезновения заставки проверяем, есть ли юзеру 18
+                    checkAgeVerification();
                 }, 500);
             }
         }
@@ -906,6 +938,11 @@
                 rename_chat: "Переименовать", pin_chat: "Закрепить", unpin_chat: "Открепить", delete_chat: "Удалить чат",
                 rename_title: "Переименовать чат", rename_desc: "Введи новое имя для этого персонажа", btn_save: "СОХРАНИТЬ",
                 confirm_delete: "Точно удалить этот чат?", placeholder_name: "Новое имя",
+                age_title: "Внимание: 18+",
+                age_desc1: "Этот сервис содержит откровенные материалы, предназначенные только для взрослых.",
+                age_desc2: "* Все персонажи являются вымышленными, сгенерированы нейросетью и достигли совершеннолетия (18 лет и старше).",
+                age_yes: "МНЕ ЕСТЬ 18 ЛЕТ",
+                age_no: "МНЕ НЕТ 18 ЛЕТ",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -946,7 +983,12 @@
                 no_chats: "You have no chats yet",
                 rename_chat: "Rename", pin_chat: "Pin", unpin_chat: "Unpin", delete_chat: "Delete chat",
                 rename_title: "Rename chat", rename_desc: "Enter a new name for this character", btn_save: "SAVE",
-                confirm_delete: "Are you sure you want to delete this chat?", placeholder_name: "New name"
+                confirm_delete: "Are you sure you want to delete this chat?", placeholder_name: "New name",
+                age_title: "Warning: 18+",
+                age_desc1: "This service contains explicit material intended for adults only.",
+                age_desc2: "* All characters are fictional, AI-generated, and are 18 years of age or older.",
+                age_yes: "I AM 18 OR OLDER",
+                age_no: "I AM UNDER 18",
             }
         };
 
@@ -1910,6 +1952,53 @@
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 return `${day}.${month}`;
             }
+        }
+
+        // --- ЛОГИКА ПРОВЕРКИ ВОЗРАСТА 18+ ---
+        function checkAgeVerification() {
+            // Проверяем, нажимал ли юзер кнопку ранее (сохраняется в памяти телефона)
+            const isVerified = localStorage.getItem('age_verified');
+            
+            if (!isVerified) {
+                const modal = document.getElementById('age-verification-modal');
+                const content = document.getElementById('age-modal-content');
+                
+                // Делаем окно видимым (flex вместо hidden)
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Запускаем красивую анимацию появления
+                setTimeout(() => {
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 50);
+            }
+        }
+
+        function confirmAge() {
+            tg.HapticFeedback.impactOccurred('heavy'); // Мощная вибрация
+            localStorage.setItem('age_verified', 'true'); // Запоминаем выбор пользователя
+            
+            const modal = document.getElementById('age-verification-modal');
+            const content = document.getElementById('age-modal-content');
+            
+            // Запускаем обратную анимацию исчезновения
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            
+            // Через полсекунды (когда анимация закончена) прячем окно
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 500);
+        }
+
+        function rejectAge() {
+            tg.HapticFeedback.notificationOccurred('error'); // Вибрация "ошибка"
+            // Человек признался, что он ребенок. Закрываем окно Telegram Mini App.
+            tg.close(); 
         }
 
         function resumeChat(characterId, sessionId) {
