@@ -688,6 +688,27 @@
             </div>
         </div>
     </div>
+
+    <div id="delete-modal" class="fixed inset-0 z-[170] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeDeleteModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12 flex flex-col items-center text-center">
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-6 opacity-50"></div>
+            
+            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20">
+                <i class="fa-solid fa-trash-can text-3xl text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"></i>
+            </div>
+            
+            <h3 class="text-2xl font-black text-white mb-2" data-i18n="confirm_delete_title">Удалить чат?</h3>
+            <p class="text-sm text-gray-400 mb-8 px-2" data-i18n="confirm_delete_desc">Весь диалог будет стерт безвозвратно. Продолжить?</p>
+            
+            <button id="confirm-delete-btn" onclick="confirmDeleteChat()" class="w-full h-14 bg-red-600 hover:bg-red-700 active:scale-95 transition-all text-white font-bold rounded-2xl mb-3 flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(220,38,38,0.3)]">
+                <i class="fa-solid fa-trash-can"></i> <span data-i18n="delete_confirm">Да, удалить</span>
+            </button>
+            <button id="cancel-delete-btn" onclick="closeDeleteModal()" class="w-full h-14 bg-[#1a1a1a] border border-white/5 hover:bg-white/10 active:scale-95 transition-all text-gray-400 font-bold rounded-2xl">
+                <span data-i18n="delete_cancel">Отмена</span>
+            </button>
+        </div>
+    </div>
     
     <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl transition-all duration-400 transform -translate-y-24 opacity-0 border w-[90%] max-w-sm pointer-events-none">
         <div id="toast-icon" class="text-2xl drop-shadow-md"></div>
@@ -963,6 +984,11 @@
                 age_desc2: "* Все персонажи являются вымышленными, сгенерированы нейросетью и достигли совершеннолетия (18 лет и старше).",
                 age_yes: "МНЕ ЕСТЬ 18 ЛЕТ",
                 age_no: "МНЕ НЕТ 18 ЛЕТ",
+                confirm_delete_title: "Удалить чат?",
+                confirm_delete_desc: "Весь диалог будет стерт безвозвратно. Продолжить?",
+                delete_confirm: "Да, удалить",
+                delete_cancel: "Отмена",
+                deleting_process: "Удаление...",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1009,6 +1035,11 @@
                 age_desc2: "* All characters are fictional, AI-generated, and are 18 years of age or older.",
                 age_yes: "I AM 18 OR OLDER",
                 age_no: "I AM UNDER 18",
+                confirm_delete_title: "Delete chat?",
+                confirm_delete_desc: "The entire dialogue will be permanently erased. Continue?",
+                delete_confirm: "Yes, delete",
+                delete_cancel: "Cancel",
+                deleting_process: "Deleting...",
             }
         };
 
@@ -2181,23 +2212,74 @@
             }).catch(() => { tg.MainButton.hideProgress(); });
         }
 
+        // --- ЛОГИКА УДАЛЕНИЯ ЧАТА (ЧЕРЕЗ КРАСИВУЮ МОДАЛКУ) ---
         function actionDelete() {
+            if (!activeOptionsSession) return;
+            
+            // Закрываем меню чата (где три точки)
+            closeChatOptionsModal();
+            
+            // Восстанавливаем кнопку удаления (вдруг она зависла на "Удаление...")
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+            const cancelBtn = document.getElementById('cancel-delete-btn');
+            const btnSpan = confirmBtn.querySelector('span');
+            const btnIcon = confirmBtn.querySelector('i');
+
+            confirmBtn.disabled = false;
+            cancelBtn.classList.remove('opacity-50', 'pointer-events-none');
+            btnIcon.className = "fa-solid fa-trash-can";
+            btnSpan.innerText = translations[currentLang]?.delete_confirm || 'Yes, delete';
+            confirmBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+            confirmBtn.classList.add('bg-red-600');
+
+            // Открываем наше красивое окно
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function confirmDeleteChat() {
             if (!activeOptionsSession) return;
             const { sessionId } = activeOptionsSession;
 
-            tg.showConfirm(translations[currentLang].confirm_delete, (confirmed) => { // <-- Заменили русский текст
-                if (confirmed) {
-                    closeChatOptionsModal();
-                    tg.MainButton.showProgress();
-                    fetch(WEBHOOK_CHAT_ACTION, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'delete', session_id: sessionId, chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
-                    }).then(res => res.json()).then(data => {
-                        tg.MainButton.hideProgress();
-                        if (data.success) { showToast("Чат удален 🗑️", "success"); fetchChatsList(); }
-                    }).catch(() => { tg.MainButton.hideProgress(); });
+            // Включаем спиннер загрузки на кнопке
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+            const cancelBtn = document.getElementById('cancel-delete-btn');
+            const btnSpan = confirmBtn.querySelector('span');
+            const btnIcon = confirmBtn.querySelector('i');
+
+            confirmBtn.disabled = true;
+            cancelBtn.classList.add('opacity-50', 'pointer-events-none');
+            btnIcon.className = "fa-solid fa-spinner fa-spin";
+            btnSpan.innerText = translations[currentLang]?.deleting_process || 'Deleting...';
+            confirmBtn.classList.remove('bg-red-600');
+            confirmBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
+
+            // Запрос на бэкенд
+            fetch(WEBHOOK_CHAT_ACTION, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', session_id: sessionId, chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    showToast("Чат удален 🗑️", "success");
+                    fetchChatsList();
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    closeDeleteModal();
+                    showToast("Ошибка удаления", "error");
                 }
+            }).catch(() => {
+                tg.HapticFeedback.notificationOccurred('error');
+                closeDeleteModal();
+                showToast("Ошибка сети", "error");
             });
         }
         
