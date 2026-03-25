@@ -224,6 +224,18 @@
         </div>
     </div>
 
+    <div id="maintenance-screen" class="fixed inset-0 z-[2000] hidden bg-[#050505] flex-col items-center justify-center px-6 transition-all duration-500">
+        <div class="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+            <i class="fa-solid fa-triangle-exclamation text-5xl text-red-500 drop-shadow-md"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white mb-3 text-center">Технические работы</h2>
+        <p class="text-sm text-gray-400 text-center mb-8">Сервер временно недоступен или обновляется. Мы уже чиним эту херню, скоро всё заработает! 🛠️</p>
+        
+        <button onclick="tg.openTelegramLink('https://t.me/твой_аккаунт_поддержки')" class="w-full max-w-xs h-14 bg-[#1a1a1a] hover:bg-white/10 rounded-2xl font-bold text-white border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-3">
+            <i class="fa-solid fa-headset text-lg"></i> НАПИСАТЬ В САППОРТ
+        </button>
+    </div>
+
     <div id="age-verification-modal" class="fixed inset-0 z-[1000] hidden bg-[#050505]/95 backdrop-blur-xl flex-col items-center justify-center px-4 transition-all duration-500">
         <div class="bg-[#111] border border-pink-500/30 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(236,72,153,0.15)] flex flex-col items-center text-center transform scale-95 opacity-0 transition-all duration-500" id="age-modal-content">
             
@@ -826,11 +838,16 @@
                 }
             })
             .catch(err => {
-                console.error("Ошибка получения данных:", err);
+                console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
+                // Если произошла ошибка связи с сервером - показываем тех. работы
+                showMaintenanceScreen();
             })
             .finally(() => {
-                // Прячем экран загрузки в любом случае: при успехе или при ошибке
-                hideLoadingScreen();
+                // Прячем экран загрузки ТОЛЬКО если мы не включили экран тех. работ
+                const mScreen = document.getElementById('maintenance-screen');
+                if (mScreen && mScreen.classList.contains('hidden')) {
+                    hideLoadingScreen();
+                }
             });
         }
         
@@ -1887,6 +1904,26 @@
             packsContainer.innerHTML = packsHtml;
             energyContainer.innerHTML = energyHtml;
             gemsContainer.innerHTML = gemsHtml;
+        }
+
+        function showMaintenanceScreen() {
+            // 1. Убиваем лоадер, чтобы он не крутился бесконечно
+            const loader = document.getElementById('loading-screen');
+            if (loader) {
+                loader.classList.add('hidden');
+            }
+            
+            // 2. Показываем экран ошибки
+            const mScreen = document.getElementById('maintenance-screen');
+            if (mScreen) {
+                mScreen.classList.remove('hidden');
+                mScreen.classList.add('flex'); // Включаем Flexbox, чтобы он отобразился
+            }
+            
+            // 3. Даем юзеру тактильный отклик, что произошла ошибка
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
         }
         
         function renderChats(chats) {
