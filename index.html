@@ -1017,6 +1017,11 @@
 
             updateBonusCardUI();
             renderCharacters();
+
+            if (window.shopItemsList) {
+                renderShop(window.shopItemsList);
+            }
+            
             const renameInput = document.getElementById('rename-input');
             if (renameInput) renameInput.placeholder = translations[lang].placeholder_name;
         }
@@ -1732,6 +1737,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.items) {
+                    window.shopItemsList = data.items;
                     renderShop(data.items);
                 }
             })
