@@ -858,16 +858,17 @@
                     }
                 }
             })
+            // ... (код внутри fetchUserData)
             .catch(err => {
                 console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
-                // Если произошла ошибка связи с сервером - показываем тех. работы
                 showMaintenanceScreen();
+                hideLoadingScreen(); // Если ошибка, лоадер тоже убираем
             })
             .finally(() => {
-                // Прячем экран загрузки ТОЛЬКО если мы не включили экран тех. работ
                 const mScreen = document.getElementById('maintenance-screen');
+                // Запускаем проверку картинок только если нет экрана тех. работ
                 if (mScreen && mScreen.classList.contains('hidden')) {
-                    hideLoadingScreen();
+                    preloadImagesAndHideLoader(); 
                 }
             });
         }
@@ -1955,6 +1956,40 @@
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('error');
             }
+        }
+
+        function preloadImagesAndHideLoader() {
+            // Находим все картинки, которые отрендерились в контейнере персонажей
+            const images = document.querySelectorAll('#characters-container img');
+            let loadedCount = 0;
+            const totalImages = images.length;
+        
+            // Если картинок почему-то нет, просто прячем лоадер
+            if (totalImages === 0) {
+                hideLoadingScreen();
+                return;
+            }
+        
+            // Проверяем каждую картинку
+            images.forEach(img => {
+                // Если картинка уже успела загрузиться (например, из кэша)
+                if (img.complete) {
+                    loadedCount++;
+                    if (loadedCount === totalImages) hideLoadingScreen();
+                } else {
+                    // Ждем события загрузки конкретной картинки
+                    img.addEventListener('load', () => {
+                        loadedCount++;
+                        if (loadedCount === totalImages) hideLoadingScreen();
+                    });
+                    // Если картинка битая (ошибка 404), тоже считаем ее загруженной, 
+                    // чтобы лоадер не завис навечно
+                    img.addEventListener('error', () => {
+                        loadedCount++;
+                        if (loadedCount === totalImages) hideLoadingScreen();
+                    });
+                }
+            });
         }
         
         function renderChats(chats) {
