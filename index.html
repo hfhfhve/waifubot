@@ -781,6 +781,14 @@
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
+                    // --- НОВОЕ: Сохраняем конфигурацию наград с сервера ---
+                    if (user.daily_rewards_config) {
+                        window.DAILY_REWARDS = user.daily_rewards_config;
+                    } else if (!window.DAILY_REWARDS) {
+                        window.DAILY_REWARDS = []; // На случай, если бэкенд ничего не отдал
+                    }
+                    // --------------------------------------------------------
+
                     window.isAgeVerified = user.is_age_verified;
                     // Обновляем баланс
                     if(document.getElementById('balance-stars')) {
@@ -1076,15 +1084,7 @@
         }
 
         // --- ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА (КАЛЕНДАРЬ) ---
-        const DAILY_REWARDS = [
-            { day: 1, stars: 10, gems: 0 },
-            { day: 2, stars: 10, gems: 1 },
-            { day: 3, stars: 10, gems: 1 },
-            { day: 4, stars: 15, gems: 1 },
-            { day: 5, stars: 15, gems: 2 },
-            { day: 6, stars: 20, gems: 1 },
-            { day: 7, stars: 30, gems: 5 } // Супер-приз!
-        ];
+        window.DAILY_REWARDS = [];
 
         function openDailyModal() {
             tg.HapticFeedback.impactOccurred('medium');
@@ -1107,7 +1107,11 @@
             const lang = currentLang;
 
             let html = '';
-            DAILY_REWARDS.forEach(reward => {
+            
+            // --- НОВОЕ: Берем награды из глобальной переменной, а не из хардкода ---
+            const rewardsList = window.DAILY_REWARDS || [];
+            
+            rewardsList.forEach(reward => {
                 // Логика состояний: прошедший день, сегодняшний, будущий
                 const isPast = reward.day < state.streak || (!state.canClaim && reward.day === state.streak);
                 const isCurrent = state.canClaim && reward.day === state.streak;
