@@ -836,18 +836,21 @@
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    // --- 1. ОЧИСТКА ЯЗЫКА (Чтобы описания не пропадали) ---
-                    // Убираем лишние кавычки и двоеточия из '''ru'''::text
-                    let cleanLang = (user.language_code || 'ru')
-                        .replace(/['":text]/g, '') // Удаляем мусор
+                    // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
+                    let serverLang = (user.language_code || 'ru')
+                        .replace(/['":text]/g, '') // Удаляем мусор из Supabase
                         .trim()
                         .toLowerCase();
                     
-                    // Если после чистки пришла пустота, ставим 'ru'
-                    if (cleanLang !== 'ru' && cleanLang !== 'en') cleanLang = 'ru';
+                    // Список языков, которые мы поддерживаем
+                    const supportedLangs = ['ru', 'en', 'es', 'pt'];
                     
-                    setLanguage(cleanLang);
+                    // Если в базе лежит поддерживаемый язык — ставим его, иначе английский
+                    let cleanLang = supportedLangs.includes(serverLang) ? serverLang : 'en';
+                    
+                    // Сохраняем в память и применяем к интерфейсу
                     localStorage.setItem('app_lang', cleanLang);
+                    setLanguage(cleanLang);
         
                     // --- 2. КОНФИГУРАЦИЯ НАГРАД ---
                     if (user.daily_rewards_config) {
@@ -905,22 +908,18 @@
                         if (adminNav) adminNav.classList.remove('hidden');
                     }
         
-                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ (Исправлено) ---
+                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
-                        // Фильтруем, учитывая возможные несовпадения префиксов
                         window.activeCharactersList = characters.filter(c => 
                             user.active_characters.includes(c.id) || 
                             user.active_characters.includes(c.id.replace('char:', ''))
                         );
                     } else {
-                        // Если активных нет — показываем всех по умолчанию, чтобы экран не был пустым
                         window.activeCharactersList = characters;
                     }
                     
-                    // Рендерим список
                     renderCharacters(); 
         
-                    // Обновляем UI бонуса
                     if (typeof updateBonusCardUI === 'function') {
                         updateBonusCardUI();
                     }
@@ -1262,16 +1261,21 @@
                 flag.src = langConfig[lang].flag; 
                 text.innerText = langConfig[lang].text; 
             }
-
+        
             updateBonusCardUI();
             renderCharacters();
-
+        
             if (window.shopItemsList) {
                 renderShop(window.shopItemsList);
             }
             
             const renameInput = document.getElementById('rename-input');
             if (renameInput) renameInput.placeholder = translations[lang].placeholder_name;
+        
+            // --- ОБЯЗАТЕЛЬНО: Обновляем визуальные галочки в меню выбора языка ---
+            if (typeof updateLanguageChecks === 'function') {
+                updateLanguageChecks();
+            }
         }
 
         // --- ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА (КАЛЕНДАРЬ) ---
