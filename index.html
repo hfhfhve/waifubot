@@ -968,9 +968,27 @@
             tg.setHeaderColor('#050505'); 
             tg.setBackgroundColor('#050505');
             
-            // 2. Читаем язык из кэша
-            const savedLang = localStorage.getItem('app_lang') || 'ru';
-            setLanguage(savedLang);
+            // 2. Определяем язык (Кэш -> Telegram -> Дефолт)
+            let startLang = localStorage.getItem('app_lang');
+            
+            if (!startLang) {
+                // Если в кэше пусто (самый первый заход), берем язык из Telegram
+                const tgLang = tg.initDataUnsafe?.user?.language_code;
+                const supportedLangs = ['ru', 'en', 'es', 'pt'];
+                
+                if (tgLang && supportedLangs.includes(tgLang)) {
+                    startLang = tgLang; // Испанцу - испанский, португальцу - португальский
+                } else if (tgLang === 'uk' || tgLang === 'be' || tgLang === 'kk') {
+                    startLang = 'ru'; // Для Украины, Беларуси и Казахстана ставим русский
+                } else {
+                    startLang = 'en'; // Для всех остальных (китайцев, немцев и т.д.) - английский
+                }
+                
+                // Сразу сохраняем в кэш, чтобы больше не проверять
+                localStorage.setItem('app_lang', startLang); 
+            }
+            
+            setLanguage(startLang);
             
             // 3. Заполняем базовые данные (аватарки и имена из ТГ)
             const user = tg.initDataUnsafe?.user;
