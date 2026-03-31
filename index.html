@@ -712,14 +712,15 @@
 
     <div id="language-modal" class="fixed inset-0 z-[170] hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closeLanguageModal()"></div>
-        <div class="absolute bottom-0 left-0 w-full modal-content p-5 pb-8 flex flex-col max-h-[55vh] overflow-y-auto custom-scroll">
+        
+        <div class="absolute bottom-0 left-0 w-full modal-content p-5 pb-10 flex flex-col">
             <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mb-4 opacity-50 shrink-0"></div>
             
-            <h3 class="text-xl font-black text-white mb-4 text-center shrink-0" data-i18n="language">Язык</h3>
+            <h3 class="text-xl font-black text-white mb-5 text-center shrink-0" data-i18n="language">Язык</h3>
             
-            <div class="space-y-2 shrink-0">
+            <div class="space-y-2.5 shrink-0">
                 <button onclick="selectLanguage('ru')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-4">
                         <img src="https://flagcdn.com/w40/ru.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
                             <div class="text-sm font-black text-white tracking-wide">РУССКИЙ</div>
@@ -730,7 +731,7 @@
                 </button>
 
                 <button onclick="selectLanguage('en')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-4">
                         <img src="https://flagcdn.com/w40/us.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
                             <div class="text-sm font-black text-white tracking-wide">ENGLISH</div>
@@ -741,7 +742,7 @@
                 </button>
 
                 <button onclick="selectLanguage('es')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-4">
                         <img src="https://flagcdn.com/w40/es.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
                             <div class="text-sm font-black text-white tracking-wide">ESPAÑOL</div>
@@ -752,7 +753,7 @@
                 </button>
 
                 <button onclick="selectLanguage('pt')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-4">
                         <img src="https://flagcdn.com/w40/br.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
                             <div class="text-sm font-black text-white tracking-wide">PORTUGUÊS</div>
