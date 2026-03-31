@@ -712,58 +712,54 @@
 
     <div id="language-modal" class="fixed inset-0 z-[170] hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closeLanguageModal()"></div>
-        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12 flex flex-col">
-            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-6 opacity-50 shrink-0"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-5 pb-8 flex flex-col max-h-[55vh] overflow-y-auto custom-scroll">
+            <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mb-4 opacity-50 shrink-0"></div>
             
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30 mx-auto mb-4">
-                <i class="fa-solid fa-globe text-white"></i>
-            </div>
+            <h3 class="text-xl font-black text-white mb-4 text-center shrink-0" data-i18n="language">Язык</h3>
             
-            <h3 class="text-2xl font-black text-white mb-6 text-center" data-i18n="language">Язык</h3>
-            
-            <div class="space-y-3">
-                <button onclick="selectLanguage('ru')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://flagcdn.com/w40/ru.png" class="w-8 rounded-sm shadow-sm">
+            <div class="space-y-2 shrink-0">
+                <button onclick="selectLanguage('ru')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <img src="https://flagcdn.com/w40/ru.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
-                            <div class="text-base font-black text-white tracking-wide">РУССКИЙ</div>
-                            <div class="text-[11px] text-gray-500 font-medium">Russian</div>
+                            <div class="text-sm font-black text-white tracking-wide">РУССКИЙ</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">Russian</div>
                         </div>
                     </div>
-                    <div id="lang-check-ru" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                    <div id="lang-check-ru" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
 
-                <button onclick="selectLanguage('en')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://flagcdn.com/w40/us.png" class="w-8 rounded-sm shadow-sm">
+                <button onclick="selectLanguage('en')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <img src="https://flagcdn.com/w40/us.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
-                            <div class="text-base font-black text-white tracking-wide">ENGLISH</div>
-                            <div class="text-[11px] text-gray-500 font-medium">English</div>
+                            <div class="text-sm font-black text-white tracking-wide">ENGLISH</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">English</div>
                         </div>
                     </div>
-                    <div id="lang-check-en" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                    <div id="lang-check-en" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
 
-                <button onclick="selectLanguage('es')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://flagcdn.com/w40/es.png" class="w-8 rounded-sm shadow-sm">
+                <button onclick="selectLanguage('es')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <img src="https://flagcdn.com/w40/es.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
-                            <div class="text-base font-black text-white tracking-wide">ESPAÑOL</div>
-                            <div class="text-[11px] text-gray-500 font-medium">Spanish</div>
+                            <div class="text-sm font-black text-white tracking-wide">ESPAÑOL</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">Spanish</div>
                         </div>
                     </div>
-                    <div id="lang-check-es" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                    <div id="lang-check-es" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
 
-                <button onclick="selectLanguage('pt')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://flagcdn.com/w40/br.png" class="w-8 rounded-sm shadow-sm">
+                <button onclick="selectLanguage('pt')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <img src="https://flagcdn.com/w40/br.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
-                            <div class="text-base font-black text-white tracking-wide">PORTUGUÊS</div>
-                            <div class="text-[11px] text-gray-500 font-medium">Portuguese</div>
+                            <div class="text-sm font-black text-white tracking-wide">PORTUGUÊS</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">Portuguese</div>
                         </div>
                     </div>
-                    <div id="lang-check-pt" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                    <div id="lang-check-pt" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
             </div>
         </div>
@@ -1417,16 +1413,16 @@
         }
 
         function updateLanguageChecks() {
-            // Логика отрисовки галочки напротив выбранного языка
+            // Логика отрисовки галочки напротив выбранного языка (уменьшенный размер)
             const langs = ['ru', 'en', 'es', 'pt'];
             langs.forEach(l => {
                 const check = document.getElementById('lang-check-' + l);
                 if (check) {
                     if (l === currentLang) {
-                        check.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-lg shadow-pink-500/40 transition-all scale-110 border-none";
+                        check.className = "w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-[10px] shadow-lg shadow-pink-500/40 transition-all scale-110 border-none";
                         check.innerHTML = '<i class="fa-solid fa-check"></i>';
                     } else {
-                        check.className = "w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all";
+                        check.className = "w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all";
                         check.innerHTML = '';
                     }
                 }
@@ -2497,8 +2493,6 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        // --- ДЕЙСТВИЯ (Пока заглушки с красивыми тостами) ---
-        // --- НОВАЯ ЛОГИКА ПЕРЕИМЕНОВАНИЯ ---
         function actionRename() {
             if (!activeOptionsSession) return;
             const { charName } = activeOptionsSession;
