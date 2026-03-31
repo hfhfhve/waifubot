@@ -821,7 +821,6 @@
             // Если мы в браузере или ID не получен
             if (!userId) {
                 console.log("Нет User ID (тест в браузере?), ставим демо-данные");
-                // Прячем загрузку, так как данных не будет
                 hideLoadingScreen(); 
                 return; 
             }
@@ -829,7 +828,7 @@
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId, initData: tg.initData }) // ДОБАВЛЕНО initData
+                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
             })
             .then(res => res.json())
             .then(data => {
@@ -837,15 +836,28 @@
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    // --- НОВОЕ: Сохраняем конфигурацию наград с сервера ---
+                    // --- 1. ОЧИСТКА ЯЗЫКА (Чтобы описания не пропадали) ---
+                    // Убираем лишние кавычки и двоеточия из '''ru'''::text
+                    let cleanLang = (user.language_code || 'ru')
+                        .replace(/['":text]/g, '') // Удаляем мусор
+                        .trim()
+                        .toLowerCase();
+                    
+                    // Если после чистки пришла пустота, ставим 'ru'
+                    if (cleanLang !== 'ru' && cleanLang !== 'en') cleanLang = 'ru';
+                    
+                    setLanguage(cleanLang);
+                    localStorage.setItem('app_lang', cleanLang);
+        
+                    // --- 2. КОНФИГУРАЦИЯ НАГРАД ---
                     if (user.daily_rewards_config) {
-                        window.DAILY_REWARDS = user.daily_rewards_config;
+                        window.DAILY_REWARDS = Array.isArray(user.daily_rewards_config) ? user.daily_rewards_config : [];
                     } else if (!window.DAILY_REWARDS) {
-                        window.DAILY_REWARDS = []; // На случай, если бэкенд ничего не отдал
+                        window.DAILY_REWARDS = [];
                     }
-                    // --------------------------------------------------------
-
+        
                     window.isAgeVerified = user.is_age_verified;
+                    
                     // Обновляем баланс
                     if(document.getElementById('balance-stars')) {
                         document.getElementById('balance-stars').innerText = user.stars || 0;
@@ -853,14 +865,8 @@
                     if(document.getElementById('balance-gems')) {
                         document.getElementById('balance-gems').innerText = user.gems || 0;
                     }
-                    
-                    // Применяем язык из БД и сразу сохраняем в кэш устройства
-                    if (user.language_code) {
-                        setLanguage(user.language_code);
-                        localStorage.setItem('app_lang', user.language_code);
-                    }
         
-                    // Логика ежедневного бонуса (математика дней)
+                    // --- 3. ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА ---
                     let nextDay = 1; 
                     let isSameDay = false; 
                     let hoursLeft = 0;
@@ -869,68 +875,64 @@
                         const lastClaim = new Date(user.last_bonus_date);
                         const now = new Date();
                         
-                        // Считаем полночь для сравнения дней
                         const todayMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
                         const lastClaimMidnight = Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate());
                         const diffDays = (todayMidnight - lastClaimMidnight) / 86400000;
         
                         if (diffDays === 1) {
-                            // Зашел на следующий день
                             nextDay = (user.bonus_streak || 0) + 1;
                             if (nextDay > 7) nextDay = 1;
                         } else if (diffDays === 0) {
-                            // Уже забирал сегодня
                             nextDay = user.bonus_streak || 1; 
                             isSameDay = true;
                             const tomorrow = new Date(todayMidnight + 86400000);
                             hoursLeft = Math.floor((tomorrow - now) / 3600000);
                         } else {
-                            // Пропустил больше одного дня, сброс серии
                             nextDay = 1;
-                            
-                            // 1. Показываем только если прогресс реально был (серия 1 и больше)
-                            // 2. Проверяем в кэше телефона, не показывали ли мы уже табличку для этого конкретного сброса
                             const lastNotified = localStorage.getItem('streak_lost_notified');
-                            
                             if (user.bonus_streak >= 1 && lastNotified !== user.last_bonus_date) {
-                                setTimeout(() => showStreakLostModal(), 500); 
-                                // Запоминаем дату последней награды, чтобы не спамить табличкой при следующих заходах
+                                setTimeout(() => { if(typeof showStreakLostModal === 'function') showStreakLostModal(); }, 500); 
                                 localStorage.setItem('streak_lost_notified', user.last_bonus_date);
                             }
                         }
                     }
         
-                    // Сохраняем состояние для календаря
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
+        
+                    // --- 4. АДМИН-ПАНЕЛЬ ---
                     if (user.is_admin) {
-                        document.getElementById('nav-admin').classList.remove('hidden');
+                        const adminNav = document.getElementById('nav-admin');
+                        if (adminNav) adminNav.classList.remove('hidden');
                     }
-
-                    // --- НОВОЕ: ФИЛЬТР ПЕРСОНАЖЕЙ ---
-                    if (user.active_characters) {
-                        // Оставляем только тех, чьи ID пришли из базы данных
-                        window.activeCharactersList = characters.filter(c => user.active_characters.includes(c.id));
+        
+                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ (Исправлено) ---
+                    if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
+                        // Фильтруем, учитывая возможные несовпадения префиксов
+                        window.activeCharactersList = characters.filter(c => 
+                            user.active_characters.includes(c.id) || 
+                            user.active_characters.includes(c.id.replace('char:', ''))
+                        );
+                    } else {
+                        // Если активных нет — показываем всех по умолчанию, чтобы экран не был пустым
+                        window.activeCharactersList = characters;
                     }
-                    renderCharacters(); // Сразу перерисовываем список
-                    // ---------------------------------
-
-                    // === ВОТ ОНО ===
-                    // Вызываем единую функцию обновления UI бонуса. 
-                    // Она сама возьмет правильный язык и раскрасит карточку.
+                    
+                    // Рендерим список
+                    renderCharacters(); 
+        
+                    // Обновляем UI бонуса
                     if (typeof updateBonusCardUI === 'function') {
                         updateBonusCardUI();
                     }
                 }
             })
-            // ... (код внутри fetchUserData)
             .catch(err => {
                 console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
                 showMaintenanceScreen();
-                hideLoadingScreen(); // Если ошибка, лоадер тоже убираем
+                hideLoadingScreen(); 
             })
             .finally(() => {
                 const mScreen = document.getElementById('maintenance-screen');
-                // Запускаем проверку картинок только если нет экрана тех. работ
                 if (mScreen && mScreen.classList.contains('hidden')) {
                     preloadImagesAndHideLoader(); 
                 }
@@ -1650,17 +1652,23 @@
 
         function openCharacterModal(charId) {
             tg.HapticFeedback.impactOccurred('medium');
+            
+            // Ищем персонажа в основном списке
             const char = characters.find(c => c.id === charId);
-            if (!char) return;
+            if (!char) {
+                console.error("Персонаж не найден:", charId);
+                return;
+            }
+        
             selectedCharacterId = charId;
-            const name = char['name_' + currentLang];
-            const fullDesc = char['fullDesc_' + currentLang] || char['desc_' + currentLang];
-
+            // Используем currentLang, который мы уже очистили в fetchUserData
+            const name = char['name_' + currentLang] || char['name_ru'];
+            const fullDesc = char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru'];
+        
             document.getElementById('char-modal-img').src = char.image;
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
-            
-
+        
             const modal = document.getElementById('character-modal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-open'); }, 10);
