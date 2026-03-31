@@ -709,6 +709,65 @@
             </button>
         </div>
     </div>
+
+    <div id="language-modal" class="fixed inset-0 z-[170] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeLanguageModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12 flex flex-col">
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-6 opacity-50 shrink-0"></div>
+            
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30 mx-auto mb-4">
+                <i class="fa-solid fa-globe text-white"></i>
+            </div>
+            
+            <h3 class="text-2xl font-black text-white mb-6 text-center" data-i18n="language">Язык</h3>
+            
+            <div class="space-y-3">
+                <button onclick="selectLanguage('ru')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-4">
+                        <img src="https://flagcdn.com/w40/ru.png" class="w-8 rounded-sm shadow-sm">
+                        <div class="text-left">
+                            <div class="text-base font-black text-white tracking-wide">РУССКИЙ</div>
+                            <div class="text-[11px] text-gray-500 font-medium">Russian</div>
+                        </div>
+                    </div>
+                    <div id="lang-check-ru" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                </button>
+
+                <button onclick="selectLanguage('en')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-4">
+                        <img src="https://flagcdn.com/w40/us.png" class="w-8 rounded-sm shadow-sm">
+                        <div class="text-left">
+                            <div class="text-base font-black text-white tracking-wide">ENGLISH</div>
+                            <div class="text-[11px] text-gray-500 font-medium">English</div>
+                        </div>
+                    </div>
+                    <div id="lang-check-en" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                </button>
+
+                <button onclick="selectLanguage('es')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-4">
+                        <img src="https://flagcdn.com/w40/es.png" class="w-8 rounded-sm shadow-sm">
+                        <div class="text-left">
+                            <div class="text-base font-black text-white tracking-wide">ESPAÑOL</div>
+                            <div class="text-[11px] text-gray-500 font-medium">Spanish</div>
+                        </div>
+                    </div>
+                    <div id="lang-check-es" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                </button>
+
+                <button onclick="selectLanguage('pt')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-2xl p-4 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-4">
+                        <img src="https://flagcdn.com/w40/br.png" class="w-8 rounded-sm shadow-sm">
+                        <div class="text-left">
+                            <div class="text-base font-black text-white tracking-wide">PORTUGUÊS</div>
+                            <div class="text-[11px] text-gray-500 font-medium">Portuguese</div>
+                        </div>
+                    </div>
+                    <div id="lang-check-pt" class="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                </button>
+            </div>
+        </div>
+    </div>
     
     <div id="custom-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl transition-all duration-400 transform -translate-y-24 opacity-0 border w-[90%] max-w-sm pointer-events-none">
         <div id="toast-icon" class="text-2xl drop-shadow-md"></div>
@@ -1324,24 +1383,54 @@
         }
 
         function toggleLanguage() {
-            // Крутим 4 языка по кругу
-            let currentIndex = languages.indexOf(currentLang);
-            let nextIndex = (currentIndex + 1) % languages.length;
-            let newLang = languages[nextIndex];
+            // Теперь эта кнопка просто открывает модалку
+            tg.HapticFeedback.impactOccurred('medium');
+            const modal = document.getElementById('language-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+            updateLanguageChecks(); // Подсвечиваем текущий язык галочкой
+        }
+
+        function closeLanguageModal() {
+            const modal = document.getElementById('language-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function selectLanguage(lang) {
+            // Срабатывает при клике на язык в модалке
+            tg.HapticFeedback.selectionChanged();
             
-            setLanguage(newLang);
-            localStorage.setItem('app_lang', newLang);
+            setLanguage(lang);
+            localStorage.setItem('app_lang', lang);
+            updateLanguageChecks(); // Перерисовываем галочку
             
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                tg.HapticFeedback.selectionChanged();
-            }
-        
             const userId = tg.initDataUnsafe?.user?.id;
             if (userId) {
-                saveLanguageToServer(userId, newLang);
-            } else {
-                console.log("Тестовый режим (нет ID): вебхук не отправлен");
+                saveLanguageToServer(userId, lang);
             }
+            
+            // Красиво закрываем модалку с небольшой задержкой
+            setTimeout(() => {
+                closeLanguageModal();
+            }, 250);
+        }
+
+        function updateLanguageChecks() {
+            // Логика отрисовки галочки напротив выбранного языка
+            const langs = ['ru', 'en', 'es', 'pt'];
+            langs.forEach(l => {
+                const check = document.getElementById('lang-check-' + l);
+                if (check) {
+                    if (l === currentLang) {
+                        check.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-lg shadow-pink-500/40 transition-all scale-110 border-none";
+                        check.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    } else {
+                        check.className = "w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all";
+                        check.innerHTML = '';
+                    }
+                }
+            });
         }
 
         const characters = [
