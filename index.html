@@ -841,7 +841,17 @@
             })
             .then(res => res.json())
             .then(data => {
-                // n8n может вернуть массив или объект, делаем проверку
+                // === ВОТ ЭТОТ БЛОК ДОБАВИТЬ ===
+                if (data.maintenance === true) {
+                    hideLoadingScreen(); // Прячем лоадер
+                    const maintScreen = document.getElementById('maintenance-screen');
+                    if (maintScreen) {
+                        maintScreen.classList.remove('hidden');
+                        maintScreen.classList.add('flex');
+                    }
+                    return; // Прекращаем загрузку приложения
+                }
+                // ==============================
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
