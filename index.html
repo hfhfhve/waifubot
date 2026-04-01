@@ -837,8 +837,9 @@
         
                 if (user) {
                     // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
-                    let serverLang = (user.language_code || 'ru')
-                        .replace(/['":text]/g, '') // Удаляем мусор из Supabase
+                    let serverLang = String(user.language_code || 'ru')
+                        .replace(/::text/g, '') // Удаляем именно приписку ::text
+                        .replace(/['"]/g, '')   // Удаляем кавычки
                         .trim()
                         .toLowerCase();
                     
