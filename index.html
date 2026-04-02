@@ -830,19 +830,26 @@
         function fetchUserData() {
             const userId = tg.initDataUnsafe?.user?.id;
             
-            // Если мы в браузере или ID не получен
             if (!userId) {
                 console.log("Нет User ID (тест в браузере?), ставим демо-данные");
                 hideLoadingScreen(); 
                 return; 
             }
         
+            // Создаем контроллер для отмены зависшего запроса
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // Таймер на 10 секунд
+        
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
+                body: JSON.stringify({ chat_id: userId, initData: tg.initData }),
+                signal: controller.signal // Привязываем контроллер к запросу
             })
-            .then(res => res.json())
+            .then(res => {
+                clearTimeout(timeoutId); // Если сервер ответил быстро - отменяем таймер
+                return res.json();
+            })
             .then(data => {
                 // === ВОТ ЭТОТ БЛОК ДОБАВИТЬ ===
                 if (data.maintenance === true) {
@@ -1041,11 +1048,6 @@
 
             // Загружаем товары из БД:
             fetchShopData();
-            
-            // 5. Запасной план: принудительно убрать лоадер через 10 секунд
-            setTimeout(() => {
-                hideLoadingScreen();
-            }, 10000);
         });
 
         // --- LOCALIZATION ---
