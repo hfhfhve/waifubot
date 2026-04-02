@@ -931,6 +931,9 @@
                     }
         
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
+
+                    // ОБНОВЛЯЕМ КАРТОЧКУ БОНУСА НА ГЛАВНОМ ЭКРАНЕ
+                    updateBonusCardUI();
         
                     // --- 4. АДМИН-ПАНЕЛЬ ---
                     if (user.is_admin) {
