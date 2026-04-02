@@ -941,23 +941,18 @@
                     // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
                         window.activeCharactersList = user.active_characters.map(serverChar => {
-                            // Подстраховка: если сервер отдал старый кэш (строку), берем ее, иначе берем id из объекта
-                            const activeId = typeof serverChar === 'string' ? serverChar : serverChar.id; 
+                            const activeId = serverChar.id; 
                             const localChar = characters.find(c => c.id === activeId || c.id.replace('char:', '') === activeId);
                             
                             if (localChar) {
-                                return { 
-                                    ...localChar, 
-                                    has_image: typeof serverChar === 'object' ? serverChar.has_image : false, 
-                                    has_voice: typeof serverChar === 'object' ? serverChar.has_voice : false 
-                                };
+                                return { ...localChar, has_image: serverChar.has_image, has_voice: serverChar.has_voice };
                             }
                             return null;
                         }).filter(Boolean); 
                     } else {
+                        // ИСПРАВЛЕНИЕ: Если список пуст, оставляем его пустым. 
                         window.activeCharactersList = [];
                     }
-                    renderCharacters();
                 }
             })
             .catch(err => {
