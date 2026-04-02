@@ -938,16 +938,13 @@
                         if (adminNav) adminNav.classList.remove('hidden');
                     }
         
-                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ ---
+                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА) ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
-                        // Мапим данные из БД на хардкод из JS
-                        window.activeCharactersList = characters.map(c => {
-                            const dbChar = user.active_characters.find(db_c => db_c.id === c.id || db_c.id === c.id.replace('char:', ''));
-                            if (dbChar) {
-                                return { ...c, has_image: dbChar.has_image, has_voice: dbChar.has_voice, is_active: true };
-                            }
-                            return { ...c, is_active: false };
-                        }).filter(c => c.is_active);
+                        // Проходим по массиву объектов от сервера и собираем персонажей строго в присланном порядке
+                        window.activeCharactersList = user.active_characters.map(serverChar => {
+                            const activeId = serverChar.id; 
+                            return characters.find(c => c.id === activeId || c.id.replace('char:', '') === activeId);
+                        }).filter(Boolean); // Убираем пустые значения, если вдруг во фронте нет ID, который прислал сервер
                     } else {
                         window.activeCharactersList = characters;
                     }
