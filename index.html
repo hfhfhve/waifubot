@@ -2540,7 +2540,7 @@
                 const safeName = displayName.replace(/'/g, "\\'");
 
                 return `
-                <div onclick="resumeChat('${char.id}', '${chat.session_id}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
+                <div onclick="resumeChat('${char.id}', '${chat.session_id}', '${safeName}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
                         <div class="w-14 h-14 rounded-full overflow-hidden border border-white/10">
                             <img src="${char.image}" class="w-full h-full object-cover">
