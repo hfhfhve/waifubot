@@ -2641,9 +2641,9 @@
             tg.close(); 
         }
 
-        function resumeChat(characterId, sessionId) {
+        function resumeChat(characterId, sessionId, charName) { // <--- Добавили charName
             tg.HapticFeedback.impactOccurred('light');
-            
+        
             // Отправляем запрос на сервер
             fetch(WEBHOOK_RESUME, {
                 method: 'POST',
@@ -2651,6 +2651,7 @@
                 body: JSON.stringify({
                     character_id: characterId,
                     session_id: sessionId,
+                    char_name: charName, // <--- Передаем имя на бэкенд
                     chat_id: tg.initDataUnsafe?.user?.id,
                     initData: tg.initData
                 })
