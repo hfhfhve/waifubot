@@ -178,8 +178,14 @@
         .char-modal-content {
             height: 90vh;
             border-radius: 32px 32px 0 0;
+            transform: translateY(100%); /* Прячем окно вниз за пределы экрана */
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); /* Добавляем ту самую плавность */
         }
-
+        
+        /* Правило для выезда окна при добавлении класса JS-скриптом */
+        .modal-open .char-modal-content {
+            transform: translateY(0); /* Поднимаем окно на место */
+        }
         /* Навигация */
         .nav-icon-container {
             width: 48px; height: 32px;
