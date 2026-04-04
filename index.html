@@ -347,6 +347,19 @@
             </div>
         </div>
 
+        <div class="flex justify-center mb-6 px-1 animate-fade-up delay-100">
+            <div class="bg-[#1a1a24] border border-gray-700/50 p-1 rounded-2xl flex w-full relative shadow-lg">
+                <button id="btn-style-real" onclick="toggleStyle('real')" 
+                        class="flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md z-10 relative">
+                    <i class="fa-solid fa-camera mr-2"></i><span data-i18n="style_real">Реализм</span>
+                </button>
+                <button id="btn-style-anime" onclick="toggleStyle('anime')" 
+                        class="flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative">
+                    <i class="fa-solid fa-paintbrush mr-2"></i><span data-i18n="style_anime">Аниме</span>
+                </button>
+            </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3 pb-6" id="characters-container">
             </div>
         <div class="h-10"></div>
@@ -1126,6 +1139,7 @@
                 maint_desc: "Сервер временно недоступен или обновляется. Мы уже чиним, скоро всё заработает! 🛠️",
                 maint_btn: "НАПИСАТЬ В САППОРТ",
                 rename_limit: "Имя не может быть длиннее 50 символов!",
+                style_real: "Реализм", style_anime: "Аниме",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -1183,7 +1197,8 @@
                 maint_title: "Bakım Çalışması",
                 maint_desc: "Sunucu geçici olarak kapalı veya güncelleniyor. Düzeltiyoruz, yakında her şey çalışacak! 🛠️",
                 maint_btn: "DESTEK İLE İLETİŞİME GEÇ",
-                rename_limit: "İsim 50 karakterden uzun olamaz!"
+                rename_limit: "İsim 50 karakterden uzun olamaz!",
+                style_real: "Gerçekçilik", style_anime: "Anime",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1242,6 +1257,7 @@
                 maint_desc: "The server is temporarily unavailable or updating. We are fixing it, everything will work soon! 🛠️",
                 maint_btn: "CONTACT SUPPORT",
                 rename_limit: "Name cannot be longer than 50 characters!",
+                style_real: "Realism", style_anime: "Anime",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -1300,6 +1316,7 @@
                 maint_desc: "El servidor está temporalmente inactivo o actualizándose. ¡Lo estamos arreglando, todo funcionará pronto! 🛠️",
                 maint_btn: "CONTACTAR SOPORTE",
                 rename_limit: "¡El nombre no puede tener más de 50 caracteres!",
+                style_real: "Realismo", style_anime: "Anime",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -1358,6 +1375,7 @@
                 maint_desc: "O servidor está temporariamente indisponível ou atualizando. Estamos consertando, tudo voltará ao normal em breve! 🛠️",
                 maint_btn: "CONTATAR SUPORTE",
                 rename_limit: "O nome não pode ter mais de 50 caracteres!",
+                style_real: "Realismo", style_anime: "Anime",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -1416,6 +1434,7 @@
                 maint_desc: "Server untuk sementara tidak tersedia atau sedang diperbarui. Kami sedang memperbaikinya, semuanya akan segera berfungsi! 🛠️",
                 maint_btn: "HUBUNGI DUKUNGAN",
                 rename_limit: "Nama tidak boleh lebih dari 50 karakter!",
+                style_real: "Realisme", style_anime: "Anime",
             }
         };
 
@@ -2277,6 +2296,42 @@
                 })
             }).then(() => tg.showAlert("Отправлено!"))
               .catch(() => tg.showAlert("Ошибка"));
+        }
+
+        // --- ЛОГИКА ПЕРЕКЛЮЧАТЕЛЯ АНИМЕ/РЕАЛИЗМ ---
+        let currentStyle = 'real';
+
+        function toggleStyle(style) {
+            if (currentStyle === style) return;
+            currentStyle = style;
+            
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+
+            const btnReal = document.getElementById('btn-style-real');
+            const btnAnime = document.getElementById('btn-style-anime');
+
+            if (style === 'anime') {
+                btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md z-10 relative";
+                btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
+            } else {
+                btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md z-10 relative";
+                btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
+            }
+
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (userId) {
+                fetch('https://waifubot.website/webhook/set-anime-mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: userId, 
+                        is_anime: (style === 'anime'),
+                        initData: tg.initData
+                    })
+                }).catch(err => console.error("Ошибка смены стиля:", err));
+            }
         }
 
         function adminCreatePromo() {
