@@ -1668,6 +1668,7 @@
         const characters = [
             { 
                 id: 'char:stella', 
+                style: 'real',
                 name_ru: 'Стелла', name_en: 'Stella', name_es: 'Estela', name_pt: 'Stella', name_id: 'Stella', name_tr: 'Stella',
                 desc_ru: 'Уважаемая женщина-генерал, очень серьезная и развратная', 
                 desc_en: 'Respected female general, very serious and lewd',
@@ -1685,6 +1686,7 @@
             },
             { 
                 id: 'char:eva', 
+                style: 'real',
                 name_ru: 'Ева', name_en: 'Eva', name_es: 'Eva', name_pt: 'Eva', name_id: 'Eva', name_tr: 'Eva',
                 desc_ru: 'Недоступная, популярная инста-модель', 
                 desc_en: 'Hard-to-get, popular Instagram model',
@@ -1702,6 +1704,7 @@
             },
             { 
                 id: 'char:alisa', 
+                style: 'real',
                 name_ru: 'Алиса', name_en: 'Alisa', name_es: 'Alisa', name_pt: 'Alisa', name_id: 'Alisa', name_tr: 'Alisa',
                 desc_ru: 'Милая бариста из кофейни рядом с твоим домом', 
                 desc_en: 'Cute barista from the coffee shop near your house',
@@ -1719,6 +1722,7 @@
             },
             { 
                 id: 'char:sauda', 
+                style: 'real',
                 name_ru: 'Сауда', name_en: 'Sauda', name_es: 'Sauda', name_pt: 'Sauda', name_id: 'Sauda', name_tr: 'Sauda',
                 desc_ru: 'Темнокожая девушка из племени с прекрасными формами', 
                 desc_en: 'Dark-skinned tribal beauty with stunning curves',
@@ -1736,6 +1740,7 @@
             },
             { 
                 id: 'char:lora', 
+                style: 'real',
                 name_ru: 'Лора', name_en: 'Lora', name_es: 'Lora', name_pt: 'Lora', name_id: 'Lora', name_tr: 'Lora',
                 desc_ru: 'Инстаграмм модель', 
                 desc_en: 'Instagram model',
@@ -1753,6 +1758,7 @@
             },
             { 
                 id: 'char:alex', 
+                style: 'real',
                 name_ru: 'Алекс', name_en: 'Alex', name_es: 'Álex', name_pt: 'Alex', name_id: 'Alex', name_tr: 'Alex',
                 desc_ru: 'Безумно красивая блондинка из села', 
                 desc_en: 'Insanely beautiful blonde from the countryside',
@@ -1770,6 +1776,7 @@
             },
             { 
                 id: 'char:lina', 
+                style: 'real',
                 name_ru: 'Лина', name_en: 'Lina', name_es: 'Lina', name_pt: 'Lina', name_id: 'Lina', name_tr: 'Lina',
                 desc_ru: 'Твоя соблазнительная одногруппница', 
                 desc_en: 'Your seductive classmate',
@@ -1787,6 +1794,7 @@
             },
             { 
                 id: 'char:bella', 
+                style: 'real',
                 name_ru: 'Белла', name_en: 'Bella', name_es: 'Bella', name_pt: 'Bella', name_id: 'Bella', name_tr: 'Bella',
                 desc_ru: 'Соблазнительная учительница', 
                 desc_en: 'Seductive teacher',
@@ -1804,6 +1812,7 @@
             },
             { 
                 id: 'char:aglaya', 
+                style: 'real',
                 name_ru: 'Аглая', name_en: 'Aglaya', name_es: 'Aglaya', name_pt: 'Aglaya', name_id: 'Aglaya', name_tr: 'Aglaya',
                 desc_ru: 'Эскортница по вызову', 
                 desc_en: 'High-class escort',
@@ -1821,6 +1830,7 @@
             },
             { 
                 id: 'char:adriana', 
+                style: 'real',
                 name_ru: 'Адриана', name_en: 'Adriana', name_es: 'Adriana', name_pt: 'Adriana', name_id: 'Adriana', name_tr: 'Adriana',
                 desc_ru: 'Загорелая незнакомка на пустом пляже', 
                 desc_en: 'Tanned stranger on an empty beach',
@@ -1838,6 +1848,7 @@
             },
             { 
                 id: 'char:tiffany', 
+                style: 'real',
                 name_ru: 'Тиффани', name_en: 'Tiffany', name_es: 'Tiffany', name_pt: 'Tiffany', name_id: 'Tiffany', name_tr: 'Tiffany',
                 desc_ru: 'Глупая блондинка с большой грудью', 
                 desc_en: 'Bimbo blonde with big assets',
@@ -1855,6 +1866,7 @@
             },
             { 
                 id: 'char:mika', 
+                style: 'real',
                 name_ru: 'Мика', name_en: 'Mika', name_es: 'Mika', name_pt: 'Mika', name_id: 'Mika', name_tr: 'Mika',
                 desc_ru: 'Подруга, с которой все переростает во что то большее', 
                 desc_en: 'Friend turning into something more',
@@ -1909,20 +1921,31 @@
         function renderCharacters() {
             const container = document.getElementById('characters-container');
             if (!window.activeCharactersList) return; 
-            const listToRender = window.activeCharactersList;
             
+            // 👇 НОВОЕ: Фильтруем список по текущему нажатому тумблеру
+            // Если у персонажа не указан стиль, считаем его 'real' по умолчанию
+            const listToRender = window.activeCharactersList.filter(char => (char.style || 'real') === currentStyle);
+            
+            // Если список пустой (например, ты еще не добавил аниме-персонажей)
+            if (listToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-50">
+                        <i class="fa-solid fa-ghost text-4xl text-gray-500 mb-3"></i>
+                        <p class="text-sm font-bold text-gray-400">Персонажи скоро появятся...</p>
+                    </div>`;
+                return;
+            }
+
             container.innerHTML = listToRender.map((char, index) => {
-                const name = char['name_' + currentLang];
-                const desc = char['desc_' + currentLang];
+                const name = char['name_' + currentLang] || char['name_en'];
+                const desc = char['desc_' + currentLang] || char['desc_en'];
                 const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
 
-                // ГЕНЕРИРУЕМ ТЕГИ (УСЛОВИЕ ДЛЯ ЯЗЫКОВ ТУТ)
                 let tagsHtml = '<div class="flex gap-1.5 mt-2">';
-                if (char.has_image !== false) { // Если не false (или undefined для обратной совместимости)
+                if (char.has_image !== false) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 }
-                // Для voice проверяем И флаг, И текущий язык
                 if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
                 }
@@ -2332,6 +2355,7 @@
                     })
                 }).catch(err => console.error("Ошибка смены стиля:", err));
             }
+            renderCharacters();
         }
 
         function adminCreatePromo() {
