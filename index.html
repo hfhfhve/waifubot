@@ -771,6 +771,16 @@
                     </div>
                     <div id="lang-check-pt" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
+                <button onclick="selectLanguage('tr')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-4">
+                        <img src="https://flagcdn.com/w40/tr.png" class="w-6 rounded-sm shadow-sm">
+                        <div class="text-left">
+                            <div class="text-sm font-black text-white tracking-wide">TÜRKÇE</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">Turkish</div>
+                        </div>
+                    </div>
+                    <div id="lang-check-tr" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                </button>
                 <button onclick="selectLanguage('id')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
                     <div class="flex items-center gap-4">
                         <img src="https://flagcdn.com/w40/id.png" class="w-6 rounded-sm shadow-sm">
@@ -1014,7 +1024,7 @@
             if (!startLang) {
                 // Если в кэше пусто (самый первый заход), берем язык из Telegram
                 const tgLang = tg.initDataUnsafe?.user?.language_code;
-                const supportedLangs = ['ru', 'en', 'es', 'pt', 'id'];
+                const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
                 
                 if (tgLang && supportedLangs.includes(tgLang)) {
                     startLang = tgLang; // Испанцу - испанский, португальцу - португальский
@@ -1116,6 +1126,64 @@
                 maint_desc: "Сервер временно недоступен или обновляется. Мы уже чиним, скоро всё заработает! 🛠️",
                 maint_btn: "НАПИСАТЬ В САППОРТ",
                 rename_limit: "Имя не может быть длиннее 50 символов!",
+            },
+            tr: {
+                hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
+                nav_home: "ANA SAYFA", nav_shop: "MAĞAZA", nav_profile: "PROFİL", language: "Dil", promo: "PROMOSYON KODU",
+                online: "ONLINE", bonus: "BONUS", day_3: "3. Gün", 
+                come_back: 'Yarın <span class="text-yellow-400 font-bold">500 jeton</span> için geri gel',
+                settings: "Ayarlar", copied: "Kopyalandı!", launch: "BAŞLAT",
+                purchase_title: "Satın Alma", secure_transaction: "Güvenli İşlem", total_price: "Toplam Tutar:",
+                instant: "Anında", crypto_pay: "Kripto Para", or: "veya",
+                pack_starter_desc: "Başlangıç Paketi", pack_premium_desc: "En İyi Seçim", pack_ultimate_desc: "Her Şey Dahil",
+                energy_unit: "Enerji", gems_unit: "Elmas",
+                refill_energy: "Enerji Yenile", refill_gems: "Elmas Yenile",
+                energy_50: "50 Enerji", energy_150: "150 Enerji", energy_500: "500 Enerji", energy_1200: "1200 Enerji", energy_3000: "3000 Enerji",
+                invite_title: "Arkadaşını Davet Et",
+                invite_desc: 'Her yeni oyuncu için <span class="text-yellow-400 font-bold">20 ⭐️</span> ve <span class="text-cyan-400 font-bold">3 💎</span> kazan!',
+                invite_btn: "DAVET ET",
+                ref_modal_title: "Arkadaşların",
+                ref_modal_desc: "Arkadaşlarını davet et ve ödüller kazan",
+                btn_copy: "Kopyala",
+                btn_share: "Paylaş",
+                invited_text: "Davet Edilenler",
+                no_friends_title: "Henüz davet ettiğin bir arkadaşın yok",
+                no_friends_desc: "Bonus kazanmak için bağlantıyı gönder",
+                day_prefix: "Gün ",
+                claim_now: '<span class="text-yellow-400 font-bold">Almak için tıkla!</span>',
+                available_in: 'Şu süre sonra hazır: ~',
+                hours_short: ' s.',
+                streak_lost_title: "Seri Bozuldu!",
+                streak_lost_desc: "Uzun zamandır girmedin, bu yüzden ödül ilerlemen 1. güne sıfırlandı.",
+                got_it: "ANLADIM",
+                daily_modal_title: "Günlük Bonus",
+                daily_modal_desc: "Her şeyi almak için her gün giriş yap!",
+                super_prize: "Süper Ödül",
+                claim_gift: "HEDİYEYİ AL",
+                available_btn: "ŞU SÜRE SONRA HAZIR: ~",
+                nav_chats: "SOHBETLER",
+                chats_title: "Sohbetlerin",
+                no_chats: "Henüz bir sohbetin yok",
+                rename_chat: "Yeniden Adlandır", pin_chat: "Sabitle", unpin_chat: "Sabitlemeyi Kaldır", delete_chat: "Sohbeti Sil",
+                rename_title: "Sohbeti Yeniden Adlandır", rename_desc: "Bu karakter için yeni bir isim gir", btn_save: "KAYDET",
+                confirm_delete: "Bu sohbeti silmek istediğinden emin misin?", placeholder_name: "Yeni İsim",
+                age_title: "Uyarı: 18+",
+                age_desc1: "Bu hizmet sadece yetişkinlere yönelik açık içerikler barındırmaktadır.",
+                age_desc2: "* Tüm karakterler kurgusaldır, yapay zeka ile oluşturulmuştur ve 18 yaş veya üzerindedir.",
+                age_yes: "18 YAŞINDAN BÜYÜĞÜM",
+                age_no: "18 YAŞINDAN KÜÇÜĞÜM",
+                confirm_delete_title: "Sohbeti Sil?",
+                confirm_delete_desc: "Tüm diyalog kalıcı olarak silinecek. Devam edilsin mi?",
+                delete_confirm: "Evet, sil",
+                delete_cancel: "İptal",
+                deleting_process: "Siliniyor...",
+                tag_image: "FOTOĞRAF",
+                tag_voice: "SES",
+                loading: "YÜKLENİYOR...",
+                maint_title: "Bakım Çalışması",
+                maint_desc: "Sunucu geçici olarak kapalı veya güncelleniyor. Düzeltiyoruz, yakında her şey çalışacak! 🛠️",
+                maint_btn: "DESTEK İLE İLETİŞİME GEÇ",
+                rename_limit: "İsim 50 karakterden uzun olamaz!"
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1359,7 +1427,8 @@
             'en': { flag: 'https://flagcdn.com/w20/us.png', text: 'EN' },
             'es': { flag: 'https://flagcdn.com/w20/es.png', text: 'ES' },
             'pt': { flag: 'https://flagcdn.com/w20/br.png', text: 'PT' },
-            'id': { flag: 'https://flagcdn.com/w20/id.png', text: 'ID' }
+            'id': { flag: 'https://flagcdn.com/w20/id.png', text: 'ID' },
+            'tr': { flag: 'https://flagcdn.com/w20/tr.png', text: 'TR' }
         };
 
         function setLanguage(lang) {
