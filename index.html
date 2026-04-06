@@ -1140,6 +1140,7 @@
                 maint_btn: "НАПИСАТЬ В САППОРТ",
                 rename_limit: "Имя не может быть длиннее 50 символов!",
                 style_real: "Реализм", style_anime: "Аниме",
+                chatsLimitMessage: "Показаны только 15 последних чатов",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -1199,6 +1200,7 @@
                 maint_btn: "DESTEK İLE İLETİŞİME GEÇ",
                 rename_limit: "İsim 50 karakterden uzun olamaz!",
                 style_real: "Gerçekçilik", style_anime: "Anime",
+                chatsLimitMessage: "Sadece son 15 sohbet gösteriliyor",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1258,6 +1260,7 @@
                 maint_btn: "CONTACT SUPPORT",
                 rename_limit: "Name cannot be longer than 50 characters!",
                 style_real: "Realism", style_anime: "Anime",
+                chatsLimitMessage: "Showing only the last 15 chats",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -1317,6 +1320,7 @@
                 maint_btn: "CONTACTAR SOPORTE",
                 rename_limit: "¡El nombre no puede tener más de 50 caracteres!",
                 style_real: "Realismo", style_anime: "Anime",
+                chatsLimitMessage: "Mostrando solo los últimos 15 chats",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -1376,6 +1380,7 @@
                 maint_btn: "CONTATAR SUPORTE",
                 rename_limit: "O nome não pode ter mais de 50 caracteres!",
                 style_real: "Realismo", style_anime: "Anime",
+                chatsLimitMessage: "Mostrando apenas os últimos 15 chats",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -1435,6 +1440,7 @@
                 maint_btn: "HUBUNGI DUKUNGAN",
                 rename_limit: "Nama tidak boleh lebih dari 50 karakter!",
                 style_real: "Realisme", style_anime: "Anime",
+                chatsLimitMessage: "Hanya menampilkan 15 obrolan terakhir",
             }
         };
 
@@ -2779,20 +2785,33 @@
         function renderChats(chats) {
             const container = document.getElementById('chats-list-container');
             
-            container.innerHTML = chats.map(chat => {
+            // Если чатов нет, просто очищаем и выходим (или тут можно вставить заглушку "нет чатов")
+            if (!chats || chats.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+        
+            // 1. Проверяем, больше ли 15 чатов
+            const hasMoreChats = chats.length > 15;
+            
+            // 2. Обрезаем массив, оставляя только первые 15
+            const chatsToShow = chats.slice(0, 15);
+        
+            // 3. Генерируем HTML только для 15 чатов
+            let html = chatsToShow.map(chat => {
                 const char = characters.find(c => c.id === chat.character_id);
                 if (!char) return '';
                 
                 // --- ВЫЗЫВАЕМ НАШУ НОВУЮ ФУНКЦИЮ ---
                 const localTime = formatChatDate(chat.created_at_ts, currentLang);
                 // -----------------------------------
-
+        
                 const displayName = chat.custom_name || char['name_' + currentLang];
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
                 const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
                 const pinIcon = chat.is_pinned ? `<i class="fa-solid fa-thumbtack text-yellow-500 text-xs mr-1.5 transform -rotate-45"></i>` : '';
                 const safeName = displayName.replace(/'/g, "\\'");
-
+        
                 return `
                 <div onclick="resumeChat('${char.id}', '${chat.session_id}', '${safeName}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
@@ -2818,6 +2837,19 @@
                 </div>
                 `;
             }).join('');
+        
+            // 4. Если чатов было больше 15, добавляем плашку в конец HTML
+            if (hasMoreChats) {
+                const limitText = translations[currentLang]?.chatsLimitMessage || translations['en'].chatsLimitMessage || "Showing only the last 15 chats";
+                html += `
+                <div class="text-center text-[11px] text-gray-500/70 font-medium mt-4 pb-6 px-4 uppercase tracking-wider">
+                    <i class="fa-solid fa-clock-rotate-left mr-1.5 opacity-70"></i> ${limitText}
+                </div>
+                `;
+            }
+        
+            // 5. Вставляем итоговый код в контейнер
+            container.innerHTML = html;
         }
 
         // --- УМНОЕ ФОРМАТИРОВАНИЕ ВРЕМЕНИ ЧАТОВ ---
