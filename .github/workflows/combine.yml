@@ -1,0 +1,41 @@
+name: Auto-Combine Frontend Code
+
+# Запускать экшен при каждом пуше в ветку main (или при ручном запуске)
+on:
+  push:
+    branches:
+      - main # ВАЖНО: Если твоя главная ветка называется master, замени main на master
+  workflow_dispatch:
+
+# Даем боту права на сохранение файлов в твой репозиторий
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Скачиваем твой код на виртуальную машину Гитхаба
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Устанавливаем Питон
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3. Запускаем твой скрипт
+      - name: Run combine script
+        run: python combine_front.py
+
+      # 4. Сохраняем обновленный frontend_code.txt обратно в репозиторий
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add frontend_code.txt
+          # Коммитим только если файл реально изменился
+          git commit -m "Auto-update frontend_code.txt" || echo "No changes to commit"
+          git push
