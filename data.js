@@ -784,8 +784,8 @@ const characters = [
             },
             { 
                 id: 'char:ashley', 
-                style: 'anime', // Изменил на anime, так как референс анимешный
-                name_ru: 'Стейси', name_en: 'Stacy', name_es: 'Stacy', name_pt: 'Stacy', name_id: 'Stacy', name_tr: 'Stacy',
+                style: 'anime',
+                name_ru: 'Эшли', name_en: 'Ashley', name_es: 'Ashley', name_pt: 'Ashley', name_id: 'Ashley', name_tr: 'Ashley',
                 desc_ru: 'Капитан чирлидерш: энергия, гибкость и соревновательный дух в постели.', 
                 desc_en: 'Cheerleader captain: energy, flexibility, and competitive lust.',
                 desc_es: 'Capitana de animadoras: energía, flexibilidad y lujuria competitiva.',
