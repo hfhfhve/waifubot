@@ -7,7 +7,7 @@ const translations = {
                 settings: "Настройки", copied: "Скопировано!", launch: "ЗАПУСТИТЬ",
                 purchase_title: "Покупка", secure_transaction: "Безопасная транзакция", total_price: "К оплате:",
                 instant: "Моментально", crypto_pay: "Криптовалюта", or: "или",
-                pack_starter_desc: "Набор новичка", pack_premium_desc: "Выгодный выбор", pack_ultimate_desc: "Всё включено", 
+                pack_starter_desc: "Набор новичка", pack_premium_desc: "Выгодный выбор", pack_ultimate_desc: "Всё включено",
                 energy_unit: "Энергии", gems_unit: "Гемов",
                 refill_energy: "Пополнение Энергии", refill_gems: "Пополнение Гемов",
                 energy_50: "50 Энергии", energy_150: "150 Энергии", energy_500: "500 Энергии", energy_1200: "1200 Энергии", energy_3000: "3000 Энергии",
