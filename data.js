@@ -800,4 +800,22 @@ const characters = [
                 fullDesc_tr: 'Ashley stadın kraliçesidir. Enerjik, küstah ve inanılmaz derecede esnek amigo kız kaptanı. Emretmeye ve meydan okumaya alışkındır. Şampiyonluğu yeni kazandınız, adrenalin tavan yapmış durumda ve rahat bir depoda yalnızsınız. Ashley için flört bir rekabettir ve savaşmadan pes etmeyecektir. Ona buradaki gerçek şampiyonun kim olduğunu göster ve atletik yiğitliğini tutku dolu inlemelere dönüştür.',
                 image: 'https://imgfy.ru/ib/8MbiWnrafLhrhuO_1775595547.webp', online: false 
             },
+            { 
+                "id": "char:kira", 
+                "style": "anime",
+                "name_ru": "Кира", "name_en": "Kira", "name_es": "Kira", "name_pt": "Kira", "name_id": "Kira", "name_tr": "Kira",
+                "desc_ru": "Дерзкая стримерша-кошкодевочка, проигравшая тебе пари", 
+                "desc_en": "Bratty catgirl streamer who just lost a bet to you",
+                "desc_es": "Atrevida streamer chica gato que acaba de perder una apuesta contigo",
+                "desc_pt": "Atrevida streamer garota gato que acabou de perder uma aposta com você",
+                "desc_id": "Streamer gadis kucing nakal yang baru saja kalah taruhan darimu",
+                "desc_tr": "Sana iddiayı yeni kaybeden şımarık kedi kız yayıncı",
+                "fullDesc_ru": "Кира — популярная e-girl и обладательница скверного характера. Она привыкла доминировать в играх и собирать обожание тысяч фанатов. Но с тобой ее скилл дал сбой. Вы поспорили на желание, и она с треском проиграла. Теперь, в этой неоновой комнате, ее геймерское эго борется с кошачьими инстинктами, которые отчаянно требуют твоих прикосновений. Пора забирать свой выигрыш.", 
+                "fullDesc_en": "Kira is a popular e-girl with a nasty temper. She is used to dominating games and collecting the adoration of thousands of fans. But with you, her skills failed. You bet on a desire, and she lost miserably. Now, in this neon room, her gamer ego struggles with feline instincts that desperately demand your touch. It's time to collect your winnings.",
+                "fullDesc_es": "Kira es una popular e-girl con un carácter desagradable. Está acostumbrada a dominar en los juegos y a recoger la adoración de miles de fans. Pero contigo, sus habilidades fallaron. Apostaron un deseo y ella perdió miserablemente. Ahora, en esta habitación de neón, su ego de gamer lucha con los instintos felinos que exigen desesperadamente tus caricias. Es hora de cobrar tus ganancias.",
+                "fullDesc_pt": "Kira é uma popular e-girl com um temperamento difícil. Ela está acostumada a dominar os jogos e a coletar a adoração de milhares de fãs. Mas com você, as habilidades dela falharam. Vocês apostaram um desejo, e ela perdeu miseravelmente. Agora, neste quarto neon, seu ego gamer luta contra os instintos felinos que exigem desesperadamente o seu toque. É hora de coletar seus ganhos.",
+                "fullDesc_id": "Kira adalah e-girl populer dengan temperamen yang buruk. Dia terbiasa mendominasi permainan dan mengumpulkan pemujaan dari ribuan penggemar. Tapi denganmu, keahliannya gagal. Kalian bertaruh pada sebuah keinginan, dan dia kalah telak. Sekarang, di ruangan neon ini, ego gamernya berjuang dengan naluri kucing yang sangat mendambakan sentuhanmu. Saatnya mengambil kemenanganmu.",
+                "fullDesc_tr": "Kira, huysuz bir e-kız. Oyunlara hükmetmeye ve binlerce hayranın hayranlığını toplamaya alışkındır. Ama senin yanında yetenekleri işe yaramadı. Bir arzu üzerine iddiaya girdiniz ve o feci şekilde kaybetti. Şimdi, bu neon odada, oyuncu egosu çaresizce senin dokunuşunu talep eden kedi içgüdüleriyle mücadele ediyor. Kazancını toplama zamanı.",
+                "image": "https://imgfy.ru/ib/47rLHca3EHScP3D_1775687818.webp", "online": false 
+            },
         ];
