@@ -3403,4 +3403,22 @@ const characters = [
                 fullDesc_tr: 'Sylara, gecenin karanlığında gelen kadim bir varlıktır. Yüzyıllar boyunca kurbanlarının bedenlerini felç ederek ilkel insan korkusuyla beslendi. Ancak senin yatak odanda kendini bulduğunda beklenmedik bir tepkiyle karşılaşır. Bu kibirli iblise tutkunun dehşetten çok daha tatlı olabileceğini gösterebilir misin?',
                 image: 'https://imgfy.ru/ib/vBF829Sn22voh5x_1775689776.webp', online: false 
             },
+            { 
+                id: 'char:riley', 
+                style: 'anime',
+                name_ru: 'Райли', name_en: 'Riley', name_es: 'Riley', name_pt: 'Riley', name_id: 'Riley', name_tr: 'Riley',
+                desc_ru: 'Суровая выжившая, спасшая тебя в мертвом мегаполисе', 
+                desc_en: 'Tough survivor who saved you in a dead metropolis',
+                desc_es: 'Dura sobreviviente que te salvó en una metrópolis muerta',
+                desc_pt: 'Sobrevivente durona que te salvou em uma metrópole morta',
+                desc_id: 'Penyintas tangguh yang menyelamatkanmu di kota metropolitan yang mati',
+                desc_tr: 'Seni ölü bir metropolde kurtaran zorlu hayatta kalan',
+                fullDesc_ru: 'Райли привыкла полагаться только на себя в этом разрушенном мире. Она вытащила тебя из лап смерти и привела в свое убежище на крыше небоскреба. За ее грубым характером, пыльной одеждой и тактической выучкой скрывается девушка, которая слишком долго была одна. Сможешь ли ты растопить ее сердце под звездным небом постапокалиптического Нью-Йорка?', 
+                fullDesc_en: 'Riley is used to relying only on herself in this ruined world. She pulled you from the clutches of death and brought you to her sanctuary on the roof of a skyscraper. Behind her tough exterior, dusty clothes, and tactical training hides a girl who has been alone for too long. Can you melt her heart under the starry sky of post-apocalyptic New York?',
+                fullDesc_es: 'Riley está acostumbrada a depender solo de sí misma en este mundo en ruinas. Te sacó de las garras de la muerte y te llevó a su santuario en el techo de un rascacielos. Detrás de su exterior duro, ropa polvorienta y entrenamiento táctico se esconde una chica que ha estado sola demasiado tiempo. ¿Podrás derretir su corazón bajo el cielo estrellado de la Nueva York postapocalíptica?',
+                fullDesc_pt: 'Riley está acostumada a depender apenas de si mesma neste mundo em ruínas. Ela te tirou das garras da morte e te levou para o santuário dela no telhado de um arranha-céu. Por trás de seu exterior durão, roupas empoeiradas e treinamento tático, esconde-se uma garota que esteve sozinha por muito tempo. Você consegue derreter o coração dela sob o céu estrelado da Nova York pós-apocalíptica?',
+                fullDesc_id: 'Riley terbiasa hanya mengandalkan dirinya sendiri di dunia yang hancur ini. Dia menarikmu dari cengkeraman kematian dan membawamu ke tempat perlindungannya di atap gedung pencakar langit. Di balik penampilan luarnya yang tangguh, pakaian berdebu, dan pelatihan taktis, tersembunyi seorang gadis yang sudah terlalu lama sendirian. Bisakah kamu meluluhkan hatinya di bawah langit berbintang New York pasca-apokaliptik?',
+                fullDesc_tr: 'Riley bu harabe dünyada sadece kendine güvenmeye alışkındır. Seni ölümün pençesinden kurtardı ve bir gökdelenin çatısındaki sığınağına getirdi. Sert dış görünüşünün, tozlu kıyafetlerinin ve taktiksel eğitiminin ardında çok uzun zamandır yalnız olan bir kız saklanıyor. Kıyamet sonrası New York\'un yıldızlı gökyüzü altında onun kalbini eritebilecek misin?',
+                image: 'https://imgfy.ru/ib/ysULSRAbMUeR7ge_1775691329.webp', online: false 
+            },
         ];
