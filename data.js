@@ -818,4 +818,22 @@ const characters = [
                 "fullDesc_tr": "Kira, huysuz bir e-kız. Oyunlara hükmetmeye ve binlerce hayranın hayranlığını toplamaya alışkındır. Ama senin yanında yetenekleri işe yaramadı. Bir arzu üzerine iddiaya girdiniz ve o feci şekilde kaybetti. Şimdi, bu neon odada, oyuncu egosu çaresizce senin dokunuşunu talep eden kedi içgüdüleriyle mücadele ediyor. Kazancını toplama zamanı.",
                 "image": "https://imgfy.ru/ib/47rLHca3EHScP3D_1775687818.webp", "online": false 
             },
+            { 
+                id: 'char:sylara', 
+                style: 'anime',
+                name_ru: 'Силара', name_en: 'Sylara', name_es: 'Sylara', name_pt: 'Sylara', name_id: 'Sylara', name_tr: 'Sylara',
+                desc_ru: 'Демон сонного паралича, питающаяся твоими эмоциями', 
+                desc_en: 'Sleep paralysis demon feeding on your emotions',
+                desc_es: 'Demonio de la parálisis del sueño que se alimenta de tus emociones',
+                desc_pt: 'Demônio da paralisia do sono que se alimenta de suas emoções',
+                desc_id: 'Setan kelumpuhan tidur yang memakan emosimu',
+                desc_tr: 'Duygularınla beslenen uyku felci iblisi',
+                fullDesc_ru: 'Силара — древняя сущность, приходящая под покровом ночи. Веками она питалась первобытным человеческим страхом, сковывая тела своих жертв. Но оказавшись в твоей спальне, она сталкивается с неожиданной реакцией. Сможешь ли ты показать этому высокомерному демону, что страсть может быть куда слаще ужаса?', 
+                fullDesc_en: 'Sylara is an ancient entity that comes under the cover of night. For centuries, she has fed on primal human fear, paralyzing the bodies of her victims. But finding herself in your bedroom, she encounters an unexpected reaction. Can you show this arrogant demon that passion can be much sweeter than terror?',
+                fullDesc_es: 'Sylara es una antigua entidad que llega al amparo de la noche. Durante siglos, se ha alimentado del miedo humano primitivo, paralizando los cuerpos de sus víctimas. Pero al encontrarse en tu dormitorio, se enfrenta a una reacción inesperada. ¿Podrás demostrarle a este arrogante demonio que la pasión puede ser mucho más dulce que el terror?',
+                fullDesc_pt: 'Sylara é uma entidade antiga que vem sob o manto da noite. Durante séculos, ela se alimentou do medo humano primordial, paralisando os corpos de suas vítimas. Mas ao se encontrar no seu quarto, ela se depara com uma reação inesperada. Você consegue mostrar a esse demônio arrogante que a paixão pode ser muito mais doce que o terror?',
+                fullDesc_id: 'Sylara adalah entitas kuno yang datang di bawah naungan malam. Selama berabad-abad, dia telah memakan ketakutan dasar manusia, melumpuhkan tubuh korbannya. Namun saat berada di kamar tidurmu, dia menghadapi reaksi yang tak terduga. Bisakah kamu menunjukkan kepada iblis sombong ini bahwa gairah bisa jauh lebih manis daripada teror?',
+                fullDesc_tr: 'Sylara, gecenin karanlığında gelen kadim bir varlıktır. Yüzyıllar boyunca kurbanlarının bedenlerini felç ederek ilkel insan korkusuyla beslendi. Ancak senin yatak odanda kendini bulduğunda beklenmedik bir tepkiyle karşılaşır. Bu kibirli iblise tutkunun dehşetten çok daha tatlı olabileceğini gösterebilir misin?',
+                image: 'https://imgfy.ru/ib/vBF829Sn22voh5x_1775689776.webp', online: false 
+            },
         ];
