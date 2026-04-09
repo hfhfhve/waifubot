@@ -669,6 +669,8 @@
                 </div>
                 <h3 class="text-2xl font-black text-white leading-tight" data-i18n="ref_modal_title">Твои друзья</h3>
                 <p class="text-xs text-gray-400 mt-1" data-i18n="ref_modal_desc">Зови друзей и получай награды</p>
+                
+                <p class="text-[10px] text-pink-500/90 mt-2 font-medium" data-i18n="invite_condition">* Бонус придет после того, как друг подтвердит 18+ в приложении</p>
             </div>
 
             <div class="flex gap-3 mb-6 shrink-0">
