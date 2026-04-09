@@ -258,18 +258,19 @@
             
             <h2 class="text-2xl font-black text-white mb-3 tracking-wide" data-i18n="age_title">Внимание: 18+</h2>
             
-            <p class="text-sm text-gray-300 mb-2 leading-relaxed font-medium" data-i18n="age_desc1">
+            <p class="text-sm text-gray-300 mb-4 leading-relaxed font-medium" data-i18n="age_desc1">
                 Этот сервис содержит откровенные материалы, предназначенные только для взрослых.
             </p>
             
-            <div class="bg-black/50 border border-white/5 rounded-xl p-3 mb-8 text-left">
-                <p class="text-[11px] text-gray-500 leading-relaxed font-mono mb-2" data-i18n="age_desc2">
+            <div class="bg-black/50 border border-white/5 rounded-xl p-3 mb-6 w-full">
+                <p class="text-[11px] text-gray-500 leading-relaxed font-mono" data-i18n="age_desc2">
                     * Все персонажи являются вымышленными, сгенерированы нейросетью и достигли совершеннолетия (18 лет и старше).
                 </p>
-                <p class="text-[10px] text-gray-400 leading-tight text-center" data-i18n="age_tos_agree">
-                    Продолжая, вы подтверждаете, что вам есть 18 лет, и соглашаетесь с <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.
-                </p>
             </div>
+            
+            <p class="text-[11px] text-gray-400 leading-tight text-center mb-4 px-2" data-i18n="age_tos_agree">
+                Продолжая, вы подтверждаете, что вам есть 18 лет, и соглашаетесь с <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.
+            </p>
             
             <div class="w-full space-y-3">
                 <button onclick="confirmAge()" class="w-full h-14 bg-gradient-to-r from-pink-600 to-purple-700 rounded-xl font-black text-white text-sm shadow-[0_5px_20px_rgba(219,39,119,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2 border border-pink-500/50">
