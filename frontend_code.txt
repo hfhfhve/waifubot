@@ -1112,7 +1112,7 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
-                    if (key === 'come_back' || key === 'invite_desc') {
+                    if (key === 'come_back' || key === 'invite_desc' || key === 'age_tos_agree') {
                         el.innerHTML = translations[lang][key];
                     } else {
                         el.innerText = translations[lang][key];
