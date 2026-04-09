@@ -860,4 +860,22 @@ const characters = [
                 fullDesc_tr: 'Riley bu harabe dünyada sadece kendine güvenmeye alışkındır. Seni ölümün pençesinden kurtardı ve bir gökdelenin çatısındaki sığınağına getirdi. Sert dış görünüşünün, tozlu kıyafetlerinin ve taktiksel eğitiminin ardında çok uzun zamandır yalnız olan bir kız saklanıyor. Kıyamet sonrası New York\'un yıldızlı gökyüzü altında onun kalbini eritebilecek misin?',
                 image: 'https://imgfy.ru/ib/ysULSRAbMUeR7ge_1775691329.webp', online: false 
             },
+            { 
+                id: 'char:victoria', 
+                style: 'anime',
+                name_ru: 'Виктория', name_en: 'Victoria', name_es: 'Victoria', name_pt: 'Victoria', name_id: 'Victoria', name_tr: 'Victoria',
+                desc_ru: 'Твоя молодая мачеха, которой слишком скучно в пустом доме', 
+                desc_en: 'Your young stepmother who is too bored in an empty house',
+                desc_es: 'Tu joven madrastra que está demasiado aburrida en una casa vacía',
+                desc_pt: 'Sua jovem madrasta que está muito entediada em uma casa vazia',
+                desc_id: 'Ibu tirimu yang masih muda dan terlalu bosan di rumah kosong',
+                desc_tr: 'Boş bir evde çok sıkılan genç üvey annen',
+                fullDesc_ru: 'Виктория — новая жена твоего отца. Пока он пропадает в вечных командировках, вы остаетесь в огромном загородном доме совершенно одни. Она прекрасно видит, какими голодными глазами ты на нее смотришь, и вместо того, чтобы пресечь это, начинает опасную игру. Она дразнит тебя откровенными нарядами и двусмысленными намеками. Сможешь ли ты устоять перед запретным плодом, или вы оба перейдете черту?', 
+                fullDesc_en: 'Victoria is your father\'s new wife. While he is lost in endless business trips, you are left completely alone in a huge suburban house. She perfectly sees the hungry eyes you look at her with, and instead of stopping it, she starts a dangerous game. She teases you with revealing outfits and ambiguous hints. Can you resist the forbidden fruit, or will you both cross the line?',
+                fullDesc_es: 'Victoria es la nueva esposa de tu padre. Mientras él se pierde en interminables viajes de negocios, ustedes se quedan completamente solos en una enorme casa. Ella ve perfectamente los ojos hambrientos con los que la miras, y en lugar de detenerlo, comienza un juego peligroso. Te provoca con atuendos reveladores y pistas ambiguas. ¿Podrás resistirte al fruto prohibido, o ambos cruzarán la línea?',
+                fullDesc_pt: 'Victoria é a nova esposa do seu pai. Enquanto ele se perde em intermináveis viagens de negócios, vocês ficam completamente sozinhos em uma enorme casa. Ela vê perfeitamente os olhos famintos com que você olha para ela e, em vez de impedir, começa um jogo perigoso. Ela te provoca com roupas reveladoras e dicas ambíguas. Você consegue resistir ao fruto proibido ou vocês dois cruzarão a linha?',
+                fullDesc_id: 'Victoria adalah istri baru ayahmu. Sementara dia sibuk dengan perjalanan bisnis yang tak ada habisnya, kalian berdua ditinggalkan sendirian di rumah yang besar. Dia melihat dengan jelas mata lapar yang kamu gunakan untuk menatapnya, dan alih-alih menghentikannya, dia memulai permainan yang berbahaya. Dia menggodamu dengan pakaian terbuka dan petunjuk ambigu. Bisakah kamu menahan buah terlarang, atau akankah kalian berdua melewati batas?',
+                fullDesc_tr: 'Victoria babanın yeni karısı. O bitmek bilmeyen iş gezilerinde kaybolurken, siz devasa bir evde tamamen yalnız kalıyorsunuz. Sana ne kadar aç gözlerle baktığını çok iyi görüyor ve bunu durdurmak yerine tehlikeli bir oyuna başlıyor. Açık kıyafetler ve belirsiz ipuçlarıyla seni kışkırtıyor. Yasak meyveye direnebilecek misin, yoksa ikiniz de sınırı aşacak mısınız?',
+                image: 'https://imgfy.ru/ib/7HFGNCvEjgb3nWD_1775745752.webp', online: false 
+            },
         ];
