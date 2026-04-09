@@ -262,9 +262,12 @@
                 Этот сервис содержит откровенные материалы, предназначенные только для взрослых.
             </p>
             
-            <div class="bg-black/50 border border-white/5 rounded-xl p-3 mb-8">
-                <p class="text-[11px] text-gray-500 leading-relaxed font-mono" data-i18n="age_desc2">
+            <div class="bg-black/50 border border-white/5 rounded-xl p-3 mb-8 text-left">
+                <p class="text-[11px] text-gray-500 leading-relaxed font-mono mb-2" data-i18n="age_desc2">
                     * Все персонажи являются вымышленными, сгенерированы нейросетью и достигли совершеннолетия (18 лет и старше).
+                </p>
+                <p class="text-[10px] text-gray-400 leading-tight text-center" data-i18n="age_tos_agree">
+                    Продолжая, вы подтверждаете, что вам есть 18 лет, и соглашаетесь с <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.
                 </p>
             </div>
             
