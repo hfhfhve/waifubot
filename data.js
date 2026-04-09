@@ -77,6 +77,7 @@ const translations = {
                 toast_chat_unpinned: "Чат откреплен",
                 toast_chat_deleted: "Чат удален 🗑️",
                 toast_delete_error: "Ошибка удаления",
+                invite_condition: "* Бонус придет после того, как друг подтвердит 18+ в приложении",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -156,6 +157,7 @@ const translations = {
                 toast_chat_unpinned: "Sohbetin sabitlemesi kaldırıldı",
                 toast_chat_deleted: "Sohbet silindi 🗑️",
                 toast_delete_error: "Silme hatası",
+                invite_condition: "* Bonus, arkadaşınız uygulamada 18+ yaşını doğruladıktan sonra verilir",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -235,6 +237,7 @@ const translations = {
                 toast_chat_unpinned: "Chat unpinned",
                 toast_chat_deleted: "Chat deleted 🗑️",
                 toast_delete_error: "Error deleting chat",
+                invite_condition: "* Bonus is awarded after your friend verifies 18+ in the app",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -314,6 +317,7 @@ const translations = {
                 toast_chat_unpinned: "Chat desfijado",
                 toast_chat_deleted: "Chat eliminado 🗑️",
                 toast_delete_error: "Error al eliminar",
+                invite_condition: "* El bono se otorga después de que el amigo verifique +18 en la app",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -393,6 +397,7 @@ const translations = {
                 toast_chat_unpinned: "Chat desafixado",
                 toast_chat_deleted: "Chat excluído 🗑️",
                 toast_delete_error: "Erro ao excluir",
+                invite_condition: "* O bônus chega após o amigo confirmar +18 no aplicativo",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -472,6 +477,7 @@ const translations = {
                 toast_chat_unpinned: "Sematan obrolan dilepas",
                 toast_chat_deleted: "Obrolan dihapus 🗑️",
                 toast_delete_error: "Kesalahan saat menghapus",
+                invite_condition: "* Bonus diberikan setelah teman mengonfirmasi 18+ di aplikasi",
             }
         };
 
