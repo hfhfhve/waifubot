@@ -2645,7 +2645,7 @@ const translations = {
                 toast_chat_deleted: "Чат удален 🗑️",
                 toast_delete_error: "Ошибка удаления",
                 invite_condition: "* Бонус придет после того, как друг подтвердит 18+ в приложении",
-                age_tos_agree: 'Продолжая, вы подтверждаете, что вам есть 18 лет, и вы соглашаетесь с нашими <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> и <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a>.',
+                age_tos_agree: 'Продолжая, вы подтверждаете, что вам есть 18 лет, и соглашаетесь с <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.',
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -2726,7 +2726,7 @@ const translations = {
                 toast_chat_deleted: "Sohbet silindi 🗑️",
                 toast_delete_error: "Silme hatası",
                 invite_condition: "* Bonus, arkadaşınız uygulamada 18+ yaşını doğruladıktan sonra verilir",
-                age_tos_agree: 'Devam ederek 18 yaşından büyük olduğunuzu onaylıyor, <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> ve <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a>\'mizi kabul ediyorsunuz.',
+                age_tos_agree: 'Devam ederek 18 yaşından büyük olduğunuzu onaylıyor ve <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>\'mizi kabul ediyorsunuz.',
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -2807,7 +2807,7 @@ const translations = {
                 toast_chat_deleted: "Chat deleted 🗑️",
                 toast_delete_error: "Error deleting chat",
                 invite_condition: "* Bonus is awarded after your friend verifies 18+ in the app",
-                age_tos_agree: 'By continuing, you confirm that you are 18+ and agree to our <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> and <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a>.',
+                age_tos_agree: 'By continuing, you confirm that you are 18+ and agree to our <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.',
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -2888,7 +2888,7 @@ const translations = {
                 toast_chat_deleted: "Chat eliminado 🗑️",
                 toast_delete_error: "Error al eliminar",
                 invite_condition: "* El bono se otorga después de que el amigo verifique +18 en la app",
-                age_tos_agree: 'Al continuar, confirmas que eres mayor de 18 años y aceptas nuestros <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> y <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a>.',
+                age_tos_agree: 'Al continuar, confirmas que eres mayor de 18 años y aceptas nuestros <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.',
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -2969,7 +2969,7 @@ const translations = {
                 toast_chat_deleted: "Chat excluído 🗑️",
                 toast_delete_error: "Erro ao excluir",
                 invite_condition: "* O bônus chega após o amigo confirmar +18 no aplicativo",
-                age_tos_agree: 'Ao continuar, você confirma ter mais de 18 anos e concorda com nossos <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> e <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a>.',
+                age_tos_agree: 'Ao continuar, você confirma ter mais de 18 anos e concorda com nossos <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a>.',
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -3050,7 +3050,7 @@ const translations = {
                 toast_chat_deleted: "Obrolan dihapus 🗑️",
                 toast_delete_error: "Kesalahan saat menghapus",
                 invite_condition: "* Bonus diberikan setelah teman mengonfirmasi 18+ di aplikasi",
-                age_tos_agree: 'Dengan melanjutkan, kamu mengonfirmasi bahwa kamu berusia 18+ dan menyetujui <a href="ССЫЛКА_НА_TOS" target="_blank" class="text-pink-500 underline">Terms of Service</a> serta <a href="ССЫЛКА_НА_PRIVACY" target="_blank" class="text-pink-500 underline">Privacy Policy</a> kami.',
+                age_tos_agree: 'Dengan melanjutkan, kamu mengonfirmasi bahwa kamu berusia 18+ dan menyetujui <a href="https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09" target="_blank" class="text-pink-500 hover:text-pink-400 underline decoration-pink-500/40 transition-colors">Terms of Service</a> kami.',
             }
         };
 
