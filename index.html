@@ -374,10 +374,9 @@
         </div>
     </div>
 
-    <div id="tab-create" class="hidden px-4 pt-14 pb-24 min-h-screen">
-        <h2 class="text-2xl font-black text-white mb-4" data-i18n="create_title">Твои фантазии</h2>
+    <div id="tab-create" class="hidden px-4 pt-10 pb-24 min-h-screen">
         
-        <div class="custom-tab-bg flex p-1 relative mb-5">
+        <div class="custom-tab-bg flex p-1 relative mb-6">
             <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
                 <span data-i18n="my_chars">МОИ ПЕРСОНАЖИ</span>
             </button>
@@ -391,29 +390,78 @@
                 </div>
         </div>
 
-        <div id="create-section-new" class="hidden animate-fade-up">
-            <div class="premium-card p-5 border-purple-500/30">
-                <div class="mb-4">
-                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
-                    <input type="text" id="custom-name" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+        <div id="create-section-new" class="hidden">
+            
+            <div class="flex justify-between items-center mb-6 px-4">
+                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10" id="step-indicator-1">
+                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all"><i class="fa-solid fa-pen"></i></div>
+                    <span class="text-[9px] text-purple-400 font-bold uppercase tracking-wider">База</span>
                 </div>
-                <div class="mb-4">
-                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
-                    <textarea id="custom-appearance" placeholder="Блондинка, голубые глаза, стройная, длинные волосы, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-20 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
-                    <input type="text" id="custom-clothes" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
-                </div>
-                <div class="mb-6">
-                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ХАРАКТЕР И СЕТТИНГ</label>
-                    <textarea id="custom-personality" placeholder="Она моя строгая начальница. Мы остались одни в офисе поздно вечером, и она вызывает меня к себе в кабинет..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
-                </div>
+                <div class="h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px]" id="step-line-1"></div>
                 
-                <button onclick="submitCustomCharacter()" class="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="btn_create_char">СОЗДАТЬ ЗА</span> 50 <i class="fa-solid fa-gem text-cyan-300"></i>
-                </button>
-                <p class="text-center text-[10px] text-purple-400/80 mt-3 font-medium" data-i18n="create_warning">* ИИ сгенерирует настройки персонажа за 10-15 секунд</p>
+                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10 opacity-50" id="step-indicator-2">
+                    <div class="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all">2</div>
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Визуал</span>
+                </div>
+                <div class="h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px]" id="step-line-2"></div>
+                
+                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10 opacity-50" id="step-indicator-3">
+                    <div class="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all">3</div>
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Лор</span>
+                </div>
+            </div>
+
+            <div class="premium-card p-5 border-purple-500/30">
+                
+                <div id="create-step-1" class="animate-fade-up">
+                    <div class="mb-5">
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ИМЯ ПЕРСОНАЖА</label>
+                        <input type="text" id="custom-name" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                    </div>
+                    <div class="mb-6">
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ПОЛ ПЕРСОНАЖА</label>
+                        <div class="flex gap-2 p-1 bg-black/50 border border-white/10 rounded-xl">
+                            <button onclick="selectCustomGender('female')" id="btn-gender-female" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-venus"></i> Девушка
+                            </button>
+                            <button onclick="selectCustomGender('male')" id="btn-gender-male" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-mars"></i> Парень
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="goToCreateStep(2)" class="w-full h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">
+                        Далее <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div id="create-step-2" class="hidden animate-fade-up">
+                    <div class="mb-4">
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ВНЕШНОСТЬ</label>
+                        <textarea id="custom-appearance" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ОДЕЖДА (По умолчанию)</label>
+                        <input type="text" id="custom-clothes" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="goToCreateStep(1)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="goToCreateStep(3)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">Далее <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="create-step-3" class="hidden animate-fade-up">
+                    <div class="mb-6">
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ЛОР И ХАРАКТЕР</label>
+                        <textarea id="custom-personality" placeholder="Она моя строгая начальница. Мы остались одни в офисе поздно вечером, и она вызывает меня к себе в кабинет..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-32 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="goToCreateStep(2)" class="w-12 h-14 shrink-0 bg-black/50 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="submitCustomCharacter()" class="flex-1 h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> СОЗДАТЬ ЗА 50 <i class="fa-solid fa-gem text-cyan-300"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -2206,7 +2254,10 @@
             });
         }
 
-        // --- ЛОГИКА КАСТОМНЫХ ПЕРСОНАЖЕЙ ---
+        let currentCreateStep = 1;
+        let customGender = 'female';
+
+        // Переключение Мои / Создать
         function switchCreateSubTab(tabName) {
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('create-section-mine').classList.add('hidden');
@@ -2214,10 +2265,7 @@
             
             const section = document.getElementById(`create-section-${tabName}`);
             section.classList.remove('hidden'); 
-            section.classList.remove('animate-fade-up'); 
-            void section.offsetWidth; 
-            section.classList.add('animate-fade-up');
-
+            
             const btnMine = document.getElementById('btn-create-mine');
             const btnNew = document.getElementById('btn-create-new');
             
@@ -2227,7 +2275,84 @@
             } else {
                 btnNew.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active flex items-center justify-center gap-1";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                // Сбрасываем на первый шаг при открытии
+                goToCreateStep(1);
             }
+        }
+
+        function selectCustomGender(gender) {
+            tg.HapticFeedback.selectionChanged();
+            customGender = gender;
+            const btnFemale = document.getElementById('btn-gender-female');
+            const btnMale = document.getElementById('btn-gender-male');
+            
+            if (gender === 'female') {
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+            } else {
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+            }
+        }
+
+        function goToCreateStep(step) {
+            // Валидация перед переходом
+            if (step === 2) {
+                const name = document.getElementById('custom-name').value.trim();
+                if (!name) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Введите имя персонажа!", "error");
+                }
+            }
+            if (step === 3) {
+                const app = document.getElementById('custom-appearance').value.trim();
+                if (!app) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Опишите внешность!", "error");
+                }
+            }
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Скрываем все шаги
+            document.getElementById('create-step-1').classList.add('hidden');
+            document.getElementById('create-step-2').classList.add('hidden');
+            document.getElementById('create-step-3').classList.add('hidden');
+            
+            // Показываем нужный
+            document.getElementById(`create-step-${step}`).classList.remove('hidden');
+            
+            // Обновляем визуальные индикаторы (кружочки сверху)
+            for (let i = 1; i <= 3; i++) {
+                const ind = document.getElementById(`step-indicator-${i}`);
+                const circle = ind.querySelector('div');
+                const text = ind.querySelector('span');
+                const line = document.getElementById(`step-line-${i-1}`); 
+                
+                if (i < step) {
+                    // Пройденный шаг
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs transition-all";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    text.className = "text-[9px] text-purple-400 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                } else if (i === step) {
+                    // Текущий шаг
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all";
+                    circle.innerHTML = i === 1 ? '<i class="fa-solid fa-pen"></i>' : (i === 2 ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-book"></i>');
+                    text.className = "text-[9px] text-purple-400 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                } else {
+                    // Будущий шаг
+                    ind.classList.add('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all";
+                    circle.innerHTML = i;
+                    text.className = "text-[9px] text-gray-500 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                }
+            }
+            currentCreateStep = step;
         }
 
         function submitCustomCharacter() {
@@ -2236,27 +2361,27 @@
             const clothes = document.getElementById('custom-clothes').value.trim();
             const personality = document.getElementById('custom-personality').value.trim();
 
-            if (!name || !appearance || !personality) {
+            if (!personality) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].toast_fill_all || "Заполните все поля!", "error");
+                return showToast("Опишите лор и характер!", "error");
             }
 
-            // Проверка баланса на фронте (чтобы зря не отправлять запрос)
             const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
             if (currentGems < 50) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].no_gems || "Не хватает гемов!", "error");
+                return showToast("Не хватает гемов!", "error");
             }
 
             tg.HapticFeedback.impactOccurred('heavy');
             tg.MainButton.showProgress();
-            showToast(translations[currentLang].toast_creating || "Создаем... Ждите ~15 сек ⏳", "wait");
+            showToast("Создаем... Ждите ~15 сек ⏳", "wait");
 
             fetch(WEBHOOK_CREATE_CHAR, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: name,
+                    gender: customGender, // <--- ПЕРЕДАЕМ ВЫБРАННЫЙ ПОЛ НА БЭКЕНД
                     appearance: appearance,
                     clothes: clothes,
                     personality: personality,
@@ -2269,32 +2394,26 @@
                 tg.MainButton.hideProgress();
                 if (data.success) {
                     tg.HapticFeedback.notificationOccurred('success');
-                    showToast(translations[currentLang].toast_char_created || "✅ Вайфу успешно создана!", "success");
+                    showToast("✅ Персонаж успешно создан!", "success");
                     
-                    // Очищаем форму
+                    // Очищаем форму и сбрасываем на 1 шаг
                     document.getElementById('custom-name').value = '';
                     document.getElementById('custom-appearance').value = '';
                     document.getElementById('custom-clothes').value = '';
                     document.getElementById('custom-personality').value = '';
+                    goToCreateStep(1);
                     
-                    // Списываем гемы визуально и переключаем на вкладку "Мои"
                     document.getElementById('balance-gems').innerText = currentGems - 50;
                     switchCreateSubTab('mine');
-                    
-                    // Обновляем данные пользователя с бэкенда (чтобы новая вайфу подгрузилась)
                     fetchUserData(); 
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
-                    if (data.error_code === "not_enough_gems") {
-                        showToast(translations[currentLang].no_gems || "Не хватает гемов!", "error");
-                    } else {
-                        showToast("❌ " + (data.message || "Ошибка генерации"), "error");
-                    }
+                    showToast("❌ " + (data.message || "Ошибка"), "error");
                 }
             })
             .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast(translations[currentLang].toast_conn_error || "Ошибка соединения", "error");
+                showToast("Ошибка соединения", "error");
             });
         }
 
