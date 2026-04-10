@@ -3167,6 +3167,7 @@ const translations = {
                 ph_appearance_male: "Высокий брюнет, карие глаза, спортивное телосложение...",
                 ph_clothes_male: "Черный костюм, белая рубашка...",
                 ph_personality_male: "Он мой строгий босс. Мы остались одни в офисе...",
+                btn_generating: "Генерация изображения...",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -3266,6 +3267,7 @@ const translations = {
                 ph_appearance_male: "Uzun boylu esmer, kahverengi gözlü, atletik yapılı...",
                 ph_clothes_male: "Siyah takım elbise, beyaz gömlek...",
                 ph_personality_male: "O benim katı patronum. Ofiste yalnız kaldık...",
+                btn_generating: "Görüntü oluşturuluyor...",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -3365,6 +3367,7 @@ const translations = {
                 ph_appearance_male: "Tall brunette, brown eyes, athletic build...",
                 ph_clothes_male: "Black suit, white shirt...",
                 ph_personality_male: "He is my strict boss. We stayed alone in the office...",
+                btn_generating: "Generating image...",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -3464,6 +3467,7 @@ const translations = {
                 ph_appearance_male: "Castaño alto, ojos marrones, complexión atlética...",
                 ph_clothes_male: "Traje negro, camisa blanca...",
                 ph_personality_male: "Él es mi jefe estricto. Nos quedamos solos en la oficina...",
+                btn_generating: "Generando imagen...",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -3563,6 +3567,7 @@ const translations = {
                 ph_appearance_male: "Moreno alto, olhos castanhos, porte atlético...",
                 ph_clothes_male: "Terno preto, camisa branca...",
                 ph_personality_male: "Ele é meu chefe rigoroso. Ficamos sozinhos no escritório...",
+                btn_generating: "Gerando imagem...",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -3662,6 +3667,7 @@ const translations = {
                 ph_appearance_male: "Tinggi, berambut cokelat, tubuh atletis...",
                 ph_clothes_male: "Setelan hitam, kemeja putih...",
                 ph_personality_male: "Dia bosku yang tegas. Kami tinggal berdua di kantor...",
+                btn_generating: "Menghasilkan gambar...",
             }
         };
 
