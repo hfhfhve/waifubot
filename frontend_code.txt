@@ -428,7 +428,7 @@
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
-                        <input type="text" id="custom-name" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <input type="text" id="custom-name" maxlength="50" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_gender">ПОЛ ПЕРСОНАЖА</label>
@@ -449,11 +449,11 @@
                 <div id="create-step-2" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
-                        <textarea id="custom-appearance" data-i18n-placeholder="ph_appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-appearance" maxlength="500" data-i18n-placeholder="ph_appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
-                        <input type="text" id="custom-clothes" data-i18n-placeholder="ph_clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <input type="text" id="custom-clothes" maxlength="300" data-i18n-placeholder="ph_clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(1)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
@@ -464,11 +464,11 @@
                 <div id="create-step-3" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ОКРУЖЕНИЕ / ЛОКАЦИЯ</label>
-                        <textarea id="custom-environment" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Мрачный замок, неон, киберпанк город, уютная спальня..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-environment" maxlength="300" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Мрачный замок, неон, киберпанк город, уютная спальня..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ХАРАКТЕР (Для общения)</label>
-                        <textarea id="custom-personality" data-i18n-placeholder="ph_personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-personality" maxlength="1000" data-i18n-placeholder="ph_personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(2)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
