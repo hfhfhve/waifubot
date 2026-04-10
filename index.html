@@ -381,7 +381,7 @@
                 <span data-i18n="my_chars">МОИ ПЕРСОНАЖИ</span>
             </button>
             <button onclick="switchCreateSubTab('new')" id="btn-create-new" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive flex items-center justify-center gap-1">
-                <span data-i18n="create_new">СОЗДАТЬ</span> <span class="text-cyan-400 font-bold">(50 💎)</span>
+                <span data-i18n="create_new">СОЗДАТЬ</span>
             </button>
         </div>
 
@@ -471,6 +471,7 @@
                 </div>
 
                 <div id="create-step-4" class="hidden animate-fade-up">
+                    
                     <button onclick="goToCreateStep(3)" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 transition-colors">
                         <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back_lore">Назад к лору</span>
                     </button>
@@ -491,7 +492,7 @@
                             <i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">СГЕНЕРИРОВАТЬ ФОТО</span> (2 💎)</span>
                         </button>
                         
-                        <button onclick="submitCustomCharacter()" id="btn-final-create" class="hidden w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-black text-white justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
+                        <button onclick="submitCustomCharacter()" id="btn-final-create" class="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
                             <i class="fa-solid fa-check"></i> <span data-i18n="btn_final_create">СОЗДАТЬ ПЕРСОНАЖА</span> (20 💎)
                         </button>
                     </div>
