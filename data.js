@@ -99,6 +99,7 @@ const translations = {
                 ph_personality_male: "Он мой строгий босс. Мы остались одни в офисе...",
                 btn_generating: "Генерация изображения...",
                 max_limit_reached: "Достигнут лимит: {n} символов",
+                form_user_gender: "ВАШ ПОЛ",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -200,6 +201,7 @@ const translations = {
                 ph_personality_male: "O benim katı patronum. Ofiste yalnız kaldık...",
                 btn_generating: "Görüntü oluşturuluyor...",
                 max_limit_reached: "Sınıra ulaşıldı: {n} karakter",
+                form_user_gender: "CİNSİYETİNİZ",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -301,6 +303,7 @@ const translations = {
                 ph_personality_male: "He is my strict boss. We stayed alone in the office...",
                 btn_generating: "Generating image...",
                 max_limit_reached: "Limit reached: {n} characters",
+                form_user_gender: "YOUR GENDER",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -402,6 +405,7 @@ const translations = {
                 ph_personality_male: "Él es mi jefe estricto. Nos quedamos solos en la oficina...",
                 btn_generating: "Generando imagen...",
                 max_limit_reached: "Límite alcanzado: {n} caracteres",
+                form_user_gender: "TU GÉNERO",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -503,6 +507,7 @@ const translations = {
                 ph_personality_male: "Ele é meu chefe rigoroso. Ficamos sozinhos no escritório...",
                 btn_generating: "Gerando imagem...",
                 max_limit_reached: "Limite atingido: {n} caracteres",
+                form_user_gender: "SEU GÊNERO",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -604,6 +609,7 @@ const translations = {
                 ph_personality_male: "Dia bosku yang tegas. Kami tinggal berdua di kantor...",
                 btn_generating: "Menghasilkan gambar...",
                 max_limit_reached: "Batas tercapai: {n} karakter",
+                form_user_gender: "JENIS KELAMIN ANDA",
             }
         };
 
