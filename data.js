@@ -93,6 +93,10 @@ const translations = {
                 toast_creating: "Создаем... Ждите ~15 сек ⏳", toast_char_created: "✅ Персонаж успешно создан!",
                 no_custom_chars: "У тебя пока нет своих вайфу", toast_generate_first: "Сначала сгенерируйте фото!",
                 toast_need_2_gems: "Нужно 2 гема для превью!", toast_need_20_gems: "Нужно 20 гемов!",
+                ph_name_male: "Например: Райан",
+                ph_appearance_male: "Высокий брюнет, карие глаза, спортивное телосложение...",
+                ph_clothes_male: "Черный костюм, белая рубашка...",
+                ph_personality_male: "Он мой строгий босс. Мы остались одни в офисе...",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -188,6 +192,10 @@ const translations = {
                 toast_creating: "Oluşturuluyor... Bekle ~15 sn ⏳", toast_char_created: "✅ Karakter başarıyla oluşturuldu!",
                 no_custom_chars: "Henüz kendi waifu'nuz yok", toast_generate_first: "Önce bir fotoğraf oluşturun!",
                 toast_need_2_gems: "Önizleme için 2 elmasa ihtiyacınız var!", toast_need_20_gems: "20 elmasa ihtiyacınız var!",
+                ph_name_male: "Örn. Ryan",
+                ph_appearance_male: "Uzun boylu esmer, kahverengi gözlü, atletik yapılı...",
+                ph_clothes_male: "Siyah takım elbise, beyaz gömlek...",
+                ph_personality_male: "O benim katı patronum. Ofiste yalnız kaldık...",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -283,6 +291,10 @@ const translations = {
                 toast_creating: "Creating... Wait ~15 sec ⏳", toast_char_created: "✅ Character created successfully!",
                 no_custom_chars: "You have no custom waifus yet", toast_generate_first: "Generate a photo first!",
                 toast_need_2_gems: "You need 2 gems for preview!", toast_need_20_gems: "You need 20 gems!",
+                ph_name_male: "e.g., Ryan",
+                ph_appearance_male: "Tall brunette, brown eyes, athletic build...",
+                ph_clothes_male: "Black suit, white shirt...",
+                ph_personality_male: "He is my strict boss. We stayed alone in the office...",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -378,6 +390,10 @@ const translations = {
                 toast_creating: "Creando... Espera ~15 seg ⏳", toast_char_created: "✅ ¡Personaje creado con éxito!",
                 no_custom_chars: "Aún no tienes waifus creadas", toast_generate_first: "¡Genera una foto primero!",
                 toast_need_2_gems: "¡Necesitas 2 gemas para la vista previa!", toast_need_20_gems: "¡Necesitas 20 gemas!",
+                ph_name_male: "Ej., Ryan",
+                ph_appearance_male: "Castaño alto, ojos marrones, complexión atlética...",
+                ph_clothes_male: "Traje negro, camisa blanca...",
+                ph_personality_male: "Él es mi jefe estricto. Nos quedamos solos en la oficina...",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -473,6 +489,10 @@ const translations = {
                 toast_creating: "Criando... Aguarde ~15 seg ⏳", toast_char_created: "✅ Personagem criado com sucesso!",
                 no_custom_chars: "Você ainda não tem waifus criadas", toast_generate_first: "Gere uma foto primeiro!",
                 toast_need_2_gems: "Você precisa de 2 gemas para o preview!", toast_need_20_gems: "Você precisa de 20 gemas!",
+                ph_name_male: "Ex., Ryan",
+                ph_appearance_male: "Moreno alto, olhos castanhos, porte atlético...",
+                ph_clothes_male: "Terno preto, camisa branca...",
+                ph_personality_male: "Ele é meu chefe rigoroso. Ficamos sozinhos no escritório...",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -568,6 +588,10 @@ const translations = {
                 toast_creating: "Membuat... Tunggu ~15 dtk ⏳", toast_char_created: "✅ Karakter berhasil dibuat!",
                 no_custom_chars: "Kamu belum memiliki waifu kustom", toast_generate_first: "Hasilkan foto terlebih dahulu!",
                 toast_need_2_gems: "Butuh 2 permata untuk pratinjau!", toast_need_20_gems: "Butuh 20 permata!",
+                ph_name_male: "Misalnya: Ryan",
+                ph_appearance_male: "Tinggi, berambut cokelat, tubuh atletis...",
+                ph_clothes_male: "Setelan hitam, kemeja putih...",
+                ph_personality_male: "Dia bosku yang tegas. Kami tinggal berdua di kantor...",
             }
         };
 
