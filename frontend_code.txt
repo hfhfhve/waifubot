@@ -398,26 +398,32 @@
 
         <div id="create-section-new" class="hidden">
             
-            <div class="flex justify-between items-center mb-6 px-4">
-                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10" id="step-indicator-1">
-                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all"><i class="fa-solid fa-pen"></i></div>
-                    <span class="text-[9px] text-purple-400 font-bold uppercase tracking-wider">База</span>
+            <div class="flex justify-between items-center mb-6 px-2">
+                <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
+                    <div class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all">1</div>
+                    <span class="text-[8px] text-purple-400 font-bold uppercase tracking-wider">База</span>
                 </div>
-                <div class="h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px]" id="step-line-1"></div>
+                <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-1"></div>
                 
-                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10 opacity-50" id="step-indicator-2">
-                    <div class="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all">2</div>
-                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Визуал</span>
+                <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-2">
+                    <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">2</div>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Визуал</span>
                 </div>
-                <div class="h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px]" id="step-line-2"></div>
+                <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-2"></div>
                 
-                <div class="flex flex-col items-center gap-1 w-1/3 relative z-10 opacity-50" id="step-indicator-3">
-                    <div class="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all">3</div>
-                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Лор</span>
+                <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-3">
+                    <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">3</div>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Лор</span>
+                </div>
+                <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-3"></div>
+
+                <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-4">
+                    <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">4</div>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Фото</span>
                 </div>
             </div>
 
-            <div class="premium-card p-5 border-purple-500/30">
+            <div class="premium-card p-4 border-purple-500/30">
                 
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
@@ -461,16 +467,35 @@
                         <textarea id="custom-personality" placeholder="Она моя строгая начальница. Мы остались одни в офисе поздно вечером, и она вызывает меня к себе в кабинет..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-32 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="goToCreateStep(2)" class="w-12 h-14 shrink-0 bg-black/50 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
-                        <button onclick="submitCustomCharacter()" class="flex-1 h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> СОЗДАТЬ ЗА 50 <i class="fa-solid fa-gem text-cyan-300"></i>
+                        <button onclick="goToCreateStep(2)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="goToCreateStep(4)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">Далее к Фото <i class="fa-solid fa-image"></i></button>
+                    </div>
+                </div>
+
+                <div id="create-step-4" class="hidden animate-fade-up">
+                    <div class="w-full h-64 rounded-xl bg-black/50 border border-white/10 mb-4 flex flex-col items-center justify-center overflow-hidden relative" id="preview-container">
+                        <img id="preview-char-img" src="" class="w-full h-full object-cover hidden">
+                        <div id="preview-placeholder" class="text-center text-gray-500">
+                            <i class="fa-solid fa-camera-retro text-4xl mb-2"></i>
+                            <p class="text-[10px] uppercase font-bold tracking-widest">Превью появится здесь</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="generatePreview()" id="btn-generate-preview" class="w-full h-12 bg-blue-600/20 text-blue-400 border border-blue-500/50 hover:bg-blue-600/30 rounded-xl font-bold transition-all flex items-center justify-center gap-2 mb-3">
+                        <i class="fa-solid fa-magic"></i> Сгенерировать фото (2 💎)
+                    </button>
+                    
+                    <div class="flex gap-2">
+                        <button onclick="goToCreateStep(3)" class="w-12 h-14 shrink-0 bg-black/50 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+                        
+                        <button onclick="submitCustomCharacter()" id="btn-final-create" class="hidden flex-1 h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
+                            <i class="fa-solid fa-check"></i> СОЗДАТЬ ПЕРСОНАЖА (20 💎)
                         </button>
                     </div>
                 </div>
 
             </div>
         </div>
-    </div>
 
     <div id="tab-shop" class="hidden px-4 pt-14 min-h-screen">
         <div id="shop-section-packs" class="space-y-5 animate-fade-up">
@@ -1135,6 +1160,7 @@
         const WEBHOOK_GET_SHOP = `${BASE_URL}/webhook/get-shop`;
         const WEBHOOK_VERIFY_AGE = `${BASE_URL}/webhook/verify-age`;
         const WEBHOOK_CREATE_CHAR = `${BASE_URL}/webhook/create-character`;
+        const WEBHOOK_TEST_PHOTO = `${BASE_URL}/webhook/test-custom-photo`;
         // ========================================================
 
         // ЕДИНЫЙ БЛОК ЗАПУСКА ПРИЛОЖЕНИЯ
@@ -2361,36 +2387,132 @@
             currentCreateStep = step;
         }
 
-        function submitCustomCharacter() {
-            const name = document.getElementById('custom-name').value.trim();
-            const appearance = document.getElementById('custom-appearance').value.trim();
-            const clothes = document.getElementById('custom-clothes').value.trim();
-            const personality = document.getElementById('custom-personality').value.trim();
+        // Глобальные переменные для хранения сгенерированных данных
+        let generatedAiData = null;
+        let generatedImageUrl = null;
 
-            if (!personality) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return showToast("Опишите лор и характер!", "error");
+        function goToCreateStep(step) {
+            // Валидация
+            if (step === 2 && !document.getElementById('custom-name').value.trim()) return showToast("Введите имя персонажа!", "error");
+            if (step === 3 && !document.getElementById('custom-appearance').value.trim()) return showToast("Опишите внешность!", "error");
+            if (step === 4 && !document.getElementById('custom-personality').value.trim()) return showToast("Опишите лор и характер!", "error");
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            [1, 2, 3, 4].forEach(s => document.getElementById(`create-step-${s}`).classList.add('hidden'));
+            document.getElementById(`create-step-${step}`).classList.remove('hidden');
+            
+            for (let i = 1; i <= 4; i++) {
+                const ind = document.getElementById(`step-indicator-${i}`);
+                const circle = ind.querySelector('div');
+                const line = document.getElementById(`step-line-${i-1}`); 
+                
+                if (i < step) {
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] transition-all";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                } else if (i === step) {
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all";
+                    circle.innerHTML = i;
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                } else {
+                    ind.classList.add('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all";
+                    circle.innerHTML = i;
+                    if (line) line.className = "h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                }
             }
+            currentCreateStep = step;
+        }
 
+        // КНОПКА "СГЕНЕРИРОВАТЬ ФОТО (2 ГЕМА)"
+        function generatePreview() {
             const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
-            if (currentGems < 50) {
+            if (currentGems < 2) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast("Не хватает гемов!", "error");
+                return showToast("Нужно 2 гема для превью!", "error");
             }
 
             tg.HapticFeedback.impactOccurred('heavy');
             tg.MainButton.showProgress();
-            showToast("Создаем... Ждите ~15 сек ⏳", "wait");
+            
+            const btn = document.getElementById('btn-generate-preview');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Рисуем... ~15 сек';
+            btn.disabled = true;
+
+            fetch(WEBHOOK_TEST_PHOTO, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('custom-name').value.trim(),
+                    gender: customGender,
+                    appearance: document.getElementById('custom-appearance').value.trim(),
+                    clothes: document.getElementById('custom-clothes').value.trim(),
+                    personality: document.getElementById('custom-personality').value.trim(),
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+
+                if (data.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    
+                    // Сохраняем данные для финального создания
+                    generatedAiData = data.ai_data;
+                    generatedImageUrl = data.image_url;
+                    
+                    // Показываем картинку
+                    document.getElementById('preview-placeholder').classList.add('hidden');
+                    const imgEl = document.getElementById('preview-char-img');
+                    imgEl.src = generatedImageUrl;
+                    imgEl.classList.remove('hidden');
+
+                    // Показываем кнопку Финального создания
+                    document.getElementById('btn-final-create').classList.remove('hidden');
+                    document.getElementById('btn-final-create').classList.add('flex');
+                    
+                    // Визуально списываем 2 гема
+                    document.getElementById('balance-gems').innerText = currentGems - 2;
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    showToast("❌ " + (data.message || "Ошибка"), "error");
+                }
+            }).catch(err => {
+                tg.MainButton.hideProgress();
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                showToast("Ошибка соединения", "error");
+            });
+        }
+
+        // КНОПКА "СОЗДАТЬ ПЕРСОНАЖА (20 ГЕМОВ)"
+        function submitCustomCharacter() {
+            if (!generatedAiData || !generatedImageUrl) return showToast("Сначала сгенерируйте фото!", "error");
+
+            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
+            if (currentGems < 20) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast("Нужно 20 гемов!", "error");
+            }
+
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.MainButton.showProgress();
 
             fetch(WEBHOOK_CREATE_CHAR, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: name,
-                    gender: customGender, // <--- ПЕРЕДАЕМ ВЫБРАННЫЙ ПОЛ НА БЭКЕНД
-                    appearance: appearance,
-                    clothes: clothes,
-                    personality: personality,
+                    name: document.getElementById('custom-name').value.trim(),
+                    image_url: generatedImageUrl,
+                    ai_data: generatedAiData,
                     chat_id: tg.initDataUnsafe?.user?.id,
                     initData: tg.initData
                 })
@@ -2402,14 +2524,20 @@
                     tg.HapticFeedback.notificationOccurred('success');
                     showToast("✅ Персонаж успешно создан!", "success");
                     
-                    // Очищаем форму и сбрасываем на 1 шаг
+                    // Очистка формы
                     document.getElementById('custom-name').value = '';
                     document.getElementById('custom-appearance').value = '';
                     document.getElementById('custom-clothes').value = '';
                     document.getElementById('custom-personality').value = '';
-                    goToCreateStep(1);
+                    document.getElementById('preview-char-img').classList.add('hidden');
+                    document.getElementById('preview-placeholder').classList.remove('hidden');
+                    document.getElementById('btn-final-create').classList.add('hidden');
+                    document.getElementById('btn-final-create').classList.remove('flex');
+                    generatedAiData = null;
+                    generatedImageUrl = null;
                     
-                    document.getElementById('balance-gems').innerText = currentGems - 50;
+                    goToCreateStep(1);
+                    document.getElementById('balance-gems').innerText = currentGems - 20;
                     switchCreateSubTab('mine');
                     fetchUserData(); 
                 } else {
@@ -2439,11 +2567,10 @@
 
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+                // Подставляем реальную фотку из базы!
                 return `
-                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-gradient-to-br from-purple-900/40 to-black active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
-                    <div class="absolute inset-0 flex flex-col items-center justify-center opacity-20">
-                         <i class="fa-solid fa-user-astronaut text-6xl text-purple-400"></i>
-                    </div>
+                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
                     <div class="absolute top-2 right-2 bg-purple-600/80 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black text-white tracking-widest z-20">CUSTOM</div>
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
