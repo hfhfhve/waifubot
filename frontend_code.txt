@@ -1578,32 +1578,52 @@
         function openCharacterModal(charId) {
             tg.HapticFeedback.impactOccurred('medium');
             
-            // Ищем персонажа в отфильтрованном списке, где уже лежат флаги has_voice и has_image из БД
-            const char = (window.activeCharactersList || characters).find(c => c.id === charId);
+            // Ищем персонажа в обычных
+            let char = (window.activeCharactersList || characters).find(c => c.id === charId);
+            let isCustom = false;
+            
+            // Если в обычных нет, ищем в кастомных
+            if (!char) {
+                char = (window.customCharactersList || []).find(c => c.id === charId);
+                isCustom = true;
+            }
+
             if (!char) {
                 console.error("Персонаж не найден:", charId);
                 return;
             }
         
             selectedCharacterId = charId;
-            const name = char['name_' + currentLang] || char['name_ru'];
-            const fullDesc = char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru'];
+            
+            // Достаем имя (у кастомных оно без приписок языка)
+            const name = isCustom ? char.name : (char['name_' + currentLang] || char['name_ru'] || char.name);
+            
+            // Описание (лор кастомного перса мы не шлем на фронт для экономии, поэтому ставим заглушку)
+            const fullDesc = isCustom 
+                ? (translations[currentLang].custom_char_desc || "Твой кастомный персонаж. Нажми «Запустить», чтобы начать ролеплей.") 
+                : (char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru']);
         
-            document.getElementById('char-modal-img').src = char.image;
+            // Вставляем картинку
+            document.getElementById('char-modal-img').src = char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo';
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
             
-            // --- РИСУЕМ ТЕГИ В МОДАЛКЕ ---
+            // Рисуем теги
             const tagsContainer = document.getElementById('char-modal-tags');
             if (tagsContainer) {
                 let tagsHtml = '';
-                // Тег ФОТО
-                if (char.has_image !== false) {
+                
+                if (isCustom) {
+                    // У кастомных всегда есть ФОТО, но нет ГОЛОСА. Добавляем тег CUSTOM.
+                    tagsHtml += `<span class="px-2.5 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
                     tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                }
-                // Тег ГОЛОС (с проверкой на поддерживаемые языки)
-                if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
-                    tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                } else {
+                    if (char.has_image !== false) {
+                        tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                    }
+                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
+                        tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                    }
                 }
                 tagsContainer.innerHTML = tagsHtml;
             }
