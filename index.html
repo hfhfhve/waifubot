@@ -2475,16 +2475,35 @@
         let generatedImageUrl = null;
 
         function goToCreateStep(step) {
-            // Валидация
-            if (step === 2 && !document.getElementById('custom-name').value.trim()) return showToast("Введите имя персонажа!", "error");
-            if (step === 3 && !document.getElementById('custom-appearance').value.trim()) return showToast("Опишите внешность!", "error");
-            if (step === 4 && !document.getElementById('custom-personality').value.trim()) return showToast("Опишите лор и характер!", "error");
+            // Валидация с переводами
+            if (step === 2 && !document.getElementById('custom-name').value.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_enter_name, "error");
+            }
+            if (step === 3 && !document.getElementById('custom-appearance').value.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_enter_appearance, "error");
+            }
+            if (step === 4) {
+                if (!document.getElementById('custom-environment').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast(translations[currentLang].toast_enter_environment, "error");
+                }
+                if (!document.getElementById('custom-personality').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast(translations[currentLang].toast_enter_personality, "error");
+                }
+            }
 
             tg.HapticFeedback.impactOccurred('light');
 
+            // Скрываем все шаги
             [1, 2, 3, 4].forEach(s => document.getElementById(`create-step-${s}`).classList.add('hidden'));
+            
+            // Показываем нужный
             document.getElementById(`create-step-${step}`).classList.remove('hidden');
             
+            // Обновляем визуальные индикаторы (кружочки сверху)
             for (let i = 1; i <= 4; i++) {
                 const ind = document.getElementById(`step-indicator-${i}`);
                 const circle = ind.querySelector('div');
@@ -2576,12 +2595,15 @@
 
         // КНОПКА "СОЗДАТЬ ПЕРСОНАЖА (20 ГЕМОВ)"
         function submitCustomCharacter() {
-            if (!generatedAiData || !generatedImageUrl) return showToast("Сначала сгенерируйте фото!", "error");
+            if (!generatedAiData || !generatedImageUrl) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_generate_first, "error");
+            }
 
             const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
-            if (currentGems < 20) {
+            if (currentGems < 10) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast("Нужно 20 гемов!", "error");
+                return showToast(translations[currentLang].toast_need_10_gems || "Нужно 10 гемов!", "error");
             }
 
             tg.HapticFeedback.impactOccurred('heavy');
@@ -2596,7 +2618,9 @@
                     image_url: generatedImageUrl,
                     ai_data: generatedAiData,
                     chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData
+                    initData: tg.initData,
+                    gender: customGender,
+                    user_gender: selectedUserGender 
                 })
             })
             .then(res => res.json())
@@ -2604,33 +2628,35 @@
                 tg.MainButton.hideProgress();
                 if (data.success) {
                     tg.HapticFeedback.notificationOccurred('success');
-                    showToast("✅ Персонаж успешно создан!", "success");
+                    showToast(translations[currentLang].toast_char_created, "success");
                     
                     // Очистка формы
                     document.getElementById('custom-name').value = '';
                     document.getElementById('custom-appearance').value = '';
                     document.getElementById('custom-clothes').value = '';
                     document.getElementById('custom-personality').value = '';
+                    document.getElementById('custom-environment').value = '';
                     document.getElementById('preview-char-img').classList.add('hidden');
                     document.getElementById('preview-placeholder').classList.remove('hidden');
                     generatedAiData = null;
                     generatedImageUrl = null;
                     
                     goToCreateStep(1);
-                    document.getElementById('balance-gems').innerText = currentGems - 20;
+                    document.getElementById('balance-gems').innerText = currentGems - 10;
                     switchCreateSubTab('mine');
                     fetchUserData(); 
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
-                    showToast("❌ " + (data.message || "Ошибка"), "error");
+                    // Если ошибка с бэкенда (например, "not_enough_gems")
+                    let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
+                    showToast("❌ " + errMsg, "error");
                 }
             })
             .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast("Ошибка соединения", "error");
+                showToast(translations[currentLang].toast_conn_error, "error");
             });
         }
-
         // Функция отрисовки кастомных персонажей
         function renderCustomCharacters() {
             const container = document.getElementById('my-custom-chars-container');
