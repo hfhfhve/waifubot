@@ -100,6 +100,11 @@ const translations = {
                 btn_generating: "Генерация изображения...",
                 max_limit_reached: "Достигнут лимит: {n} символов",
                 form_user_gender: "ВАШ ПОЛ",
+                toast_enter_name: "Введите имя персонажа!",
+                toast_enter_appearance: "Опишите внешность!",
+                toast_enter_environment: "Опишите окружение!",
+                toast_enter_personality: "Опишите характер!",
+                toast_generate_first: "Сначала сгенерируйте фото!",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -202,6 +207,11 @@ const translations = {
                 btn_generating: "Görüntü oluşturuluyor...",
                 max_limit_reached: "Sınıra ulaşıldı: {n} karakter",
                 form_user_gender: "CİNSİYETİNİZ",
+                toast_enter_name: "Karakter adını girin!",
+                toast_enter_appearance: "Görünümü tanımlayın!",
+                toast_enter_environment: "Ortamı tanımlayın!",
+                toast_enter_personality: "Kişiliği tanımlayın!",
+                toast_generate_first: "Önce bir fotoğraf oluşturun!",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -304,6 +314,11 @@ const translations = {
                 btn_generating: "Generating image...",
                 max_limit_reached: "Limit reached: {n} characters",
                 form_user_gender: "YOUR GENDER",
+                toast_enter_name: "Enter character name!",
+                toast_enter_appearance: "Describe the appearance!",
+                toast_enter_environment: "Describe the environment!",
+                toast_enter_personality: "Describe the personality!",
+                toast_generate_first: "Generate a photo first!",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -406,6 +421,11 @@ const translations = {
                 btn_generating: "Generando imagen...",
                 max_limit_reached: "Límite alcanzado: {n} caracteres",
                 form_user_gender: "TU GÉNERO",
+                toast_enter_name: "¡Introduce el nombre del personaje!",
+                toast_enter_appearance: "¡Describe la apariencia!",
+                toast_enter_environment: "¡Describe el entorno!",
+                toast_enter_personality: "¡Describe la personalidad!",
+                toast_generate_first: "¡Genera una foto primero!",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -508,6 +528,11 @@ const translations = {
                 btn_generating: "Gerando imagem...",
                 max_limit_reached: "Limite atingido: {n} caracteres",
                 form_user_gender: "SEU GÊNERO",
+                toast_enter_name: "Insira o nome do personagem!",
+                toast_enter_appearance: "Descreva a aparência!",
+                toast_enter_environment: "Descreva o ambiente!",
+                toast_enter_personality: "Descreva a personalidade!",
+                toast_generate_first: "Gere uma foto primeiro!",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -610,6 +635,11 @@ const translations = {
                 btn_generating: "Menghasilkan gambar...",
                 max_limit_reached: "Batas tercapai: {n} karakter",
                 form_user_gender: "JENIS KELAMIN ANDA",
+                toast_enter_name: "Masukkan nama karakter!",
+                toast_enter_appearance: "Jelaskan penampilannya!",
+                toast_enter_environment: "Jelaskan lingkungannya!",
+                toast_enter_personality: "Jelaskan kepribadiannya!",
+                toast_generate_first: "Hasilkan foto terlebih dahulu!",
             }
         };
 
