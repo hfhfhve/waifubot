@@ -387,7 +387,7 @@
 
         <div id="create-section-mine" class="animate-fade-up">
             <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3">
-                </div>
+            </div>
         </div>
 
         <div id="create-section-new" class="hidden">
@@ -422,9 +422,11 @@
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
-                        <input type="text" id="custom-name" maxlength="50" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <input type="text" id="custom-name" maxlength="50" oninput="validateInput('custom-name', 50)" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <div id="custom-name-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
-                    <div class="mb-6">
+                    
+                    <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_gender">ПОЛ ПЕРСОНАЖА</label>
                         <div class="flex gap-2 p-1 bg-black/50 border border-white/10 rounded-xl">
                             <button onclick="selectCustomGender('female')" id="btn-gender-female" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2">
@@ -435,6 +437,19 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="mb-6">
+                        <label class="text-[10px] font-bold text-pink-500/80 mb-1.5 block uppercase tracking-widest" data-i18n="form_user_gender">ВАШ ПОЛ</label>
+                        <div class="flex gap-2 p-1 bg-black/50 border border-pink-500/20 rounded-xl">
+                            <button onclick="selectUserGender('female')" id="btn-user-female" class="flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-transparent text-gray-500 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-person-dress"></i> <span data-i18n="gender_female">Девушка</span>
+                            </button>
+                            <button onclick="selectUserGender('male')" id="btn-user-male" class="flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-person"></i> <span data-i18n="gender_male">Парень</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <button onclick="goToCreateStep(2)" class="w-full h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">
                         <span data-i18n="btn_next">Далее</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
@@ -443,11 +458,13 @@
                 <div id="create-step-2" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
-                        <textarea id="custom-appearance" maxlength="500" data-i18n-placeholder="ph_appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-appearance" maxlength="500" oninput="validateInput('custom-appearance', 500)" data-i18n-placeholder="ph_appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <div id="custom-appearance-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
-                        <input type="text" id="custom-clothes" maxlength="300" data-i18n-placeholder="ph_clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <input type="text" id="custom-clothes" maxlength="300" oninput="validateInput('custom-clothes', 300)" data-i18n-placeholder="ph_clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                        <div id="custom-clothes-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(1)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
@@ -458,11 +475,13 @@
                 <div id="create-step-3" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ОКРУЖЕНИЕ / ЛОКАЦИЯ</label>
-                        <textarea id="custom-environment" maxlength="300" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Мрачный замок, неон, киберпанк город, уютная спальня..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-environment" maxlength="300" oninput="validateInput('custom-environment', 300)" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Мрачный замок, неон, киберпанк город, уютная спальня..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <div id="custom-environment-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ХАРАКТЕР (Для общения)</label>
-                        <textarea id="custom-personality" maxlength="1000" data-i18n-placeholder="ph_personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <textarea id="custom-personality" maxlength="1000" oninput="validateInput('custom-personality', 1000)" data-i18n-placeholder="ph_personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                        <div id="custom-personality-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(2)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
@@ -471,7 +490,6 @@
                 </div>
 
                 <div id="create-step-4" class="hidden animate-fade-up">
-                    
                     <button onclick="goToCreateStep(3)" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 transition-colors">
                         <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back_lore">Назад к лору</span>
                     </button>
@@ -2649,6 +2667,24 @@
                 </div>
                 `;
             }).join('');
+        }
+
+        let selectedUserGender = 'male'; 
+
+        function selectUserGender(gender) {
+            tg.HapticFeedback.selectionChanged();
+            selectedUserGender = gender;
+            
+            const btnFemale = document.getElementById('btn-user-female');
+            const btnMale = document.getElementById('btn-user-male');
+
+            if (gender === 'female') {
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-pink-600/20 text-pink-400 border border-pink-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-transparent text-gray-500 transition-all flex items-center justify-center gap-2";
+            } else {
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-transparent text-gray-500 transition-all flex items-center justify-center gap-2";
+            }
         }
         
         function renderChats(chats) {
