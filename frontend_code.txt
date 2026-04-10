@@ -1261,6 +1261,7 @@
                 flag.src = langConfig[lang].flag; 
                 text.innerText = langConfig[lang].text; 
             }
+            
         
             updateBonusCardUI();
             renderCharacters();
