@@ -395,25 +395,25 @@
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
                     <div class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all">1</div>
-                    <span class="text-[8px] text-purple-400 font-bold uppercase tracking-wider">База</span>
+                    <span class="text-[8px] text-purple-400 font-bold uppercase tracking-wider" data-i18n="step_base">База</span>
                 </div>
                 <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-1"></div>
                 
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-2">
                     <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">2</div>
-                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Визуал</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider" data-i18n="step_visual">Визуал</span>
                 </div>
                 <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-2"></div>
                 
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-3">
                     <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">3</div>
-                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Лор</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider" data-i18n="step_lore">Лор</span>
                 </div>
                 <div class="h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px]" id="step-line-3"></div>
 
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10 opacity-50" id="step-indicator-4">
                     <div class="w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all">4</div>
-                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider">Фото</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider" data-i18n="step_photo">Фото</span>
                 </div>
             </div>
 
@@ -421,55 +421,55 @@
                 
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
-                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ИМЯ ПЕРСОНАЖА</label>
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
                         <input type="text" id="custom-name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="mb-6">
-                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ПОЛ ПЕРСОНАЖА</label>
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_gender">ПОЛ ПЕРСОНАЖА</label>
                         <div class="flex gap-2 p-1 bg-black/50 border border-white/10 rounded-xl">
                             <button onclick="selectCustomGender('female')" id="btn-gender-female" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-venus"></i> Девушка
+                                <i class="fa-solid fa-venus"></i> <span data-i18n="gender_female">Девушка</span>
                             </button>
                             <button onclick="selectCustomGender('male')" id="btn-gender-male" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-mars"></i> Парень
+                                <i class="fa-solid fa-mars"></i> <span data-i18n="gender_male">Парень</span>
                             </button>
                         </div>
                     </div>
                     <button onclick="goToCreateStep(2)" class="w-full h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">
-                        Далее <i class="fa-solid fa-arrow-right"></i>
+                        <span data-i18n="btn_next">Далее</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
 
                 <div id="create-step-2" class="hidden animate-fade-up">
                     <div class="mb-4">
-                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ВНЕШНОСТЬ</label>
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
                         <textarea id="custom-appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="mb-6">
-                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ОДЕЖДА (По умолчанию)</label>
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
                         <input type="text" id="custom-clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(1)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
-                        <button onclick="goToCreateStep(3)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">Далее <i class="fa-solid fa-arrow-right"></i></button>
+                        <button onclick="goToCreateStep(3)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2"><span data-i18n="btn_next">Далее</span> <i class="fa-solid fa-arrow-right"></i></button>
                     </div>
                 </div>
 
                 <div id="create-step-3" class="hidden animate-fade-up">
                     <div class="mb-6">
-                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ЛОР И ХАРАКТЕР</label>
+                        <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ЛОР И ХАРАКТЕР</label>
                         <textarea id="custom-personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе поздно вечером, и она вызывает меня к себе в кабинет..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-32 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(2)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
-                        <button onclick="goToCreateStep(4)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">Далее к Фото <i class="fa-solid fa-image"></i></button>
+                        <button onclick="goToCreateStep(4)" class="flex-1 h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2"><span data-i18n="btn_next_photo">Далее к Фото</span> <i class="fa-solid fa-image"></i></button>
                     </div>
                 </div>
 
                 <div id="create-step-4" class="hidden animate-fade-up">
                     
                     <button onclick="goToCreateStep(3)" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 transition-colors">
-                        <i class="fa-solid fa-arrow-left"></i> Назад к лору
+                        <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back_lore">Назад к лору</span>
                     </button>
 
                     <div class="w-full aspect-[4/5] rounded-2xl bg-black/50 border border-white/10 mb-4 flex flex-col items-center justify-center overflow-hidden relative shadow-inner" id="preview-container">
@@ -478,18 +478,18 @@
                             <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-image text-2xl"></i>
                             </div>
-                            <p class="text-[10px] uppercase font-bold tracking-widest">Превью фото</p>
-                            <p class="text-[9px] text-gray-600 mt-1">Сгенерируй, чтобы увидеть</p>
+                            <p class="text-[10px] uppercase font-bold tracking-widest" data-i18n="preview_photo_title">Превью фото</p>
+                            <p class="text-[9px] text-gray-600 mt-1" data-i18n="preview_photo_desc">Сгенерируй, чтобы увидеть</p>
                         </div>
                     </div>
                     
                     <div class="space-y-3">
                         <button onclick="generatePreview()" id="btn-generate-preview" class="w-full h-12 bg-[#1a1a24] border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-magic"></i> СГЕНЕРИРОВАТЬ ФОТО (2 💎)
+                            <i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">СГЕНЕРИРОВАТЬ ФОТО</span> (2 💎)</span>
                         </button>
                         
                         <button onclick="submitCustomCharacter()" id="btn-final-create" class="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-black text-white justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform flex">
-                            <i class="fa-solid fa-check"></i> СОЗДАТЬ ПЕРСОНАЖА (20 💎)
+                            <i class="fa-solid fa-check"></i> <span data-i18n="btn_final_create">СОЗДАТЬ ПЕРСОНАЖА</span> (20 💎)
                         </button>
                     </div>
                 </div>
