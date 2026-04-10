@@ -2634,14 +2634,21 @@
 
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
-                // Подставляем реальную фотку из базы!
+                
+                // Формируем красивые теги под именем
+                let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
+                tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
+                tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                tagsHtml += '</div>';
+
                 return `
                 <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
-                    <div class="absolute top-2 right-2 bg-purple-600/80 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black text-white tracking-widest z-20">CUSTOM</div>
+                    
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
-                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md mb-1">${char.name}</h3>
+                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
+                        ${tagsHtml}
                         <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                 </div>
