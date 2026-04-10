@@ -2505,7 +2505,8 @@
             
             const btn = document.getElementById('btn-generate-preview');
             const originalBtnText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Рисуем... ~15 сек';
+            // Берем текст "Генерация изображения..." из переводов
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${translations[currentLang].btn_generating}`;
             btn.disabled = true;
 
             fetch(WEBHOOK_TEST_PHOTO, {
