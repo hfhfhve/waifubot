@@ -2334,10 +2334,30 @@
             if (gender === 'female') {
                 btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
                 btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+                
+                // Ставим женские ключи
+                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name');
+                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance');
+                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes');
+                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality');
             } else {
                 btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
                 btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+                
+                // Ставим мужские ключи
+                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name_male');
+                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance_male');
+                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes_male');
+                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality_male');
             }
+            
+            // Моментально обновляем текст плейсхолдеров на текущем языке
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(translations[currentLang] && translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
         }
 
         function goToCreateStep(step) {
