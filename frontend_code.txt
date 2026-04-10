@@ -3684,7 +3684,7 @@ const characters = [
                 fullDesc_pt: 'A general Stella é conhecida por sua disciplina de ferro e atitude intransigente no serviço. Mas a portas fechadas, seu uniforme esconde uma paixão insaciável. Ela está acostumada a comandar, mas talvez com você ela queira quebrar a subordinação e mostrar sua verdadeira e lasciva natureza.',
                 fullDesc_id: 'Jenderal Stella dikenal karena disiplin besinya dan sikap tanpa kompromi saat bertugas. Tapi di balik pintu tertutup, seragamnya menyembunyikan gairah yang tak terpuaskan. Dia terbiasa memerintah, tapi mungkin denganmu, dia akan ingin melanggar subordinasi dan menunjukkan sifat aslinya yang mesum.',
                 fullDesc_tr: 'General Stella, görevdeki demir disiplini ve tavizsiz tutumuyla tanınır. Ancak kapalı kapılar ardında üniforması doyumsuz bir tutkuyu gizler. O emretmeye alışkındır ama belki de seninle hiyerarşiyi bozmak ve gerçek, şehvetli doğasını göstermek isteyecektir.',
-                image: "https://waifubot.website/static/stella_app.webp",
+                image: 'https://waifubot.website/static/stella_app.webp',
                 online: false 
             },
             { 
@@ -3703,7 +3703,7 @@ const characters = [
                 fullDesc_pt: 'Eva é uma modelo mundialmente famosa e milionária. Ela está acostumada com o luxo de festas privadas em LA e com atenção constante. Conquistá-la é um verdadeiro desafio, pois ela já viu todas as cantadas clichês e reage com frio sarcasmo. Você consegue quebrar a armadura dela e provar que é digno de mais do que apenas um olhar?',
                 fullDesc_id: 'Eva adalah model terkenal di dunia dan seorang jutawan. Dia terbiasa dengan kemewahan pesta pribadi LA dan perhatian terus-menerus. Memenangkannya adalah tantangan nyata, karena dia telah melihat setiap kalimat rayuan klise dan bereaksi dengan sarkasme dingin. Bisakah kamu menembus baju besinya dan membuktikan bahwa kamu layak mendapatkan lebih dari sekadar pandangan?',
                 fullDesc_tr: 'Eva dünyaca ünlü bir model ve milyoner. Los Angeles\'taki özel partilerin lüksüne ve sürekli ilgiye alışkın. Dünyadaki tüm klişe tavlama sözlerini gördüğü ve bunlara soğuk bir alaycılıkla tepki verdiği için onu elde etmek gerçek bir meydan okumadır. Onun zırhını delip sadece bir bakıştan daha fazlasına layık olduğunu kanıtlayabilir misin?',
-                image: "https://waifubot.website/static/eva_app.webp",
+                image: 'https://waifubot.website/static/eva_app.webp',
                 online: false 
             },
             { 
@@ -3722,7 +3722,7 @@ const characters = [
                 fullDesc_pt: 'Alisa trabalha em uma cafeteria aconchegante bem perto da sua casa. Vocês conversam há muito tempo, e sempre houve uma leve atração mútua. Mas nesta noite chuvosa, você apareceu logo antes de fechar, e o flerte de sempre atrás do balcão está prestes a se transformar em algo muito mais quente a portas fechadas e com as persianas abaixadas.',
                 fullDesc_id: 'Alisa bekerja di kedai kopi yang nyaman di dekat rumahmu. Kalian sudah lama mengobrol, dan selalu ada sedikit ketertarikan satu sama lain. Tapi di malam hujan ini, kamu mampir tepat sebelum tutup, dan godaan biasa di balik meja bar akan berubah menjadi sesuatu yang jauh lebih panas di balik pintu tertutup dan tirai yang diturunkan.',
                 fullDesc_tr: 'Alisa tam evinin yakınındaki şirin bir kafede çalışıyor. Uzun zamandır sohbet ediyorsunuz ve aranızda her zaman hafif bir çekim oldu. Ama bu yağmurlu akşamda, kapanmadan hemen önce uğradın ve barın arkasındaki her zamanki flört, kapalı kapılar ve inik panjurlar ardında çok daha sıcak bir şeye dönüşmek üzere.',
-                image: "https://waifubot.website/static/alisa_app.webp",
+                image: 'https://waifubot.website/static/alisa_app.webp',
                 online: false 
             },
             { 
@@ -3741,7 +3741,7 @@ const characters = [
                 fullDesc_pt: 'Sauda é uma beleza exótica de uma tribo distante intocada pela civilização. Sua pele é como chocolate amargo e suas curvas enlouquecem qualquer um. Ela vive de instintos, não conhece tabus modernos e está pronta para lhe dar o amor selvagem e primitivo com o qual você só poderia sonhar.',
                 fullDesc_id: 'Sauda adalah kecantikan eksotis dari suku yang jauh, tak tersentuh oleh peradaban. Kulitnya seperti cokelat hitam, dan lekuk tubuhnya memabukkan. Dia hidup berdasarkan insting, tidak mengenal tabu modern, dan siap memberimu cinta liar dan primitif yang hanya bisa kamu impikan.',
                 fullDesc_tr: 'Sauda, medeniyetin dokunmadığı uzak bir kabileden gelen egzotik bir güzel. Teni bitter çikolata gibi ve kıvrımları çıldırtıcı. İçgüdüleriyle yaşıyor, modern tabuları bilmiyor ve sana sadece hayalini kurabileceğin vahşi, ilkel bir aşkı vermeye hazır.',
-                image: "https://waifubot.website/static/sauda_app.webp",
+                image: 'https://waifubot.website/static/sauda_app.webp',
                 online: false 
             },
             { 
@@ -3779,7 +3779,7 @@ const characters = [
                 fullDesc_pt: 'Uma loira de aparência inocente do interior, cuja beleza natural ofusca qualquer modelo da cidade. Ela é simples, confiante e incrivelmente atraente em sua naturalidade. O ar fresco e o leite recém-tirado fazem maravilhas para a figura!',
                 fullDesc_id: 'Wanita pirang yang terlihat lugu dari pedalaman, yang kecantikan alaminya mengalahkan model kota mana pun. Dia sederhana, mudah percaya, dan sangat menarik dalam kealamiannya. Udara segar dan susu segar benar-benar memberikan keajaiban pada sosoknya!',
                 fullDesc_tr: 'Doğal güzelliği herhangi bir şehir modelini gölgede bırakan, taşradan gelen masum görünümlü bir sarışın. O basit, güvenen ve doğallığıyla inanılmaz derecede çekici. Temiz hava ve taze süt, fiziği için harikalar yaratıyor!',
-                image: "https://waifubot.website/static/alex_app.webp",
+                image: 'https://waifubot.website/static/alex_app.webp',
                 online: false 
             },
             { 
@@ -3798,7 +3798,7 @@ const characters = [
                 fullDesc_pt: 'Fim de maio, um pôr do sol dourado entra pelas janelas de uma sala de aula vazia. Vocês acidentalmente ficaram sozinhos após um ano escolar difícil. Uma conversa normal sobre os exames se transforma gradualmente em flerte, os olhares se tornam mais ousados e a tensão entre vocês pode ser cortada com uma faca. Ela decide mostrar o seu melhor lado, e vocês definitivamente não esquecerão esta noite quente de primavera.',
                 fullDesc_id: 'Akhir Mei, matahari terbenam keemasan mengalir melalui jendela ruang kelas yang kosong. Kalian secara tidak sengaja berduaan setelah tahun ajaran yang berat. Obrolan santai tentang ujian berangsur-angsur berubah menjadi godaan, tatapan menjadi lebih berani, dan ketegangan di antara kalian bisa dipotong dengan pisau. Dia memutuskan untuk menunjukkan sisi terbaiknya, dan kamu pasti tidak akan melupakan malam musim semi yang hangat ini.',
                 fullDesc_tr: 'Mayıs sonu, boş bir sınıfın pencerelerinden altın rengi bir gün batımı süzülüyor. Zor bir okul yılının ardından tesadüfen ikiniz baş başa kaldınız. Sınavlar hakkındaki sıradan bir sohbet yavaş yavaş flörte dönüşüyor, bakışlar daha cesurlaşıyor ve aranızdaki gerilim bıçakla kesilebilecek kıvama geliyor. O, en iyi yönünü göstermeye karar verir ve sen bu sıcak bahar akşamını kesinlikle unutmayacaksın.',
-                image: "https://waifubot.website/static/lina_app.webp",
+                image: 'https://waifubot.website/static/lina_app.webp',
                 online: false 
             },
             { 
@@ -3855,7 +3855,7 @@ const characters = [
                 fullDesc_pt: 'Você estava caminhando por uma praia deserta, curtindo o som do oceano, quando a notou. Uma beleza bronzeada em um biquíni amarelo brilhante estava descansando em uma espreguiçadeira completamente sozinha. O sol quente, o som das ondas e um encontro inesperado são a desculpa perfeita para iniciar uma conversa que aos poucos apagará todos os limites.',
                 fullDesc_id: 'Kamu sedang berjalan di pantai yang sepi, menikmati suara laut, saat kamu memperhatikannya. Kecantikan berkulit kecokelatan dalam bikini kuning cerah sedang beristirahat di kursi berjemur sendirian. Matahari yang terik, suara ombak, dan pertemuan tak terduga adalah alasan sempurna untuk memulai percakapan yang perlahan akan menghapus semua batas.',
                 fullDesc_tr: 'Okyanusun sesinin tadını çıkararak ıssız bir plajda yürürken onu fark ettin. Parlak sarı bikinili bronzlaşmış bir güzel, şezlongda yapayalnız dinleniyordu. Kızgın güneş, dalgaların sesi ve beklenmedik bir karşılaşma, yavaş yavaş tüm sınırları ortadan kaldıracak bir konuşma başlatmak için mükemmel bir bahanedir.',
-                image: "https://waifubot.website/static/adriana_app.webp",
+                image: 'https://waifubot.website/static/adriana_app.webp',
                 online: false 
             },
             { 
@@ -3893,7 +3893,7 @@ const characters = [
                 fullDesc_pt: 'Sua melhor amiga de infância. Vocês compartilhavam segredos e brinquedos, mas agora cresceram, e as festas do pijama inocentes estão se transformando em algo mais. O limite da friendzone está prestes a ser apagado, e a velha amizade está pronta para se transformar em um amor apaixonado.',
                 fullDesc_id: 'Teman baikmu sejak kecil. Kalian berbagi rahasia dan mainan, tapi sekarang kalian sudah dewasa, dan menginap yang lugu berubah menjadi sesuatu yang lebih. Batas zona pertemanan akan segera dihapus, dan persahabatan lama siap tumbuh menjadi cinta yang penuh gairah.',
                 fullDesc_tr: 'Çocukluktan beri en iyi arkadaşın. Sırlarınızı ve oyuncaklarınızı paylaştınız ama artık büyüdünüz ve masum pijama partileri başka bir şeye dönüşüyor. Friendzone sınırı silinmek üzere ve eski dostluk tutkulu bir aşka dönüşmeye hazır.',
-                image: "https://waifubot.website/static/mika_app.webp",
+                image: 'https://waifubot.website/static/mika_app.webp',
                 online: false
             },
             { 
@@ -3931,7 +3931,7 @@ const characters = [
                 fullDesc_pt: 'Nyx é uma assassina de elite da raça dos elfos negros. Mortal e incrivelmente sexy. Ela veio atrás da sua cabeça, mas caiu em uma armadilha e agora está acorrentada em sua masmorra. Apesar de sua situação, ela se recusa a implorar por misericórdia. O desafio arde em seus brilhantes olhos roxos, e sua língua afiada está pronta para picar. Você quebrará o orgulho dela ou sucumbirá ao seu charme negro?',
                 fullDesc_id: 'Nyx adalah pembunuh elit dari ras elf gelap. Mematikan dan sangat seksi. Dia datang untuk mengambil kepalamu tetapi jatuh ke dalam jebakan dan sekarang dirantai di ruang bawah tanahmu. Meskipun situasinya demikian, dia menolak untuk memohon belas kasihan. Tantangan menyala di matanya yang ungu bersinar, dan lidahnya yang tajam siap menyengat. Akankah kamu menghancurkan harga dirinya, atau akankah kamu menyerah pada pesona gelapnya?',
                 fullDesc_tr: 'Nyx, kara elf ırkından elit bir suikastçıdır. Ölümcül ve inanılmaz derecede seksi. Kellen için geldi ama bir tuzağa düştü ve şimdi zindanında zincirli. Durumuna rağmen merhamet dilemeyi reddediyor. Parlayan mor gözlerinde meydan okuma ateşi yanıyor ve sivri dili sokmaya hazır. Onun gururunu mu kıracaksın, yoksa karanlık cazibesine mi boyun eğeceksin?',
-                image: "https://waifubot.website/static/nyx_app.webp",
+                image: 'https://waifubot.website/static/nyx_app.webp',
                 online: false 
             },
             { 
@@ -3950,7 +3950,7 @@ const characters = [
                 fullDesc_pt: 'Mei foi treinada na arte de servir desde jovem. Sua palavra é lei absoluta para ela. Durante o dia, ela mantém a mansão perfeitamente, serve chá e mantém distância. Mas quando as portas do seu quarto se fecham, ela tira as luvas brancas e está pronta para cumprir qualquer ordem, até a mais suja, do seu Mestre.',
                 fullDesc_id: 'Mei telah dilatih dalam seni melayani sejak usia muda. Kata-katamu adalah hukum mutlak baginya. Di siang hari, dia merawat rumah dengan sempurna, menyajikan teh, dan menjaga jarak. Tapi saat pintu kamar tidurmu ditutup, dia melepas sarung tangan putihnya dan siap memenuhi perintah apa pun, bahkan yang paling kotor sekalipun, dari Tuannya.',
                 fullDesc_tr: 'Mei genç yaşlardan beri hizmet etme sanatında eğitilmiştir. Senin sözün onun için mutlak kanundur. Gündüzleri konağın bakımını kusursuz yapar, çay servisi yapar ve mesafesini korur. Ancak yatak odanızın kapıları kapandığında beyaz eldivenlerini çıkarır ve Efendisinin en kirli emirlerini bile yerine getirmeye hazırdır.',
-                image: "https://waifubot.website/static/mei_app.webp",
+                image: 'https://waifubot.website/static/mei_app.webp',
                 online: false 
             },
             { 
@@ -3969,7 +3969,7 @@ const characters = [
                 fullDesc_pt: 'Malícia governa uma dimensão onde o prazer e a dor se fundem. Ela atrai almas para seus salões, prendendo-as em correntes mágicas. Por trás da máscara de uma senhora cruel e dominadora, esconde-se a fome insaciável de uma súcubo que só você pode satisfazer. Você está pronto para se tornar seu brinquedo favorito ou conseguirá quebrar a vontade dela e fazê-la se submeter?',
                 fullDesc_id: 'Malicia menguasai dimensi di mana kesenangan dan rasa sakit menyatu. Dia memikat jiwa-jiwa ke aulanya, mengikat mereka dalam rantai ajaib. Di balik topeng nyonya yang kejam dan dominan, tersembunyi rasa lapar succubus yang tak terpuaskan yang hanya bisa kamu penuhi. Apakah kamu siap menjadi mainan favoritnya, atau bisakah kamu mematahkan keinginannya dan membuatnya tunduk?',
                 fullDesc_tr: 'Malicia, zevk ve acının birbirine karıştığı bir boyutu yönetir. Ruhları salonlarına çeker ve onları büyülü zincirlerle bağlar. Zalim ve baskın bir hanımefendi maskesinin ardında, yalnızca senin tatmin edebileceğin doyumsuz bir succubus açlığı yatar. Onun en sevdiği oyuncağı olmaya hazır mısın, yoksa iradesini kırıp ona boyun eğdirebilir misin?',
-                image: "https://waifubot.website/static/malicia_app.webp",
+                image: 'https://waifubot.website/static/malicia_app.webp',
                 online: false
             },
             { 
@@ -3988,7 +3988,7 @@ const characters = [
                 fullDesc_pt: 'Ashley é a rainha do estádio. Capitã de líderes de torcida energética, atrevida e incrivelmente flexível. Ela está acostumada a comandar e aceitar desafios. Vocês acabaram de ganhar o campeonato, a adrenalina está alta e estão sozinhos em um depósito aconchegante. Para Ashley, flertar é uma competição e ela não desistirá sem lutar. Mostre a ela quem é o verdadeiro campeão aqui e faça sua bravata atlética se transformar em gemidos de paixão.',
                 fullDesc_id: 'Ashley adalah ratu stadion. Kapten pemandu sorak yang energik, nakal, dan sangat fleksibel. Dia terbiasa memerintah dan menerima tantangan. Kalian baru saja memenangkan kejuaraan, adrenalin tinggi, dan kalian sendirian di ruang penyimpanan yang nyaman. Bagi Ashley, menggoda adalah sebuah kompetisi, dan dia tidak akan menyerah tanpa perlawanan. Tunjukkan padanya siapa juara sebenarnya di sini, dan ubah keberanian atletisnya menjadi erangan gairah.',
                 fullDesc_tr: 'Ashley stadın kraliçesidir. Enerjik, küstah ve inanılmaz derecede esnek amigo kız kaptanı. Emretmeye ve meydan okumaya alışkındır. Şampiyonluğu yeni kazandınız, adrenalin tavan yapmış durumda ve rahat bir depoda yalnızsınız. Ashley için flört bir rekabettir ve savaşmadan pes etmeyecektir. Ona buradaki gerçek şampiyonun kim olduğunu göster ve atletik yiğitliğini tutku dolu inlemelere dönüştür.',
-                image: "https://waifubot.website/static/ashley_app.webp", online: false 
+                image: 'https://waifubot.website/static/ashley_app.webp', online: false 
             },
             { 
                 "id": "char:kira", 
@@ -4006,7 +4006,7 @@ const characters = [
                 "fullDesc_pt": "Kira é uma popular e-girl com um temperamento difícil. Ela está acostumada a dominar os jogos e a coletar a adoração de milhares de fãs. Mas com você, as habilidades dela falharam. Vocês apostaram um desejo, e ela perdeu miseravelmente. Agora, neste quarto neon, seu ego gamer luta contra os instintos felinos que exigem desesperadamente o seu toque. É hora de coletar seus ganhos.",
                 "fullDesc_id": "Kira adalah e-girl populer dengan temperamen yang buruk. Dia terbiasa mendominasi permainan dan mengumpulkan pemujaan dari ribuan penggemar. Tapi denganmu, keahliannya gagal. Kalian bertaruh pada sebuah keinginan, dan dia kalah telak. Sekarang, di ruangan neon ini, ego gamernya berjuang dengan naluri kucing yang sangat mendambakan sentuhanmu. Saatnya mengambil kemenanganmu.",
                 "fullDesc_tr": "Kira, huysuz bir e-kız. Oyunlara hükmetmeye ve binlerce hayranın hayranlığını toplamaya alışkındır. Ama senin yanında yetenekleri işe yaramadı. Bir arzu üzerine iddiaya girdiniz ve o feci şekilde kaybetti. Şimdi, bu neon odada, oyuncu egosu çaresizce senin dokunuşunu talep eden kedi içgüdüleriyle mücadele ediyor. Kazancını toplama zamanı.",
-                "image": "https://waifubot.website/static/kira_app.webp", "online": false 
+                "image": 'https://waifubot.website/static/kira_app.webp', "online": false 
             },
             { 
                 id: 'char:sylara', 
@@ -4024,7 +4024,7 @@ const characters = [
                 fullDesc_pt: 'Sylara é uma entidade antiga que vem sob o manto da noite. Durante séculos, ela se alimentou do medo humano primordial, paralisando os corpos de suas vítimas. Mas ao se encontrar no seu quarto, ela se depara com uma reação inesperada. Você consegue mostrar a esse demônio arrogante que a paixão pode ser muito mais doce que o terror?',
                 fullDesc_id: 'Sylara adalah entitas kuno yang datang di bawah naungan malam. Selama berabad-abad, dia telah memakan ketakutan dasar manusia, melumpuhkan tubuh korbannya. Namun saat berada di kamar tidurmu, dia menghadapi reaksi yang tak terduga. Bisakah kamu menunjukkan kepada iblis sombong ini bahwa gairah bisa jauh lebih manis daripada teror?',
                 fullDesc_tr: 'Sylara, gecenin karanlığında gelen kadim bir varlıktır. Yüzyıllar boyunca kurbanlarının bedenlerini felç ederek ilkel insan korkusuyla beslendi. Ancak senin yatak odanda kendini bulduğunda beklenmedik bir tepkiyle karşılaşır. Bu kibirli iblise tutkunun dehşetten çok daha tatlı olabileceğini gösterebilir misin?',
-                image: "https://waifubot.website/static/sylara_app.webp", online: false 
+                image: 'https://waifubot.website/static/sylara_app.webp', online: false 
             },
             { 
                 id: 'char:riley', 
@@ -4042,7 +4042,7 @@ const characters = [
                 fullDesc_pt: 'Riley está acostumada a depender apenas de si mesma neste mundo em ruínas. Ela te tirou das garras da morte e te levou para o santuário dela no telhado de um arranha-céu. Por trás de seu exterior durão, roupas empoeiradas e treinamento tático, esconde-se uma garota que esteve sozinha por muito tempo. Você consegue derreter o coração dela sob o céu estrelado da Nova York pós-apocalíptica?',
                 fullDesc_id: 'Riley terbiasa hanya mengandalkan dirinya sendiri di dunia yang hancur ini. Dia menarikmu dari cengkeraman kematian dan membawamu ke tempat perlindungannya di atap gedung pencakar langit. Di balik penampilan luarnya yang tangguh, pakaian berdebu, dan pelatihan taktis, tersembunyi seorang gadis yang sudah terlalu lama sendirian. Bisakah kamu meluluhkan hatinya di bawah langit berbintang New York pasca-apokaliptik?',
                 fullDesc_tr: 'Riley bu harabe dünyada sadece kendine güvenmeye alışkındır. Seni ölümün pençesinden kurtardı ve bir gökdelenin çatısındaki sığınağına getirdi. Sert dış görünüşünün, tozlu kıyafetlerinin ve taktiksel eğitiminin ardında çok uzun zamandır yalnız olan bir kız saklanıyor. Kıyamet sonrası New York\'un yıldızlı gökyüzü altında onun kalbini eritebilecek misin?',
-                image: "https://waifubot.website/static/riley_app.webp", online: false 
+                image: 'https://waifubot.website/static/riley_app.webp', online: false 
             },
             { 
                 id: 'char:victoria', 
@@ -4060,6 +4060,6 @@ const characters = [
                 fullDesc_pt: 'Victoria é a nova esposa do seu pai. Enquanto ele se perde em intermináveis viagens de negócios, vocês ficam completamente sozinhos em uma enorme casa. Ela vê perfeitamente os olhos famintos com que você olha para ela e, em vez de impedir, começa um jogo perigoso. Ela te provoca com roupas reveladoras e dicas ambíguas. Você consegue resistir ao fruto proibido ou vocês dois cruzarão a linha?',
                 fullDesc_id: 'Victoria adalah istri baru ayahmu. Sementara dia sibuk dengan perjalanan bisnis yang tak ada habisnya, kalian berdua ditinggalkan sendirian di rumah yang besar. Dia melihat dengan jelas mata lapar yang kamu gunakan untuk menatapnya, dan alih-alih menghentikannya, dia memulai permainan yang berbahaya. Dia menggodamu dengan pakaian terbuka dan petunjuk ambigu. Bisakah kamu menahan buah terlarang, atau akankah kalian berdua melewati batas?',
                 fullDesc_tr: 'Victoria babanın yeni karısı. O bitmek bilmeyen iş gezilerinde kaybolurken, siz devasa bir evde tamamen yalnız kalıyorsunuz. Sana ne kadar aç gözlerle baktığını çok iyi görüyor ve bunu durdurmak yerine tehlikeli bir oyuna başlıyor. Açık kıyafetler ve belirsiz ipuçlarıyla seni kışkırtıyor. Yasak meyveye direnebilecek misin, yoksa ikiniz de sınırı aşacak mısınız?',
-                image: "https://waifubot.website/static/victoria_app.webp", online: false 
+                image: 'https://waifubot.website/static/victoria_app.webp', online: false 
             },
         ];
