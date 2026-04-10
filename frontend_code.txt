@@ -493,10 +493,8 @@
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
-
     <div id="tab-shop" class="hidden px-4 pt-14 min-h-screen">
         <div id="shop-section-packs" class="space-y-5 animate-fade-up">
             </div>
