@@ -380,6 +380,50 @@
         </div>
     </div>
 
+    <div id="tab-create" class="hidden px-4 pt-14 pb-24 min-h-screen">
+        <h2 class="text-2xl font-black text-white mb-4" data-i18n="create_title">Твои фантазии</h2>
+        
+        <div class="custom-tab-bg flex p-1 relative mb-5">
+            <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
+                <span data-i18n="my_chars">МОИ ПЕРСОНАЖИ</span>
+            </button>
+            <button onclick="switchCreateSubTab('new')" id="btn-create-new" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive flex items-center justify-center gap-1">
+                <span data-i18n="create_new">СОЗДАТЬ</span> <span class="text-cyan-400 font-bold">(50 💎)</span>
+            </button>
+        </div>
+
+        <div id="create-section-mine" class="animate-fade-up">
+            <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3">
+                </div>
+        </div>
+
+        <div id="create-section-new" class="hidden animate-fade-up">
+            <div class="premium-card p-5 border-purple-500/30">
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
+                    <input type="text" id="custom-name" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                </div>
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
+                    <textarea id="custom-appearance" placeholder="Блондинка, голубые глаза, стройная, длинные волосы, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-20 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
+                    <input type="text" id="custom-clothes" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
+                </div>
+                <div class="mb-6">
+                    <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ХАРАКТЕР И СЕТТИНГ</label>
+                    <textarea id="custom-personality" placeholder="Она моя строгая начальница. Мы остались одни в офисе поздно вечером, и она вызывает меня к себе в кабинет..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
+                </div>
+                
+                <button onclick="submitCustomCharacter()" class="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="btn_create_char">СОЗДАТЬ ЗА</span> 50 <i class="fa-solid fa-gem text-cyan-300"></i>
+                </button>
+                <p class="text-center text-[10px] text-purple-400/80 mt-3 font-medium" data-i18n="create_warning">* ИИ сгенерирует настройки персонажа за 10-15 секунд</p>
+            </div>
+        </div>
+    </div>
+
     <div id="tab-shop" class="hidden px-4 pt-14 min-h-screen">
         <div id="shop-section-packs" class="space-y-5 animate-fade-up">
             </div>
@@ -479,10 +523,10 @@
                 <span class="text-[9px] font-bold tracking-wider opacity-70" data-i18n="nav_chats">ЧАТЫ</span>
                 <div class="absolute bottom-1 w-1 h-1 bg-pink-500 rounded-full opacity-0 transition-opacity" id="dot-chats"></div>
             </button>
-            <button onclick="showTab('admin')" class="nav-btn hidden w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-admin">
-                <div class="nav-icon-container"><i class="fa-solid fa-lock text-xl group-hover:text-red-500 transition-colors"></i></div>
-                <span class="text-[9px] font-bold tracking-wider opacity-70">ADMIN</span>
-                <div class="absolute bottom-1 w-1 h-1 bg-red-500 rounded-full opacity-0 transition-opacity" id="dot-admin"></div>
+            <button onclick="showTab('create')" class="nav-btn w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-create">
+                <div class="nav-icon-container"><i class="fa-solid fa-wand-magic-sparkles text-xl group-hover:text-purple-400 transition-colors"></i></div>
+                <span class="text-[9px] font-bold tracking-wider opacity-70" data-i18n="nav_create">СОЗДАТЬ</span>
+                <div class="absolute bottom-1 w-1 h-1 bg-purple-500 rounded-full opacity-0 transition-opacity" id="dot-create"></div>
             </button>
             <button onclick="showTab('shop')" class="nav-btn w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-shop">
                 <div class="nav-icon-container"><i class="fa-solid fa-store text-xl group-hover:text-white transition-colors"></i></div>
@@ -493,6 +537,11 @@
                 <div class="nav-icon-container"><i class="fa-solid fa-user text-xl group-hover:text-white transition-colors"></i></div>
                 <span class="text-[9px] font-bold tracking-wider opacity-70" data-i18n="nav_profile">ПРОФИЛЬ</span>
                 <div class="absolute bottom-1 w-1 h-1 bg-pink-500 rounded-full opacity-0 transition-opacity" id="dot-profile"></div>
+            </button>
+            <button onclick="showTab('admin')" class="nav-btn hidden w-full h-full flex flex-col items-center justify-center gap-1 text-gray-500 relative transition-all group" id="nav-admin">
+                <div class="nav-icon-container"><i class="fa-solid fa-lock text-xl group-hover:text-red-500 transition-colors"></i></div>
+                <span class="text-[9px] font-bold tracking-wider opacity-70">ADMIN</span>
+                <div class="absolute bottom-1 w-1 h-1 bg-red-500 rounded-full opacity-0 transition-opacity" id="dot-admin"></div>
             </button>
         </div>
     </div>
@@ -979,7 +1028,15 @@
                         if (adminNav) adminNav.classList.remove('hidden');
                     }
 
-                    // --- 5. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
+                    // --- 5. КАСТОМНЫЕ ПЕРСОНАЖИ ---
+                    if (user.custom_characters) {
+                        window.customCharactersList = user.custom_characters;
+                    } else {
+                        window.customCharactersList = [];
+                    }
+                    renderCustomCharacters(); // Отрисовываем их!
+
+                    // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
                         window.activeCharactersList = user.active_characters.map(serverChar => {
                             const activeId = serverChar.id; 
@@ -1029,6 +1086,7 @@
         const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
         const WEBHOOK_GET_SHOP = `${BASE_URL}/webhook/get-shop`;
         const WEBHOOK_VERIFY_AGE = `${BASE_URL}/webhook/verify-age`;
+        const WEBHOOK_CREATE_CHAR = `${BASE_URL}/webhook/create-character`;
         // ========================================================
 
         // ЕДИНЫЙ БЛОК ЗАПУСКА ПРИЛОЖЕНИЯ
@@ -1521,8 +1579,9 @@
             document.getElementById('tab-profile').classList.add('hidden');
             document.getElementById('tab-admin').classList.add('hidden'); 
             document.getElementById('tab-chats').classList.add('hidden');
+            document.getElementById('tab-create').classList.add('hidden');
             
-            ['home', 'chats', 'shop', 'profile', 'admin'].forEach(id => {
+            ['home', 'chats', 'create', 'shop', 'profile', 'admin'].forEach(id => {
                 const navBtn = document.getElementById(`nav-${id}`);
                 const dot = document.getElementById(`dot-${id}`);
                 if (navBtn && dot) {
@@ -2151,6 +2210,130 @@
                     });
                 }
             });
+        }
+
+        // --- ЛОГИКА КАСТОМНЫХ ПЕРСОНАЖЕЙ ---
+        function switchCreateSubTab(tabName) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.getElementById('create-section-mine').classList.add('hidden');
+            document.getElementById('create-section-new').classList.add('hidden');
+            
+            const section = document.getElementById(`create-section-${tabName}`);
+            section.classList.remove('hidden'); 
+            section.classList.remove('animate-fade-up'); 
+            void section.offsetWidth; 
+            section.classList.add('animate-fade-up');
+
+            const btnMine = document.getElementById('btn-create-mine');
+            const btnNew = document.getElementById('btn-create-new');
+            
+            if (tabName === 'mine') {
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
+                btnNew.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive flex items-center justify-center gap-1";
+            } else {
+                btnNew.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active flex items-center justify-center gap-1";
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+            }
+        }
+
+        function submitCustomCharacter() {
+            const name = document.getElementById('custom-name').value.trim();
+            const appearance = document.getElementById('custom-appearance').value.trim();
+            const clothes = document.getElementById('custom-clothes').value.trim();
+            const personality = document.getElementById('custom-personality').value.trim();
+
+            if (!name || !appearance || !personality) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_fill_all || "Заполните все поля!", "error");
+            }
+
+            // Проверка баланса на фронте (чтобы зря не отправлять запрос)
+            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
+            if (currentGems < 50) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].no_gems || "Не хватает гемов!", "error");
+            }
+
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.MainButton.showProgress();
+            showToast(translations[currentLang].toast_creating || "Создаем... Ждите ~15 сек ⏳", "wait");
+
+            fetch(WEBHOOK_CREATE_CHAR, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    appearance: appearance,
+                    clothes: clothes,
+                    personality: personality,
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                if (data.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    showToast(translations[currentLang].toast_char_created || "✅ Вайфу успешно создана!", "success");
+                    
+                    // Очищаем форму
+                    document.getElementById('custom-name').value = '';
+                    document.getElementById('custom-appearance').value = '';
+                    document.getElementById('custom-clothes').value = '';
+                    document.getElementById('custom-personality').value = '';
+                    
+                    // Списываем гемы визуально и переключаем на вкладку "Мои"
+                    document.getElementById('balance-gems').innerText = currentGems - 50;
+                    switchCreateSubTab('mine');
+                    
+                    // Обновляем данные пользователя с бэкенда (чтобы новая вайфу подгрузилась)
+                    fetchUserData(); 
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    if (data.error_code === "not_enough_gems") {
+                        showToast(translations[currentLang].no_gems || "Не хватает гемов!", "error");
+                    } else {
+                        showToast("❌ " + (data.message || "Ошибка генерации"), "error");
+                    }
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                showToast(translations[currentLang].toast_conn_error || "Ошибка соединения", "error");
+            });
+        }
+
+        // Функция отрисовки кастомных персонажей
+        function renderCustomCharacters() {
+            const container = document.getElementById('my-custom-chars-container');
+            if (!window.customCharactersList || window.customCharactersList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-40">
+                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-heart-crack text-2xl text-gray-500"></i>
+                        </div>
+                        <p class="text-sm font-bold text-gray-400" data-i18n="no_custom_chars">${translations[currentLang].no_custom_chars || "У тебя пока нет своих вайфу"}</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = window.customCharactersList.map((char, index) => {
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+                return `
+                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-gradient-to-br from-purple-900/40 to-black active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center opacity-20">
+                         <i class="fa-solid fa-user-astronaut text-6xl text-purple-400"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    <div class="absolute top-2 right-2 bg-purple-600/80 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black text-white tracking-widest z-20">CUSTOM</div>
+                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
+                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md mb-1">${char.name}</h3>
+                        <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
         
         function renderChats(chats) {
