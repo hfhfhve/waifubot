@@ -393,10 +393,11 @@
 
         <div id="create-section-mine" class="animate-fade-up">
             <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3">
-            </div>
+                </div>
         </div>
 
         <div id="create-section-new" class="hidden">
+            
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
                     <div class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all">1</div>
@@ -427,8 +428,7 @@
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
-                        <input type="text" id="custom-name" maxlength="50" oninput="validateInput('custom-name', 50)" data-i18n-placeholder="ph_name" placeholder="Elizabeth" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
-                        <div id="custom-name-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
+                        <input type="text" id="custom-name" maxlength="50" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_gender">ПОЛ ПЕРСОНАЖА</label>
@@ -449,13 +449,11 @@
                 <div id="create-step-2" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_appearance">ВНЕШНОСТЬ</label>
-                        <textarea id="custom-appearance" maxlength="500" oninput="validateInput('custom-appearance', 500)" data-i18n-placeholder="ph_appearance" placeholder="..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
-                        <div id="custom-appearance-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
+                        <textarea id="custom-appearance" maxlength="500" data-i18n-placeholder="ph_appearance" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Блондинка, голубые глаза, стройная, милое лицо..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_clothes">ОДЕЖДА (По умолчанию)</label>
-                        <input type="text" id="custom-clothes" maxlength="300" oninput="validateInput('custom-clothes', 300)" data-i18n-placeholder="ph_clothes" placeholder="..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
-                        <div id="custom-clothes-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
+                        <input type="text" id="custom-clothes" maxlength="300" data-i18n-placeholder="ph_clothes" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Черное платье, каблуки..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(1)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
@@ -466,13 +464,11 @@
                 <div id="create-step-3" class="hidden animate-fade-up">
                     <div class="mb-4">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest">ОКРУЖЕНИЕ / ЛОКАЦИЯ</label>
-                        <textarea id="custom-environment" maxlength="300" oninput="validateInput('custom-environment', 300)" placeholder="..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
-                        <div id="custom-environment-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
+                        <textarea id="custom-environment" maxlength="300" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Мрачный замок, неон, киберпанк город, уютная спальня..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-16 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_personality">ХАРАКТЕР (Для общения)</label>
-                        <textarea id="custom-personality" maxlength="1000" oninput="validateInput('custom-personality', 1000)" data-i18n-placeholder="ph_personality" placeholder="..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
-                        <div id="custom-personality-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
+                        <textarea id="custom-personality" maxlength="1000" data-i18n-placeholder="ph_personality" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Она моя строгая начальница. Мы остались одни в офисе..." class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm h-24 resize-none focus:border-purple-500 outline-none transition-colors custom-scroll"></textarea>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="goToCreateStep(2)" class="w-12 h-12 shrink-0 bg-black/50 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
@@ -481,28 +477,46 @@
                 </div>
 
                 <div id="create-step-4" class="hidden animate-fade-up">
+                    
                     <button onclick="goToCreateStep(3)" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 transition-colors">
                         <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back_lore">Назад к лору</span>
                     </button>
+
                     <div class="w-full aspect-[4/5] rounded-2xl bg-black/50 border border-white/10 mb-4 flex flex-col items-center justify-center overflow-hidden relative shadow-inner" id="preview-container">
                         <img id="preview-char-img" src="" class="w-full h-full object-cover hidden">
                         <div id="preview-placeholder" class="text-center text-gray-500 flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3"><i class="fa-solid fa-image text-2xl"></i></div>
+                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-image text-2xl"></i>
+                            </div>
                             <p class="text-[10px] uppercase font-bold tracking-widest" data-i18n="preview_photo_title">Превью фото</p>
                             <p class="text-[9px] text-gray-600 mt-1" data-i18n="preview_photo_desc">Сгенерируй, чтобы увидеть</p>
                         </div>
                     </div>
+                    
                     <div class="space-y-3">
                         <button onclick="generatePreview()" id="btn-generate-preview" class="w-full h-12 bg-[#1a1a24] border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">СГЕНЕРИРОВАТЬ ФОТО</span> (2 💎)</span>
                         </button>
+                        
                         <button onclick="submitCustomCharacter()" id="btn-final-create" class="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-black text-white flex justify-center items-center gap-2 shadow-[0_5px_20px_rgba(147,51,234,0.3)] active:scale-95 transition-transform">
                             <i class="fa-solid fa-check"></i> <span data-i18n="btn_final_create">СОЗДАТЬ ПЕРСОНАЖА</span> (20 💎)
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
+    </div>
+    
+    <div id="tab-shop" class="hidden px-4 pt-14 min-h-screen">
+        <div id="shop-section-packs" class="space-y-5 animate-fade-up">
+            </div>
+
+        <div id="shop-section-energy" class="hidden space-y-3 animate-fade-up">
+            </div>
+
+        <div id="shop-section-gems" class="hidden space-y-3 animate-fade-up">
+            </div>
     </div>
 
     <div id="tab-profile" class="hidden px-4 animate-fade pb-20 min-h-screen">
@@ -2756,22 +2770,6 @@
                 content.classList.remove('scale-95', 'opacity-0');
                 content.classList.add('scale-100', 'opacity-100');
             }, 50);
-        }
-
-        function validateInput(id, limit) {
-            const input = document.getElementById(id);
-            const warn = document.getElementById(id + '-warn');
-            
-            if (input.value.length >= limit) {
-                // Текст стал красным, лимит достигнут
-                warn.innerText = translations[currentLang].max_limit_reached.replace('{n}', limit);
-                warn.classList.remove('hidden');
-                input.classList.add('border-red-500/50');
-                tg.HapticFeedback.impactOccurred('light');
-            } else {
-                warn.classList.add('hidden');
-                input.classList.remove('border-red-500/50');
-            }
         }
 
         function confirmAge() {
