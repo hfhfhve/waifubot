@@ -105,6 +105,7 @@ const translations = {
                 toast_enter_environment: "Опишите окружение!",
                 toast_enter_personality: "Опишите характер!",
                 toast_generate_first: "Сначала сгенерируйте фото!",
+                btn_regenerate_char: "ПЕРЕГЕНЕРИРОВАТЬ ПЕРСОНАЖА",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -212,6 +213,7 @@ const translations = {
                 toast_enter_environment: "Ortamı tanımlayın!",
                 toast_enter_personality: "Kişiliği tanımlayın!",
                 toast_generate_first: "Önce bir fotoğraf oluşturun!",
+                btn_regenerate_char: "KARAKTERİ YENİDEN OLUŞTUR",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -319,6 +321,7 @@ const translations = {
                 toast_enter_environment: "Describe the environment!",
                 toast_enter_personality: "Describe the personality!",
                 toast_generate_first: "Generate a photo first!",
+                btn_regenerate_char: "REGENERATE CHARACTER",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -426,6 +429,7 @@ const translations = {
                 toast_enter_environment: "¡Describe el entorno!",
                 toast_enter_personality: "¡Describe la personalidad!",
                 toast_generate_first: "¡Genera una foto primero!",
+                btn_regenerate_char: "REGENERAR PERSONAJE",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -533,6 +537,7 @@ const translations = {
                 toast_enter_environment: "Descreva o ambiente!",
                 toast_enter_personality: "Descreva a personalidade!",
                 toast_generate_first: "Gere uma foto primeiro!",
+                btn_regenerate_char: "REGERAR PERSONAGEM",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -640,6 +645,7 @@ const translations = {
                 toast_enter_environment: "Jelaskan lingkungannya!",
                 toast_enter_personality: "Jelaskan kepribadiannya!",
                 toast_generate_first: "Hasilkan foto terlebih dahulu!",
+                btn_regenerate_char: "HASILKAN ULANG KARAKTER",
             }
         };
 
