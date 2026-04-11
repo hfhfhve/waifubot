@@ -409,10 +409,6 @@
             </button>
         </div>
 
-        <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[160px] right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_25px_rgba(236,72,153,0.6)] flex items-center justify-center text-white text-3xl z-[90] hidden transition-transform floating-fab">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-
         <div id="create-section-mine" class="animate-fade-up">
             <div id="empty-mine-state" class="hidden flex-col items-center justify-center pt-10 pb-4 opacity-90">
                 <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
@@ -652,6 +648,10 @@
             <button onclick="adminCreatePromo()" class="admin-btn bg-green-600 active:scale-95 transition-transform">СОЗДАТЬ КОД</button>
         </div>
     </div>
+
+    <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[160px] right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_25px_rgba(236,72,153,0.6)] flex items-center justify-center text-white text-3xl z-[90] hidden transition-transform floating-fab">
+            <i class="fa-solid fa-plus"></i>
+    </button>
 
     <div class="fixed bottom-6 left-4 right-4 z-50">
         <div class="glass-nav rounded-2xl h-[70px] flex justify-around items-center px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10">
@@ -1829,6 +1829,18 @@
             document.getElementById('tab-admin').classList.add('hidden'); 
             document.getElementById('tab-chats').classList.add('hidden');
             document.getElementById('tab-create').classList.add('hidden');
+        
+            // === ДОБАВЛЯЕМ ЭТОТ БЛОК ===
+            const fab = document.getElementById('fab-create');
+            if (fab) {
+                if (tabId !== 'create') {
+                    fab.classList.add('hidden'); // Прячем везде, кроме вкладки "Создать"
+                } else {
+                    // Если открыли "Создать", проверяем, какой подраздел сейчас открыт (Мои или Сообщество)
+                    const isCommunity = document.getElementById('btn-create-community').classList.contains('tab-active');
+                    switchCreateSubTab(isCommunity ? 'community' : 'mine');
+                }
+            }
             
             ['home', 'chats', 'create', 'shop', 'profile', 'admin'].forEach(id => {
                 const navBtn = document.getElementById(`nav-${id}`);
