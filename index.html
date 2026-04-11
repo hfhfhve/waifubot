@@ -1612,7 +1612,11 @@
             
             // Описание (лор кастомного перса мы не шлем на фронт для экономии, поэтому ставим заглушку)
             const fullDesc = isCustom 
-                ? (translations[currentLang].custom_char_desc || "Твой кастомный персонаж. Нажми «Запустить», чтобы начать ролеплей.") 
+                ? ((char.intro_messages && char.intro_messages['full_desc_' + currentLang]) 
+                    ? char.intro_messages['full_desc_' + currentLang] 
+                    : (char.intro_messages && char.intro_messages['full_desc_en'] 
+                        ? char.intro_messages['full_desc_en'] 
+                        : "Твой кастомный персонаж. Нажми «Запустить», чтобы начать ролеплей.")) 
                 : (char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru']);
         
             // Вставляем картинку
@@ -2707,7 +2711,12 @@
                 tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
                 tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 tagsHtml += '</div>';
-
+                
+                // ВЫТАСКИВАЕМ КОРОТКОЕ ОПИСАНИЕ:
+                const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
+                    ? char.intro_messages['short_desc_' + currentLang] 
+                    : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
+                
                 return `
                 <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
@@ -2715,7 +2724,7 @@
                     
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
-                        ${tagsHtml}
+                        <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${shortDesc}</p> ${tagsHtml}
                         <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                 </div>
