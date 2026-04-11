@@ -385,7 +385,7 @@
                 </button>
             </div>
     
-            <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.5)] flex items-center justify-center text-white text-2xl z-[90] hidden active:scale-90 transition-transform">
+            <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[110px] right-4 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.5)] flex items-center justify-center text-white text-3xl z-[90] hidden active:scale-90 transition-transform">
                 <i class="fa-solid fa-plus"></i>
             </button>
     
@@ -415,9 +415,9 @@
             </div>
     
             <div id="create-section-new" class="hidden">
-            <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Назад
-            </button>
+                <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Назад
+                </button>
             
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
@@ -2412,7 +2412,6 @@
             // ... Твой старый код генерации HTML для карточек (container.innerHTML = window.customCharactersList.map...) ...
         }
         
-        // --- ЛОГИКА СООБЩЕСТВА ---
         function fetchCommunityChars() {
             fetch('https://waifubot.website/webhook/get-community-chars', {
                 method: 'POST',
@@ -2421,20 +2420,32 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && data.characters) {
                     window.communityCharactersList = data.characters;
-                    renderCommunityChars();
+                } else {
+                    window.communityCharactersList = [];
                 }
+                renderCommunityChars();
+            })
+            .catch(err => {
+                console.error("Ошибка загрузки сообщества:", err);
+                window.communityCharactersList = [];
+                renderCommunityChars();
             });
         }
         
         function renderCommunityChars() {
             const container = document.getElementById('community-chars-container');
+            
             if (!window.communityCharactersList || window.communityCharactersList.length === 0) {
-                container.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-10 font-bold">Пока пусто...</div>`;
+                container.innerHTML = `
+                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
+                        <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-500"></i>
+                        <p class="text-sm font-bold text-gray-400">Пока нет публичных персонажей</p>
+                    </div>`;
                 return;
             }
-        
+
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
@@ -2443,16 +2454,16 @@
                 if (!char.is_mine) {
                     voteHtml = `
                         <div class="absolute top-2 right-2 flex gap-1 z-30">
-                            <button onclick="event.stopPropagation(); voteChar('${char.id}', true)" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-green-400 active:scale-90 transition-transform">
-                                <i class="fa-solid fa-thumbs-up text-[10px]"></i> <span class="text-[9px] font-bold ml-1">${char.likes}</span>
+                            <button onclick="event.stopPropagation(); voteChar('${char.id}', true)" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-green-400 active:scale-90 transition-transform">
+                                <i class="fa-solid fa-thumbs-up text-[10px]"></i> <span class="text-[10px] font-bold ml-1">${char.likes || 0}</span>
                             </button>
-                            <button onclick="event.stopPropagation(); voteChar('${char.id}', false)" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-red-400 active:scale-90 transition-transform">
+                            <button onclick="event.stopPropagation(); voteChar('${char.id}', false)" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-red-400 active:scale-90 transition-transform">
                                 <i class="fa-solid fa-thumbs-down text-[10px]"></i>
                             </button>
                         </div>
                     `;
                 }
-        
+
                 return `
                 <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -2601,22 +2612,24 @@
         function switchCreateSubTab(tabName) {
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('create-section-mine').classList.add('hidden');
-            document.getElementById('create-section-new').classList.add('hidden');
+            document.getElementById('create-section-community').classList.add('hidden');
+            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
             
-            const section = document.getElementById(`create-section-${tabName}`);
-            section.classList.remove('hidden'); 
+            document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
             
             const btnMine = document.getElementById('btn-create-mine');
-            const btnNew = document.getElementById('btn-create-new');
+            const btnCommunity = document.getElementById('btn-create-community');
+            const fab = document.getElementById('fab-create'); // Получаем плюсик
             
             if (tabName === 'mine') {
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
-                btnNew.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive flex items-center justify-center gap-1";
-            } else {
-                btnNew.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active flex items-center justify-center gap-1";
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                renderCustomCharacters(); // Функция сама решит, скрывать плюсик или нет
+            } else if (tabName === 'community') {
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                // Сбрасываем на первый шаг при открытии
-                goToCreateStep(1);
+                fab.classList.remove('hidden'); // В сообществе плюсик виден всегда
+                fetchCommunityChars();
             }
         }
 
