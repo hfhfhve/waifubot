@@ -412,10 +412,10 @@
     
         <div id="create-tabs-container" class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
             <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
-                <span>МОИ</span>
+                <span data-i18n="tab_characters">ПЕРСОНАЖИ</span>
             </button>
             <button onclick="switchCreateSubTab('community')" id="btn-create-community" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
-                <span>СООБЩЕСТВО</span>
+                <span data-i18n="tab_community">СООБЩЕСТВО</span>
             </button>
         </div>
 
@@ -424,10 +424,10 @@
                 <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
                     <i class="fa-solid fa-wand-magic-sparkles text-4xl text-purple-400"></i>
                 </div>
-                <p class="text-base font-black text-white mb-2">Нет своих персонажей</p>
-                <p class="text-xs text-gray-400 text-center mb-6 px-4">Создай идеальную вайфу, сделай её публичной и получай 10% от её заработка!</p>
+                <p class="text-base font-black text-white mb-2" data-i18n="no_custom_chars_title">Нет своих персонажей</p>
+                <p class="text-xs text-gray-400 text-center mb-6 px-4" data-i18n="no_custom_chars_desc">Создай идеальную вайфу, сделай её публичной и получай 10% от её заработка!</p>
                 <button onclick="openCreateFlow()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white shadow-[0_5px_20px_rgba(147,51,234,0.4)] active:scale-95 transition-all w-full">
-                    СОЗДАТЬ ПЕРСОНАЖА
+                    <span data-i18n="btn_create_char">СОЗДАТЬ ПЕРСОНАЖА</span>
                 </button>
             </div>
             
@@ -437,7 +437,7 @@
         <div id="create-section-community" class="hidden animate-fade-up">
             <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4 flex items-center gap-3">
                 <i class="fa-solid fa-money-bill-trend-up text-blue-400 text-xl"></i>
-                <p class="text-[10px] text-blue-200 leading-tight">Создавай популярных персонажей! Ты получаешь <b>1 💎</b> за каждые 10 фото и <b>1 ⭐️</b> за каждые 10 сообщений от других игроков.</p>
+                <p class="text-[10px] text-blue-200 leading-tight" data-i18n="community_info">Создавай популярных персонажей! Ты получаешь <b>1 💎</b> за каждые 10 фото и <b>1 ⭐️</b> за каждые 10 сообщений от других игроков.</p>
             </div>
             <div id="community-chars-container" class="grid grid-cols-2 gap-3">
                 </div>
@@ -1027,13 +1027,13 @@
                 <i class="fa-solid fa-earth-americas text-3xl text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"></i>
             </div>
             
-            <h3 class="text-2xl font-black text-white mb-2">Сделать публичным?</h3>
-            <p class="text-xs text-gray-400 mb-6 px-2">Персонаж отправится на модерацию, после чего появится в каталоге Сообщества.<br><br><span class="text-pink-400 font-bold">⚠️ Обратно скрыть его будет нельзя!</span></p>
+            <h3 class="text-2xl font-black text-white mb-2" data-i18n="publish_title">Сделать публичным?</h3>
+            <p class="text-xs text-gray-400 mb-6 px-2" data-i18n="publish_desc">Персонаж отправится на модерацию, после чего появится в каталоге Сообщества.<br><br><span class="text-pink-400 font-bold">⚠️ Обратно скрыть его будет нельзя!</span></p>
             
             <button id="btn-confirm-publish" onclick="confirmPublish()" class="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 active:scale-95 transition-all text-white font-black rounded-2xl mb-3 flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(59,130,246,0.3)]">
-                <i class="fa-solid fa-paper-plane"></i> ОТПРАВИТЬ НА ПРОВЕРКУ
+                <i class="fa-solid fa-paper-plane"></i> <span data-i18n="btn_publish_confirm">ОТПРАВИТЬ НА ПРОВЕРКУ</span>
             </button>
-            <button onclick="closePublishModal()" class="w-full h-14 bg-[#1a1a1a] border border-white/5 hover:bg-white/10 active:scale-95 transition-all text-gray-400 font-bold rounded-2xl">
+            <button onclick="closePublishModal()" class="w-full h-14 bg-[#1a1a1a] border border-white/5 hover:bg-white/10 active:scale-95 transition-all text-gray-400 font-bold rounded-2xl" data-i18n="btn_cancel">
                 Отмена
             </button>
         </div>
@@ -1716,14 +1716,14 @@
                 // 2. Тег статуса публикации (ТОЛЬКО если персонаж мой)
                 if (source === 'mine') {
                     if (char.moderation_status === 'public') {
-                        tagsHtml += `<span class="px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-earth-americas"></i> В СООБЩЕСТВЕ</span>`;
+                        tagsHtml += `<span class="px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-earth-americas"></i> ${translations[currentLang]?.tag_public || "В СООБЩЕСТВЕ"}</span>`;
                     } else if (char.moderation_status === 'pending') {
-                        tagsHtml += `<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-clock"></i> ПРОВЕРКА</span>`;
+                        tagsHtml += `<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-clock"></i> ${translations[currentLang]?.tag_pending || "ПРОВЕРКА"}</span>`;
                     } else if (char.moderation_status === 'rejected') {
-                        tagsHtml += `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-ban"></i> ОТКЛОНЕН</span>`;
+                        tagsHtml += `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-ban"></i> ${translations[currentLang]?.tag_rejected || "ОТКЛОНЕН"}</span>`;
                     } else {
                         // Приватный - кнопка вместо обычного тега
-                        tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openPublishModal('${char.id}')" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 animate-pulse"><i class="fa-solid fa-upload"></i> ОПУБЛИКОВАТЬ</button>`;
+                        tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openPublishModal('${char.id}')" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 animate-pulse"><i class="fa-solid fa-upload"></i> ${translations[currentLang]?.tag_publish || "ОПУБЛИКОВАТЬ"}</button>`;
                     }
                 }
                 
@@ -2557,7 +2557,7 @@
                 container.innerHTML = `
                     <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
                         <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-500"></i>
-                        <p class="text-sm font-bold text-gray-400">Пока нет публичных персонажей</p>
+                        <p class="text-sm font-bold text-gray-400">${translations[currentLang]?.no_public_chars || "Пока нет публичных персонажей"}</p>
                     </div>`;
                 return;
             }
@@ -2565,7 +2565,6 @@
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
-                // Кнопки лайков (не даем лайкать своих)
                 let voteHtml = '';
                 if (!char.is_mine) {
                     voteHtml = `
@@ -2588,7 +2587,7 @@
                     
                     <div class="absolute bottom-0 left-0 w-full p-4 z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
-                        <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> Сообщество</p>
+                        <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> ${translations[currentLang]?.lbl_community || "Сообщество"}</p>
                     </div>
                 </div>
                 `;
@@ -3085,13 +3084,13 @@
                         </div>
                     </div>
                     
-                    <h3 class="text-lg font-black text-white mb-2 tracking-wide text-center">Здесь пока слишком тихо...</h3>
+                    <h3 class="text-lg font-black text-white mb-2 tracking-wide text-center">${translations[lang]?.empty_chats_title || "Здесь пока слишком тихо..."}</h3>
                     <p class="text-xs text-gray-400 text-center max-w-[220px] leading-relaxed mb-6">
                         ${translations[lang]?.no_chats || "Выбери персонажа на главной и начни свою первую историю!"}
                     </p>
                     
                     <button onclick="showTab('home')" class="px-6 py-3 bg-gradient-to-r from-pink-600/20 to-purple-700/20 hover:bg-white/10 active:scale-95 rounded-2xl font-bold text-white text-sm transition-all border border-pink-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
-                        <i class="fa-solid fa-compass text-pink-400"></i> В каталог
+                        <i class="fa-solid fa-compass text-pink-400"></i> ${translations[lang]?.btn_to_catalog || "В каталог"}
                     </button>
                 </div>
             `;
