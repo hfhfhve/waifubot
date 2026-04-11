@@ -2604,13 +2604,9 @@
             });
         }
 
-        // КНОПКА "СОЗДАТЬ ПЕРСОНАЖА (20 ГЕМОВ)"
+        // КНОПКА "СОЗДАТЬ ПЕРСОНАЖА (10 ГЕМОВ)"
         function submitCustomCharacter() {
-            if (!generatedAiData || !generatedImageUrl) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].toast_generate_first, "error");
-            }
-
+            // 1. Проверяем баланс
             const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
             if (currentGems < 10) {
                 tg.HapticFeedback.notificationOccurred('error');
@@ -2620,6 +2616,18 @@
             tg.HapticFeedback.impactOccurred('heavy');
             tg.MainButton.showProgress();
 
+            const btnFinal = document.getElementById('btn-final-create');
+            const originalBtnText = btnFinal.innerHTML;
+            
+            // 2. Меняем текст кнопки в зависимости от того, есть ли уже превью
+            if (!generatedImageUrl || !generatedAiData) {
+                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Создаем лор и фото... ⏳</span>`;
+            } else {
+                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Сохраняем... ⏳</span>`;
+            }
+            btnFinal.disabled = true;
+
+            // 3. Отправляем ВСЕ данные на бэкенд (даже если превью не делалось)
             fetch(WEBHOOK_CREATE_CHAR, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2627,9 +2635,12 @@
                     name: document.getElementById('custom-name').value.trim(),
                     gender: customGender,
                     user_gender: selectedUserGender,
+                    appearance: document.getElementById('custom-appearance').value.trim(),
+                    clothes: document.getElementById('custom-clothes').value.trim(),
                     environment: document.getElementById('custom-environment').value.trim(),
-                    image_url: generatedImageUrl,
-                    ai_data: generatedAiData,
+                    personality: document.getElementById('custom-personality').value.trim(),
+                    image_url: generatedImageUrl || "", // Будет пусто, если скипнули превью
+                    ai_data: generatedAiData || null,   // Будет пусто, если скипнули превью
                     chat_id: tg.initDataUnsafe?.user?.id,
                     initData: tg.initData
                 })
@@ -2637,9 +2648,12 @@
             .then(res => res.json())
             .then(data => {
                 tg.MainButton.hideProgress();
+                btnFinal.disabled = false;
+                btnFinal.innerHTML = originalBtnText;
+
                 if (data.success) {
                     tg.HapticFeedback.notificationOccurred('success');
-                    showToast(translations[currentLang].toast_char_created, "success");
+                    showToast(translations[currentLang].toast_char_created || "✅ Персонаж создан!", "success");
                     
                     // Очистка формы
                     document.getElementById('custom-name').value = '';
@@ -2656,9 +2670,12 @@
                     btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
                     
                     goToCreateStep(1);
+                    
+                    // Моментальное обновление баланса из базы
                     if (data.new_gems !== undefined) {
                         document.getElementById('balance-gems').innerText = data.new_gems;
                     }
+                    
                     switchCreateSubTab('mine');
                     fetchUserData(); 
                 } else {
@@ -2669,7 +2686,9 @@
             })
             .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast(translations[currentLang].toast_conn_error, "error");
+                btnFinal.disabled = false;
+                btnFinal.innerHTML = originalBtnText;
+                showToast(translations[currentLang].toast_conn_error || "Ошибка сети", "error");
             });
         }
         // Функция отрисовки кастомных персонажей
