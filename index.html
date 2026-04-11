@@ -2424,24 +2424,30 @@
         // --- ЛОГИКА ВКЛАДОК СОЗДАНИЯ ---
         function switchCreateSubTab(tabName) {
             tg.HapticFeedback.impactOccurred('light');
+            
+            // Скрываем все секции
             document.getElementById('create-section-mine').classList.add('hidden');
             document.getElementById('create-section-community').classList.add('hidden');
             document.getElementById('create-section-new').classList.add('hidden'); 
             
+            // Показываем нужную
             document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
             
             const btnMine = document.getElementById('btn-create-mine');
             const btnCommunity = document.getElementById('btn-create-community');
-            const fab = document.getElementById('fab-create'); 
+            const fab = document.getElementById('fab-create');
             
             if (tabName === 'mine') {
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                // Передаем эстафету функции renderCustomCharacters, она решит:
+                // если список пуст - скроет плюс (там есть большая кнопка), если есть персы - покажет.
                 renderCustomCharacters(); 
             } else if (tabName === 'community') {
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                if (fab) fab.classList.add('hidden'); // 🔥 ЖЕСТКО ПРЯЧЕМ В СООБЩЕСТВЕ
+                // ЖЕСТКО ПРЯЧЕМ плюсик во вкладке Сообщества
+                if (fab) fab.classList.add('hidden'); 
                 fetchCommunityChars();
             }
         }
@@ -2630,7 +2636,6 @@
         }
         
         // --- ЛОГИКА ГОЛОСОВАНИЯ ---
-        // --- ЛОГИКА ГОЛОСОВАНИЯ ---
         function voteChar(charId, isLike) {
             tg.HapticFeedback.impactOccurred('light');
             
@@ -2713,30 +2718,6 @@
         let currentCreateStep = 1;
         let customGender = 'female';
 
-        // Переключение Мои / Создать
-        function switchCreateSubTab(tabName) {
-            tg.HapticFeedback.impactOccurred('light');
-            document.getElementById('create-section-mine').classList.add('hidden');
-            document.getElementById('create-section-community').classList.add('hidden');
-            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
-            
-            document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
-            
-            const btnMine = document.getElementById('btn-create-mine');
-            const btnCommunity = document.getElementById('btn-create-community');
-            const fab = document.getElementById('fab-create'); // Получаем плюсик
-            
-            if (tabName === 'mine') {
-                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
-                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                renderCustomCharacters(); // Функция сама решит, скрывать плюсик или нет
-            } else if (tabName === 'community') {
-                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
-                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                fab.classList.remove('hidden'); // В сообществе плюсик виден всегда
-                fetchCommunityChars();
-            }
-        }
 
         function selectCustomGender(gender) {
             tg.HapticFeedback.selectionChanged();
