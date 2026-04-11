@@ -1591,7 +1591,7 @@
                 tagsHtml += '</div>';
 
                 return `
-                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                <div onclick="openCharacterModal('${char.id}', 'base')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
                     ${statusHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
@@ -1630,27 +1630,20 @@
             }
         }
 
-        function openCharacterModal(charId) {
+        // Обрати внимание: мы добавили второй параметр 'source'
+        function openCharacterModal(charId, source = 'base') {
             tg.HapticFeedback.impactOccurred('medium');
             
             let char = null;
-            let isCustom = false;
+            let isCustom = (source === 'mine' || source === 'community');
 
-            // 1. Ищем в базовых (real/anime)
-            if (window.activeCharactersList) {
-                char = window.activeCharactersList.find(c => c.id === charId) || characters.find(c => c.id === charId);
-            }
-
-            // 2. Если нет, ищем в Моих кастомных
-            if (!char && window.customCharactersList) {
-                char = window.customCharactersList.find(c => c.id === charId);
-                if (char) isCustom = true;
-            }
-
-            // 3. Если нет, ищем в Сообществе (Вот из-за чего модалки не открывались)
-            if (!char && window.communityCharactersList) {
-                char = window.communityCharactersList.find(c => c.id === charId);
-                if (char) isCustom = true; 
+            // Ищем персонажа в зависимости от того, откуда кликнули
+            if (source === 'base') {
+                char = (window.activeCharactersList || characters).find(c => c.id === charId);
+            } else if (source === 'mine') {
+                char = (window.customCharactersList || []).find(c => c.id === charId);
+            } else if (source === 'community') {
+                char = (window.communityCharactersList || []).find(c => c.id === charId);
             }
 
             if (!char) {
@@ -1673,6 +1666,7 @@
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
 
+            // Отрисовка тегов (ФОТО/ГОЛОС/CUSTOM)
             const tagsContainer = document.getElementById('char-modal-tags');
             if (tagsContainer) {
                 let tagsHtml = '';
@@ -1687,54 +1681,67 @@
             }
 
             const modal = document.getElementById('character-modal');
+            const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
             
-            // Внедряем кнопку модерации
+            // --- 1. ЛОГИКА КНОПКИ "ПУБЛИКАЦИЯ" ---
             let publishBtn = document.getElementById('btn-publish-char');
             if (!publishBtn) {
                 publishBtn = document.createElement('button');
                 publishBtn.id = 'btn-publish-char';
-                const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
                 launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
             }
-
-            // Проверяем, является ли этот персонаж моим
-            const myChar = window.customCharactersList ? window.customCharactersList.find(c => c.id === charId) : null;
-
-            if (isCustom && myChar) {
+            
+            // Показываем публикацию ТОЛЬКО если открыли из вкладки "Мои"
+            if (source === 'mine') {
                 publishBtn.style.display = 'flex';
-                if (myChar.moderation_status === 'public') {
+                if (char.moderation_status === 'public') {
                     publishBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ОПУБЛИКОВАН';
-                    publishBtn.disabled = true;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-green-500/10 border border-green-500/30 rounded-xl font-bold text-green-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                } else if (myChar.moderation_status === 'pending') {
+                    publishBtn.onclick = null;
+                } else if (char.moderation_status === 'pending') {
                     publishBtn.innerHTML = '<i class="fa-solid fa-clock"></i> НА МОДЕРАЦИИ';
-                    publishBtn.disabled = true;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-yellow-500/10 border border-yellow-500/30 rounded-xl font-bold text-yellow-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                } else if (myChar.moderation_status === 'rejected') {
+                    publishBtn.onclick = null;
+                } else if (char.moderation_status === 'rejected') {
                     publishBtn.innerHTML = '<i class="fa-solid fa-ban"></i> ОТКЛОНЕН';
-                    publishBtn.disabled = true;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-red-500/10 border border-red-500/30 rounded-xl font-bold text-red-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
+                    publishBtn.onclick = null;
                 } else {
+                    // Приватный (можно публиковать)
                     publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
-                    publishBtn.disabled = false;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
-                    publishBtn.onclick = () => openPublishModal(charId);
+                    publishBtn.onclick = () => { closeCharacterModal(); openPublishModal(charId); };
                 }
             } else {
                 publishBtn.style.display = 'none';
             }
 
+            // --- 2. ЛОГИКА КНОПОК "ЛАЙК/ДИЗЛАЙК" ВНУТРИ МОДАЛКИ ---
+            let voteContainer = document.getElementById('modal-vote-container');
+            if (!voteContainer) {
+                voteContainer = document.createElement('div');
+                voteContainer.id = 'modal-vote-container';
+                voteContainer.className = "flex gap-2 mt-3 w-full";
+                launchBtn.parentNode.insertBefore(voteContainer, launchBtn);
+            }
+
+            // Показываем лайки только если открыли из Сообщества и это не наш перс
+            if (source === 'community' && !char.is_mine) {
+                voteContainer.style.display = 'flex';
+                voteContainer.innerHTML = `
+                    <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
+                        <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
+                    </button>
+                    <button onclick="voteChar('${char.id}', false)" class="w-16 h-12 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
+                        <i class="fa-solid fa-thumbs-down"></i>
+                    </button>
+                `;
+            } else {
+                voteContainer.style.display = 'none';
+            }
+
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-open'); }, 10);
-        }
-        
-        function closeCharacterModal() {
-            const modal = document.getElementById('character-modal');
-            modal.classList.remove('modal-open');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                selectedCharacterId = null;
-            }, 300);
         }
 
         function launchCharacter() {
@@ -2421,7 +2428,34 @@
             emptyState.classList.remove('flex');
             fab.classList.remove('hidden'); // Показываем кружочек с плюсом
         
-            // ... Твой старый код генерации HTML для карточек (container.innerHTML = window.customCharactersList.map...) ...
+            // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
+            container.innerHTML = window.customCharactersList.map((char, index) => {
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+                
+                // Формируем красивые теги под именем
+                let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
+                tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
+                tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                tagsHtml += '</div>';
+                
+                // ВЫТАСКИВАЕМ КОРОТКОЕ ОПИСАНИЕ:
+                const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
+                    ? char.intro_messages['short_desc_' + currentLang] 
+                    : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
+                
+                return `
+                <div onclick="openCharacterModal('${char.id}', 'mine')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    
+                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
+                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
+                        <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${shortDesc}</p> ${tagsHtml}
+                        <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
         
         function fetchCommunityChars() {
@@ -2477,7 +2511,7 @@
                 }
 
                 return `
-                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                <div onclick="openCharacterModal('${char.id}', 'community')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                     ${voteHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
@@ -2541,6 +2575,7 @@
         }
         
         // --- ЛОГИКА ГОЛОСОВАНИЯ ---
+        // --- ЛОГИКА ГОЛОСОВАНИЯ ---
         function voteChar(charId, isLike) {
             tg.HapticFeedback.impactOccurred('light');
             
@@ -2552,12 +2587,15 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Обновляем циферки локально без перезагрузки
                     const char = window.communityCharactersList.find(c => c.id === charId);
                     if (char) {
                         char.likes = data.likes;
                         char.dislikes = data.dislikes;
-                        renderCommunityChars(); // Перерисовываем
+                        renderCommunityChars(); // Обновляем карточки на заднем фоне
+                        
+                        // Если открыта модалка, обновляем цифру прямо в ней
+                        const modalLikes = document.getElementById('modal-likes-count');
+                        if (modalLikes) modalLikes.innerText = data.likes;
                     }
                 }
             });
