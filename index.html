@@ -1633,79 +1633,75 @@
         function openCharacterModal(charId) {
             tg.HapticFeedback.impactOccurred('medium');
             
-            // Ищем персонажа в обычных
-            let char = (window.activeCharactersList || characters).find(c => c.id === charId);
+            let char = null;
             let isCustom = false;
-            
-            // Если в обычных нет, ищем в кастомных
-            if (!char) {
-                char = (window.customCharactersList || []).find(c => c.id === charId);
-                isCustom = true;
+
+            // 1. Ищем в базовых (real/anime)
+            if (window.activeCharactersList) {
+                char = window.activeCharactersList.find(c => c.id === charId) || characters.find(c => c.id === charId);
+            }
+
+            // 2. Если нет, ищем в Моих кастомных
+            if (!char && window.customCharactersList) {
+                char = window.customCharactersList.find(c => c.id === charId);
+                if (char) isCustom = true;
+            }
+
+            // 3. Если нет, ищем в Сообществе (Вот из-за чего модалки не открывались)
+            if (!char && window.communityCharactersList) {
+                char = window.communityCharactersList.find(c => c.id === charId);
+                if (char) isCustom = true; 
             }
 
             if (!char) {
                 console.error("Персонаж не найден:", charId);
                 return;
             }
-        
+
             selectedCharacterId = charId;
-            
-            // Достаем имя (у кастомных оно без приписок языка)
             const name = isCustom ? char.name : (char['name_' + currentLang] || char['name_ru'] || char.name);
             
-            // Описание (лор кастомного перса мы не шлем на фронт для экономии, поэтому ставим заглушку)
             const fullDesc = isCustom 
                 ? ((char.intro_messages && char.intro_messages['full_desc_' + currentLang]) 
                     ? char.intro_messages['full_desc_' + currentLang] 
                     : (char.intro_messages && char.intro_messages['full_desc_en'] 
                         ? char.intro_messages['full_desc_en'] 
-                        : "Твой кастомный персонаж. Нажми «Запустить», чтобы начать ролеплей.")) 
+                        : "Кастомный персонаж сообщества.")) 
                 : (char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru']);
-        
-            // Вставляем картинку
+
             document.getElementById('char-modal-img').src = char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo';
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
-            
-            // Рисуем теги
+
             const tagsContainer = document.getElementById('char-modal-tags');
             if (tagsContainer) {
                 let tagsHtml = '';
-                
                 if (isCustom) {
-                    // У кастомных всегда есть ФОТО, но нет ГОЛОСА. Добавляем тег CUSTOM.
                     tagsHtml += `<span class="px-2.5 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
                     tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 } else {
-                    if (char.has_image !== false) {
-                        tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                    }
-                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
-                        tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
-                    }
+                    if (char.has_image !== false) tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
                 }
                 tagsContainer.innerHTML = tagsHtml;
             }
-        
+
             const modal = document.getElementById('character-modal');
+            
+            // Внедряем кнопку модерации
             let publishBtn = document.getElementById('btn-publish-char');
             if (!publishBtn) {
                 publishBtn = document.createElement('button');
                 publishBtn.id = 'btn-publish-char';
-                publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
-                publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
-                // Вставляем её над кнопкой "ЗАПУСТИТЬ"
                 const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
                 launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
             }
-            
-            // Показываем кнопку ТОЛЬКО если персонаж из "Моих"
-            if (isCustom && window.customCharactersList.find(c => c.id === charId)) {
+
+            // Проверяем, является ли этот персонаж моим
+            const myChar = window.customCharactersList ? window.customCharactersList.find(c => c.id === charId) : null;
+
+            if (isCustom && myChar) {
                 publishBtn.style.display = 'flex';
-                
-                const myChar = window.customCharactersList.find(c => c.id === charId);
-                
-                // Меняем дизайн кнопки в зависимости от статуса модерации
                 if (myChar.moderation_status === 'public') {
                     publishBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ОПУБЛИКОВАН';
                     publishBtn.disabled = true;
@@ -1716,10 +1712,9 @@
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-yellow-500/10 border border-yellow-500/30 rounded-xl font-bold text-yellow-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
                 } else if (myChar.moderation_status === 'rejected') {
                     publishBtn.innerHTML = '<i class="fa-solid fa-ban"></i> ОТКЛОНЕН';
-                    publishBtn.disabled = true; // БЛОКИРУЕМ ПОВТОРНУЮ ОТПРАВКУ!
+                    publishBtn.disabled = true;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-red-500/10 border border-red-500/30 rounded-xl font-bold text-red-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
                 } else {
-                    // Статус private (можно публиковать)
                     publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
                     publishBtn.disabled = false;
                     publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
@@ -1728,8 +1723,11 @@
             } else {
                 publishBtn.style.display = 'none';
             }
-        }
 
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('modal-open'); }, 10);
+        }
+        
         function closeCharacterModal() {
             const modal = document.getElementById('character-modal');
             modal.classList.remove('modal-open');
