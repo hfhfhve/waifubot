@@ -385,7 +385,7 @@
             </button>
         </div>
 
-        <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[100px] right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_25px_rgba(236,72,153,0.6)] flex items-center justify-center text-white text-3xl z-[100] hidden active:scale-90 transition-transform">
+        <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[100px] right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_25px_rgba(236,72,153,0.6)] flex items-center justify-center text-white text-3xl z-[90] hidden active:scale-90 transition-transform">
             <i class="fa-solid fa-plus"></i>
         </button>
 
@@ -444,14 +444,12 @@
             </div>
 
             <div class="premium-card p-5 border-purple-500/30">
-                
                 <div id="create-step-1" class="animate-fade-up">
                     <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_name">ИМЯ ПЕРСОНАЖА</label>
                         <input type="text" id="custom-name" maxlength="50" oninput="validateInput('custom-name', 50)" data-i18n-placeholder="ph_name" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Например: Элизабет" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none transition-colors">
                         <div id="custom-name-warn" class="text-[9px] text-red-500 font-bold mt-1 hidden"></div>
                     </div>
-                    
                     <div class="mb-5">
                         <label class="text-[10px] font-bold text-gray-400 mb-1.5 block uppercase tracking-widest" data-i18n="form_gender">ПОЛ ПЕРСОНАЖА</label>
                         <div class="flex gap-2 p-1 bg-black/50 border border-white/10 rounded-xl">
@@ -463,7 +461,6 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="mb-6">
                         <label class="text-[10px] font-bold text-pink-500/80 mb-1.5 block uppercase tracking-widest" data-i18n="form_user_gender">ВАШ ПОЛ</label>
                         <div class="flex gap-2 p-1 bg-black/50 border border-pink-500/20 rounded-xl">
@@ -475,7 +472,6 @@
                             </button>
                         </div>
                     </div>
-
                     <button onclick="goToCreateStep(2)" class="w-full h-12 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2">
                         <span data-i18n="btn_next">Далее</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
