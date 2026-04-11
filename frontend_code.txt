@@ -1348,7 +1348,10 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
-                    if (key === 'come_back' || key === 'invite_desc' || key === 'age_tos_agree') {
+                    // Добавили ключи, в которых есть HTML-теги (<b>, <br>, <span> и тд)
+                    const htmlKeys = ['come_back', 'invite_desc', 'age_tos_agree', 'community_info', 'publish_desc'];
+                    
+                    if (htmlKeys.includes(key)) {
                         el.innerHTML = translations[lang][key];
                     } else {
                         el.innerText = translations[lang][key];
