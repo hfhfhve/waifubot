@@ -140,9 +140,8 @@
         }
         
         .floating-fab {
-            /* Если хочешь, чтобы она ВООБЩЕ не двигалась, просто удали строку с animation */
-            animation: floatFab 3s ease-in-out infinite;
             bottom: 140px !important; /* Жестко задаем высоту */
+            /* Анимацию убрали, теперь он стоит намертво и никуда не качается */
         }
         
         .floating-fab:active {
@@ -2472,7 +2471,11 @@
         
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
-            fab.classList.remove('hidden'); // Показываем кружочек с плюсом
+            
+            // 🔥 ИСПРАВЛЕНИЕ: Показываем плюс ТОЛЬКО если открыта вкладка "Создать"
+            if (!document.getElementById('tab-create').classList.contains('hidden')) {
+                fab.classList.remove('hidden'); 
+            }
         
             // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
             container.innerHTML = window.customCharactersList.map((char, index) => {
