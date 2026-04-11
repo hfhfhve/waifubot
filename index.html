@@ -2580,7 +2580,7 @@
                     document.getElementById('balance-gems').innerText = currentGems - 2;
 
                     // === 🔥 МЕНЯЕМ ТЕКСТ КНОПКИ НА "ПЕРЕГЕНЕРИРОВАТЬ" ===
-                    btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_photo">${translations[currentLang].btn_regenerate_photo}</span> (2 💎)</span>`;
+                    btn.innerHTML = `<i class="fa-solid fa-user-gear"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_char">${translations[currentLang].btn_regenerate_char}</span> (2 💎)</span>`;
                     
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
@@ -2644,7 +2644,6 @@
                     generatedAiData = null;
                     generatedImageUrl = null;
                     
-                    // === 🔥 ВОЗВРАЩАЕМ КНОПКЕ ИСХОДНЫЙ ВИД ДЛЯ НОВОГО ПЕРСОНАЖА ===
                     const btnPreview = document.getElementById('btn-generate-preview');
                     btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
                     
