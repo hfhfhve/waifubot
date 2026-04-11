@@ -1827,16 +1827,19 @@
             const fab = document.getElementById('fab-create');
             if (fab) {
                 if (tabId === 'create') {
-                    // Показываем только на вкладке создания
-                    fab.classList.remove('hidden'); 
-                    
-                    // Проверяем под-вкладку (Мои/Сообщество)
+                    // Проверяем, какая под-вкладка сейчас активна
                     const btnCommunity = document.getElementById('btn-create-community');
                     if (btnCommunity && btnCommunity.classList.contains('tab-active')) {
+                        // Если открыто Сообщество — прячем
+                        fab.classList.add('hidden');
                         fetchCommunityChars();
+                    } else {
+                        // Если открыты "Мои", функция отрисовки сама решит, 
+                        // показывать плюс (если есть персы) или спрятать (если пусто)
+                        renderCustomCharacters();
                     }
                 } else {
-                    // На любой другой вкладке (home, chats, shop и т.д.) — скрываем
+                    // На всех остальных вкладках прячем железно
                     fab.classList.add('hidden');
                 }
             }
@@ -2437,7 +2440,10 @@
             } else if (tabName === 'community') {
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                document.getElementById('fab-create').classList.remove('hidden'); // В сообществе показываем плюс
+                
+                // 🔥 Прячем плюсик во вкладке Сообщество
+                if (fab) fab.classList.add('hidden'); 
+                
                 fetchCommunityChars();
             }
         }
