@@ -415,8 +415,8 @@
     </div>
 
     <div id="tab-create" class="hidden px-4 pt-2 pb-24 min-h-screen relative">
-        
-        <div class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
+    
+        <div id="create-tabs-container" class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
             <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
                 <span>МОИ</span>
             </button>
@@ -450,8 +450,9 @@
         </div>
 
         <div id="create-section-new" class="hidden animate-fade-up">
-            <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Назад
+            <button onclick="closeCreateFlow()" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white font-black text-[11px] uppercase tracking-[0.2em] mb-6 flex items-center justify-center gap-3 active:scale-95 transition-all">
+                <i class="fa-solid fa-chevron-left text-xs"></i> 
+                <span data-i18n="btn_back">ВЕРНУТЬСЯ НАЗАД</span>
             </button>
             
             <div class="flex justify-between items-center mb-6 px-2">
@@ -2468,14 +2469,24 @@
         
         function openCreateFlow() {
             tg.HapticFeedback.impactOccurred('medium');
+            
+            // Прячем табы "Мои/Сообщество"
+            document.getElementById('create-tabs-container').classList.add('hidden');
+            
             document.getElementById('create-section-mine').classList.add('hidden');
             document.getElementById('create-section-community').classList.add('hidden');
             document.getElementById('fab-create').classList.add('hidden');
+            
+            // Показываем секцию создания
             document.getElementById('create-section-new').classList.remove('hidden');
             goToCreateStep(1);
         }
         
         function closeCreateFlow() {
+            // Возвращаем табы на место
+            document.getElementById('create-tabs-container').classList.remove('hidden');
+            
+            // Возвращаемся во вкладку "Мои"
             switchCreateSubTab('mine');
         }
         
