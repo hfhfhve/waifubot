@@ -380,21 +380,50 @@
         </div>
     </div>
 
-    <div id="tab-create" class="hidden px-4 pt-2 pb-24 min-h-screen">
+    <div id="tab-create" class="hidden px-4 pt-2 pb-24 min-h-screen relative">
         
-        <div class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
-            <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
-                <span data-i18n="my_chars">МОИ ПЕРСОНАЖИ</span>
-            </button>
-            <button onclick="switchCreateSubTab('new')" id="btn-create-new" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive flex items-center justify-center gap-1">
-                <span data-i18n="create_new">СОЗДАТЬ</span>
-            </button>
-        </div>
-
-        <div id="create-section-mine" class="animate-fade-up">
-            <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3">
+            <div class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
+                <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
+                    <span>МОИ</span>
+                </button>
+                <button onclick="switchCreateSubTab('community')" id="btn-create-community" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
+                    <span>СООБЩЕСТВО</span>
+                </button>
             </div>
-        </div>
+    
+            <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.5)] flex items-center justify-center text-white text-2xl z-[90] hidden active:scale-90 transition-transform">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+    
+            <div id="create-section-mine" class="animate-fade-up">
+                <div id="empty-mine-state" class="hidden flex-col items-center justify-center pt-10 pb-4 opacity-90">
+                    <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
+                        <i class="fa-solid fa-wand-magic-sparkles text-4xl text-purple-400"></i>
+                    </div>
+                    <p class="text-base font-black text-white mb-2">Нет своих персонажей</p>
+                    <p class="text-xs text-gray-400 text-center mb-6 px-4">Создай идеальную вайфу, сделай её публичной и получай 10% от её заработка!</p>
+                    <button onclick="openCreateFlow()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white shadow-[0_5px_20px_rgba(147,51,234,0.4)] active:scale-95 transition-all w-full">
+                        СОЗДАТЬ ПЕРСОНАЖА
+                    </button>
+                </div>
+                
+                <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3"></div>
+            </div>
+    
+            <div id="create-section-community" class="hidden animate-fade-up">
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4 flex items-center gap-3">
+                    <i class="fa-solid fa-money-bill-trend-up text-blue-400 text-xl"></i>
+                    <p class="text-[10px] text-blue-200 leading-tight">Создавай популярных персонажей! Ты получаешь <b>1 💎</b> за каждые 10 фото и <b>1 ⭐️</b> за каждые 10 сообщений от других игроков.</p>
+                </div>
+                <div id="community-chars-container" class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2 text-center text-gray-500 py-10"><i class="fa-solid fa-spinner fa-spin text-2xl"></i></div>
+                </div>
+            </div>
+    
+            <div id="create-section-new" class="hidden">
+                <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Назад
+                </button>
 
         <div id="create-section-new" class="hidden">
             
@@ -962,6 +991,27 @@
                     <div id="lang-check-id" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <div id="publish-modal" class="fixed inset-0 z-[180] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closePublishModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full modal-content p-6 pb-12 flex flex-col items-center text-center">
+            <div class="w-16 h-1.5 bg-gray-700 rounded-full mx-auto mb-6 opacity-50"></div>
+            
+            <div class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
+                <i class="fa-solid fa-earth-americas text-3xl text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"></i>
+            </div>
+            
+            <h3 class="text-2xl font-black text-white mb-2">Сделать публичным?</h3>
+            <p class="text-xs text-gray-400 mb-6 px-2">Персонаж отправится на модерацию, после чего появится в каталоге Сообщества.<br><br><span class="text-pink-400 font-bold">⚠️ Обратно скрыть его будет нельзя!</span></p>
+            
+            <button id="btn-confirm-publish" onclick="confirmPublish()" class="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 active:scale-95 transition-all text-white font-black rounded-2xl mb-3 flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(59,130,246,0.3)]">
+                <i class="fa-solid fa-paper-plane"></i> ОТПРАВИТЬ НА ПРОВЕРКУ
+            </button>
+            <button onclick="closePublishModal()" class="w-full h-14 bg-[#1a1a1a] border border-white/5 hover:bg-white/10 active:scale-95 transition-all text-gray-400 font-bold rounded-2xl">
+                Отмена
+            </button>
         </div>
     </div>
     
@@ -1651,6 +1701,25 @@
             }
         
             const modal = document.getElementById('character-modal');
+            let publishBtn = document.getElementById('btn-publish-char');
+            if (!publishBtn) {
+                publishBtn = document.createElement('button');
+                publishBtn.id = 'btn-publish-char';
+                publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
+                publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
+                // Вставляем её над кнопкой "ЗАПУСТИТЬ"
+                const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
+                launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
+            }
+            
+            // Показываем кнопку ТОЛЬКО если персонаж из "Моих"
+            if (isCustom && window.customCharactersList.find(c => c.id === charId)) {
+                // В идеале бэкенд должен присылать moderation_status, но пока просто показываем кнопку
+                publishBtn.style.display = 'flex';
+                publishBtn.onclick = () => openPublishModal(charId);
+            } else {
+                publishBtn.style.display = 'none';
+            }
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-open'); }, 10);
         }
@@ -2291,6 +2360,192 @@
             packsContainer.innerHTML = packsHtml;
             energyContainer.innerHTML = energyHtml;
             gemsContainer.innerHTML = gemsHtml;
+        }
+
+        // --- ЛОГИКА ВКЛАДОК СОЗДАНИЯ ---
+        function switchCreateSubTab(tabName) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.getElementById('create-section-mine').classList.add('hidden');
+            document.getElementById('create-section-community').classList.add('hidden');
+            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
+            
+            document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
+            
+            const btnMine = document.getElementById('btn-create-mine');
+            const btnCommunity = document.getElementById('btn-create-community');
+            
+            if (tabName === 'mine') {
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                renderCustomCharacters(); // Перерисовываем с учетом FAB
+            } else if (tabName === 'community') {
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                document.getElementById('fab-create').classList.remove('hidden'); // В сообществе показываем плюс
+                fetchCommunityChars();
+            }
+        }
+        
+        function openCreateFlow() {
+            tg.HapticFeedback.impactOccurred('medium');
+            document.getElementById('create-section-mine').classList.add('hidden');
+            document.getElementById('create-section-community').classList.add('hidden');
+            document.getElementById('fab-create').classList.add('hidden');
+            document.getElementById('create-section-new').classList.remove('hidden');
+            goToCreateStep(1);
+        }
+        
+        function closeCreateFlow() {
+            switchCreateSubTab('mine');
+        }
+        
+        // Переписываем renderCustomCharacters, чтобы управлять пустым состоянием и плюсиком
+        function renderCustomCharacters() {
+            const container = document.getElementById('my-custom-chars-container');
+            const emptyState = document.getElementById('empty-mine-state');
+            const fab = document.getElementById('fab-create');
+            
+            if (!window.customCharactersList || window.customCharactersList.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                fab.classList.add('hidden');
+                return;
+            }
+        
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            fab.classList.remove('hidden'); // Показываем кружочек с плюсом
+        
+            // ... Твой старый код генерации HTML для карточек (container.innerHTML = window.customCharactersList.map...) ...
+        }
+        
+        // --- ЛОГИКА СООБЩЕСТВА ---
+        function fetchCommunityChars() {
+            fetch('https://waifubot.website/webhook/get-community-chars', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.communityCharactersList = data.characters;
+                    renderCommunityChars();
+                }
+            });
+        }
+        
+        function renderCommunityChars() {
+            const container = document.getElementById('community-chars-container');
+            if (!window.communityCharactersList || window.communityCharactersList.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-10 font-bold">Пока пусто...</div>`;
+                return;
+            }
+        
+            container.innerHTML = window.communityCharactersList.map((char, index) => {
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+                
+                // Кнопки лайков (не даем лайкать своих)
+                let voteHtml = '';
+                if (!char.is_mine) {
+                    voteHtml = `
+                        <div class="absolute top-2 right-2 flex gap-1 z-30">
+                            <button onclick="event.stopPropagation(); voteChar('${char.id}', true)" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-green-400 active:scale-90 transition-transform">
+                                <i class="fa-solid fa-thumbs-up text-[10px]"></i> <span class="text-[9px] font-bold ml-1">${char.likes}</span>
+                            </button>
+                            <button onclick="event.stopPropagation(); voteChar('${char.id}', false)" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-red-400 active:scale-90 transition-transform">
+                                <i class="fa-solid fa-thumbs-down text-[10px]"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+        
+                return `
+                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
+                    ${voteHtml}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    
+                    <div class="absolute bottom-0 left-0 w-full p-4 z-20">
+                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
+                        <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> Сообщество</p>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        // --- ЛОГИКА ПУБЛИКАЦИИ ---
+        let charToPublish = null;
+        
+        function openPublishModal(charId) {
+            charToPublish = charId;
+            tg.HapticFeedback.impactOccurred('medium');
+            const modal = document.getElementById('publish-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+        
+        function closePublishModal() {
+            const modal = document.getElementById('publish-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+        
+        function confirmPublish() {
+            if (!charToPublish) return;
+            
+            tg.MainButton.showProgress();
+            const btn = document.getElementById('btn-confirm-publish');
+            btn.disabled = true;
+            
+            fetch('https://waifubot.website/webhook/publish-character', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ character_id: charToPublish, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+                closePublishModal();
+                closeCharacterModal(); // Закрываем карточку
+                
+                if (data.success) {
+                    showToast("✅ Отправлено на модерацию!", "success");
+                } else {
+                    showToast("❌ " + data.message, "error");
+                }
+            })
+            .catch(() => {
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+                showToast("Ошибка сети", "error");
+            });
+        }
+        
+        // --- ЛОГИКА ГОЛОСОВАНИЯ ---
+        function voteChar(charId, isLike) {
+            tg.HapticFeedback.impactOccurred('light');
+            
+            fetch('https://waifubot.website/webhook/vote-character', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ character_id: charId, is_like: isLike, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем циферки локально без перезагрузки
+                    const char = window.communityCharactersList.find(c => c.id === charId);
+                    if (char) {
+                        char.likes = data.likes;
+                        char.dislikes = data.dislikes;
+                        renderCommunityChars(); // Перерисовываем
+                    }
+                }
+            });
         }
 
         function showMaintenanceScreen() {
