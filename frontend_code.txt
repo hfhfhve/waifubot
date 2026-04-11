@@ -421,11 +421,9 @@
             </div>
     
             <div id="create-section-new" class="hidden">
-                <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
-                    <i class="fa-solid fa-arrow-left"></i> Назад
-                </button>
-
-        <div id="create-section-new" class="hidden">
+            <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Назад
+            </button>
             
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
@@ -2953,17 +2951,22 @@
         // Функция отрисовки кастомных персонажей
         function renderCustomCharacters() {
             const container = document.getElementById('my-custom-chars-container');
+            const emptyState = document.getElementById('empty-mine-state');
+            const fab = document.getElementById('fab-create');
+            
             if (!window.customCharactersList || window.customCharactersList.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-40">
-                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-heart-crack text-2xl text-gray-500"></i>
-                        </div>
-                        <p class="text-sm font-bold text-gray-400" data-i18n="no_custom_chars">${translations[currentLang].no_custom_chars || "У тебя пока нет своих вайфу"}</p>
-                    </div>`;
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                fab.classList.add('hidden');
                 return;
             }
-
+        
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            fab.classList.remove('hidden'); // Показываем кружочек с плюсом
+        
+            // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
