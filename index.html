@@ -1816,34 +1816,16 @@
 
         function showTab(tabId) {
             tg.HapticFeedback.impactOccurred('light');
+            
+            // 1. СНАЧАЛА ЖЕСТКО СКРЫВАЕМ ВСЕ ВКЛАДКИ
             document.getElementById('tab-home').classList.add('hidden');
             document.getElementById('tab-shop').classList.add('hidden');
             document.getElementById('tab-profile').classList.add('hidden');
             document.getElementById('tab-admin').classList.add('hidden'); 
             document.getElementById('tab-chats').classList.add('hidden');
             document.getElementById('tab-create').classList.add('hidden');
-        
-            // === ДОБАВЛЯЕМ ЭТОТ БЛОК ===
-            const fab = document.getElementById('fab-create');
-            if (fab) {
-                if (tabId === 'create') {
-                    // Проверяем, какая под-вкладка сейчас активна
-                    const btnCommunity = document.getElementById('btn-create-community');
-                    if (btnCommunity && btnCommunity.classList.contains('tab-active')) {
-                        // Если открыто Сообщество — прячем
-                        fab.classList.add('hidden');
-                        fetchCommunityChars();
-                    } else {
-                        // Если открыты "Мои", функция отрисовки сама решит, 
-                        // показывать плюс (если есть персы) или спрятать (если пусто)
-                        renderCustomCharacters();
-                    }
-                } else {
-                    // На всех остальных вкладках прячем железно
-                    fab.classList.add('hidden');
-                }
-            }
             
+            // Сбрасываем классы у всех кнопок нижнего меню
             ['home', 'chats', 'create', 'shop', 'profile', 'admin'].forEach(id => {
                 const navBtn = document.getElementById(`nav-${id}`);
                 const dot = document.getElementById(`dot-${id}`);
@@ -1854,6 +1836,7 @@
                 }
             });
 
+            // 2. ВКЛЮЧАЕМ НУЖНУЮ ВКЛАДКУ И ПОДСВЕЧИВАЕМ КНОПКУ МЕНЮ
             const activeTab = document.getElementById(`tab-${tabId}`);
             if (activeTab) {
                 activeTab.classList.remove('hidden');
@@ -1870,14 +1853,33 @@
                 activeDot.classList.replace('opacity-0', 'opacity-100');
             }
 
+            // 3. ТОЛЬКО ТЕПЕРЬ, КОГДА DOM ОБНОВИЛСЯ, ПРОВЕРЯЕМ ПЛЮСИК И РЕНДЕРИМ
+            const fab = document.getElementById('fab-create');
+            if (fab) {
+                if (tabId === 'create') {
+                    const btnCommunity = document.getElementById('btn-create-community');
+                    if (btnCommunity && btnCommunity.classList.contains('tab-active')) {
+                        fab.classList.add('hidden');
+                        fetchCommunityChars();
+                    } else {
+                        // Теперь наша проверка из прошлого шага сработает идеально!
+                        renderCustomCharacters(); 
+                    }
+                } else {
+                    fab.classList.add('hidden'); // На других вкладках прячем
+                }
+            }
+
+            // Остальная логика (магазин, чаты)
             const shopSwitch = document.getElementById('shop-switch');
             if (tabId === 'shop') { 
                 shopSwitch.classList.remove('hidden'); 
-             } else { 
+            } else { 
                 shopSwitch.classList.add('hidden'); 
             }
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Если открыли вкладку чатов - запрашиваем свежие данные с сервера
+            
             if (tabId === 'chats') {
                 fetchChatsList();
             }
