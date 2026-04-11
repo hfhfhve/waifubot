@@ -2477,27 +2477,35 @@
             const emptyState = document.getElementById('empty-mine-state');
             const fab = document.getElementById('fab-create');
             
+            // 1. Если нет персонажей
             if (!window.customCharactersList || window.customCharactersList.length === 0) {
                 container.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 emptyState.classList.add('flex');
-                if (fab) fab.classList.add('hidden'); // Нет персов - плюса нет
+                if (fab) fab.classList.add('hidden'); // Прячем плюсик
                 return;
             }
         
+            // 2. Если персонажи есть, прячем заглушку
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
             
-            // 🔥 УМНАЯ ПРОВЕРКА: показываем плюс ТОЛЬКО если мы во вкладке "Мои" и не внутри создания
+            // 🔥 ЖЕЛЕЗОБЕТОННАЯ ПРОВЕРКА 🔥
+            // Смотрим прямо на нижнее меню: активна ли иконка "СОЗДАТЬ"?
+            const isCreateTabActive = document.getElementById('nav-create').classList.contains('nav-active');
+            // Активна ли кнопка "МОИ" внутри создания?
             const isMineTab = document.getElementById('btn-create-mine').classList.contains('tab-active');
+            // Не открыта ли прямо сейчас форма создания нового перса?
             const isCreatingNew = !document.getElementById('create-section-new').classList.contains('hidden');
             
-            if (fab && isMineTab && !isCreatingNew) {
+            // Показываем плюс ТОЛЬКО если мы реально сидим во вкладке "Создать" -> "Мои"
+            if (fab && isCreateTabActive && isMineTab && !isCreatingNew) {
                 fab.classList.remove('hidden'); 
             } else if (fab) {
-                fab.classList.add('hidden');
+                fab.classList.add('hidden'); // Во всех остальных случаях убиваем его
             }
         
+            // 3. Отрисовка карточек
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
