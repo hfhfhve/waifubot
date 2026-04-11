@@ -2227,7 +2227,7 @@
                 return;
             }
 
-            // Показываем анимацию загрузки, пока ждем ответ от сервера
+            // Показываем анимацию загрузки
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center pt-20 opacity-50">
                     <i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-4"></i>
@@ -2242,31 +2242,11 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.chats && data.chats.length > 0) {
+                // Если успех и есть массив, отдаем в renderChats. Иначе отдаем пустой массив [].
+                if (data.success && data.chats) {
                     renderChats(data.chats);
                 } else {
-                    // === НОВОЕ КРЕАТИВНОЕ ПУСТОЕ СОСТОЯНИЕ (ЖЕЛЕЗОБЕТОННОЕ) ===
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center pt-24 pb-10 animate-fade-up">
-                            <div class="relative w-24 h-24 flex items-center justify-center mb-6">
-                                <div class="radar-ring"></div>
-                                <div class="radar-ring delay"></div>
-                                
-                                <div class="relative z-10 w-16 h-16 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-white/10 flex items-center justify-center shadow-[0_0_30px_rgba(236,72,153,0.3)] backdrop-blur-md" style="animation: floatFab 3s ease-in-out infinite;">
-                                    <i class="fa-solid fa-ghost text-3xl text-pink-400 opacity-80"></i>
-                                </div>
-                            </div>
-                            
-                            <h3 class="text-lg font-black text-white mb-2 tracking-wide text-center">Здесь пока слишком тихо...</h3>
-                            <p class="text-xs text-gray-400 text-center max-w-[220px] leading-relaxed mb-6">
-                                ${translations[currentLang]?.no_chats || "Выбери персонажа на главной и начни свою первую историю!"}
-                            </p>
-                            
-                            <button onclick="showTab('home')" class="px-6 py-3 bg-gradient-to-r from-pink-600/20 to-purple-700/20 hover:bg-white/10 active:scale-95 rounded-2xl font-bold text-white text-sm transition-all border border-pink-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
-                                <i class="fa-solid fa-compass text-pink-400"></i> В каталог
-                            </button>
-                        </div>
-                    `;
+                    renderChats([]);
                 }
             })
             .catch(err => {
@@ -2274,7 +2254,7 @@
                 container.innerHTML = `<p class="text-center text-red-500 mt-10 font-bold">Ошибка соединения</p>`;
             });
         }
-
+        
         // --- ФУНКЦИЯ ЗАГРУЗКИ ТОВАРОВ ИЗ БАЗЫ ---
         function fetchShopData() {
             fetch(WEBHOOK_GET_SHOP)
@@ -3091,36 +3071,54 @@
         
         function renderChats(chats) {
             const container = document.getElementById('chats-list-container');
-            
+            const lang = currentLang;
+
+            // HTML нашего призрака-радара
+            const emptyStateHtml = `
+                <div class="flex flex-col items-center justify-center pt-24 pb-10 animate-fade-up">
+                    <div class="relative w-24 h-24 flex items-center justify-center mb-6">
+                        <div class="radar-ring"></div>
+                        <div class="radar-ring delay"></div>
+                        
+                        <div class="relative z-10 w-16 h-16 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-white/10 flex items-center justify-center shadow-[0_0_30px_rgba(236,72,153,0.3)] backdrop-blur-md" style="animation: floatFab 3s ease-in-out infinite;">
+                            <i class="fa-solid fa-ghost text-3xl text-pink-400 opacity-80"></i>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-lg font-black text-white mb-2 tracking-wide text-center">Здесь пока слишком тихо...</h3>
+                    <p class="text-xs text-gray-400 text-center max-w-[220px] leading-relaxed mb-6">
+                        ${translations[lang]?.no_chats || "Выбери персонажа на главной и начни свою первую историю!"}
+                    </p>
+                    
+                    <button onclick="showTab('home')" class="px-6 py-3 bg-gradient-to-r from-pink-600/20 to-purple-700/20 hover:bg-white/10 active:scale-95 rounded-2xl font-bold text-white text-sm transition-all border border-pink-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
+                        <i class="fa-solid fa-compass text-pink-400"></i> В каталог
+                    </button>
+                </div>
+            `;
+
+            // Если пришел пустой массив с бэкенда
             if (!chats || chats.length === 0) {
-                container.innerHTML = '';
+                container.innerHTML = emptyStateHtml;
                 return;
             }
-        
+
             const hasMoreChats = chats.length > 15;
             const chatsToShow = chats.slice(0, 15);
-        
+
             let html = chatsToShow.map(chat => {
-                // === 1. УМНЫЙ ПОИСК ПЕРСОНАЖА ===
                 let isCustom = false;
-                // Ищем в дефолтных/аниме
                 let char = (window.activeCharactersList || characters).find(c => c.id === chat.character_id || c.id.replace('char:', '') === chat.character_id);
                 
-                // Если не нашли, ищем в кастомных!
                 if (!char && window.customCharactersList) {
                     char = window.customCharactersList.find(c => c.id === chat.character_id);
                     isCustom = true;
                 }
                 
-                // Если персонаж вообще удален отовсюду - пропускаем чат
+                // Если персонаж удален - возвращаем пустую строку
                 if (!char) return '';
-                // ================================
                 
-                const localTime = formatChatDate(chat.created_at_ts, currentLang);
-                
-                // === 2. ПРАВИЛЬНОЕ ИМЯ ===
-                // У кастомных нет приписок языка ('name_ru', 'name_en'), у них просто 'name'
-                const defaultName = isCustom ? char.name : (char['name_' + currentLang] || char.name);
+                const localTime = formatChatDate(chat.created_at_ts, lang);
+                const defaultName = isCustom ? char.name : (char['name_' + lang] || char.name);
                 const displayName = chat.custom_name || defaultName;
                 
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
@@ -3154,8 +3152,14 @@
                 `;
             }).join('');
         
+            // ВОТ ТУТ ЛОВИМ БАГ: если после маппинга получилась пустота (персонажи удалены)
+            if (html.trim() === '') {
+                container.innerHTML = emptyStateHtml;
+                return;
+            }
+
             if (hasMoreChats) {
-                const limitText = translations[currentLang]?.chatsLimitMessage || "Showing only the last 15 chats";
+                const limitText = translations[lang]?.chatsLimitMessage || "Showing only the last 15 chats";
                 html += `
                 <div class="text-center text-[11px] text-gray-500/70 font-medium mt-4 pb-6 px-4 uppercase tracking-wider">
                     <i class="fa-solid fa-clock-rotate-left mr-1.5 opacity-70"></i> ${limitText}
