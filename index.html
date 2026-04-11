@@ -2541,8 +2541,9 @@
             tg.MainButton.showProgress();
             
             const btn = document.getElementById('btn-generate-preview');
-            const originalBtnText = btn.innerHTML;
-            // Берем текст "Генерация изображения..." из переводов
+            const originalBtnText = btn.innerHTML; // Запоминаем на случай ошибки
+            
+            // Ставим статус загрузки
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${translations[currentLang].btn_generating}`;
             btn.disabled = true;
 
@@ -2563,32 +2564,34 @@
             .then(res => res.json())
             .then(data => {
                 tg.MainButton.hideProgress();
-                btn.innerHTML = originalBtnText;
                 btn.disabled = false;
 
                 if (data.success) {
                     tg.HapticFeedback.notificationOccurred('success');
                     
-                    // Сохраняем данные для финального создания
                     generatedAiData = data.ai_data;
                     generatedImageUrl = data.image_url;
                     
-                    // Показываем картинку
                     document.getElementById('preview-placeholder').classList.add('hidden');
                     const imgEl = document.getElementById('preview-char-img');
                     imgEl.src = generatedImageUrl;
                     imgEl.classList.remove('hidden');
                     
-                    // Визуально списываем 2 гема
                     document.getElementById('balance-gems').innerText = currentGems - 2;
+
+                    // === 🔥 МЕНЯЕМ ТЕКСТ КНОПКИ НА "ПЕРЕГЕНЕРИРОВАТЬ" ===
+                    btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_photo">${translations[currentLang].btn_regenerate_photo}</span> (2 💎)</span>`;
+                    
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                     showToast("❌ " + (data.message || "Ошибка"), "error");
+                    // Возвращаем старый текст при ошибке
+                    btn.innerHTML = originalBtnText; 
                 }
             }).catch(err => {
                 tg.MainButton.hideProgress();
-                btn.innerHTML = originalBtnText;
                 btn.disabled = false;
+                btn.innerHTML = originalBtnText; // Возвращаем старый текст при сбое сети
                 showToast("Ошибка соединения", "error");
             });
         }
@@ -2614,13 +2617,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: document.getElementById('custom-name').value.trim(),
+                    gender: customGender,
+                    user_gender: selectedUserGender,
                     environment: document.getElementById('custom-environment').value.trim(),
                     image_url: generatedImageUrl,
                     ai_data: generatedAiData,
                     chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData,
-                    gender: customGender,
-                    user_gender: selectedUserGender 
+                    initData: tg.initData
                 })
             })
             .then(res => res.json())
@@ -2641,13 +2644,16 @@
                     generatedAiData = null;
                     generatedImageUrl = null;
                     
+                    // === 🔥 ВОЗВРАЩАЕМ КНОПКЕ ИСХОДНЫЙ ВИД ДЛЯ НОВОГО ПЕРСОНАЖА ===
+                    const btnPreview = document.getElementById('btn-generate-preview');
+                    btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
+                    
                     goToCreateStep(1);
                     document.getElementById('balance-gems').innerText = currentGems - 10;
                     switchCreateSubTab('mine');
                     fetchUserData(); 
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
-                    // Если ошибка с бэкенда (например, "not_enough_gems")
                     let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
                     showToast("❌ " + errMsg, "error");
                 }
