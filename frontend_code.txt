@@ -2583,7 +2583,9 @@
                     imgEl.src = generatedImageUrl;
                     imgEl.classList.remove('hidden');
                     
-                    document.getElementById('balance-gems').innerText = currentGems - 2;
+                    if (data.new_gems !== undefined) {
+                        document.getElementById('balance-gems').innerText = data.new_gems;
+                    }
 
                     // === 🔥 МЕНЯЕМ ТЕКСТ КНОПКИ НА "ПЕРЕГЕНЕРИРОВАТЬ" ===
                     btn.innerHTML = `<i class="fa-solid fa-user-gear"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_char">${translations[currentLang].btn_regenerate_char}</span> (2 💎)</span>`;
@@ -2654,7 +2656,9 @@
                     btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
                     
                     goToCreateStep(1);
-                    document.getElementById('balance-gems').innerText = currentGems - 10;
+                    if (data.new_gems !== undefined) {
+                        document.getElementById('balance-gems').innerText = data.new_gems;
+                    }
                     switchCreateSubTab('mine');
                     fetchUserData(); 
                 } else {
