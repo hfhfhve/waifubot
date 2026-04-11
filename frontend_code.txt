@@ -1016,35 +1016,6 @@
     <script src="data.js"></script>
     
     <script>
-        const tg = window.Telegram.WebApp;
-        let currentItem = null; 
-        let selectedCharacterId = null; 
-        let currentCreateStep = 1;
-        let customGender = 'female';
-        let selectedUserGender = 'male'; 
-        let generatedAiData = null;
-        let generatedImageUrl = null;
-        let charToPublish = null;
-        let activeOptionsSession = null;
-        let currentStyle = 'real';
-        
-        const BASE_URL = "https://waifubot.website";
-        const WEBHOOK_URL = `${BASE_URL}/webhook/shop-buy`;
-        const WEBHOOK_LAUNCH = `${BASE_URL}/webhook/start`;
-        const WEBHOOK_GET_USER = `${BASE_URL}/webhook/get-user`;
-        const WEBHOOK_ADMIN = `${BASE_URL}/webhook/admin-action`;
-        const WEBHOOK_USE_PROMO = `${BASE_URL}/webhook/use-promo`; 
-        const WEBHOOK_BONUS = `${BASE_URL}/webhook/claim-bonus`;
-        const webhookUrl = `${BASE_URL}/webhook/set-language`;
-        const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
-        const WEBHOOK_GET_CHATS = `${BASE_URL}/webhook/get-chats`;
-        const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
-        const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
-        const WEBHOOK_GET_SHOP = `${BASE_URL}/webhook/get-shop`;
-        const WEBHOOK_VERIFY_AGE = `${BASE_URL}/webhook/verify-age`;
-        const WEBHOOK_CREATE_CHAR = `${BASE_URL}/webhook/create-character`;
-        const WEBHOOK_TEST_PHOTO = `${BASE_URL}/webhook/test-custom-photo`;
-
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
         let toastTimeout;
         function showToast(message, type = 'info') {
@@ -1079,6 +1050,8 @@
                 loader.classList.add('opacity-0');
                 setTimeout(() => {
                     loader.classList.add('hidden');
+                    
+                    // Проверяем: если сервер сказал, что 18+ НЕ подтверждено — показываем окно
                     if (window.isAgeVerified === false) {
                         checkAgeVerification();
                     }
@@ -1086,80 +1059,62 @@
             }
         }
 
-        function showMaintenanceScreen() {
-            const loader = document.getElementById('loading-screen');
-            if (loader) loader.classList.add('hidden');
-            
-            const mScreen = document.getElementById('maintenance-screen');
-            if (mScreen) {
-                mScreen.classList.remove('hidden');
-                mScreen.classList.add('flex');
-            }
-            if (window.Telegram?.WebApp?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-        }
-
-        function preloadImagesAndHideLoader() {
-            const images = document.querySelectorAll('#characters-container img');
-            let loadedCount = 0;
-            const totalImages = images.length;
-        
-            if (totalImages === 0) {
-                hideLoadingScreen();
-                return;
-            }
-        
-            images.forEach(img => {
-                if (img.complete) {
-                    loadedCount++;
-                    if (loadedCount === totalImages) hideLoadingScreen();
-                } else {
-                    img.addEventListener('load', () => {
-                        loadedCount++;
-                        if (loadedCount === totalImages) hideLoadingScreen();
-                    });
-                    img.addEventListener('error', () => {
-                        loadedCount++;
-                        if (loadedCount === totalImages) hideLoadingScreen();
-                    });
-                }
-            });
-        }
-
         function fetchUserData() {
             const userId = tg.initDataUnsafe?.user?.id;
+            
             if (!userId) {
+                console.log("Нет User ID (тест в браузере?), ставим демо-данные");
                 hideLoadingScreen(); 
                 return; 
             }
         
+            // Создаем контроллер для отмены зависшего запроса
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // Таймер на 10 секунд
         
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: userId, initData: tg.initData }),
-                signal: controller.signal
+                signal: controller.signal // Привязываем контроллер к запросу
             })
             .then(res => {
-                clearTimeout(timeoutId);
+                clearTimeout(timeoutId); // Если сервер ответил быстро - отменяем таймер
                 return res.json();
             })
             .then(data => {
+                // === ВОТ ЭТОТ БЛОК ДОБАВИТЬ ===
                 if (data.maintenance === true) {
-                    showMaintenanceScreen();
-                    return;
+                    hideLoadingScreen(); // Прячем лоадер
+                    const maintScreen = document.getElementById('maintenance-screen');
+                    if (maintScreen) {
+                        maintScreen.classList.remove('hidden');
+                        maintScreen.classList.add('flex');
+                    }
+                    return; // Прекращаем загрузку приложения
                 }
+                // ==============================
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    let serverLang = String(user.language_code || 'ru').replace(/::text/g, '').replace(/['"]/g, '').trim().toLowerCase();
+                    // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
+                    let serverLang = String(user.language_code || 'ru')
+                        .replace(/::text/g, '') // Удаляем именно приписку ::text
+                        .replace(/['"]/g, '')   // Удаляем кавычки
+                        .trim()
+                        .toLowerCase();
+                    
+                    // Список языков, которые мы поддерживаем
                     const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
+                    
+                    // Если в базе лежит поддерживаемый язык — ставим его, иначе английский
                     let cleanLang = supportedLangs.includes(serverLang) ? serverLang : 'en';
                     
+                    // Сохраняем в память и применяем к интерфейсу
                     localStorage.setItem('app_lang', cleanLang);
                     setLanguage(cleanLang);
         
+                    // --- 2. КОНФИГУРАЦИЯ НАГРАД ---
                     if (user.daily_rewards_config) {
                         window.DAILY_REWARDS = Array.isArray(user.daily_rewards_config) ? user.daily_rewards_config : [];
                     } else if (!window.DAILY_REWARDS) {
@@ -1168,9 +1123,15 @@
         
                     window.isAgeVerified = user.is_age_verified;
                     
-                    if(document.getElementById('balance-stars')) document.getElementById('balance-stars').innerText = user.stars || 0;
-                    if(document.getElementById('balance-gems')) document.getElementById('balance-gems').innerText = user.gems || 0;
+                    // Обновляем баланс
+                    if(document.getElementById('balance-stars')) {
+                        document.getElementById('balance-stars').innerText = user.stars || 0;
+                    }
+                    if(document.getElementById('balance-gems')) {
+                        document.getElementById('balance-gems').innerText = user.gems || 0;
+                    }
         
+                    // --- 3. ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА ---
                     let nextDay = 1; 
                     let isSameDay = false; 
                     let hoursLeft = 0;
@@ -1178,6 +1139,7 @@
                     if (user.last_bonus_date) {
                         const lastClaim = new Date(user.last_bonus_date);
                         const now = new Date();
+                        
                         const todayMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
                         const lastClaimMidnight = Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate());
                         const diffDays = (todayMidnight - lastClaimMidnight) / 86400000;
@@ -1201,28 +1163,37 @@
                     }
         
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
+
+                    // ОБНОВЛЯЕМ КАРТОЧКУ БОНУСА НА ГЛАВНОМ ЭКРАНЕ
                     updateBonusCardUI();
         
+                    // --- 4. АДМИН-ПАНЕЛЬ ---
                     if (user.is_admin) {
                         const adminNav = document.getElementById('nav-admin');
                         if (adminNav) adminNav.classList.remove('hidden');
                     }
 
+                    // --- 5. КАСТОМНЫЕ ПЕРСОНАЖИ ---
                     if (user.custom_characters) {
                         window.customCharactersList = user.custom_characters;
                     } else {
                         window.customCharactersList = [];
                     }
-                    renderCustomCharacters();
+                    renderCustomCharacters(); // Отрисовываем их!
 
+                    // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
                         window.activeCharactersList = user.active_characters.map(serverChar => {
                             const activeId = serverChar.id; 
                             const localChar = characters.find(c => c.id === activeId || c.id.replace('char:', '') === activeId);
-                            if (localChar) return { ...localChar, has_image: serverChar.has_image, has_voice: serverChar.has_voice };
+                            
+                            if (localChar) {
+                                return { ...localChar, has_image: serverChar.has_image, has_voice: serverChar.has_voice };
+                            }
                             return null;
                         }).filter(Boolean); 
                     } else {
+                        // ИСПРАВЛЕНИЕ: Если список пуст, оставляем его пустым. 
                         window.activeCharactersList = [];
                     }
                     renderCharacters();
@@ -1231,6 +1202,7 @@
             .catch(err => {
                 console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
                 showMaintenanceScreen();
+                hideLoadingScreen(); 
             })
             .finally(() => {
                 const mScreen = document.getElementById('maintenance-screen');
@@ -1239,29 +1211,66 @@
                 }
             });
         }
+        
 
+        const tg = window.Telegram.WebApp;
+        let currentItem = null; 
+        let selectedCharacterId = null; 
+        
+        const BASE_URL = "https://waifubot.website";
+        const WEBHOOK_URL = `${BASE_URL}/webhook/shop-buy`;
+        const WEBHOOK_LAUNCH = `${BASE_URL}/webhook/start`;
+        const WEBHOOK_GET_USER = `${BASE_URL}/webhook/get-user`;
+        const WEBHOOK_ADMIN = `${BASE_URL}/webhook/admin-action`;
+        const WEBHOOK_USE_PROMO = `${BASE_URL}/webhook/use-promo`; 
+        const WEBHOOK_BONUS = `${BASE_URL}/webhook/claim-bonus`;
+        const webhookUrl = `${BASE_URL}/webhook/set-language`;
+        const WEBHOOK_GET_REFS = `${BASE_URL}/webhook/get-referrals`;
+        const WEBHOOK_GET_CHATS = `${BASE_URL}/webhook/get-chats`;
+        const WEBHOOK_RESUME = `${BASE_URL}/webhook/resume-chat`;
+        const WEBHOOK_CHAT_ACTION = `${BASE_URL}/webhook/chat-action`;
+        const WEBHOOK_GET_SHOP = `${BASE_URL}/webhook/get-shop`;
+        const WEBHOOK_VERIFY_AGE = `${BASE_URL}/webhook/verify-age`;
+        const WEBHOOK_CREATE_CHAR = `${BASE_URL}/webhook/create-character`;
+        const WEBHOOK_TEST_PHOTO = `${BASE_URL}/webhook/test-custom-photo`;
+        // ========================================================
+
+        // ЕДИНЫЙ БЛОК ЗАПУСКА ПРИЛОЖЕНИЯ
         document.addEventListener('DOMContentLoaded', () => {
+            // 1. Инициализация Telegram
             tg.ready(); 
             tg.expand(); 
             tg.setHeaderColor('#050505'); 
             tg.setBackgroundColor('#050505');
             
+            // 2. Определяем язык (Кэш -> Telegram -> Дефолт)
             let startLang = localStorage.getItem('app_lang');
+            
             if (!startLang) {
+                // Если в кэше пусто (самый первый заход), берем язык из Telegram
                 const tgLang = tg.initDataUnsafe?.user?.language_code;
                 const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
-                if (tgLang && supportedLangs.includes(tgLang)) startLang = tgLang;
-                else if (tgLang === 'uk' || tgLang === 'be' || tgLang === 'kk') startLang = 'ru';
-                else startLang = 'en';
+                
+                if (tgLang && supportedLangs.includes(tgLang)) {
+                    startLang = tgLang; // Испанцу - испанский, португальцу - португальский
+                } else if (tgLang === 'uk' || tgLang === 'be' || tgLang === 'kk') {
+                    startLang = 'ru'; // Для Украины, Беларуси и Казахстана ставим русский
+                } else {
+                    startLang = 'en'; // Для всех остальных (китайцев, немцев и т.д.) - английский
+                }
+                
+                // Сразу сохраняем в кэш, чтобы больше не проверять
                 localStorage.setItem('app_lang', startLang); 
             }
             
             setLanguage(startLang);
             
+            // 3. Заполняем базовые данные (аватарки и имена из ТГ)
             const user = tg.initDataUnsafe?.user;
             if (user) {
                 const profileName = document.getElementById('profile-name');
                 if (profileName) profileName.innerText = user.first_name || 'Игрок';
+                
                 const headerName = document.getElementById('header-name');
                 if (headerName) headerName.innerText = user.first_name || 'Игрок';
 
@@ -1276,7 +1285,10 @@
                 if (idDisplay) idDisplay.innerText = `ID: ${user.id}`;
             }
 
+            // 4. Идем на бэкенд за реальными данными (баланс, админка, персонажи)
             fetchUserData();
+
+            // Загружаем товары из БД:
             fetchShopData();
         });
 
@@ -1293,22 +1305,28 @@
         };
 
         function setLanguage(lang) {
-            if (!languages.includes(lang)) lang = 'en'; 
+            if (!languages.includes(lang)) lang = 'en'; // Защита от ошибок
             currentLang = lang;
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
-                    if (key === 'come_back' || key === 'invite_desc' || key === 'age_tos_agree') el.innerHTML = translations[lang][key];
-                    else el.innerText = translations[lang][key];
+                    if (key === 'come_back' || key === 'invite_desc' || key === 'age_tos_agree') {
+                        el.innerHTML = translations[lang][key];
+                    } else {
+                        el.innerText = translations[lang][key];
+                    }
                 }
             });
 
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if(translations[lang][key]) el.placeholder = translations[lang][key];
+                if(translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
             });
             
+            // Новая логика флагов
             const flag = document.getElementById('flag-icon');
             const text = document.getElementById('lang-text');
             if(flag && text && langConfig[lang]) { 
@@ -1316,35 +1334,157 @@
                 text.innerText = langConfig[lang].text; 
             }
             
+        
             updateBonusCardUI();
             renderCharacters();
         
-            if (window.shopItemsList) renderShop(window.shopItemsList);
+            if (window.shopItemsList) {
+                renderShop(window.shopItemsList);
+            }
             
             const renameInput = document.getElementById('rename-input');
             if (renameInput) renameInput.placeholder = translations[lang].placeholder_name;
         
-            updateLanguageChecks();
-        }
-
-        async function saveLanguageToServer(chatId, newLangCode) {    
-            try {
-                await fetch(webhookUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: chatId, language_code: newLangCode, initData: tg.initData })
-                });
-            } catch (error) {
-                console.error("Ошибка при сохранении языка:", error);
+            // --- ОБЯЗАТЕЛЬНО: Обновляем визуальные галочки в меню выбора языка ---
+            if (typeof updateLanguageChecks === 'function') {
+                updateLanguageChecks();
             }
         }
 
+        // --- ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА (КАЛЕНДАРЬ) ---
+        window.DAILY_REWARDS = [];
+
+        function openDailyModal() {
+            tg.HapticFeedback.impactOccurred('medium');
+            renderDailyGrid();
+            const modal = document.getElementById('daily-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+
+        function closeDailyModal() {
+            const modal = document.getElementById('daily-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function renderDailyGrid() {
+            const state = window.dailyState || { streak: 1, canClaim: true, hoursLeft: 0 };
+            const grid = document.getElementById('daily-grid');
+            const btn = document.getElementById('daily-claim-btn');
+            const lang = currentLang;
+
+            let html = '';
+            
+            // --- НОВОЕ: Берем награды из глобальной переменной, а не из хардкода ---
+            const rewardsList = window.DAILY_REWARDS || [];
+            
+            rewardsList.forEach(reward => {
+                // Логика состояний: прошедший день, сегодняшний, будущий
+                const isPast = reward.day < state.streak || (!state.canClaim && reward.day === state.streak);
+                const isCurrent = state.canClaim && reward.day === state.streak;
+
+                // Базовые стили карточки
+                let cardClass = "bg-[#1a1a1a] border border-white/5 rounded-2xl p-2.5 flex flex-col items-center justify-center relative overflow-hidden transition-all";
+                let textClass = "text-gray-500 font-bold";
+                let iconHtml = `<i class="fa-solid fa-gift text-gray-600 text-xl mb-1.5"></i>`;
+
+                // 7-й день растягиваем на все 3 колонки (Супер-приз)
+                if (reward.day === 7) cardClass += " col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-purple-900/20 to-[#1a1a1a]";
+
+                if (isPast) {
+                    cardClass += " opacity-50";
+                    iconHtml = `<div class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center mb-1.5 border border-green-500/30"><i class="fa-solid fa-check text-green-500 text-sm"></i></div>`;
+                    if (reward.day === 7) iconHtml = `<div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30"><i class="fa-solid fa-check text-green-500"></i></div>`;
+                } else if (isCurrent) {
+                    cardClass = "bg-gradient-to-b from-[#3a2a0a] to-[#1a1a00] border border-yellow-500/50 rounded-2xl p-2.5 flex flex-col items-center justify-center relative shadow-[0_0_15px_rgba(234,179,8,0.2)] scale-[1.02] z-10";
+                    textClass = "text-white font-black drop-shadow-md";
+                    iconHtml = `<i class="fa-solid fa-gift text-yellow-400 text-2xl mb-1.5 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse"></i>`;
+                    if (reward.day === 7) {
+                        cardClass = "col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-yellow-600/40 to-orange-600/40 border border-yellow-500/50 rounded-2xl shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02] z-10";
+                        iconHtml = `<i class="fa-solid fa-gem text-cyan-300 text-3xl drop-shadow-[0_0_10px_rgba(103,232,249,0.8)] animate-pulse"></i>`;
+                    }
+                }
+
+                // Сборка наград внутри карточки
+                let rewardsHtml = `<div class="flex items-center justify-center gap-1.5 ${reward.day === 7 ? 'flex-col items-end scale-110' : ''}">
+                    <div class="flex items-center gap-0.5 ${isCurrent ? 'text-yellow-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.stars}</span> <i class="fa-solid fa-star text-[8px]"></i></div>`;
+                if (reward.gems > 0) {
+                    rewardsHtml += `<div class="flex items-center gap-0.5 ${isCurrent ? 'text-cyan-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.gems}</span> <i class="fa-solid fa-gem text-[8px]"></i></div>`;
+                }
+                rewardsHtml += `</div>`;
+
+                // Итоговая сборка HTML карточки
+                if (reward.day === 7) {
+                    html += `<div class="${cardClass}">
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs ${textClass} mb-0.5 uppercase tracking-widest">${translations[lang].super_prize}</span>
+                            <span class="text-[10px] text-gray-400">${translations[lang].day_prefix}7</span>
+                        </div>
+                        ${iconHtml}
+                        ${rewardsHtml}
+                    </div>`;
+                } else {
+                    html += `<div class="${cardClass}">
+                        <span class="text-[10px] ${textClass} mb-1.5 z-10">${translations[lang].day_prefix}${reward.day}</span>
+                        ${iconHtml}
+                        <div class="z-10 mt-1">${rewardsHtml}</div>
+                    </div>`;
+                }
+            });
+
+            grid.innerHTML = html;
+
+            // Настройка кнопки
+            if (state.canClaim) {
+                btn.className = "w-full h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl font-bold text-white shadow-[0_10px_20px_rgba(234,179,8,0.3)] active:scale-98 transition-all";
+                btn.innerText = translations[lang].claim_gift;
+                btn.onclick = executeClaimBonus;
+            } else {
+                btn.className = "w-full h-14 bg-[#1a1a1a] rounded-2xl font-bold text-gray-500 border border-white/5 cursor-not-allowed";
+                // Собираем фразу: "ДОСТУПНО ЧЕРЕЗ ~" + часы + " Ч." и делаем большими буквами
+                btn.innerText = `${translations[lang].available_btn}${state.hoursLeft}${translations[lang].hours_short}`.toUpperCase();
+                btn.onclick = null;
+            }
+        }
+
+        function executeClaimBonus() {
+            tg.MainButton.showProgress();
+            
+            fetch(WEBHOOK_BONUS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                if (data.success) {
+                    closeDailyModal();
+                    let msg = translations[currentLang].toast_bonus_success
+                        .replace('{day}', data.newStreak)
+                        .replace('{stars}', data.addedStars)
+                        .replace('{gems}', data.addedGems);
+                    showToast(msg, 'success');
+                    fetchUserData(); 
+                } else {
+                    let waitMsg = translations[currentLang].toast_bonus_wait.replace('{hours}', data.hoursLeft);
+                    showToast(waitMsg, 'wait');
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                showToast(translations[currentLang].toast_conn_error, 'error');
+            });
+        }
+
         function toggleLanguage() {
+            // Теперь эта кнопка просто открывает модалку
             tg.HapticFeedback.impactOccurred('medium');
             const modal = document.getElementById('language-modal');
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
-            updateLanguageChecks(); 
+            updateLanguageChecks(); // Подсвечиваем текущий язык галочкой
         }
 
         function closeLanguageModal() {
@@ -1354,17 +1494,27 @@
         }
 
         function selectLanguage(lang) {
+            // Срабатывает при клике на язык в модалке
             tg.HapticFeedback.selectionChanged();
+            
             setLanguage(lang);
             localStorage.setItem('app_lang', lang);
-            updateLanguageChecks(); 
+            updateLanguageChecks(); // Перерисовываем галочку
+            
             const userId = tg.initDataUnsafe?.user?.id;
-            if (userId) saveLanguageToServer(userId, lang);
-            setTimeout(() => { closeLanguageModal(); }, 250);
+            if (userId) {
+                saveLanguageToServer(userId, lang);
+            }
+            
+            // Красиво закрываем модалку с небольшой задержкой
+            setTimeout(() => {
+                closeLanguageModal();
+            }, 250);
         }
 
         function updateLanguageChecks() {
-            const langs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
+            // Логика отрисовки галочки напротив выбранного языка (уменьшенный размер)
+            const langs = ['ru', 'en', 'es', 'pt', 'id'];
             langs.forEach(l => {
                 const check = document.getElementById('lang-check-' + l);
                 if (check) {
@@ -1377,6 +1527,270 @@
                     }
                 }
             });
+        }
+
+        function updateBonusCardUI() {
+            if (!window.dailyState) return; // Если данные с сервера еще не пришли, ждем
+            
+            const state = window.dailyState;
+            const lang = currentLang; // Берем текущий язык
+            
+            const dailyTitle = document.getElementById('daily-title');
+            const dailyText = document.getElementById('daily-text');
+            const bonusCard = document.getElementById('bonus-card');
+            const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift')?.parentElement : null;
+
+            // Обновляем заголовок (День X / Day X)
+            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
+
+            // Обновляем дизайн и текст
+            if (state.canClaim) {
+                if (bonusCard) {
+                    bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                    bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
+                }
+                if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
+                if (dailyText) dailyText.innerHTML = translations[lang].claim_now;
+            } else {
+                if (bonusCard) {
+                    bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
+                    bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
+                }
+                if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
+                if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
+                if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">${translations[lang].available_in}${state.hoursLeft}${translations[lang].hours_short}</span>`;
+            }
+        }
+
+        function renderCharacters() {
+            const container = document.getElementById('characters-container');
+            if (!window.activeCharactersList) return; 
+            
+            // 👇 НОВОЕ: Фильтруем список по текущему нажатому тумблеру
+            // Если у персонажа не указан стиль, считаем его 'real' по умолчанию
+            const listToRender = window.activeCharactersList.filter(char => (char.style || 'real') === currentStyle);
+            
+            // Если список пустой (например, ты еще не добавил аниме-персонажей)
+            if (listToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-50">
+                        <i class="fa-solid fa-ghost text-4xl text-gray-500 mb-3"></i>
+                        <p class="text-sm font-bold text-gray-400">Персонажи скоро появятся...</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = listToRender.map((char, index) => {
+                const name = char['name_' + currentLang] || char['name_en'];
+                const desc = char['desc_' + currentLang] || char['desc_en'];
+                const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+
+                let tagsHtml = '<div class="flex gap-1.5 mt-2">';
+                if (char.has_image !== false) {
+                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                }
+                if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
+                    tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                }
+                tagsHtml += '</div>';
+
+                return `
+                <div onclick="openCharacterModal('${char.id}', 'base')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
+                    ${statusHtml}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
+                        <h3 class="text-xl font-black text-white leading-tight drop-shadow-md mb-1">${name}</h3>
+                        <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed opacity-90">${desc}</p>
+                        ${tagsHtml}
+                        <div class="w-full h-[2px] bg-gradient-to-r from-pink-500 to-transparent mt-3 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        async function saveLanguageToServer(chatId, newLangCode) {    
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    // ДОБАВЛЕНО initData
+                    body: JSON.stringify({
+                        chat_id: chatId, 
+                        language_code: newLangCode,
+                        initData: tg.initData 
+                    })
+                });
+        
+                const data = await response.json();
+                if (data.success) {
+                    console.log("Язык успешно сохранен в базе:", data.language);
+                    // Тут можешь менять интерфейс самого Mini App
+                }
+            } catch (error) {
+                console.error("Ошибка при сохранении языка:", error);
+            }
+        }
+
+        // Обрати внимание: мы добавили второй параметр 'source'
+        function openCharacterModal(charId, source = 'base') {
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            let char = null;
+            let isCustom = (source === 'mine' || source === 'community');
+
+            // Ищем персонажа в зависимости от того, откуда кликнули
+            if (source === 'base') {
+                char = (window.activeCharactersList || characters).find(c => c.id === charId);
+            } else if (source === 'mine') {
+                char = (window.customCharactersList || []).find(c => c.id === charId);
+            } else if (source === 'community') {
+                char = (window.communityCharactersList || []).find(c => c.id === charId);
+            }
+
+            if (!char) {
+                console.error("Персонаж не найден:", charId);
+                return;
+            }
+
+            selectedCharacterId = charId;
+            const name = isCustom ? char.name : (char['name_' + currentLang] || char['name_ru'] || char.name);
+            
+            const fullDesc = isCustom 
+                ? ((char.intro_messages && char.intro_messages['full_desc_' + currentLang]) 
+                    ? char.intro_messages['full_desc_' + currentLang] 
+                    : (char.intro_messages && char.intro_messages['full_desc_en'] 
+                        ? char.intro_messages['full_desc_en'] 
+                        : "Кастомный персонаж сообщества.")) 
+                : (char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru']);
+
+            document.getElementById('char-modal-img').src = char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo';
+            document.getElementById('char-modal-name').innerText = name;
+            document.getElementById('char-modal-desc').innerText = fullDesc;
+
+            // Отрисовка тегов (ФОТО/ГОЛОС/CUSTOM)
+            const tagsContainer = document.getElementById('char-modal-tags');
+            if (tagsContainer) {
+                let tagsHtml = '';
+                if (isCustom) {
+                    tagsHtml += `<span class="px-2.5 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
+                    tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                } else {
+                    if (char.has_image !== false) tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                }
+                tagsContainer.innerHTML = tagsHtml;
+            }
+
+            const modal = document.getElementById('character-modal');
+            const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
+            
+            // --- 1. ЛОГИКА КНОПКИ "ПУБЛИКАЦИЯ" ---
+            let publishBtn = document.getElementById('btn-publish-char');
+            if (!publishBtn) {
+                publishBtn = document.createElement('button');
+                publishBtn.id = 'btn-publish-char';
+                launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
+            }
+            
+            // Показываем публикацию ТОЛЬКО если открыли из вкладки "Мои"
+            if (source === 'mine') {
+                publishBtn.style.display = 'flex';
+                if (char.moderation_status === 'public') {
+                    publishBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ОПУБЛИКОВАН';
+                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-green-500/10 border border-green-500/30 rounded-xl font-bold text-green-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
+                    publishBtn.onclick = null;
+                } else if (char.moderation_status === 'pending') {
+                    publishBtn.innerHTML = '<i class="fa-solid fa-clock"></i> НА МОДЕРАЦИИ';
+                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-yellow-500/10 border border-yellow-500/30 rounded-xl font-bold text-yellow-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
+                    publishBtn.onclick = null;
+                } else if (char.moderation_status === 'rejected') {
+                    publishBtn.innerHTML = '<i class="fa-solid fa-ban"></i> ОТКЛОНЕН';
+                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-red-500/10 border border-red-500/30 rounded-xl font-bold text-red-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
+                    publishBtn.onclick = null;
+                } else {
+                    // Приватный (можно публиковать)
+                    publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
+                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
+                    publishBtn.onclick = () => { closeCharacterModal(); openPublishModal(charId); };
+                }
+            } else {
+                publishBtn.style.display = 'none';
+            }
+
+            // --- 2. ЛОГИКА КНОПОК "ЛАЙК/ДИЗЛАЙК" ВНУТРИ МОДАЛКИ ---
+            let voteContainer = document.getElementById('modal-vote-container');
+            if (!voteContainer) {
+                voteContainer = document.createElement('div');
+                voteContainer.id = 'modal-vote-container';
+                voteContainer.className = "flex gap-2 mt-3 w-full";
+                launchBtn.parentNode.insertBefore(voteContainer, launchBtn);
+            }
+
+            // Показываем лайки только если открыли из Сообщества и это не наш перс
+            if (source === 'community' && !char.is_mine) {
+                voteContainer.style.display = 'flex';
+                voteContainer.innerHTML = `
+                    <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
+                        <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
+                    </button>
+                    <button onclick="voteChar('${char.id}', false)" class="w-16 h-12 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
+                        <i class="fa-solid fa-thumbs-down"></i>
+                    </button>
+                `;
+            } else {
+                voteContainer.style.display = 'none';
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('modal-open'); }, 10);
+        }
+
+        function launchCharacter() {
+            if (!selectedCharacterId) return;
+            tg.HapticFeedback.notificationOccurred('success');
+            fetch(WEBHOOK_LAUNCH, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // ДОБАВЛЕНО initData
+                body: JSON.stringify({
+                    character_id: selectedCharacterId,
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    first_name: tg.initDataUnsafe?.user?.first_name,
+                    initData: tg.initData
+                })
+            })
+            .then(() => { tg.close(); })
+            .catch(err => {
+                console.error(err);
+                tg.showAlert("Ошибка. Проверь консоль.");
+            });
+        }
+
+        function showStreakLostModal() {
+            const modal = document.getElementById('streak-lost-modal');
+            const content = document.getElementById('streak-lost-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+            // Даем по рукам неприятной вибрацией
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
+
+        function closeStreakLostModal() {
+            const modal = document.getElementById('streak-lost-modal');
+            const content = document.getElementById('streak-lost-content');
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         function showTab(tabId) {
@@ -1415,14 +1829,17 @@
             }
 
             const shopSwitch = document.getElementById('shop-switch');
-            if (tabId === 'shop') shopSwitch.classList.remove('hidden'); 
-            else shopSwitch.classList.add('hidden'); 
-            
+            if (tabId === 'shop') { 
+                shopSwitch.classList.remove('hidden'); 
+             } else { 
+                shopSwitch.classList.add('hidden'); 
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (tabId === 'chats') fetchChatsList();
+            // Если открыли вкладку чатов - запрашиваем свежие данные с сервера
+            if (tabId === 'chats') {
+                fetchChatsList();
+            }
         }
-
-        function switchTab(tabId) { showTab(tabId); }
 
         function switchShopSubTab(subTabName) {
             tg.HapticFeedback.impactOccurred('light');
@@ -1436,10 +1853,198 @@
                 else { btn.classList.remove('tab-active', 'font-bold'); btn.classList.add('tab-inactive', 'font-medium'); }
             });
         }
+        function switchTab(tabId) { showTab(tabId); }
 
         function selectStyle(style) {
             tg.HapticFeedback.impactOccurred('medium');
+            const checkReal = document.getElementById('check-real'); const checkAnime = document.getElementById('check-anime');
+            const imgReal = document.getElementById('img-real'); const imgAnime = document.getElementById('img-anime');
+            if (style === 'real') {
+                checkReal.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300";
+                checkReal.innerHTML = '<i class="fa-solid fa-check"></i>'; imgReal.classList.remove('grayscale', 'opacity-40');
+                checkAnime.className = "w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300";
+                checkAnime.innerHTML = ''; imgAnime.classList.add('grayscale', 'opacity-40');
+            } else {
+                checkAnime.className = "w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-2 text-white text-xs shadow-lg shadow-pink-500/40 scale-110 transition-all duration-300";
+                checkAnime.innerHTML = '<i class="fa-solid fa-check"></i>'; imgAnime.classList.remove('grayscale', 'opacity-40');
+                checkReal.className = "w-6 h-6 rounded-full border-2 border-gray-500 mb-2 transition-all duration-300";
+                checkReal.innerHTML = ''; imgReal.classList.add('grayscale', 'opacity-40');
+            }
+        }
+
+        // --- ОБНОВЛЕНО: Передаем доллары вместо рублей ---
+        function openPaymentModal(packId, title, priceStars, priceUsd) {
+            tg.HapticFeedback.impactOccurred('medium');
+            currentItem = { id: packId, amountStars: priceStars, amountUsd: priceUsd };
+            document.getElementById('modal-title').innerText = translations[currentLang].purchase_title;
+            document.getElementById('modal-price-stars').innerText = priceStars + " ⭐️";
+            document.getElementById('modal-price-usd').innerText = "$" + priceUsd;
+            document.getElementById('modal-price-usd-display').innerText = "$" + priceUsd;
+            document.getElementById('modal-price-stars-display').innerText = translations[currentLang].or + " " + priceStars + " ⭐️";
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('modal-open'); setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // --- ОБНОВЛЕНО: Отправляем USD на сервер и добавляем initData ---
+        function confirmPayment(method) {
+            tg.HapticFeedback.selectionChanged();
+            
+            const modalTitle = document.getElementById('modal-title');
+            const originalText = modalTitle.innerText;
+            modalTitle.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Создаем счет...';
+        
+            const userId = tg.initDataUnsafe?.user?.id;
+            
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: "buy_invoice", 
+                    pack_id: currentItem.id,
+                    amount: method === 'stars' ? currentItem.amountStars : currentItem.amountUsd,
+                    currency: method === 'stars' ? 'XTR' : 'USD', 
+                    method: method,
+                    chat_id: userId,
+                    initData: tg.initData // ДОБАВЛЕНО
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.pay_url) {
+                    tg.openLink(data.pay_url);
+                    closePaymentModal();
+                } 
+                else if (data.ok && data.result) {
+                    tg.openInvoice(data.result, (status) => {
+                        if (status === 'paid') { 
+                            tg.showAlert("Успешная оплата! 🎉"); 
+                            closePaymentModal(); 
+                        }
+                    });
+                } 
+                else {
+                    tg.showAlert("Что-то пошло не так: " + JSON.stringify(data).substring(0, 100));
+                }
+            })
+            .catch(error => {
+                tg.showAlert("Ошибка связи: " + error.message);
+            })
+            .finally(() => {
+                modalTitle.innerText = originalText;
+            });
+        }
+
+        function copyId() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) return;
+
+            // Настоящая команда копирования в буфер обмена
+            navigator.clipboard.writeText(userId.toString()).then(() => {
+                tg.HapticFeedback.impactOccurred('light');
+                const feedback = document.getElementById('copy-feedback');
+                feedback.style.opacity = '1';
+                setTimeout(() => feedback.style.opacity = '0', 2000);
+            }).catch(err => {
+                console.error("Ошибка при копировании", err);
+            });
+        }
+
+
+        // --- ЛОГИКА ПРОМОКОДОВ ---
+        function openPromoModal() {
+            tg.HapticFeedback.impactOccurred('medium');
+            document.getElementById('promo-input').value = ''; // Очищаем поле от старого ввода
+            const modal = document.getElementById('promo-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        }
+        
+        function closePromoModal() {
+            const modal = document.getElementById('promo-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+        
+        function submitPromoCode() {
+            let code = document.getElementById('promo-input').value;
+            if (!code) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_enter_promo, "error");
+            }
+            
+            code = code.trim().toUpperCase();
+            closePromoModal();
+            tg.MainButton.showProgress();
+            
+            fetch(WEBHOOK_USE_PROMO, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    code: code,
+                    initData: tg.initData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress(); 
+                if (data.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    let msg = translations[currentLang].toast_promo_success
+                        .replace('{stars}', data.stars)
+                        .replace('{gems}', data.gems);
+                    showToast(msg, 'success');
+                    fetchUserData();
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    // Бэкенд теперь будет присылать error_code (мы это настроим в шаге 3)
+                    let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
+                    showToast("❌ " + errMsg, 'error');
+                }
+            })
+            .catch(err => {
+                tg.MainButton.hideProgress();
+                showToast(translations[currentLang].toast_conn_error, 'error');
+                console.error(err);
+            });
+        }
+        
+        function adminGiveResource() {
+            const targetId = document.getElementById('admin-target-id').value;
+            const stars = document.getElementById('admin-amount-stars').value || 0;
+            const gems = document.getElementById('admin-amount-gems').value || 0;
+        
+            if(!targetId) return tg.showAlert("Введи ID игрока!");
+        
+            fetch(WEBHOOK_ADMIN, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'give_resource',
+                    initData: tg.initData, // <-- УЖЕ БЫЛО
+                    target_id: targetId,
+                    stars: parseInt(stars),
+                    gems: parseInt(gems)
+                })
+            }).then(() => tg.showAlert("Отправлено!"))
+              .catch(() => tg.showAlert("Ошибка"));
+        }
+
+        // --- ЛОГИКА ПЕРЕКЛЮЧАТЕЛЯ АНИМЕ/РЕАЛИЗМ ---
+        let currentStyle = 'real';
+
+        function toggleStyle(style) {
+            if (currentStyle === style) return;
             currentStyle = style;
+            
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
 
             const btnReal = document.getElementById('btn-style-real');
             const btnAnime = document.getElementById('btn-style-anime');
@@ -1457,355 +2062,343 @@
                 fetch('https://waifubot.website/webhook/set-anime-mode', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: userId, is_anime: (style === 'anime'), initData: tg.initData })
+                    body: JSON.stringify({ 
+                        chat_id: userId, 
+                        is_anime: (style === 'anime'),
+                        initData: tg.initData
+                    })
                 }).catch(err => console.error("Ошибка смены стиля:", err));
             }
             renderCharacters();
         }
 
-        // --- ЕЖЕДНЕВНЫЕ НАГРАДЫ ---
-        function openDailyModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            renderDailyGrid();
-            const modal = document.getElementById('daily-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('modal-open'), 10);
-        }
+        function adminCreatePromo() {
+            const code = document.getElementById('admin-promo-code').value.trim();
+            const stars = document.getElementById('admin-promo-stars').value || 0;
+            const gems = document.getElementById('admin-promo-gems').value || 0;
+            const uses = document.getElementById('admin-promo-uses').value || 100;
 
-        function closeDailyModal() {
-            const modal = document.getElementById('daily-modal');
-            modal.classList.remove('modal-open');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function updateBonusCardUI() {
-            if (!window.dailyState) return; 
-            const state = window.dailyState;
-            const lang = currentLang; 
-            
-            const dailyTitle = document.getElementById('daily-title');
-            const dailyText = document.getElementById('daily-text');
-            const bonusCard = document.getElementById('bonus-card');
-            const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift')?.parentElement : null;
-
-            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
-
-            if (state.canClaim) {
-                if (bonusCard) {
-                    bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                    bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                }
-                if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
-                if (dailyText) dailyText.innerHTML = translations[lang].claim_now;
-            } else {
-                if (bonusCard) {
-                    bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                    bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                }
-                if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
-                if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">${translations[lang].available_in}${state.hoursLeft}${translations[lang].hours_short}</span>`;
+            if (!code) {
+                return tg.showAlert("Введи название промокода!");
             }
-        }
 
-        function renderDailyGrid() {
-            const state = window.dailyState || { streak: 1, canClaim: true, hoursLeft: 0 };
-            const grid = document.getElementById('daily-grid');
-            const btn = document.getElementById('daily-claim-btn');
-            const lang = currentLang;
-            let html = '';
-            const rewardsList = window.DAILY_REWARDS || [];
-            
-            rewardsList.forEach(reward => {
-                const isPast = reward.day < state.streak || (!state.canClaim && reward.day === state.streak);
-                const isCurrent = state.canClaim && reward.day === state.streak;
-                let cardClass = "bg-[#1a1a1a] border border-white/5 rounded-2xl p-2.5 flex flex-col items-center justify-center relative overflow-hidden transition-all";
-                let textClass = "text-gray-500 font-bold";
-                let iconHtml = `<i class="fa-solid fa-gift text-gray-600 text-xl mb-1.5"></i>`;
-
-                if (reward.day === 7) cardClass += " col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-purple-900/20 to-[#1a1a1a]";
-
-                if (isPast) {
-                    cardClass += " opacity-50";
-                    iconHtml = `<div class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center mb-1.5 border border-green-500/30"><i class="fa-solid fa-check text-green-500 text-sm"></i></div>`;
-                    if (reward.day === 7) iconHtml = `<div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30"><i class="fa-solid fa-check text-green-500"></i></div>`;
-                } else if (isCurrent) {
-                    cardClass = "bg-gradient-to-b from-[#3a2a0a] to-[#1a1a00] border border-yellow-500/50 rounded-2xl p-2.5 flex flex-col items-center justify-center relative shadow-[0_0_15px_rgba(234,179,8,0.2)] scale-[1.02] z-10";
-                    textClass = "text-white font-black drop-shadow-md";
-                    iconHtml = `<i class="fa-solid fa-gift text-yellow-400 text-2xl mb-1.5 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse"></i>`;
-                    if (reward.day === 7) {
-                        cardClass = "col-span-3 flex-row justify-between px-5 py-3 bg-gradient-to-r from-yellow-600/40 to-orange-600/40 border border-yellow-500/50 rounded-2xl shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02] z-10";
-                        iconHtml = `<i class="fa-solid fa-gem text-cyan-300 text-3xl drop-shadow-[0_0_10px_rgba(103,232,249,0.8)] animate-pulse"></i>`;
-                    }
-                }
-
-                let rewardsHtml = `<div class="flex items-center justify-center gap-1.5 ${reward.day === 7 ? 'flex-col items-end scale-110' : ''}">
-                    <div class="flex items-center gap-0.5 ${isCurrent ? 'text-yellow-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.stars}</span> <i class="fa-solid fa-star text-[8px]"></i></div>`;
-                if (reward.gems > 0) {
-                    rewardsHtml += `<div class="flex items-center gap-0.5 ${isCurrent ? 'text-cyan-400' : 'text-gray-400'} font-black text-[11px]"><span class="drop-shadow-md">${reward.gems}</span> <i class="fa-solid fa-gem text-[8px]"></i></div>`;
-                }
-                rewardsHtml += `</div>`;
-
-                if (reward.day === 7) {
-                    html += `<div class="${cardClass}">
-                        <div class="flex flex-col text-left">
-                            <span class="text-xs ${textClass} mb-0.5 uppercase tracking-widest">${translations[lang].super_prize}</span>
-                            <span class="text-[10px] text-gray-400">${translations[lang].day_prefix}7</span>
-                        </div>
-                        ${iconHtml}
-                        ${rewardsHtml}
-                    </div>`;
-                } else {
-                    html += `<div class="${cardClass}">
-                        <span class="text-[10px] ${textClass} mb-1.5 z-10">${translations[lang].day_prefix}${reward.day}</span>
-                        ${iconHtml}
-                        <div class="z-10 mt-1">${rewardsHtml}</div>
-                    </div>`;
-                }
-            });
-
-            grid.innerHTML = html;
-
-            if (state.canClaim) {
-                btn.className = "w-full h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl font-bold text-white shadow-[0_10px_20px_rgba(234,179,8,0.3)] active:scale-98 transition-all";
-                btn.innerText = translations[lang].claim_gift;
-                btn.onclick = executeClaimBonus;
-            } else {
-                btn.className = "w-full h-14 bg-[#1a1a1a] rounded-2xl font-bold text-gray-500 border border-white/5 cursor-not-allowed";
-                btn.innerText = `${translations[lang].available_btn}${state.hoursLeft}${translations[lang].hours_short}`.toUpperCase();
-                btn.onclick = null;
-            }
-        }
-
-        function executeClaimBonus() {
+            // Показываем, что загрузка пошла
             tg.MainButton.showProgress();
-            fetch(WEBHOOK_BONUS, {
+
+            fetch(WEBHOOK_ADMIN, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData }) 
+                body: JSON.stringify({
+                    action: 'create_promo',
+                    code: code,
+                    stars: parseInt(stars),
+                    gems: parseInt(gems),
+                    uses_left: parseInt(uses),
+                    initData: tg.initData // Обязательно передаем подпись для безопасности
+                })
             })
             .then(res => res.json())
             .then(data => {
                 tg.MainButton.hideProgress();
                 if (data.success) {
-                    closeDailyModal();
-                    let msg = translations[currentLang].toast_bonus_success.replace('{day}', data.newStreak).replace('{stars}', data.addedStars).replace('{gems}', data.addedGems);
-                    showToast(msg, 'success');
-                    fetchUserData(); 
+                    showToast(`✅ Промокод ${code.toUpperCase()} создан!`, "success");
+                    // Очищаем поля после успешного создания
+                    document.getElementById('admin-promo-code').value = '';
+                    document.getElementById('admin-promo-stars').value = '';
+                    document.getElementById('admin-promo-gems').value = '';
                 } else {
-                    let waitMsg = translations[currentLang].toast_bonus_wait.replace('{hours}', data.hoursLeft);
-                    showToast(waitMsg, 'wait');
+                    tg.showAlert("Ошибка сервера: " + (data.detail || "Неизвестная ошибка"));
                 }
-            }).catch(err => {
+            })
+            .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast(translations[currentLang].toast_conn_error, 'error');
+                tg.showAlert("Ошибка связи с сервером");
+                console.error("Promo error:", err);
             });
         }
 
-        // --- МОДАЛКА ПЕРСОНАЖА (ГЛАВНАЯ ЛОГИКА) ---
-        function openCharacterModal(charId, source = 'base') {
+        // --- ЛОГИКА РЕФЕРАЛОВ ---
+        function getRefLink() {
+            const botUsername = "midnight_rpbot"; // Твой бот
+            const userId = tg.initDataUnsafe?.user?.id;
+            return `https://t.me/${botUsername}?start=${userId}`;
+        }
+
+        function openReferralModal() {
             tg.HapticFeedback.impactOccurred('medium');
-            
-            let char = null;
-            let isCustom = (source === 'mine' || source === 'community');
-
-            // Ищем персонажа
-            if (source === 'base') {
-                char = (window.activeCharactersList || characters).find(c => c.id === charId);
-            } else if (source === 'mine') {
-                char = (window.customCharactersList || []).find(c => c.id === charId);
-            } else if (source === 'community') {
-                char = (window.communityCharactersList || []).find(c => c.id === charId);
-            }
-
-            if (!char) {
-                console.error("Персонаж не найден:", charId);
-                return;
-            }
-
-            selectedCharacterId = charId;
-            const name = isCustom ? char.name : (char['name_' + currentLang] || char['name_ru'] || char.name);
-            
-            const fullDesc = isCustom 
-                ? ((char.intro_messages && char.intro_messages['full_desc_' + currentLang]) 
-                    ? char.intro_messages['full_desc_' + currentLang] 
-                    : (char.intro_messages && char.intro_messages['full_desc_en'] 
-                        ? char.intro_messages['full_desc_en'] 
-                        : "Кастомный персонаж сообщества.")) 
-                : (char['fullDesc_' + currentLang] || char['desc_' + currentLang] || char['desc_ru']);
-
-            document.getElementById('char-modal-img').src = char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo';
-            document.getElementById('char-modal-name').innerText = name;
-            document.getElementById('char-modal-desc').innerText = fullDesc;
-
-            const tagsContainer = document.getElementById('char-modal-tags');
-            if (tagsContainer) {
-                let tagsHtml = '';
-                if (isCustom) {
-                    tagsHtml += `<span class="px-2.5 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
-                    tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                } else {
-                    if (char.has_image !== false) tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
-                }
-                tagsContainer.innerHTML = tagsHtml;
-            }
-
-            const modal = document.getElementById('character-modal');
-            const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
-            
-            // ЛОГИКА КНОПКИ ПУБЛИКАЦИИ
-            let publishBtn = document.getElementById('btn-publish-char');
-            if (!publishBtn) {
-                publishBtn = document.createElement('button');
-                publishBtn.id = 'btn-publish-char';
-                launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
-            }
-            
-            if (source === 'mine') {
-                publishBtn.style.display = 'flex';
-                if (char.moderation_status === 'public') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ОПУБЛИКОВАН';
-                    publishBtn.disabled = true;
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-green-500/10 border border-green-500/30 rounded-xl font-bold text-green-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                } else if (char.moderation_status === 'pending') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-clock"></i> НА МОДЕРАЦИИ';
-                    publishBtn.disabled = true;
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-yellow-500/10 border border-yellow-500/30 rounded-xl font-bold text-yellow-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                } else if (char.moderation_status === 'rejected') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-ban"></i> ОТКЛОНЕН';
-                    publishBtn.disabled = true; 
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-red-500/10 border border-red-500/30 rounded-xl font-bold text-red-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                } else {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
-                    publishBtn.disabled = false;
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
-                    publishBtn.onclick = () => { closeCharacterModal(); openPublishModal(charId); };
-                }
-            } else {
-                publishBtn.style.display = 'none';
-            }
-
-            // ЛОГИКА КНОПОК ЛАЙК/ДИЗЛАЙК
-            let voteContainer = document.getElementById('modal-vote-container');
-            if (!voteContainer) {
-                voteContainer = document.createElement('div');
-                voteContainer.id = 'modal-vote-container';
-                voteContainer.className = "flex gap-2 mt-3 w-full";
-                launchBtn.parentNode.insertBefore(voteContainer, launchBtn);
-            }
-
-            if (source === 'community' && !char.is_mine) {
-                voteContainer.style.display = 'flex';
-                voteContainer.innerHTML = `
-                    <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
-                        <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
-                    </button>
-                    <button onclick="voteChar('${char.id}', false)" class="w-16 h-12 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
-                        <i class="fa-solid fa-thumbs-down"></i>
-                    </button>
-                `;
-            } else {
-                voteContainer.style.display = 'none';
-            }
-
+            const modal = document.getElementById('referral-modal');
             modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('modal-open'); }, 10);
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+            
+            // Сразу запрашиваем список при открытии
+            fetchReferralsList();
         }
 
-        function closeCharacterModal() {
-            const modal = document.getElementById('character-modal');
+        function closeReferralModal() {
+            const modal = document.getElementById('referral-modal');
             modal.classList.remove('modal-open');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                selectedCharacterId = null;
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        function launchCharacter() {
-            if (!selectedCharacterId) return;
-            tg.HapticFeedback.notificationOccurred('success');
-            fetch(WEBHOOK_LAUNCH, { 
+        function copyReferralLink() {
+            const link = getRefLink();
+            navigator.clipboard.writeText(link).then(() => {
+                tg.HapticFeedback.notificationOccurred('success');
+                showToast(translations[currentLang].toast_link_copied, "success");
+            });
+        }
+
+        function shareReferral() {
+            tg.HapticFeedback.impactOccurred('medium');
+            const link = getRefLink();
+            const shareText = "Заходи в Midnight AI! Идеальные ИИ-вайфу ждут тебя 🔥";
+            const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+            tg.openTelegramLink(tgShareUrl);
+        }
+
+        function fetchReferralsList() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) return;
+
+            // Реальный запрос в n8n за списком друзей
+            fetch(WEBHOOK_GET_REFS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    character_id: selectedCharacterId,
-                    chat_id: tg.initDataUnsafe?.user?.id,
-                    first_name: tg.initDataUnsafe?.user?.first_name,
-                    initData: tg.initData
-                })
+                // ДОБАВЛЕНО initData
+                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
             })
-            .then(() => { tg.close(); })
+            .then(res => res.json())
+            .then(data => {
+                renderReferrals(data.referrals || []);
+            })
             .catch(err => {
-                console.error(err);
-                tg.showAlert("Ошибка. Проверь консоль.");
+                console.error("Ошибка загрузки рефералов", err);
+                renderReferrals([]);
             });
         }
 
-        // --- ОТРИСОВКА ПЕРСОНАЖЕЙ НА ГЛАВНОЙ ---
-        function renderCharacters() {
-            const container = document.getElementById('characters-container');
-            if (!window.activeCharactersList) return; 
+        // --- ЛОГИКА ИСТОРИИ ЧАТОВ ---
+        function fetchChatsList() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            const container = document.getElementById('chats-list-container');
             
-            const listToRender = window.activeCharactersList.filter(char => (char.style || 'real') === currentStyle);
-            
-            if (listToRender.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-50">
-                        <i class="fa-solid fa-ghost text-4xl text-gray-500 mb-3"></i>
-                        <p class="text-sm font-bold text-gray-400">Персонажи скоро появятся...</p>
-                    </div>`;
+            if (!userId) {
+                container.innerHTML = `<p class="text-center text-gray-500 mt-10">Доступно только в Telegram</p>`;
                 return;
             }
 
-            container.innerHTML = listToRender.map((char, index) => {
-                const name = char['name_' + currentLang] || char['name_en'];
-                const desc = char['desc_' + currentLang] || char['desc_en'];
-                const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
-                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
-
-                let tagsHtml = '<div class="flex gap-1.5 mt-2">';
-                if (char.has_image !== false) tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
-                tagsHtml += '</div>';
-
-                return `
-                <div onclick="openCharacterModal('${char.id}', 'base')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
-                    <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
-                    ${statusHtml}
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
-                        <h3 class="text-xl font-black text-white leading-tight drop-shadow-md mb-1">${name}</h3>
-                        <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed opacity-90">${desc}</p>
-                        ${tagsHtml}
-                        <div class="w-full h-[2px] bg-gradient-to-r from-pink-500 to-transparent mt-3 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
+            // Показываем анимацию загрузки, пока ждем ответ от сервера
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center pt-20 opacity-50">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-4"></i>
+                    <p class="text-sm text-gray-400">Загрузка...</p>
                 </div>
-            `}).join('');
+            `;
+
+            fetch(WEBHOOK_GET_CHATS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.chats && data.chats.length > 0) {
+                    renderChats(data.chats);
+                } else {
+                    // Если переписок еще нет
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center pt-20 opacity-40">
+                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-message text-2xl text-gray-500"></i>
+                            </div>
+                            <p class="text-sm font-bold text-gray-400" data-i18n="no_chats">${translations[currentLang].no_chats}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Ошибка загрузки чатов:", err);
+                container.innerHTML = `<p class="text-center text-red-500 mt-10 font-bold">Ошибка соединения</p>`;
+            });
         }
 
-        // --- ЛОГИКА ВКЛАДОК СОЗДАНИЯ И ПЕРСОНАЖЕЙ ---
+        // --- ФУНКЦИЯ ЗАГРУЗКИ ТОВАРОВ ИЗ БАЗЫ ---
+        function fetchShopData() {
+            fetch(WEBHOOK_GET_SHOP)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.items) {
+                    window.shopItemsList = data.items;
+                    renderShop(data.items);
+                }
+            })
+            .catch(err => console.error("Ошибка загрузки магазина:", err));
+        }
+
+        // --- ФУНКЦИЯ ОТРИСОВКИ КАРТОЧЕК ---
+        function renderShop(items) {
+            const packsContainer = document.getElementById('shop-section-packs');
+            const energyContainer = document.getElementById('shop-section-energy');
+            const gemsContainer = document.getElementById('shop-section-gems');
+            const lang = currentLang;
+
+            let packsHtml = '';
+            let energyHtml = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_energy">${translations[lang].refill_energy}</div>`;
+            let gemsHtml = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_gems">${translations[lang].refill_gems}</div>`;
+
+            items.forEach(item => {
+                if (item.type === 'pack') {
+                    // Уникальный дизайн для разных паков
+                    if (item.id === 'pack_starter') {
+                        packsHtml += `
+                        <div class="premium-card p-5 group cursor-pointer" onclick="openPaymentModal('${item.id}', 'Starter Pack', ${item.price_stars}, ${item.price_usd})">
+                            <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition-colors"></div>
+                            <div class="flex justify-between items-start mb-4 relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">📦</div>
+                                    <div><span class="block font-bold text-lg text-white">Starter</span><span class="text-[10px] text-gray-400 uppercase tracking-wider" data-i18n="pack_starter_desc">${translations[lang].pack_starter_desc}</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_energy}</span><div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span>${translations[lang].energy_unit}</span></div></div>
+                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_gems}</span><div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span>${translations[lang].gems_unit}</span></div></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="flex-1 bg-[#1a3a4a] border border-cyan-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden"><span class="text-xs font-bold text-cyan-300">$${item.price_usd}</span></div>
+                                <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden"><span class="text-xs font-bold text-yellow-300">${item.price_stars} ⭐️</span></div>
+                            </div>
+                        </div>`;
+                    } else if (item.id === 'pack_premium') {
+                        packsHtml += `
+                        <div class="premium-card p-5 group cursor-pointer border-purple-500/30 mt-5" onclick="openPaymentModal('${item.id}', 'Premium Pack', ${item.price_stars}, ${item.price_usd})">
+                            <div class="absolute -right-8 -top-8 w-28 h-28 bg-purple-500/20 rounded-full blur-2xl"></div>
+                            <div class="absolute top-0 right-0 bg-purple-600 text-[9px] font-bold text-white px-3 py-1 rounded-bl-xl z-20">POPULAR</div>
+                            <div class="flex justify-between items-start mb-4 relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">💎</div>
+                                    <div><span class="block font-bold text-lg text-white">Premium</span><span class="text-[10px] text-purple-300 uppercase tracking-wider" data-i18n="pack_premium_desc">${translations[lang].pack_premium_desc}</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_energy}</span><div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span>${translations[lang].energy_unit}</span></div></div>
+                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_gems}</span><div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span>${translations[lang].gems_unit}</span></div></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="flex-1 bg-[#2d1b3a] border border-purple-500/40 rounded-xl py-2 flex flex-col items-center justify-center"><span class="text-xs font-bold text-purple-200">$${item.price_usd}</span></div>
+                                <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center"><span class="text-xs font-bold text-yellow-300">${item.price_stars} ⭐️</span></div>
+                            </div>
+                        </div>`;
+                    } else if (item.id === 'pack_ultimate') {
+                        packsHtml += `
+                        <div class="premium-card p-0 group cursor-pointer border-pink-500/50 shadow-[0_0_25px_rgba(236,72,153,0.15)] mt-5" onclick="openPaymentModal('${item.id}', 'Ultimate Pack', ${item.price_stars}, ${item.price_usd})">
+                            <div class="absolute inset-0 bg-gradient-to-r from-pink-900/40 to-black/80 z-0"></div>
+                            <img src="https://placehold.co/400x150/500/f0f?text=MAX" class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-overlay">
+                            <div class="p-5 relative z-10">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">👑</div>
+                                    <div><span class="block font-black text-xl italic text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-200">ULTIMATE</span><span class="text-[10px] text-pink-200 font-bold tracking-wider uppercase" data-i18n="pack_ultimate_desc">${translations[lang].pack_ultimate_desc}</span></div>
+                                </div>
+                                <div class="flex gap-2 mb-4">
+                                    <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center"><span class="font-black text-white block">${item.reward_energy}</span><span class="text-[9px] text-yellow-400 font-bold uppercase"><i class="fa-solid fa-bolt"></i> ${translations[lang].energy_unit}</span></div>
+                                    <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center"><span class="font-black text-white block">${item.reward_gems}</span><span class="text-[9px] text-cyan-400 font-bold uppercase"><i class="fa-solid fa-gem"></i> ${translations[lang].gems_unit}</span></div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl py-2.5 text-center shadow-lg"><span class="text-sm font-black text-white">$${item.price_usd}</span></div>
+                                    <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2.5 text-center"><span class="text-sm font-bold text-yellow-400">${item.price_stars} ⭐️</span></div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                } 
+                else if (item.type === 'energy') {
+                    // Универсальный шаблон для энергии
+                    let iconHtml = `<i class="fa-solid fa-bolt"></i>`;
+                    let extraCardClasses = "";
+                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-yellow-400";
+                    let badge = "";
+
+                    if (item.reward_energy >= 3000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`;
+                    else if (item.reward_energy >= 1000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`;
+                    else if (item.reward_energy >= 450 && item.reward_energy < 1000) {
+                        extraCardClasses = "border-yellow-500/30 bg-yellow-900/10";
+                        iconWrapperClasses = "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-xl";
+                        iconHtml = `<i class="fa-solid fa-fire"></i>`;
+                    }
+                    else if (item.reward_energy >= 200) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
+                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
+
+                    energyHtml += `
+                    <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_energy} ${translations[lang].energy_unit}', ${item.price_stars}, ${item.price_usd})">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
+                                ${iconHtml} ${badge}
+                            </div>
+                            <div>
+                                <div class="font-bold text-white">${item.reward_energy} ${translations[lang].energy_unit}</div>
+                                <div class="text-xs ${extraCardClasses ? 'text-yellow-500' : 'text-gray-500'} font-bold">$${item.price_usd} / ${item.price_stars} ⭐️</div>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full ${extraCardClasses ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-400'} flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
+                    </div>`;
+                } 
+                else if (item.type === 'gems') {
+                    // Универсальный шаблон для гемов
+                    let iconHtml = `<i class="fa-regular fa-gem"></i>`;
+                    let extraCardClasses = "";
+                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-cyan-400";
+                    let badge = "";
+
+                    if (item.reward_gems >= 500) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`; iconHtml = `<i class="fa-solid fa-boxes-stacked"></i>`; }
+                    else if (item.reward_gems >= 260) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`; iconHtml = `<i class="fa-solid fa-sack-dollar"></i>`; }
+                    else if (item.reward_gems >= 120 && item.reward_gems < 200) {
+                        extraCardClasses = "border-cyan-500/30 bg-cyan-900/10";
+                        iconWrapperClasses = "bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-xl shadow-lg shadow-cyan-500/20";
+                        iconHtml = `<i class="fa-solid fa-gem"></i>`;
+                    }
+                    else if (item.reward_gems >= 50) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
+                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
+
+                    gemsHtml += `
+                    <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_gems} ${translations[lang].gems_unit}', ${item.price_stars}, ${item.price_usd})">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
+                                ${iconHtml} ${badge}
+                            </div>
+                            <div>
+                                <div class="font-bold text-white">${item.reward_gems} ${translations[lang].gems_unit}</div>
+                                <div class="text-xs ${extraCardClasses ? 'text-cyan-300' : 'text-gray-500'} font-bold">$${item.price_usd} / ${item.price_stars} ⭐️</div>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full ${extraCardClasses ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-white/5 text-gray-400'} flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
+                    </div>`;
+                }
+            });
+
+            packsContainer.innerHTML = packsHtml;
+            energyContainer.innerHTML = energyHtml;
+            gemsContainer.innerHTML = gemsHtml;
+        }
+
+        // --- ЛОГИКА ВКЛАДОК СОЗДАНИЯ ---
         function switchCreateSubTab(tabName) {
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('create-section-mine').classList.add('hidden');
             document.getElementById('create-section-community').classList.add('hidden');
-            document.getElementById('create-section-new').classList.add('hidden'); 
+            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
             
             document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
             
             const btnMine = document.getElementById('btn-create-mine');
             const btnCommunity = document.getElementById('btn-create-community');
-            const fab = document.getElementById('fab-create'); 
             
             if (tabName === 'mine') {
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                renderCustomCharacters(); 
+                renderCustomCharacters(); // Перерисовываем с учетом FAB
             } else if (tabName === 'community') {
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                fab.classList.remove('hidden');
+                document.getElementById('fab-create').classList.remove('hidden'); // В сообществе показываем плюс
                 fetchCommunityChars();
             }
         }
@@ -1823,6 +2416,7 @@
             switchCreateSubTab('mine');
         }
         
+        // Переписываем renderCustomCharacters, чтобы управлять пустым состоянием и плюсиком
         function renderCustomCharacters() {
             const container = document.getElementById('my-custom-chars-container');
             const emptyState = document.getElementById('empty-mine-state');
@@ -1838,16 +2432,19 @@
         
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
-            fab.classList.remove('hidden');
+            fab.classList.remove('hidden'); // Показываем кружочек с плюсом
         
+            // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
+                // Формируем красивые теги под именем
                 let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
                 tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
                 tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 tagsHtml += '</div>';
                 
+                // ВЫТАСКИВАЕМ КОРОТКОЕ ОПИСАНИЕ:
                 const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
                     ? char.intro_messages['short_desc_' + currentLang] 
                     : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
@@ -1856,6 +2453,7 @@
                 <div onclick="openCharacterModal('${char.id}', 'mine')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
                         <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${shortDesc}</p> ${tagsHtml}
@@ -1903,6 +2501,7 @@
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
+                // Кнопки лайков (не даем лайкать своих)
                 let voteHtml = '';
                 if (!char.is_mine) {
                     voteHtml = `
@@ -1922,6 +2521,7 @@
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                     ${voteHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    
                     <div class="absolute bottom-0 left-0 w-full p-4 z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
                         <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> Сообщество</p>
@@ -1930,241 +2530,10 @@
                 `;
             }).join('');
         }
-
-        // --- ЛОГИКА ФОРМЫ СОЗДАНИЯ ---
-        function selectCustomGender(gender) {
-            tg.HapticFeedback.selectionChanged();
-            customGender = gender;
-            const btnFemale = document.getElementById('btn-gender-female');
-            const btnMale = document.getElementById('btn-gender-male');
-            
-            if (gender === 'female') {
-                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
-                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
-                
-                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name');
-                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance');
-                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes');
-                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality');
-            } else {
-                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
-                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
-                
-                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name_male');
-                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance_male');
-                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes_male');
-                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality_male');
-            }
-            
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if(translations[currentLang] && translations[currentLang][key]) {
-                    el.placeholder = translations[currentLang][key];
-                }
-            });
-        }
-
-        function goToCreateStep(step) {
-            if (step === 2) {
-                const name = document.getElementById('custom-name').value.trim();
-                if (!name) {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    return showToast(translations[currentLang].toast_enter_name || "Введите имя", "error");
-                }
-            }
-            if (step === 3) {
-                const app = document.getElementById('custom-appearance').value.trim();
-                if (!app) {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    return showToast(translations[currentLang].toast_enter_appearance || "Опишите внешность", "error");
-                }
-            }
-            if (step === 4) {
-                if (!document.getElementById('custom-environment').value.trim()) {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    return showToast(translations[currentLang].toast_enter_environment || "Опишите окружение", "error");
-                }
-                if (!document.getElementById('custom-personality').value.trim()) {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    return showToast(translations[currentLang].toast_enter_personality || "Опишите характер", "error");
-                }
-            }
-
-            tg.HapticFeedback.impactOccurred('light');
-
-            [1, 2, 3, 4].forEach(s => document.getElementById(`create-step-${s}`).classList.add('hidden'));
-            document.getElementById(`create-step-${step}`).classList.remove('hidden');
-            
-            for (let i = 1; i <= 4; i++) {
-                const ind = document.getElementById(`step-indicator-${i}`);
-                const circle = ind.querySelector('div');
-                const line = document.getElementById(`step-line-${i-1}`); 
-                
-                if (i < step) {
-                    ind.classList.remove('opacity-50');
-                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] transition-all";
-                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
-                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
-                } else if (i === step) {
-                    ind.classList.remove('opacity-50');
-                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all";
-                    circle.innerHTML = i;
-                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
-                } else {
-                    ind.classList.add('opacity-50');
-                    circle.className = "w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all";
-                    circle.innerHTML = i;
-                    if (line) line.className = "h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
-                }
-            }
-            currentCreateStep = step;
-        }
-
-        function generatePreview() {
-            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
-            if (currentGems < 2) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return showToast("Нужно 2 гема для превью!", "error");
-            }
-
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.MainButton.showProgress();
-            
-            const btn = document.getElementById('btn-generate-preview');
-            const originalBtnText = btn.innerHTML;
-            
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${translations[currentLang].btn_generating || 'Генерация...'}`;
-            btn.disabled = true;
-
-            fetch(WEBHOOK_TEST_PHOTO, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: document.getElementById('custom-name').value.trim(),
-                    gender: customGender,
-                    appearance: document.getElementById('custom-appearance').value.trim(),
-                    clothes: document.getElementById('custom-clothes').value.trim(),
-                    environment: document.getElementById('custom-environment').value.trim(),
-                    personality: document.getElementById('custom-personality').value.trim(),
-                    chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                tg.MainButton.hideProgress();
-                btn.disabled = false;
-
-                if (data.success) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    generatedAiData = data.ai_data;
-                    generatedImageUrl = data.image_url;
-                    
-                    document.getElementById('preview-placeholder').classList.add('hidden');
-                    const imgEl = document.getElementById('preview-char-img');
-                    imgEl.src = generatedImageUrl;
-                    imgEl.classList.remove('hidden');
-                    
-                    if (data.new_gems !== undefined) {
-                        document.getElementById('balance-gems').innerText = data.new_gems;
-                    }
-                    btn.innerHTML = `<i class="fa-solid fa-user-gear"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_char">${translations[currentLang].btn_regenerate_char || 'ПЕРЕГЕНЕРИРОВАТЬ'}</span> (2 💎)</span>`;
-                } else {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    showToast("❌ " + (data.message || "Ошибка"), "error");
-                    btn.innerHTML = originalBtnText; 
-                }
-            }).catch(err => {
-                tg.MainButton.hideProgress();
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-                showToast("Ошибка соединения", "error");
-            });
-        }
-
-        function submitCustomCharacter() {
-            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
-            if (currentGems < 10) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].toast_need_10_gems || "Нужно 10 гемов!", "error");
-            }
-
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.MainButton.showProgress();
-
-            const btnFinal = document.getElementById('btn-final-create');
-            const originalBtnText = btnFinal.innerHTML;
-            
-            if (!generatedImageUrl || !generatedAiData) {
-                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Создаем лор и фото... ⏳</span>`;
-            } else {
-                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Сохраняем... ⏳</span>`;
-            }
-            btnFinal.disabled = true;
-
-            fetch(WEBHOOK_CREATE_CHAR, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: document.getElementById('custom-name').value.trim(),
-                    gender: customGender,
-                    user_gender: selectedUserGender,
-                    appearance: document.getElementById('custom-appearance').value.trim(),
-                    clothes: document.getElementById('custom-clothes').value.trim(),
-                    environment: document.getElementById('custom-environment').value.trim(),
-                    personality: document.getElementById('custom-personality').value.trim(),
-                    image_url: generatedImageUrl || "", 
-                    ai_data: generatedAiData || null,  
-                    chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                tg.MainButton.hideProgress();
-                btnFinal.disabled = false;
-                btnFinal.innerHTML = originalBtnText;
-
-                if (data.success) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    showToast(translations[currentLang].toast_char_created || "✅ Персонаж создан!", "success");
-                    
-                    document.getElementById('custom-name').value = '';
-                    document.getElementById('custom-appearance').value = '';
-                    document.getElementById('custom-clothes').value = '';
-                    document.getElementById('custom-personality').value = '';
-                    document.getElementById('custom-environment').value = '';
-                    document.getElementById('preview-char-img').classList.add('hidden');
-                    document.getElementById('preview-placeholder').classList.remove('hidden');
-                    generatedAiData = null;
-                    generatedImageUrl = null;
-                    
-                    const btnPreview = document.getElementById('btn-generate-preview');
-                    btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo || 'СГЕНЕРИРОВАТЬ ФОТО'}</span> (2 💎)</span>`;
-                    
-                    goToCreateStep(1);
-                    
-                    if (data.new_gems !== undefined) {
-                        document.getElementById('balance-gems').innerText = data.new_gems;
-                    }
-                    
-                    switchCreateSubTab('mine');
-                    fetchUserData(); 
-                } else {
-                    tg.HapticFeedback.notificationOccurred('error');
-                    let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
-                    showToast("❌ " + errMsg, "error");
-                }
-            })
-            .catch(err => {
-                tg.MainButton.hideProgress();
-                btnFinal.disabled = false;
-                btnFinal.innerHTML = originalBtnText;
-                showToast(translations[currentLang].toast_conn_error || "Ошибка сети", "error");
-            });
-        }
-
+        
         // --- ЛОГИКА ПУБЛИКАЦИИ ---
+        let charToPublish = null;
+        
         function openPublishModal(charId) {
             charToPublish = charId;
             tg.HapticFeedback.impactOccurred('medium');
@@ -2196,10 +2565,10 @@
                 tg.MainButton.hideProgress();
                 btn.disabled = false;
                 closePublishModal();
+                closeCharacterModal(); // Закрываем карточку
                 
                 if (data.success) {
                     showToast("✅ Отправлено на модерацию!", "success");
-                    fetchUserData(); // Обновляем данные юзера, чтобы статус переключился
                 } else {
                     showToast("❌ " + data.message, "error");
                 }
@@ -2210,7 +2579,9 @@
                 showToast("Ошибка сети", "error");
             });
         }
-
+        
+        // --- ЛОГИКА ГОЛОСОВАНИЯ ---
+        // --- ЛОГИКА ГОЛОСОВАНИЯ ---
         function voteChar(charId, isLike) {
             tg.HapticFeedback.impactOccurred('light');
             
@@ -2226,9 +2597,9 @@
                     if (char) {
                         char.likes = data.likes;
                         char.dislikes = data.dislikes;
-                        renderCommunityChars(); // Обновляем карточки в фоне
+                        renderCommunityChars(); // Обновляем карточки на заднем фоне
                         
-                        // Обновляем цифру в открытой модалке (если она открыта)
+                        // Если открыта модалка, обновляем цифру прямо в ней
                         const modalLikes = document.getElementById('modal-likes-count');
                         if (modalLikes) modalLikes.innerText = data.likes;
                     }
@@ -2236,485 +2607,476 @@
             });
         }
 
-        // --- ЛОГИКА МАГАЗИНА ---
-        function fetchShopData() {
-            fetch(WEBHOOK_GET_SHOP)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.items) {
-                    window.shopItemsList = data.items;
-                    renderShop(data.items);
-                }
-            })
-            .catch(err => console.error("Ошибка загрузки магазина:", err));
+        function showMaintenanceScreen() {
+            // 1. Убиваем лоадер, чтобы он не крутился бесконечно
+            const loader = document.getElementById('loading-screen');
+            if (loader) {
+                loader.classList.add('hidden');
+            }
+            
+            // 2. Показываем экран ошибки
+            const mScreen = document.getElementById('maintenance-screen');
+            if (mScreen) {
+                mScreen.classList.remove('hidden');
+                mScreen.classList.add('flex'); // Включаем Flexbox, чтобы он отобразился
+            }
+            
+            // 3. Даем юзеру тактильный отклик, что произошла ошибка
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
         }
 
-        function renderShop(items) {
-            const packsContainer = document.getElementById('shop-section-packs');
-            const energyContainer = document.getElementById('shop-section-energy');
-            const gemsContainer = document.getElementById('shop-section-gems');
-            const lang = currentLang;
-
-            let packsHtml = '';
-            let energyHtml = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_energy">${translations[lang].refill_energy || 'ЭНЕРГИЯ'}</div>`;
-            let gemsHtml = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1 mb-2" data-i18n="refill_gems">${translations[lang].refill_gems || 'ГЕМЫ'}</div>`;
-
-            items.forEach(item => {
-                if (item.type === 'pack') {
-                    if (item.id === 'pack_starter') {
-                        packsHtml += `
-                        <div class="premium-card p-5 group cursor-pointer" onclick="openPaymentModal('${item.id}', 'Starter Pack', ${item.price_stars}, ${item.price_usd})">
-                            <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition-colors"></div>
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">📦</div>
-                                    <div><span class="block font-bold text-lg text-white">Starter</span><span class="text-[10px] text-gray-400 uppercase tracking-wider" data-i18n="pack_starter_desc">${translations[lang].pack_starter_desc || 'ДЛЯ НОВИЧКА'}</span></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2 mb-4">
-                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_energy}</span><div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span>${translations[lang].energy_unit || 'ЭНЕРГИИ'}</span></div></div>
-                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_gems}</span><div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span>${translations[lang].gems_unit || 'ГЕМОВ'}</span></div></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <div class="flex-1 bg-[#1a3a4a] border border-cyan-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden"><span class="text-xs font-bold text-cyan-300">$${item.price_usd}</span></div>
-                                <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center relative overflow-hidden"><span class="text-xs font-bold text-yellow-300">${item.price_stars} ⭐️</span></div>
-                            </div>
-                        </div>`;
-                    } else if (item.id === 'pack_premium') {
-                        packsHtml += `
-                        <div class="premium-card p-5 group cursor-pointer border-purple-500/30 mt-5" onclick="openPaymentModal('${item.id}', 'Premium Pack', ${item.price_stars}, ${item.price_usd})">
-                            <div class="absolute -right-8 -top-8 w-28 h-28 bg-purple-500/20 rounded-full blur-2xl"></div>
-                            <div class="absolute top-0 right-0 bg-purple-600 text-[9px] font-bold text-white px-3 py-1 rounded-bl-xl z-20">POPULAR</div>
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl shadow-inner">💎</div>
-                                    <div><span class="block font-bold text-lg text-white">Premium</span><span class="text-[10px] text-purple-300 uppercase tracking-wider" data-i18n="pack_premium_desc">${translations[lang].pack_premium_desc || 'МАКСИМУМ'}</span></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2 mb-4">
-                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_energy}</span><div class="text-[9px] text-yellow-400 font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> <span>${translations[lang].energy_unit || 'ЭНЕРГИИ'}</span></div></div>
-                                <div class="flex-1 bg-black/40 p-2.5 rounded-xl border border-white/5 flex flex-col items-center justify-center"><span class="font-black text-lg text-white">${item.reward_gems}</span><div class="text-[9px] text-cyan-400 font-bold flex items-center gap-1"><i class="fa-solid fa-gem"></i> <span>${translations[lang].gems_unit || 'ГЕМОВ'}</span></div></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <div class="flex-1 bg-[#2d1b3a] border border-purple-500/40 rounded-xl py-2 flex flex-col items-center justify-center"><span class="text-xs font-bold text-purple-200">$${item.price_usd}</span></div>
-                                <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2 flex flex-col items-center justify-center"><span class="text-xs font-bold text-yellow-300">${item.price_stars} ⭐️</span></div>
-                            </div>
-                        </div>`;
-                    } else if (item.id === 'pack_ultimate') {
-                        packsHtml += `
-                        <div class="premium-card p-0 group cursor-pointer border-pink-500/50 shadow-[0_0_25px_rgba(236,72,153,0.15)] mt-5" onclick="openPaymentModal('${item.id}', 'Ultimate Pack', ${item.price_stars}, ${item.price_usd})">
-                            <div class="absolute inset-0 bg-gradient-to-r from-pink-900/40 to-black/80 z-0"></div>
-                            <img src="https://placehold.co/400x150/500/f0f?text=MAX" class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-overlay">
-                            <div class="p-5 relative z-10">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">👑</div>
-                                    <div><span class="block font-black text-xl italic text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-200">ULTIMATE</span><span class="text-[10px] text-pink-200 font-bold tracking-wider uppercase" data-i18n="pack_ultimate_desc">${translations[lang].pack_ultimate_desc || 'ULTIMATE'}</span></div>
-                                </div>
-                                <div class="flex gap-2 mb-4">
-                                    <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center"><span class="font-black text-white block">${item.reward_energy}</span><span class="text-[9px] text-yellow-400 font-bold uppercase"><i class="fa-solid fa-bolt"></i> ${translations[lang].energy_unit || 'ЭНЕРГИИ'}</span></div>
-                                    <div class="bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-pink-500/30 flex-1 text-center"><span class="font-black text-white block">${item.reward_gems}</span><span class="text-[9px] text-cyan-400 font-bold uppercase"><i class="fa-solid fa-gem"></i> ${translations[lang].gems_unit || 'ГЕМОВ'}</span></div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <div class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl py-2.5 text-center shadow-lg"><span class="text-sm font-black text-white">$${item.price_usd}</span></div>
-                                    <div class="flex-1 bg-[#2a2a1a] border border-yellow-500/30 rounded-xl py-2.5 text-center"><span class="text-sm font-bold text-yellow-400">${item.price_stars} ⭐️</span></div>
-                                </div>
-                            </div>
-                        </div>`;
-                    }
-                } 
-                else if (item.type === 'energy') {
-                    let iconHtml = `<i class="fa-solid fa-bolt"></i>`;
-                    let extraCardClasses = "";
-                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-yellow-400";
-                    let badge = "";
-
-                    if (item.reward_energy >= 3000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`;
-                    else if (item.reward_energy >= 1000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`;
-                    else if (item.reward_energy >= 450 && item.reward_energy < 1000) {
-                        extraCardClasses = "border-yellow-500/30 bg-yellow-900/10";
-                        iconWrapperClasses = "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-xl";
-                        iconHtml = `<i class="fa-solid fa-fire"></i>`;
-                    }
-                    else if (item.reward_energy >= 200) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
-                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
-
-                    energyHtml += `
-                    <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_energy} ${translations[lang].energy_unit || 'ЭНЕРГИИ'}', ${item.price_stars}, ${item.price_usd})">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
-                                ${iconHtml} ${badge}
-                            </div>
-                            <div>
-                                <div class="font-bold text-white">${item.reward_energy} ${translations[lang].energy_unit || 'ЭНЕРГИИ'}</div>
-                                <div class="text-xs ${extraCardClasses ? 'text-yellow-500' : 'text-gray-500'} font-bold">$${item.price_usd} / ${item.price_stars} ⭐️</div>
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-full ${extraCardClasses ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-400'} flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
-                    </div>`;
-                } 
-                else if (item.type === 'gems') {
-                    let iconHtml = `<i class="fa-regular fa-gem"></i>`;
-                    let extraCardClasses = "";
-                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-cyan-400";
-                    let badge = "";
-
-                    if (item.reward_gems >= 500) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`; iconHtml = `<i class="fa-solid fa-boxes-stacked"></i>`; }
-                    else if (item.reward_gems >= 260) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`; iconHtml = `<i class="fa-solid fa-sack-dollar"></i>`; }
-                    else if (item.reward_gems >= 120 && item.reward_gems < 200) {
-                        extraCardClasses = "border-cyan-500/30 bg-cyan-900/10";
-                        iconWrapperClasses = "bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-xl shadow-lg shadow-cyan-500/20";
-                        iconHtml = `<i class="fa-solid fa-gem"></i>`;
-                    }
-                    else if (item.reward_gems >= 50) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
-                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
-
-                    gemsHtml += `
-                    <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_gems} ${translations[lang].gems_unit || 'ГЕМОВ'}', ${item.price_stars}, ${item.price_usd})">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
-                                ${iconHtml} ${badge}
-                            </div>
-                            <div>
-                                <div class="font-bold text-white">${item.reward_gems} ${translations[lang].gems_unit || 'ГЕМОВ'}</div>
-                                <div class="text-xs ${extraCardClasses ? 'text-cyan-300' : 'text-gray-500'} font-bold">$${item.price_usd} / ${item.price_stars} ⭐️</div>
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-full ${extraCardClasses ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-white/5 text-gray-400'} flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
-                    </div>`;
+        function preloadImagesAndHideLoader() {
+            // Находим все картинки, которые отрендерились в контейнере персонажей
+            const images = document.querySelectorAll('#characters-container img');
+            let loadedCount = 0;
+            const totalImages = images.length;
+        
+            // Если картинок почему-то нет, просто прячем лоадер
+            if (totalImages === 0) {
+                hideLoadingScreen();
+                return;
+            }
+        
+            // Проверяем каждую картинку
+            images.forEach(img => {
+                // Если картинка уже успела загрузиться (например, из кэша)
+                if (img.complete) {
+                    loadedCount++;
+                    if (loadedCount === totalImages) hideLoadingScreen();
+                } else {
+                    // Ждем события загрузки конкретной картинки
+                    img.addEventListener('load', () => {
+                        loadedCount++;
+                        if (loadedCount === totalImages) hideLoadingScreen();
+                    });
+                    // Если картинка битая (ошибка 404), тоже считаем ее загруженной, 
+                    // чтобы лоадер не завис навечно
+                    img.addEventListener('error', () => {
+                        loadedCount++;
+                        if (loadedCount === totalImages) hideLoadingScreen();
+                    });
                 }
             });
-
-            packsContainer.innerHTML = packsHtml;
-            energyContainer.innerHTML = energyHtml;
-            gemsContainer.innerHTML = gemsHtml;
         }
 
-        function openPaymentModal(packId, title, priceStars, priceUsd) {
-            tg.HapticFeedback.impactOccurred('medium');
-            currentItem = { id: packId, amountStars: priceStars, amountUsd: priceUsd };
-            document.getElementById('modal-title').innerText = translations[currentLang].purchase_title || 'Покупка';
-            document.getElementById('modal-price-stars').innerText = priceStars + " ⭐️";
-            document.getElementById('modal-price-usd').innerText = "$" + priceUsd;
-            document.getElementById('modal-price-usd-display').innerText = "$" + priceUsd;
-            document.getElementById('modal-price-stars-display').innerText = (translations[currentLang].or || 'или') + " " + priceStars + " ⭐️";
-            const modal = document.getElementById('payment-modal');
-            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-open'), 10);
+        let currentCreateStep = 1;
+        let customGender = 'female';
+
+        // Переключение Мои / Создать
+        function switchCreateSubTab(tabName) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.getElementById('create-section-mine').classList.add('hidden');
+            document.getElementById('create-section-community').classList.add('hidden');
+            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
+            
+            document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
+            
+            const btnMine = document.getElementById('btn-create-mine');
+            const btnCommunity = document.getElementById('btn-create-community');
+            const fab = document.getElementById('fab-create'); // Получаем плюсик
+            
+            if (tabName === 'mine') {
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                renderCustomCharacters(); // Функция сама решит, скрывать плюсик или нет
+            } else if (tabName === 'community') {
+                btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
+                btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
+                fab.classList.remove('hidden'); // В сообществе плюсик виден всегда
+                fetchCommunityChars();
+            }
         }
 
-        function closePaymentModal() {
-            const modal = document.getElementById('payment-modal');
-            modal.classList.remove('modal-open'); setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function confirmPayment(method) {
+        function selectCustomGender(gender) {
             tg.HapticFeedback.selectionChanged();
+            customGender = gender;
+            const btnFemale = document.getElementById('btn-gender-female');
+            const btnMale = document.getElementById('btn-gender-male');
             
-            const modalTitle = document.getElementById('modal-title');
-            const originalText = modalTitle.innerText;
-            modalTitle.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Создаем счет...';
-        
-            const userId = tg.initDataUnsafe?.user?.id;
+            if (gender === 'female') {
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+                
+                // Ставим женские ключи
+                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name');
+                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance');
+                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes');
+                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality');
+            } else {
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-transparent text-gray-500 border border-transparent transition-all flex items-center justify-center gap-2";
+                
+                // Ставим мужские ключи
+                document.getElementById('custom-name').setAttribute('data-i18n-placeholder', 'ph_name_male');
+                document.getElementById('custom-appearance').setAttribute('data-i18n-placeholder', 'ph_appearance_male');
+                document.getElementById('custom-clothes').setAttribute('data-i18n-placeholder', 'ph_clothes_male');
+                document.getElementById('custom-personality').setAttribute('data-i18n-placeholder', 'ph_personality_male');
+            }
             
-            fetch(WEBHOOK_URL, {
+            // Моментально обновляем текст плейсхолдеров на текущем языке
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(translations[currentLang] && translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
+        }
+
+        function goToCreateStep(step) {
+            // Валидация перед переходом
+            if (step === 2) {
+                const name = document.getElementById('custom-name').value.trim();
+                if (!name) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Введите имя персонажа!", "error");
+                }
+            }
+            if (step === 3) {
+                const app = document.getElementById('custom-appearance').value.trim();
+                if (!app) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Опишите внешность!", "error");
+                }
+            }
+
+            if (step === 4) {
+                if (!document.getElementById('custom-environment').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Опишите окружение!", "error");
+                }
+                if (!document.getElementById('custom-personality').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast("Опишите характер!", "error");
+                }
+            }
+
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Скрываем все шаги
+            document.getElementById('create-step-1').classList.add('hidden');
+            document.getElementById('create-step-2').classList.add('hidden');
+            document.getElementById('create-step-3').classList.add('hidden');
+            
+            // Показываем нужный
+            document.getElementById(`create-step-${step}`).classList.remove('hidden');
+            
+            // Обновляем визуальные индикаторы (кружочки сверху)
+            for (let i = 1; i <= 3; i++) {
+                const ind = document.getElementById(`step-indicator-${i}`);
+                const circle = ind.querySelector('div');
+                const text = ind.querySelector('span');
+                const line = document.getElementById(`step-line-${i-1}`); 
+                
+                if (i < step) {
+                    // Пройденный шаг
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs transition-all";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    text.className = "text-[9px] text-purple-400 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                } else if (i === step) {
+                    // Текущий шаг
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all";
+                    circle.innerHTML = i === 1 ? '<i class="fa-solid fa-pen"></i>' : (i === 2 ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-book"></i>');
+                    text.className = "text-[9px] text-purple-400 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                } else {
+                    // Будущий шаг
+                    ind.classList.add('opacity-50');
+                    circle.className = "w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-xs transition-all";
+                    circle.innerHTML = i;
+                    text.className = "text-[9px] text-gray-500 font-bold uppercase tracking-wider";
+                    if (line) line.className = "h-[2px] bg-white/10 flex-1 -mx-4 z-0 relative top-[-10px] transition-all";
+                }
+            }
+            currentCreateStep = step;
+        }
+
+        // Глобальные переменные для хранения сгенерированных данных
+        let generatedAiData = null;
+        let generatedImageUrl = null;
+
+        function goToCreateStep(step) {
+            // Валидация с переводами
+            if (step === 2 && !document.getElementById('custom-name').value.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_enter_name, "error");
+            }
+            if (step === 3 && !document.getElementById('custom-appearance').value.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_enter_appearance, "error");
+            }
+            if (step === 4) {
+                if (!document.getElementById('custom-environment').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast(translations[currentLang].toast_enter_environment, "error");
+                }
+                if (!document.getElementById('custom-personality').value.trim()) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return showToast(translations[currentLang].toast_enter_personality, "error");
+                }
+            }
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Скрываем все шаги
+            [1, 2, 3, 4].forEach(s => document.getElementById(`create-step-${s}`).classList.add('hidden'));
+            
+            // Показываем нужный
+            document.getElementById(`create-step-${step}`).classList.remove('hidden');
+            
+            // Обновляем визуальные индикаторы (кружочки сверху)
+            for (let i = 1; i <= 4; i++) {
+                const ind = document.getElementById(`step-indicator-${i}`);
+                const circle = ind.querySelector('div');
+                const line = document.getElementById(`step-line-${i-1}`); 
+                
+                if (i < step) {
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] transition-all";
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                } else if (i === step) {
+                    ind.classList.remove('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-[10px] shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all";
+                    circle.innerHTML = i;
+                    if (line) line.className = "h-[2px] bg-purple-600 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                } else {
+                    ind.classList.add('opacity-50');
+                    circle.className = "w-7 h-7 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 font-bold text-[10px] transition-all";
+                    circle.innerHTML = i;
+                    if (line) line.className = "h-[2px] bg-white/10 flex-1 -mx-2 z-0 relative top-[-10px] transition-all";
+                }
+            }
+            currentCreateStep = step;
+        }
+
+        // КНОПКА "СГЕНЕРИРОВАТЬ ФОТО (2 ГЕМА)"
+        function generatePreview() {
+            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
+            if (currentGems < 2) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast("Нужно 2 гема для превью!", "error");
+            }
+
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.MainButton.showProgress();
+            
+            const btn = document.getElementById('btn-generate-preview');
+            const originalBtnText = btn.innerHTML; // Запоминаем на случай ошибки
+            
+            // Ставим статус загрузки
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${translations[currentLang].btn_generating}`;
+            btn.disabled = true;
+
+            fetch(WEBHOOK_TEST_PHOTO, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: "buy_invoice", 
-                    pack_id: currentItem.id,
-                    amount: method === 'stars' ? currentItem.amountStars : currentItem.amountUsd,
-                    currency: method === 'stars' ? 'XTR' : 'USD', 
-                    method: method,
-                    chat_id: userId,
-                    initData: tg.initData 
+                    name: document.getElementById('custom-name').value.trim(),
+                    gender: customGender,
+                    appearance: document.getElementById('custom-appearance').value.trim(),
+                    clothes: document.getElementById('custom-clothes').value.trim(),
+                    environment: document.getElementById('custom-environment').value.trim(),
+                    personality: document.getElementById('custom-personality').value.trim(),
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.pay_url) {
-                    tg.openLink(data.pay_url);
-                    closePaymentModal();
-                } 
-                else if (data.ok && data.result) {
-                    tg.openInvoice(data.result, (status) => {
-                        if (status === 'paid') { 
-                            tg.showAlert("Успешная оплата! 🎉"); 
-                            closePaymentModal(); 
-                        }
-                    });
-                } 
-                else {
-                    tg.showAlert("Что-то пошло не так: " + JSON.stringify(data).substring(0, 100));
-                }
-            })
-            .catch(error => {
-                tg.showAlert("Ошибка связи: " + error.message);
-            })
-            .finally(() => {
-                modalTitle.innerText = originalText;
-            });
-        }
-
-        function copyId() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            if (!userId) return;
-
-            navigator.clipboard.writeText(userId.toString()).then(() => {
-                tg.HapticFeedback.impactOccurred('light');
-                const feedback = document.getElementById('copy-feedback');
-                feedback.style.opacity = '1';
-                setTimeout(() => feedback.style.opacity = '0', 2000);
-            }).catch(err => {
-                console.error("Ошибка при копировании", err);
-            });
-        }
-
-        function openPromoModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            document.getElementById('promo-input').value = ''; 
-            const modal = document.getElementById('promo-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('modal-open'), 10);
-        }
-        
-        function closePromoModal() {
-            const modal = document.getElementById('promo-modal');
-            modal.classList.remove('modal-open');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-        
-        function submitPromoCode() {
-            let code = document.getElementById('promo-input').value;
-            if (!code) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].toast_enter_promo || 'Введите промокод', "error");
-            }
-            
-            code = code.trim().toUpperCase();
-            closePromoModal();
-            tg.MainButton.showProgress();
-            
-            fetch(WEBHOOK_USE_PROMO, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, code: code, initData: tg.initData })
             })
             .then(res => res.json())
             .then(data => {
-                tg.MainButton.hideProgress(); 
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+
                 if (data.success) {
                     tg.HapticFeedback.notificationOccurred('success');
-                    let msg = (translations[currentLang].toast_promo_success || 'Успешно').replace('{stars}', data.stars).replace('{gems}', data.gems);
-                    showToast(msg, 'success');
-                    fetchUserData();
+                    
+                    generatedAiData = data.ai_data;
+                    generatedImageUrl = data.image_url;
+                    
+                    document.getElementById('preview-placeholder').classList.add('hidden');
+                    const imgEl = document.getElementById('preview-char-img');
+                    imgEl.src = generatedImageUrl;
+                    imgEl.classList.remove('hidden');
+                    
+                    if (data.new_gems !== undefined) {
+                        document.getElementById('balance-gems').innerText = data.new_gems;
+                    }
+
+                    // === 🔥 МЕНЯЕМ ТЕКСТ КНОПКИ НА "ПЕРЕГЕНЕРИРОВАТЬ" ===
+                    btn.innerHTML = `<i class="fa-solid fa-user-gear"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_regenerate_char">${translations[currentLang].btn_regenerate_char}</span> (2 💎)</span>`;
+                    
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    showToast("❌ " + (data.message || "Ошибка"), "error");
+                    // Возвращаем старый текст при ошибке
+                    btn.innerHTML = originalBtnText; 
+                }
+            }).catch(err => {
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText; // Возвращаем старый текст при сбое сети
+                showToast("Ошибка соединения", "error");
+            });
+        }
+
+        // КНОПКА "СОЗДАТЬ ПЕРСОНАЖА (10 ГЕМОВ)"
+        function submitCustomCharacter() {
+            // 1. Проверяем баланс
+            const currentGems = parseInt(document.getElementById('balance-gems').innerText) || 0;
+            if (currentGems < 10) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return showToast(translations[currentLang].toast_need_10_gems || "Нужно 10 гемов!", "error");
+            }
+
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.MainButton.showProgress();
+
+            const btnFinal = document.getElementById('btn-final-create');
+            const originalBtnText = btnFinal.innerHTML;
+            
+            // 2. Меняем текст кнопки в зависимости от того, есть ли уже превью
+            if (!generatedImageUrl || !generatedAiData) {
+                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Создаем лор и фото... ⏳</span>`;
+            } else {
+                btnFinal.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Сохраняем... ⏳</span>`;
+            }
+            btnFinal.disabled = true;
+
+            // 3. Отправляем ВСЕ данные на бэкенд (даже если превью не делалось)
+            fetch(WEBHOOK_CREATE_CHAR, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('custom-name').value.trim(),
+                    gender: customGender,
+                    user_gender: selectedUserGender,
+                    appearance: document.getElementById('custom-appearance').value.trim(),
+                    clothes: document.getElementById('custom-clothes').value.trim(),
+                    environment: document.getElementById('custom-environment').value.trim(),
+                    personality: document.getElementById('custom-personality').value.trim(),
+                    image_url: generatedImageUrl || "", // Будет пусто, если скипнули превью
+                    ai_data: generatedAiData || null,   // Будет пусто, если скипнули превью
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                btnFinal.disabled = false;
+                btnFinal.innerHTML = originalBtnText;
+
+                if (data.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    showToast(translations[currentLang].toast_char_created || "✅ Персонаж создан!", "success");
+                    
+                    // Очистка формы
+                    document.getElementById('custom-name').value = '';
+                    document.getElementById('custom-appearance').value = '';
+                    document.getElementById('custom-clothes').value = '';
+                    document.getElementById('custom-personality').value = '';
+                    document.getElementById('custom-environment').value = '';
+                    document.getElementById('preview-char-img').classList.add('hidden');
+                    document.getElementById('preview-placeholder').classList.remove('hidden');
+                    generatedAiData = null;
+                    generatedImageUrl = null;
+                    
+                    const btnPreview = document.getElementById('btn-generate-preview');
+                    btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
+                    
+                    goToCreateStep(1);
+                    
+                    // Моментальное обновление баланса из базы
+                    if (data.new_gems !== undefined) {
+                        document.getElementById('balance-gems').innerText = data.new_gems;
+                    }
+                    
+                    switchCreateSubTab('mine');
+                    fetchUserData(); 
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                     let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
-                    showToast("❌ " + errMsg, 'error');
+                    showToast("❌ " + errMsg, "error");
                 }
             })
             .catch(err => {
                 tg.MainButton.hideProgress();
-                showToast(translations[currentLang].toast_conn_error || 'Ошибка', 'error');
-                console.error(err);
+                btnFinal.disabled = false;
+                btnFinal.innerHTML = originalBtnText;
+                showToast(translations[currentLang].toast_conn_error || "Ошибка сети", "error");
             });
         }
-        
-        function adminGiveResource() {
-            const targetId = document.getElementById('admin-target-id').value;
-            const stars = document.getElementById('admin-amount-stars').value || 0;
-            const gems = document.getElementById('admin-amount-gems').value || 0;
-        
-            if(!targetId) return tg.showAlert("Введи ID игрока!");
-        
-            fetch(WEBHOOK_ADMIN, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    action: 'give_resource',
-                    initData: tg.initData, 
-                    target_id: targetId,
-                    stars: parseInt(stars),
-                    gems: parseInt(gems)
-                })
-            }).then(() => tg.showAlert("Отправлено!"))
-              .catch(() => tg.showAlert("Ошибка"));
-        }
-
-        function adminCreatePromo() {
-            const code = document.getElementById('admin-promo-code').value.trim();
-            const stars = document.getElementById('admin-promo-stars').value || 0;
-            const gems = document.getElementById('admin-promo-gems').value || 0;
-            const uses = document.getElementById('admin-promo-uses').value || 100;
-
-            if (!code) {
-                return tg.showAlert("Введи название промокода!");
-            }
-
-            tg.MainButton.showProgress();
-
-            fetch(WEBHOOK_ADMIN, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'create_promo', code: code, stars: parseInt(stars), gems: parseInt(gems), uses_left: parseInt(uses), initData: tg.initData })
-            })
-            .then(res => res.json())
-            .then(data => {
-                tg.MainButton.hideProgress();
-                if (data.success) {
-                    showToast(`✅ Промокод ${code.toUpperCase()} создан!`, "success");
-                    document.getElementById('admin-promo-code').value = '';
-                    document.getElementById('admin-promo-stars').value = '';
-                    document.getElementById('admin-promo-gems').value = '';
-                } else {
-                    tg.showAlert("Ошибка сервера: " + (data.detail || "Неизвестная ошибка"));
-                }
-            })
-            .catch(err => {
-                tg.MainButton.hideProgress();
-                tg.showAlert("Ошибка связи с сервером");
-            });
-        }
-
-        // --- ЛОГИКА РЕФЕРАЛОВ ---
-        function getRefLink() {
-            const botUsername = "midnight_rpbot"; 
-            const userId = tg.initDataUnsafe?.user?.id;
-            return `https://t.me/${botUsername}?start=${userId}`;
-        }
-
-        function openReferralModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const modal = document.getElementById('referral-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('modal-open'), 10);
-            fetchReferralsList();
-        }
-
-        function closeReferralModal() {
-            const modal = document.getElementById('referral-modal');
-            modal.classList.remove('modal-open');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function copyReferralLink() {
-            const link = getRefLink();
-            navigator.clipboard.writeText(link).then(() => {
-                tg.HapticFeedback.notificationOccurred('success');
-                showToast(translations[currentLang].toast_link_copied || 'Скопировано', "success");
-            });
-        }
-
-        function shareReferral() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const link = getRefLink();
-            const shareText = "Заходи в Midnight AI! Идеальные ИИ-вайфу ждут тебя 🔥";
-            const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
-            tg.openTelegramLink(tgShareUrl);
-        }
-
-        function fetchReferralsList() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            if (!userId) return;
-
-            fetch(WEBHOOK_GET_REFS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
-            })
-            .then(res => res.json())
-            .then(data => {
-                renderReferrals(data.referrals || []);
-            })
-            .catch(err => {
-                renderReferrals([]);
-            });
-        }
-
-        function renderReferrals(referrals) {
-            const listContainer = document.getElementById('referrals-list');
-            document.getElementById('ref-count').innerText = referrals.length;
-
-            if (referrals.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full opacity-40 pt-10">
-                        <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-user-xmark text-xl"></i>
-                        </div>
-                        <p class="text-xs text-gray-300 font-medium" data-i18n="no_friends_title">${translations[currentLang].no_friends_title || 'Нет друзей'}</p>
-                        <p class="text-[10px] text-gray-500 text-center mt-1" data-i18n="no_friends_desc">${translations[currentLang].no_friends_desc || 'Пригласи их'}</p>
-                    </div>
-                `;
-                return;
-            }
-
-            listContainer.innerHTML = referrals.map(ref => `
-                <div class="bg-[#1a1a1a] rounded-xl p-3 flex items-center justify-between border border-white/5">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                        <div class="overflow-hidden">
-                            <div class="text-xs font-bold text-white truncate">${ref.name || 'Игрок ' + ref.id}</div>
-                            <div class="text-[9px] text-gray-500 font-mono truncate">ID: ${ref.id}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-1.5 shrink-0 pl-2">
-                        <div class="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-1 rounded-md border border-yellow-500/20">
-                            <span class="text-[10px] font-bold text-yellow-400">+20</span>
-                            <i class="fa-solid fa-star text-[8px] text-yellow-500"></i>
-                        </div>
-                        <div class="flex items-center gap-1 bg-cyan-500/10 px-1.5 py-1 rounded-md border border-cyan-500/20">
-                            <span class="text-[10px] font-bold text-cyan-400">+3</span>
-                            <i class="fa-solid fa-gem text-[8px] text-cyan-500"></i>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // --- ЛОГИКА ИСТОРИИ ЧАТОВ ---
-        function fetchChatsList() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            const container = document.getElementById('chats-list-container');
+        // Функция отрисовки кастомных персонажей
+        function renderCustomCharacters() {
+            const container = document.getElementById('my-custom-chars-container');
+            const emptyState = document.getElementById('empty-mine-state');
+            const fab = document.getElementById('fab-create');
             
-            if (!userId) {
-                container.innerHTML = `<p class="text-center text-gray-500 mt-10">Доступно только в Telegram</p>`;
+            if (!window.customCharactersList || window.customCharactersList.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                fab.classList.add('hidden');
                 return;
             }
-
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center pt-20 opacity-50">
-                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-4"></i>
-                    <p class="text-sm text-gray-400">Загрузка...</p>
+        
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            fab.classList.remove('hidden'); // Показываем кружочек с плюсом
+        
+            // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
+            container.innerHTML = window.customCharactersList.map((char, index) => {
+                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+                
+                // Формируем красивые теги под именем
+                let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
+                tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
+                tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                tagsHtml += '</div>';
+                
+                // ВЫТАСКИВАЕМ КОРОТКОЕ ОПИСАНИЕ:
+                const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
+                    ? char.intro_messages['short_desc_' + currentLang] 
+                    : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
+                
+                return `
+                <div onclick="openCharacterModal('${char.id}')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
+                    <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${char.name}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    
+                    <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
+                        <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
+                        <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${shortDesc}</p> ${tagsHtml}
+                        <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
                 </div>
-            `;
-
-            fetch(WEBHOOK_GET_CHATS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId, initData: tg.initData })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.chats && data.chats.length > 0) {
-                    renderChats(data.chats);
-                } else {
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center pt-20 opacity-40">
-                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-message text-2xl text-gray-500"></i>
-                            </div>
-                            <p class="text-sm font-bold text-gray-400" data-i18n="no_chats">${translations[currentLang].no_chats || 'Нет чатов'}</p>
-                        </div>
-                    `;
-                }
-            })
-            .catch(err => {
-                container.innerHTML = `<p class="text-center text-red-500 mt-10 font-bold">Ошибка соединения</p>`;
-            });
+                `;
+            }).join('');
         }
 
+        let selectedUserGender = 'male'; 
+
+        function selectUserGender(gender) {
+            tg.HapticFeedback.selectionChanged();
+            selectedUserGender = gender;
+            
+            const btnFemale = document.getElementById('btn-user-female');
+            const btnMale = document.getElementById('btn-user-male');
+
+            if (gender === 'female') {
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-pink-600/20 text-pink-400 border border-pink-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-transparent text-gray-500 transition-all flex items-center justify-center gap-2";
+            } else {
+                btnMale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow-inner transition-all flex items-center justify-center gap-2";
+                btnFemale.className = "flex-1 py-2.5 rounded-lg text-[11px] font-bold bg-transparent text-gray-500 transition-all flex items-center justify-center gap-2";
+            }
+        }
+        
         function renderChats(chats) {
             const container = document.getElementById('chats-list-container');
             
@@ -2727,17 +3089,25 @@
             const chatsToShow = chats.slice(0, 15);
         
             let html = chatsToShow.map(chat => {
+                // === 1. УМНЫЙ ПОИСК ПЕРСОНАЖА ===
                 let isCustom = false;
+                // Ищем в дефолтных/аниме
                 let char = (window.activeCharactersList || characters).find(c => c.id === chat.character_id || c.id.replace('char:', '') === chat.character_id);
                 
+                // Если не нашли, ищем в кастомных!
                 if (!char && window.customCharactersList) {
                     char = window.customCharactersList.find(c => c.id === chat.character_id);
-                    if (char) isCustom = true;
+                    isCustom = true;
                 }
                 
+                // Если персонаж вообще удален отовсюду - пропускаем чат
                 if (!char) return '';
+                // ================================
                 
                 const localTime = formatChatDate(chat.created_at_ts, currentLang);
+                
+                // === 2. ПРАВИЛЬНОЕ ИМЯ ===
+                // У кастомных нет приписок языка ('name_ru', 'name_en'), у них просто 'name'
                 const defaultName = isCustom ? char.name : (char['name_' + currentLang] || char.name);
                 const displayName = chat.custom_name || defaultName;
                 
@@ -2784,51 +3154,109 @@
             container.innerHTML = html;
         }
 
+        // --- УМНОЕ ФОРМАТИРОВАНИЕ ВРЕМЕНИ ЧАТОВ ---
         function formatChatDate(timestampSec, lang) {
             const date = new Date(timestampSec * 1000);
             const now = new Date();
 
+            // Сбрасываем часы/минуты, чтобы считать разницу именно в сутках
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
+            // Считаем разницу в днях
             const diffDays = Math.floor((today - targetDay) / (1000 * 60 * 60 * 24));
 
             if (diffDays === 0) {
+                // Сегодня -> Часы:Минуты
                 const hours = date.getHours().toString().padStart(2, '0');
                 const minutes = date.getMinutes().toString().padStart(2, '0');
                 return `${hours}:${minutes}`;
             } else if (diffDays < 7) {
+                // В пределах недели -> День недели
                 const daysRu = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
                 const daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                 return lang === 'ru' ? daysRu[date.getDay()] : daysEn[date.getDay()];
             } else {
+                // Больше недели -> День.Месяц
                 const day = date.getDate().toString().padStart(2, '0');
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 return `${day}.${month}`;
             }
         }
 
-        function resumeChat(characterId, sessionId, charName) { 
+        // --- ЛОГИКА ПРОВЕРКИ ВОЗРАСТА 18+ (ИЗ БД) ---
+        function checkAgeVerification() {
+            const modal = document.getElementById('age-verification-modal');
+            const content = document.getElementById('age-modal-content');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function confirmAge() {
+            tg.HapticFeedback.impactOccurred('heavy');
+            
+            // Отправляем запрос на наш сервер, чтобы записать в БД
+            fetch(WEBHOOK_VERIFY_AGE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
+            }).catch(err => console.error("Ошибка верификации:", err));
+            
+            // Прячем окно
+            const modal = document.getElementById('age-verification-modal');
+            const content = document.getElementById('age-modal-content');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 500);
+        }
+
+        function rejectAge() {
+            tg.HapticFeedback.notificationOccurred('error');
+            // Закрываем Mini App
+            tg.close(); 
+        }
+
+        function resumeChat(characterId, sessionId, charName) { // <--- Добавили charName
             tg.HapticFeedback.impactOccurred('light');
         
+            // Отправляем запрос на сервер
             fetch(WEBHOOK_RESUME, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     character_id: characterId,
                     session_id: sessionId,
-                    char_name: charName, 
+                    char_name: charName, // <--- Передаем имя на бэкенд
                     chat_id: tg.initDataUnsafe?.user?.id,
                     initData: tg.initData
                 })
             })
             .then(() => {
+                // Как только запрос ушел и сервер его принял — сразу закрываем апп!
                 tg.close(); 
             })
             .catch(err => {
+                // Даже если браузер Телеграма вдруг чихнет и выдаст сетевую ошибку, 
+                // мы знаем, что бэкенд уже отправил сообщения. Жестко закрываем окно!
                 tg.close();
             });
         }
+
+        // --- ЛОГИКА НАСТРОЕК ЧАТА (ТРИ ТОЧКИ) ---
+        let activeOptionsSession = null;
 
         function openChatOptions(charId, sessionId, charName, isPinned) {
             tg.HapticFeedback.impactOccurred('light');
@@ -2839,10 +3267,10 @@
             const pinBtnSpan = document.getElementById('pin-btn-text');
             const pinBtnIcon = document.getElementById('pin-btn-icon');
             if (isPinned) {
-                pinBtnSpan.innerText = translations[currentLang].unpin_chat || 'Открепить';
+                pinBtnSpan.innerText = translations[currentLang].unpin_chat; // <-- БЫЛО "Открепить"
                 pinBtnIcon.className = "w-10 h-10 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400";
             } else {
-                pinBtnSpan.innerText = translations[currentLang].pin_chat || 'Закрепить'; 
+                pinBtnSpan.innerText = translations[currentLang].pin_chat; // <-- БЫЛО "Закрепить"
                 pinBtnIcon.className = "w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400";
             }
             
@@ -2862,6 +3290,7 @@
             const { charName } = activeOptionsSession;
             closeChatOptionsModal();
             
+            // Заполняем инпут старым именем и показываем модалку
             const input = document.getElementById('rename-input');
             input.value = charName;
             
@@ -2869,7 +3298,7 @@
             modal.classList.remove('hidden');
             setTimeout(() => { 
                 modal.classList.add('modal-open');
-                input.focus(); 
+                input.focus(); // Пытаемся сразу открыть клавиатуру
             }, 10);
         }
 
@@ -2886,12 +3315,12 @@
 
             if (!newName) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].toast_name_empty || 'Введите имя', "error");
+                return showToast(translations[currentLang].toast_name_empty, "error");
             }
 
             if (newName.length > 50) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return showToast(translations[currentLang].rename_limit || 'Длинное имя', "error");
+                return showToast(translations[currentLang].rename_limit, "error");
             }
 
             closeRenameModal();
@@ -2912,15 +3341,15 @@
             .then(data => {
                 tg.MainButton.hideProgress();
                 if (data.success) { 
-                    showToast(translations[currentLang].toast_chat_renamed || 'Успех', "success"); 
+                    showToast(translations[currentLang].toast_chat_renamed, "success"); 
                     fetchChatsList(); 
                 } else {
-                    showToast(translations[currentLang].toast_db_error || 'Ошибка БД', "error");
+                    showToast(translations[currentLang].toast_db_error, "error");
                 }
             })
             .catch(() => { 
                 tg.MainButton.hideProgress(); 
-                showToast(translations[currentLang].toast_conn_error || 'Ошибка', "error");
+                showToast(translations[currentLang].toast_conn_error, "error");
             });
         }
 
@@ -2937,17 +3366,20 @@
             }).then(res => res.json()).then(data => {
                 tg.MainButton.hideProgress();
                 if (data.success) { 
-                    showToast(!isPinned ? (translations[currentLang].toast_chat_pinned || 'Закреплено') : (translations[currentLang].toast_chat_unpinned || 'Откреплено'), "success"); 
+                    showToast(!isPinned ? translations[currentLang].toast_chat_pinned : translations[currentLang].toast_chat_unpinned, "success"); 
                     fetchChatsList(); 
                 }
             }).catch(() => { tg.MainButton.hideProgress(); });
         }
 
+        // --- ЛОГИКА УДАЛЕНИЯ ЧАТА (ЧЕРЕЗ КРАСИВУЮ МОДАЛКУ) ---
         function actionDelete() {
             if (!activeOptionsSession) return;
             
+            // Закрываем меню чата (где три точки)
             closeChatOptionsModal();
             
+            // Восстанавливаем кнопку удаления (вдруг она зависла на "Удаление...")
             const confirmBtn = document.getElementById('confirm-delete-btn');
             const cancelBtn = document.getElementById('cancel-delete-btn');
             const btnSpan = confirmBtn.querySelector('span');
@@ -2960,6 +3392,7 @@
             confirmBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
             confirmBtn.classList.add('bg-red-600');
 
+            // Открываем наше красивое окно
             const modal = document.getElementById('delete-modal');
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
@@ -2975,6 +3408,7 @@
             if (!activeOptionsSession) return;
             const { sessionId } = activeOptionsSession;
 
+            // Включаем спиннер загрузки на кнопке
             const confirmBtn = document.getElementById('confirm-delete-btn');
             const cancelBtn = document.getElementById('cancel-delete-btn');
             const btnSpan = confirmBtn.querySelector('span');
@@ -2987,6 +3421,7 @@
             confirmBtn.classList.remove('bg-red-600');
             confirmBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
 
+            // Запрос на бэкенд
             fetch(WEBHOOK_CHAT_ACTION, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2994,61 +3429,67 @@
             }).then(res => res.json()).then(data => {
                 if (data.success) {
                     closeDeleteModal();
-                    showToast(translations[currentLang].toast_chat_deleted || 'Удалено', "success");
+                    showToast(translations[currentLang].toast_chat_deleted, "success");
                     fetchChatsList();
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                     closeDeleteModal();
-                    showToast(translations[currentLang].toast_delete_error || 'Ошибка', "error");
+                    showToast(translations[currentLang].toast_delete_error, "error");
                 }
             }).catch(() => {
                 tg.HapticFeedback.notificationOccurred('error');
                 closeDeleteModal();
-                showToast(translations[currentLang].toast_conn_error || 'Ошибка', "error");
+                showToast(translations[currentLang].toast_conn_error, "error");
             });
         }
+        
+        function renderReferrals(referrals) {
+            const listContainer = document.getElementById('referrals-list');
+            document.getElementById('ref-count').innerText = referrals.length;
 
-        // --- ЛОГИКА ПРОВЕРКИ ВОЗРАСТА 18+ ---
-        function checkAgeVerification() {
-            const modal = document.getElementById('age-verification-modal');
-            const content = document.getElementById('age-modal-content');
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-                content.classList.remove('scale-95', 'opacity-0');
-                content.classList.add('scale-100', 'opacity-100');
-            }, 50);
-        }
+            // Если список пустой
+            if (referrals.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full opacity-40 pt-10">
+                        <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-user-xmark text-xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-300 font-medium" data-i18n="no_friends_title">${translations[currentLang].no_friends_title}</p>
+                        <p class="text-[10px] text-gray-500 text-center mt-1" data-i18n="no_friends_desc">${translations[currentLang].no_friends_desc}</p>
+                    </div>
+                `;
+                return;
+            }
 
-        function confirmAge() {
-            tg.HapticFeedback.impactOccurred('heavy');
-            
-            fetch(WEBHOOK_VERIFY_AGE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
-            }).catch(err => console.error("Ошибка верификации:", err));
-            
-            const modal = document.getElementById('age-verification-modal');
-            const content = document.getElementById('age-modal-content');
-            
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-            modal.classList.remove('opacity-100');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 500);
+            // Если друзья есть - рисуем карточки со Звездами и Гемами
+            listContainer.innerHTML = referrals.map(ref => `
+                <div class="bg-[#1a1a1a] rounded-xl p-3 flex items-center justify-between border border-white/5">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md shrink-0">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="text-xs font-bold text-white truncate">${ref.name || 'Игрок ' + ref.id}</div>
+                            <div class="text-[9px] text-gray-500 font-mono truncate">ID: ${ref.id}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1.5 shrink-0 pl-2">
+                        <div class="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-1 rounded-md border border-yellow-500/20">
+                            <span class="text-[10px] font-bold text-yellow-400">+20</span>
+                            <i class="fa-solid fa-star text-[8px] text-yellow-500"></i>
+                        </div>
+                        <div class="flex items-center gap-1 bg-cyan-500/10 px-1.5 py-1 rounded-md border border-cyan-500/20">
+                            <span class="text-[10px] font-bold text-cyan-400">+3</span>
+                            <i class="fa-solid fa-gem text-[8px] text-cyan-500"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
-
-        function rejectAge() {
-            tg.HapticFeedback.notificationOccurred('error');
-            tg.close(); 
-        }
+    </script>
+</body>
+</html>
 
 
 ==================================================
