@@ -382,48 +382,47 @@
 
     <div id="tab-create" class="hidden px-4 pt-2 pb-24 min-h-screen relative">
         
-            <div class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
-                <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
-                    <span>МОИ</span>
-                </button>
-                <button onclick="switchCreateSubTab('community')" id="btn-create-community" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
-                    <span>СООБЩЕСТВО</span>
-                </button>
-            </div>
-    
-            <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[110px] right-4 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.5)] flex items-center justify-center text-white text-3xl z-[90] hidden active:scale-90 transition-transform">
-                <i class="fa-solid fa-plus"></i>
+        <div class="custom-tab-bg flex p-1 relative mb-6 -mt-2">
+            <button onclick="switchCreateSubTab('mine')" id="btn-create-mine" class="flex-1 py-2 rounded-xl text-[11px] font-bold tab-active">
+                <span>МОИ</span>
             </button>
-    
-            <div id="create-section-mine" class="animate-fade-up">
-                <div id="empty-mine-state" class="hidden flex-col items-center justify-center pt-10 pb-4 opacity-90">
-                    <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
-                        <i class="fa-solid fa-wand-magic-sparkles text-4xl text-purple-400"></i>
-                    </div>
-                    <p class="text-base font-black text-white mb-2">Нет своих персонажей</p>
-                    <p class="text-xs text-gray-400 text-center mb-6 px-4">Создай идеальную вайфу, сделай её публичной и получай 10% от её заработка!</p>
-                    <button onclick="openCreateFlow()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white shadow-[0_5px_20px_rgba(147,51,234,0.4)] active:scale-95 transition-all w-full">
-                        СОЗДАТЬ ПЕРСОНАЖА
-                    </button>
+            <button onclick="switchCreateSubTab('community')" id="btn-create-community" class="flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive">
+                <span>СООБЩЕСТВО</span>
+            </button>
+        </div>
+
+        <button id="fab-create" onclick="openCreateFlow()" class="fixed bottom-[100px] right-6 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-[0_0_25px_rgba(236,72,153,0.6)] flex items-center justify-center text-white text-3xl z-[100] hidden active:scale-90 transition-transform">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <div id="create-section-mine" class="animate-fade-up">
+            <div id="empty-mine-state" class="hidden flex-col items-center justify-center pt-10 pb-4 opacity-90">
+                <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(147,51,234,0.15)]">
+                    <i class="fa-solid fa-wand-magic-sparkles text-4xl text-purple-400"></i>
                 </div>
-                
-                <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3"></div>
-            </div>
-    
-            <div id="create-section-community" class="hidden animate-fade-up">
-                <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4 flex items-center gap-3">
-                    <i class="fa-solid fa-money-bill-trend-up text-blue-400 text-xl"></i>
-                    <p class="text-[10px] text-blue-200 leading-tight">Создавай популярных персонажей! Ты получаешь <b>1 💎</b> за каждые 10 фото и <b>1 ⭐️</b> за каждые 10 сообщений от других игроков.</p>
-                </div>
-                <div id="community-chars-container" class="grid grid-cols-2 gap-3">
-                    <div class="col-span-2 text-center text-gray-500 py-10"><i class="fa-solid fa-spinner fa-spin text-2xl"></i></div>
-                </div>
-            </div>
-    
-            <div id="create-section-new" class="hidden">
-                <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
-                    <i class="fa-solid fa-arrow-left"></i> Назад
+                <p class="text-base font-black text-white mb-2">Нет своих персонажей</p>
+                <p class="text-xs text-gray-400 text-center mb-6 px-4">Создай идеальную вайфу, сделай её публичной и получай 10% от её заработка!</p>
+                <button onclick="openCreateFlow()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-white shadow-[0_5px_20px_rgba(147,51,234,0.4)] active:scale-95 transition-all w-full">
+                    СОЗДАТЬ ПЕРСОНАЖА
                 </button>
+            </div>
+            
+            <div id="my-custom-chars-container" class="grid grid-cols-2 gap-3"></div>
+        </div>
+
+        <div id="create-section-community" class="hidden animate-fade-up">
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4 flex items-center gap-3">
+                <i class="fa-solid fa-money-bill-trend-up text-blue-400 text-xl"></i>
+                <p class="text-[10px] text-blue-200 leading-tight">Создавай популярных персонажей! Ты получаешь <b>1 💎</b> за каждые 10 фото и <b>1 ⭐️</b> за каждые 10 сообщений от других игроков.</p>
+            </div>
+            <div id="community-chars-container" class="grid grid-cols-2 gap-3">
+                </div>
+        </div>
+
+        <div id="create-section-new" class="hidden animate-fade-up">
+            <button onclick="closeCreateFlow()" class="text-gray-500 hover:text-white font-bold text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Назад
+            </button>
             
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex flex-col items-center gap-1 w-1/4 relative z-10" id="step-indicator-1">
