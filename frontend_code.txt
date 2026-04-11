@@ -2432,24 +2432,22 @@
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('create-section-mine').classList.add('hidden');
             document.getElementById('create-section-community').classList.add('hidden');
-            document.getElementById('create-section-new').classList.add('hidden'); // Скрываем флоу создания
+            document.getElementById('create-section-new').classList.add('hidden'); 
             
             document.getElementById(`create-section-${tabName}`).classList.remove('hidden'); 
             
             const btnMine = document.getElementById('btn-create-mine');
             const btnCommunity = document.getElementById('btn-create-community');
+            const fab = document.getElementById('fab-create'); 
             
             if (tabName === 'mine') {
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                renderCustomCharacters(); // Перерисовываем с учетом FAB
+                renderCustomCharacters(); 
             } else if (tabName === 'community') {
                 btnCommunity.className = "flex-1 py-2 rounded-xl text-[11px] font-bold tab-active";
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
-                
-                // 🔥 Прячем плюсик во вкладке Сообщество
-                if (fab) fab.classList.add('hidden'); 
-                
+                if (fab) fab.classList.add('hidden'); // 🔥 ЖЕСТКО ПРЯЧЕМ В СООБЩЕСТВЕ
                 fetchCommunityChars();
             }
         }
@@ -2477,29 +2475,31 @@
                 container.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 emptyState.classList.add('flex');
-                fab.classList.add('hidden');
+                if (fab) fab.classList.add('hidden'); // Нет персов - плюса нет
                 return;
             }
         
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
             
-            // 🔥 ИСПРАВЛЕНИЕ: Показываем плюс ТОЛЬКО если открыта вкладка "Создать"
-            if (!document.getElementById('tab-create').classList.contains('hidden')) {
+            // 🔥 УМНАЯ ПРОВЕРКА: показываем плюс ТОЛЬКО если мы во вкладке "Мои" и не внутри создания
+            const isMineTab = document.getElementById('btn-create-mine').classList.contains('tab-active');
+            const isCreatingNew = !document.getElementById('create-section-new').classList.contains('hidden');
+            
+            if (fab && isMineTab && !isCreatingNew) {
                 fab.classList.remove('hidden'); 
+            } else if (fab) {
+                fab.classList.add('hidden');
             }
         
-            // ВОССТАНОВЛЕННЫЙ КОД КАРТОЧЕК
             container.innerHTML = window.customCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
-                // Формируем красивые теги под именем
                 let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
                 tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
                 tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 tagsHtml += '</div>';
                 
-                // ВЫТАСКИВАЕМ КОРОТКОЕ ОПИСАНИЕ:
                 const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
                     ? char.intro_messages['short_desc_' + currentLang] 
                     : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
