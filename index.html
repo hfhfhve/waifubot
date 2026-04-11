@@ -1671,7 +1671,7 @@
             let char = null;
             let isCustom = (source === 'mine' || source === 'community');
 
-            // Ищем персонажа в зависимости от того, откуда кликнули
+            // Поиск персонажа
             if (source === 'base') {
                 char = (window.activeCharactersList || characters).find(c => c.id === charId);
             } else if (source === 'mine') {
@@ -1680,10 +1680,7 @@
                 char = (window.communityCharactersList || []).find(c => c.id === charId);
             }
 
-            if (!char) {
-                console.error("Персонаж не найден:", charId);
-                return;
-            }
+            if (!char) return;
 
             selectedCharacterId = charId;
             const name = isCustom ? char.name : (char['name_' + currentLang] || char['name_ru'] || char.name);
@@ -1700,80 +1697,59 @@
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
 
-            // Отрисовка тегов (ФОТО/ГОЛОС/CUSTOM)
+            // --- ОБНОВЛЕННАЯ ЛОГИКА ТЕГОВ И СТАТУСА ПУБЛИКАЦИИ ---
             const tagsContainer = document.getElementById('char-modal-tags');
             if (tagsContainer) {
                 let tagsHtml = '';
+                
+                // 1. Стандартные теги
                 if (isCustom) {
-                    tagsHtml += `<span class="px-2.5 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
-                    tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                } else {
-                    if (char.has_image !== false) tagsHtml += `<span class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_image || "ФОТО"}</span>`;
-                    if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) tagsHtml += `<span class="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                    tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider">CUSTOM</span>`;
                 }
+                if (char.has_image !== false) {
+                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image}</span>`;
+                }
+
+                // 2. Тег статуса публикации (ТОЛЬКО если персонаж мой)
+                if (source === 'mine') {
+                    if (char.moderation_status === 'public') {
+                        tagsHtml += `<span class="px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-earth-americas"></i> В СООБЩЕСТВЕ</span>`;
+                    } else if (char.moderation_status === 'pending') {
+                        tagsHtml += `<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-clock"></i> ПРОВЕРКА</span>`;
+                    } else if (char.moderation_status === 'rejected') {
+                        tagsHtml += `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-ban"></i> ОТКЛОНЕН</span>`;
+                    } else {
+                        // Приватный - кнопка вместо обычного тега
+                        tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openPublishModal('${char.id}')" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 animate-pulse"><i class="fa-solid fa-upload"></i> ОПУБЛИКОВАТЬ</button>`;
+                    }
+                }
+                
                 tagsContainer.innerHTML = tagsHtml;
             }
 
-            const modal = document.getElementById('character-modal');
-            const launchBtn = document.querySelector('.char-modal-content button[onclick="launchCharacter()"]');
+            // --- УДАЛЯЕМ СТАРЫЕ КНОПКИ ПУБЛИКАЦИИ И ЛАЙКОВ ИЗ НИЖНЕЙ ЧАСТИ ---
+            const publishBtn = document.getElementById('btn-publish-char');
+            if (publishBtn) publishBtn.style.display = 'none';
             
-            // --- 1. ЛОГИКА КНОПКИ "ПУБЛИКАЦИЯ" ---
-            let publishBtn = document.getElementById('btn-publish-char');
-            if (!publishBtn) {
-                publishBtn = document.createElement('button');
-                publishBtn.id = 'btn-publish-char';
-                launchBtn.parentNode.insertBefore(publishBtn, launchBtn);
-            }
-            
-            // Показываем публикацию ТОЛЬКО если открыли из вкладки "Мои"
-            if (source === 'mine') {
-                publishBtn.style.display = 'flex';
-                if (char.moderation_status === 'public') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ОПУБЛИКОВАН';
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-green-500/10 border border-green-500/30 rounded-xl font-bold text-green-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                    publishBtn.onclick = null;
-                } else if (char.moderation_status === 'pending') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-clock"></i> НА МОДЕРАЦИИ';
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-yellow-500/10 border border-yellow-500/30 rounded-xl font-bold text-yellow-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                    publishBtn.onclick = null;
-                } else if (char.moderation_status === 'rejected') {
-                    publishBtn.innerHTML = '<i class="fa-solid fa-ban"></i> ОТКЛОНЕН';
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-red-500/10 border border-red-500/30 rounded-xl font-bold text-red-400 text-sm flex items-center justify-center gap-2 opacity-80 cursor-not-allowed";
-                    publishBtn.onclick = null;
+            const voteContainer = document.getElementById('modal-vote-container');
+            if (voteContainer) {
+                // Лайки оставляем только для персонажей СООБЩЕСТВА (не моих)
+                if (source === 'community' && !char.is_mine) {
+                    voteContainer.style.display = 'flex';
+                    voteContainer.innerHTML = `
+                        <button onclick="voteChar('${char.id}', true)" class="flex-1 h-11 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
+                            <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
+                        </button>
+                        <button onclick="voteChar('${char.id}', false)" class="w-14 h-11 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
+                            <i class="fa-solid fa-thumbs-down"></i>
+                        </button>
+                    `;
                 } else {
-                    // Приватный (можно публиковать)
-                    publishBtn.innerHTML = '<i class="fa-solid fa-earth-americas"></i> СДЕЛАТЬ ПУБЛИЧНЫМ';
-                    publishBtn.className = "shrink-0 mt-3 w-full h-12 bg-[#1a1a1a] border border-blue-500/30 rounded-xl font-bold text-blue-400 text-sm active:scale-98 transition-all flex items-center justify-center gap-2";
-                    publishBtn.onclick = () => { closeCharacterModal(); openPublishModal(charId); };
+                    voteContainer.style.display = 'none';
                 }
-            } else {
-                publishBtn.style.display = 'none';
             }
 
-            // --- 2. ЛОГИКА КНОПОК "ЛАЙК/ДИЗЛАЙК" ВНУТРИ МОДАЛКИ ---
-            let voteContainer = document.getElementById('modal-vote-container');
-            if (!voteContainer) {
-                voteContainer = document.createElement('div');
-                voteContainer.id = 'modal-vote-container';
-                voteContainer.className = "flex gap-2 mt-3 w-full";
-                launchBtn.parentNode.insertBefore(voteContainer, launchBtn);
-            }
-
-            // Показываем лайки только если открыли из Сообщества и это не наш перс
-            if (source === 'community' && !char.is_mine) {
-                voteContainer.style.display = 'flex';
-                voteContainer.innerHTML = `
-                    <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
-                        <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
-                    </button>
-                    <button onclick="voteChar('${char.id}', false)" class="w-16 h-12 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
-                        <i class="fa-solid fa-thumbs-down"></i>
-                    </button>
-                `;
-            } else {
-                voteContainer.style.display = 'none';
-            }
-
+            const modal = document.getElementById('character-modal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-open'); }, 10);
         }
