@@ -1060,6 +1060,9 @@
     <script>
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
         let toastTimeout;
+        let customCharsLoaded = 0;
+        const CUSTOM_CHARS_PER_PAGE = 10;
+        let customScrollObserver = null;
         function showToast(message, type = 'info') {
             const toast = document.getElementById('custom-toast');
             const icon = document.getElementById('toast-icon');
@@ -2502,42 +2505,46 @@
         }
         
         // Переписываем renderCustomCharacters, чтобы управлять пустым состоянием и плюсиком
-        function renderCustomCharacters() {
+        function renderCustomCharacters(reset = false) {
             const container = document.getElementById('my-custom-chars-container');
             const emptyState = document.getElementById('empty-mine-state');
             const fab = document.getElementById('fab-create');
-            
-            // 1. Если нет персонажей
+
             if (!window.customCharactersList || window.customCharactersList.length === 0) {
                 container.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 emptyState.classList.add('flex');
-                if (fab) fab.classList.add('hidden'); // Прячем плюсик
+                if (fab) fab.classList.add('hidden');
                 return;
             }
-        
-            // 2. Если персонажи есть, прячем заглушку
+
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
-            
-            // 🔥 ЖЕЛЕЗОБЕТОННАЯ ПРОВЕРКА 🔥
-            // Смотрим прямо на нижнее меню: активна ли иконка "СОЗДАТЬ"?
+
             const isCreateTabActive = document.getElementById('nav-create').classList.contains('nav-active');
-            // Активна ли кнопка "МОИ" внутри создания?
             const isMineTab = document.getElementById('btn-create-mine').classList.contains('tab-active');
-            // Не открыта ли прямо сейчас форма создания нового перса?
             const isCreatingNew = !document.getElementById('create-section-new').classList.contains('hidden');
-            
-            // Показываем плюс ТОЛЬКО если мы реально сидим во вкладке "Создать" -> "Мои"
+
             if (fab && isCreateTabActive && isMineTab && !isCreatingNew) {
                 fab.classList.remove('hidden'); 
             } else if (fab) {
-                fab.classList.add('hidden'); // Во всех остальных случаях убиваем его
+                fab.classList.add('hidden');
             }
-        
-            // 3. Отрисовка карточек
-            container.innerHTML = window.customCharactersList.map((char, index) => {
-                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+
+            // === ЛОГИКА ПАГИНАЦИИ ===
+            if (reset) {
+                container.innerHTML = '';
+                customCharsLoaded = 0;
+            }
+
+            // Отрезаем следующий кусок в 10 персонажей
+            const charsToRender = window.customCharactersList.slice(customCharsLoaded, customCharsLoaded + CUSTOM_CHARS_PER_PAGE);
+
+            if (charsToRender.length === 0) return; // Все уже загружены
+
+            const html = charsToRender.map((char, index) => {
+                // Убираем задержку анимации для подгружаемых, чтобы не моргали
+                const delayClass = reset ? (index % 2 === 0 ? 'delay-100' : 'delay-200') : '';
                 
                 let tagsHtml = '<div class="flex gap-1.5 mt-1.5">';
                 tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">CUSTOM</span>`;
@@ -2561,6 +2568,40 @@
                 </div>
                 `;
             }).join('');
+
+            // Добавляем новые карточки в конец сетки
+            container.insertAdjacentHTML('beforeend', html);
+            customCharsLoaded += charsToRender.length;
+
+            // Навешиваем умный датчик скролла
+            setupCustomScrollObserver();
+        }
+
+        function setupCustomScrollObserver() {
+            // Удаляем старый датчик, если он был
+            const oldTrigger = document.getElementById('custom-scroll-trigger');
+            if (oldTrigger) oldTrigger.remove();
+
+            // Если загружены все персонажи — датчик больше не нужен
+            if (customCharsLoaded >= window.customCharactersList.length) return;
+
+            const container = document.getElementById('my-custom-chars-container');
+            // Вставляем невидимый блок, который займет всю ширину (col-span-2)
+            container.insertAdjacentHTML('beforeend', `<div id="custom-scroll-trigger" class="col-span-2 h-4 w-full opacity-0"></div>`);
+
+            const trigger = document.getElementById('custom-scroll-trigger');
+
+            // Сбрасываем старый обзервер
+            if (customScrollObserver) customScrollObserver.disconnect();
+
+            // Создаем новый обзервер
+            customScrollObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    renderCustomCharacters(false); // Грузим следующие 10 штук
+                }
+            }, { rootMargin: "50px", threshold: 0.1 }); // rootMargin 50px значит, что начнет грузить чуть ДО того, как юзер долистает до самого конца
+
+            customScrollObserver.observe(trigger);
         }
         
         function fetchCommunityChars() {
