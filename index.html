@@ -1633,7 +1633,19 @@
                 if (char.has_image !== false) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 }
-                if (char.has_voice !== false && ['ru', 'en'].includes(currentLang)) {
+                let charHasVoice = char.has_voice !== false;
+
+                // ХАРДКОД: Выключаем голос на английском для конкретных персонажей
+                if (currentLang === 'en' && ['char:lina', 'char:adriana', 'char:mika'].includes(char.id)) {
+                    charHasVoice = false;
+                }
+                
+                let tagsHtml = '<div class="flex gap-1.5 mt-2">';
+                if (char.has_image !== false) {
+                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                }
+                // Используем нашу новую переменную charHasVoice
+                if (charHasVoice && ['ru', 'en'].includes(currentLang)) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
                 }
                 tagsHtml += '</div>';
