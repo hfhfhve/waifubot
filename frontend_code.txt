@@ -3056,7 +3056,9 @@
                     
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
-                    showToast("❌ " + (data.message || "Ошибка"), "error");
+                    // Добавили подтягивание перевода по error_code
+                    let errMsg = translations[currentLang][data.error_code] || data.message || "Ошибка";
+                    showToast(errMsg, "error");
                     // Возвращаем старый текст при ошибке
                     btn.innerHTML = originalBtnText; 
                 }
