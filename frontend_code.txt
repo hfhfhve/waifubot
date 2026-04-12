@@ -1239,7 +1239,7 @@
                     } else {
                         window.customCharactersList = [];
                     }
-                    renderCustomCharacters(); // Отрисовываем их!
+                    renderCustomCharacters(true); // <--- ДОБАВИЛИ true, чтобы список сбрасывался и рисовался заново!
 
                     // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
