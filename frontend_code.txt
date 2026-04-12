@@ -1688,7 +1688,6 @@
             let char = null;
             let isCustom = (source === 'mine' || source === 'community');
 
-            // Поиск персонажа
             if (source === 'base') {
                 char = (window.activeCharactersList || characters).find(c => c.id === charId);
             } else if (source === 'mine') {
@@ -1714,20 +1713,18 @@
             document.getElementById('char-modal-name').innerText = name;
             document.getElementById('char-modal-desc').innerText = fullDesc;
 
-            // --- ОБНОВЛЕННАЯ ЛОГИКА ТЕГОВ И СТАТУСА ПУБЛИКАЦИИ ---
+            // --- ТЕГИ ---
             const tagsContainer = document.getElementById('char-modal-tags');
             if (tagsContainer) {
                 let tagsHtml = '';
                 
-                // 1. Стандартные теги
                 if (isCustom) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider">CUSTOM</span>`;
                 }
                 if (char.has_image !== false) {
-                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image}</span>`;
+                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang]?.tag_image || "ФОТО"}</span>`;
                 }
 
-                // 2. Тег статуса публикации (ТОЛЬКО если персонаж мой)
                 if (source === 'mine') {
                     if (char.moderation_status === 'public') {
                         tagsHtml += `<span class="px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-earth-americas"></i> ${translations[currentLang]?.tag_public || "В СООБЩЕСТВЕ"}</span>`;
@@ -1736,41 +1733,60 @@
                     } else if (char.moderation_status === 'rejected') {
                         tagsHtml += `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md text-[9px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-ban"></i> ${translations[currentLang]?.tag_rejected || "ОТКЛОНЕН"}</span>`;
                     } else {
-                        // Приватный - кнопка вместо обычного тега
                         tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openPublishModal('${char.id}')" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 animate-pulse"><i class="fa-solid fa-upload"></i> ${translations[currentLang]?.tag_publish || "ОПУБЛИКОВАТЬ"}</button>`;
                     }
                 }
-                
                 tagsContainer.innerHTML = tagsHtml;
             }
 
-            // --- УДАЛЯЕМ СТАРЫЕ КНОПКИ ПУБЛИКАЦИИ И ЛАЙКОВ ИЗ НИЖНЕЙ ЧАСТИ ---
-            const publishBtn = document.getElementById('btn-publish-char');
-            if (publishBtn) publishBtn.style.display = 'none';
-            
+            // --- КНОПКИ ЛАЙКОВ В МОДАЛКЕ СПРАВА ОТ ИМЕНИ ---
             const voteContainer = document.getElementById('modal-vote-container');
             if (voteContainer) {
-                if (source === 'community' && !char.is_mine) {
+                if (source === 'community') {
                     voteContainer.style.display = 'flex';
-                    voteContainer.innerHTML = `
-                        <button onclick="voteChar('${char.id}', true, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-green-400 hover:bg-green-500/20 active:scale-75 transition-all duration-200">
-                            <div class="flex flex-col items-center mt-0.5">
-                                <i class="fa-solid fa-thumbs-up text-xs"></i>
-                                <span id="modal-likes-count" class="text-[9px] font-black">${char.likes || 0}</span>
+                    
+                    if (!char.is_mine) {
+                        // ЧУЖОЙ ПЕРСОНАЖ: Кнопки кликабельны
+                        voteContainer.innerHTML = `
+                            <button onclick="voteChar('${char.id}', true, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-green-400 hover:bg-green-500/20 active:scale-75 transition-all duration-200">
+                                <div class="flex flex-col items-center mt-0.5">
+                                    <i class="fa-solid fa-thumbs-up text-xs"></i>
+                                    <span id="modal-likes-count" class="text-[9px] font-black leading-none mt-1">${char.likes || 0}</span>
+                                </div>
+                            </button>
+                            <button onclick="voteChar('${char.id}', false, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 active:scale-75 transition-all duration-200">
+                                <div class="flex flex-col items-center mt-0.5">
+                                    <i class="fa-solid fa-thumbs-down text-xs"></i>
+                                    <span id="modal-dislikes-count" class="text-[9px] font-black leading-none mt-1">${char.dislikes || 0}</span>
+                                </div>
+                            </button>
+                        `;
+                    } else {
+                        // СВОЙ ПЕРСОНАЖ: Просто отображаем статистику (тусклые, не кликаются)
+                        voteContainer.innerHTML = `
+                            <div class="w-10 h-10 rounded-full bg-black/40 border border-white/5 flex items-center justify-center text-green-400/50">
+                                <div class="flex flex-col items-center mt-0.5">
+                                    <i class="fa-solid fa-thumbs-up text-xs"></i>
+                                    <span id="modal-likes-count" class="text-[9px] font-black leading-none mt-1">${char.likes || 0}</span>
+                                </div>
                             </div>
-                        </button>
-                        <button onclick="voteChar('${char.id}', false, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 active:scale-75 transition-all duration-200">
-                            <div class="flex flex-col items-center mt-0.5">
-                                <i class="fa-solid fa-thumbs-down text-xs"></i>
-                                <span id="modal-dislikes-count" class="text-[9px] font-black">${char.dislikes || 0}</span>
+                            <div class="w-10 h-10 rounded-full bg-black/40 border border-white/5 flex items-center justify-center text-red-400/50">
+                                <div class="flex flex-col items-center mt-0.5">
+                                    <i class="fa-solid fa-thumbs-down text-xs"></i>
+                                    <span id="modal-dislikes-count" class="text-[9px] font-black leading-none mt-1">${char.dislikes || 0}</span>
+                                </div>
                             </div>
-                        </button>
-                    `;
+                        `;
+                    }
                 } else {
                     voteContainer.style.display = 'none';
+                    voteContainer.innerHTML = '';
                 }
             }
 
+            const publishBtn = document.getElementById('btn-publish-char');
+            if (publishBtn) publishBtn.style.display = 'none';
+            
             const modal = document.getElementById('character-modal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-open'); }, 10);
@@ -2584,7 +2600,7 @@
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
-                // НЕКЛИКАБЕЛЬНЫЕ бейджики рейтинга (Просто визуал)
+                // СТАТИСТИКА НА КАРТОЧКЕ (Показываем всегда, всем, но кликать нельзя)
                 let staticStatsHtml = `
                     <div class="absolute top-2 right-2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 z-20 pointer-events-none">
                         <span class="text-green-400 text-[10px] font-bold flex items-center gap-1">
