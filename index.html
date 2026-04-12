@@ -1739,15 +1739,14 @@
             
             const voteContainer = document.getElementById('modal-vote-container');
             if (voteContainer) {
-                // Лайки оставляем только для персонажей СООБЩЕСТВА (не моих)
                 if (source === 'community' && !char.is_mine) {
                     voteContainer.style.display = 'flex';
                     voteContainer.innerHTML = `
-                        <button onclick="voteChar('${char.id}', true)" class="flex-1 h-11 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
+                        <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
                             <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
                         </button>
-                        <button onclick="voteChar('${char.id}', false)" class="w-14 h-11 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-95 transition-transform">
-                            <i class="fa-solid fa-thumbs-down"></i>
+                        <button onclick="voteChar('${char.id}', false)" class="flex-1 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-bold active:scale-95 transition-transform gap-2">
+                            <i class="fa-solid fa-thumbs-down"></i> <span id="modal-dislikes-count">${char.dislikes || 0}</span>
                         </button>
                     `;
                 } else {
@@ -2568,29 +2567,24 @@
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
-                let voteHtml = '';
-                if (!char.is_mine) {
-                    voteHtml = `
-                        <div class="absolute top-2 right-2 flex gap-1 z-30">
-                            <button onclick="event.stopPropagation(); voteChar('${char.id}', true)" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-green-400 active:scale-90 transition-transform">
-                                <i class="fa-solid fa-thumbs-up text-[10px]"></i> <span class="text-[10px] font-bold ml-1">${char.likes || 0}</span>
-                            </button>
-                            <button onclick="event.stopPropagation(); voteChar('${char.id}', false)" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-red-400 active:scale-90 transition-transform">
-                                <i class="fa-solid fa-thumbs-down text-[10px]"></i>
-                            </button>
-                        </div>
-                    `;
-                }
-
                 return `
                 <div onclick="openCharacterModal('${char.id}', 'community')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    ${voteHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
                     
                     <div class="absolute bottom-0 left-0 w-full p-4 z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
-                        <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> ${translations[currentLang]?.lbl_community || "Сообщество"}</p>
+                        
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-[10px] text-gray-300"><i class="fa-solid fa-users text-blue-400"></i> ${translations[currentLang]?.lbl_community || "Сообщество"}</p>
+                            
+                            <div class="flex items-center gap-2 text-[10px] font-bold bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
+                                <span class="text-green-400 flex items-center gap-1"><i class="fa-solid fa-thumbs-up"></i> <span id="card-likes-${char.id}">${char.likes || 0}</span></span>
+                                <span class="text-gray-500">|</span>
+                                <span class="text-red-400 flex items-center gap-1"><i class="fa-solid fa-thumbs-down"></i> <span id="card-dislikes-${char.id}">${char.dislikes || 0}</span></span>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
                 `;
@@ -2662,11 +2656,18 @@
                     if (char) {
                         char.likes = data.likes;
                         char.dislikes = data.dislikes;
-                        renderCommunityChars(); // Обновляем карточки на заднем фоне
                         
-                        // Если открыта модалка, обновляем цифру прямо в ней
+                        // 1. Обновляем цифры внутри открытой модалки
                         const modalLikes = document.getElementById('modal-likes-count');
+                        const modalDislikes = document.getElementById('modal-dislikes-count');
                         if (modalLikes) modalLikes.innerText = data.likes;
+                        if (modalDislikes) modalDislikes.innerText = data.dislikes;
+
+                        // 2. Обновляем цифры на карточке на заднем фоне
+                        const cardLikes = document.getElementById(`card-likes-${charId}`);
+                        const cardDislikes = document.getElementById(`card-dislikes-${charId}`);
+                        if (cardLikes) cardLikes.innerText = data.likes;
+                        if (cardDislikes) cardDislikes.innerText = data.dislikes;
                     }
                 }
             });
