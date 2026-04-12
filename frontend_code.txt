@@ -2484,6 +2484,18 @@
         function openCreateFlow() {
             tg.HapticFeedback.impactOccurred('medium');
             
+            // --- НОВАЯ СТРОКА: Очищаем старые данные ---
+            generatedAiData = null;
+            generatedImageUrl = null;
+            document.getElementById('preview-char-img').classList.add('hidden');
+            document.getElementById('preview-placeholder').classList.remove('hidden');
+            
+            const btnPreview = document.getElementById('btn-generate-preview');
+            if (btnPreview) {
+                 btnPreview.innerHTML = `<i class="fa-solid fa-magic"></i> <span id="text-btn-generate-photo"><span data-i18n="btn_generate_photo">${translations[currentLang].btn_generate_photo}</span> (2 💎)</span>`;
+            }
+            // ------------------------------------------
+
             // Прячем табы "Мои/Сообщество"
             document.getElementById('create-tabs-container').classList.add('hidden');
             
