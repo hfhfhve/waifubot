@@ -3748,6 +3748,8 @@ const translations = {
                 tag_pending: "ПРОВЕРКА",
                 tag_rejected: "ОТКЛОНЕН",
                 tag_publish: "ОПУБЛИКОВАТЬ",
+                toast_banned_deepfake: "❌ Запрещено! Нельзя использовать реальных людей и знаменитостей.",
+                toast_banned_hate: "❌ Запрещено! Пропаганда ненависти и запрещенные символы недопустимы.",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -3877,6 +3879,8 @@ const translations = {
                 tag_pending: "BEKLEMEDE",
                 tag_rejected: "REDDEDİLDİ",
                 tag_publish: "YAYINLA",
+                toast_banned_deepfake: "❌ Yasak! Gerçek kişilerin veya ünlülerin isimlerinin kullanılmasına izin verilmez.",
+                toast_banned_hate: "❌ Yasak! Nefret söylemi ve yasaklı sembollere izin verilmez.",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -4006,6 +4010,8 @@ const translations = {
                 tag_pending: "PENDING",
                 tag_rejected: "REJECTED",
                 tag_publish: "PUBLISH",
+                toast_banned_deepfake: "❌ Prohibited! Using names of real people or celebrities is not allowed.",
+                toast_banned_hate: "❌ Prohibited! Hate speech and banned symbols are not allowed.",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -4135,6 +4141,8 @@ const translations = {
                 tag_pending: "PENDIENTE",
                 tag_rejected: "RECHAZADO",
                 tag_publish: "PUBLICAR",
+                toast_banned_deepfake: "❌ ¡Prohibido! No se permite el uso de nombres de personas reales o celebridades.",
+                toast_banned_hate: "❌ ¡Prohibido! El discurso de odio y los símbolos prohibidos no están permitidos.",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -4264,6 +4272,8 @@ const translations = {
                 tag_pending: "PENDENTE",
                 tag_rejected: "REJEITADO",
                 tag_publish: "PUBLICAR",
+                toast_banned_deepfake: "❌ Proibido! O uso de nomes de pessoas reais ou celebridades não é permitido.",
+                toast_banned_hate: "❌ Proibido! Discurso de ódio e símbolos proibidos não são permitidos.",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -4393,6 +4403,8 @@ const translations = {
                 tag_pending: "DITINJAU",
                 tag_rejected: "DITOLAK",
                 tag_publish: "PUBLIKASIKAN",
+                toast_banned_deepfake: "❌ Dilarang! Tidak diperbolehkan menggunakan nama orang asli atau selebritas.",
+                toast_banned_hate: "❌ Dilarang! Ujaran kebencian dan simbol terlarang tidak diperbolehkan.",
             }
         };
 
