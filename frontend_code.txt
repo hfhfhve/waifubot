@@ -786,9 +786,14 @@
             
             <div class="flex-1 min-h-0 px-6 pt-6 pb-4 flex flex-col relative -mt-12 z-10">
                 
-                <div class="flex flex-col mb-3 shrink-0">
-                    <h2 id="char-modal-name" class="text-3xl font-black text-white leading-none mb-2">Name</h2>
-                    <div id="char-modal-tags" class="flex flex-wrap gap-2"></div>
+                <div class="flex justify-between items-start mb-3 shrink-0">
+                    <div class="flex flex-col min-w-0 pr-2">
+                        <h2 id="char-modal-name" class="text-3xl font-black text-white leading-none mb-2 truncate">Name</h2>
+                        <div id="char-modal-tags" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    
+                    <div id="modal-vote-container" class="flex gap-2 shrink-0">
+                        </div>
                 </div>
                 
                 <div class="flex-1 overflow-y-auto pr-3 mb-4 text-sm text-gray-300 leading-relaxed custom-scroll" id="char-modal-desc">
@@ -1748,11 +1753,17 @@
                 if (source === 'community' && !char.is_mine) {
                     voteContainer.style.display = 'flex';
                     voteContainer.innerHTML = `
-                        <button onclick="voteChar('${char.id}', true)" class="flex-1 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 font-bold active:scale-95 transition-transform gap-2">
-                            <i class="fa-solid fa-thumbs-up"></i> <span id="modal-likes-count">${char.likes || 0}</span>
+                        <button onclick="voteChar('${char.id}', true, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-green-400 hover:bg-green-500/20 active:scale-75 transition-all duration-200">
+                            <div class="flex flex-col items-center mt-0.5">
+                                <i class="fa-solid fa-thumbs-up text-xs"></i>
+                                <span id="modal-likes-count" class="text-[9px] font-black">${char.likes || 0}</span>
+                            </div>
                         </button>
-                        <button onclick="voteChar('${char.id}', false)" class="flex-1 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-bold active:scale-95 transition-transform gap-2">
-                            <i class="fa-solid fa-thumbs-down"></i> <span id="modal-dislikes-count">${char.dislikes || 0}</span>
+                        <button onclick="voteChar('${char.id}', false, this)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 active:scale-75 transition-all duration-200">
+                            <div class="flex flex-col items-center mt-0.5">
+                                <i class="fa-solid fa-thumbs-down text-xs"></i>
+                                <span id="modal-dislikes-count" class="text-[9px] font-black">${char.dislikes || 0}</span>
+                            </div>
                         </button>
                     `;
                 } else {
@@ -2573,24 +2584,27 @@
             container.innerHTML = window.communityCharactersList.map((char, index) => {
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
                 
+                // НЕКЛИКАБЕЛЬНЫЕ бейджики рейтинга (Просто визуал)
+                let staticStatsHtml = `
+                    <div class="absolute top-2 right-2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 z-20 pointer-events-none">
+                        <span class="text-green-400 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-thumbs-up"></i> <span id="card-likes-${char.id}">${char.likes || 0}</span>
+                        </span>
+                        <span class="text-red-400 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-thumbs-down"></i> <span id="card-dislikes-${char.id}">${char.dislikes || 0}</span>
+                        </span>
+                    </div>
+                `;
+
                 return `
                 <div onclick="openCharacterModal('${char.id}', 'community')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
+                    ${staticStatsHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
                     
                     <div class="absolute bottom-0 left-0 w-full p-4 z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
-                        
-                        <div class="flex items-center justify-between mt-1">
-                            <p class="text-[10px] text-gray-300"><i class="fa-solid fa-users text-blue-400"></i> ${translations[currentLang]?.lbl_community || "Сообщество"}</p>
-                            
-                            <div class="flex items-center gap-2 text-[10px] font-bold bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
-                                <span class="text-green-400 flex items-center gap-1"><i class="fa-solid fa-thumbs-up"></i> <span id="card-likes-${char.id}">${char.likes || 0}</span></span>
-                                <span class="text-gray-500">|</span>
-                                <span class="text-red-400 flex items-center gap-1"><i class="fa-solid fa-thumbs-down"></i> <span id="card-dislikes-${char.id}">${char.dislikes || 0}</span></span>
-                            </div>
-                        </div>
-                        
+                        <p class="text-[10px] text-gray-300 mt-1"><i class="fa-solid fa-users text-blue-400"></i> ${translations[currentLang]?.lbl_community || "Сообщество"}</p>
                     </div>
                 </div>
                 `;
@@ -2647,9 +2661,20 @@
         }
         
         // --- ЛОГИКА ГОЛОСОВАНИЯ ---
-        function voteChar(charId, isLike) {
-            tg.HapticFeedback.impactOccurred('light');
+        function voteChar(charId, isLike, btnElement) {
+            tg.HapticFeedback.impactOccurred('medium');
             
+            // Запускаем CSS анимацию "подпрыгивания" кнопки
+            if (btnElement) {
+                btnElement.classList.add('scale-125');
+                btnElement.classList.replace('bg-white/5', isLike ? 'bg-green-500/40' : 'bg-red-500/40');
+                setTimeout(() => {
+                    btnElement.classList.remove('scale-125');
+                    btnElement.classList.replace(isLike ? 'bg-green-500/40' : 'bg-red-500/40', 'bg-white/5');
+                }, 200);
+            }
+
+            // Отправляем голос на бэкенд
             fetch('https://waifubot.website/webhook/vote-character', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2658,25 +2683,27 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    // Обновляем данные в локальном массиве
                     const char = window.communityCharactersList.find(c => c.id === charId);
                     if (char) {
                         char.likes = data.likes;
                         char.dislikes = data.dislikes;
                         
-                        // 1. Обновляем цифры внутри открытой модалки
-                        const modalLikes = document.getElementById('modal-likes-count');
-                        const modalDislikes = document.getElementById('modal-dislikes-count');
-                        if (modalLikes) modalLikes.innerText = data.likes;
-                        if (modalDislikes) modalDislikes.innerText = data.dislikes;
+                        // Обновляем цифры внутри открытой модалки
+                        const mLike = document.getElementById('modal-likes-count');
+                        const mDis = document.getElementById('modal-dislikes-count');
+                        if (mLike) mLike.innerText = data.likes;
+                        if (mDis) mDis.innerText = data.dislikes;
 
-                        // 2. Обновляем цифры на карточке на заднем фоне
-                        const cardLikes = document.getElementById(`card-likes-${charId}`);
-                        const cardDislikes = document.getElementById(`card-dislikes-${charId}`);
-                        if (cardLikes) cardLikes.innerText = data.likes;
-                        if (cardDislikes) cardDislikes.innerText = data.dislikes;
+                        // Обновляем цифры на статических бейджах в фоне (в списке)
+                        const cLike = document.getElementById(`card-likes-${charId}`);
+                        const cDis = document.getElementById(`card-dislikes-${charId}`);
+                        if (cLike) cLike.innerText = data.likes;
+                        if (cDis) cDis.innerText = data.dislikes;
                     }
                 }
-            });
+            })
+            .catch(err => console.error("Ошибка при голосовании:", err));
         }
 
         function showMaintenanceScreen() {
