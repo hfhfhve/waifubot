@@ -2749,6 +2749,19 @@
                 
                 if (data.success) {
                     showToast("✅ Отправлено на модерацию!", "success");
+                    
+                    // === 🛠 ИСПРАВЛЕНИЕ: Обновляем статус локально ===
+                    if (window.customCharactersList) {
+                        const char = window.customCharactersList.find(c => c.id === charToPublish);
+                        if (char) char.moderation_status = 'pending'; // Ставим статус "в ожидании"
+                    }
+                    
+                    // Перерисовываем список, чтобы тег на карточке поменялся на ПРОВЕРКА
+                    renderCustomCharacters(true); 
+                    
+                    // На всякий случай дергаем сервер, чтобы обновить все данные
+                    fetchUserData(); 
+                    // ===============================================
                 } else {
                     showToast("❌ " + data.message, "error");
                 }
