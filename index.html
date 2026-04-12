@@ -1888,7 +1888,10 @@
                     const btnCommunity = document.getElementById('btn-create-community');
                     if (btnCommunity && btnCommunity.classList.contains('tab-active')) {
                         fab.classList.add('hidden');
-                        fetchCommunityChars();
+                        // Та же защита от двойной анимации
+                        if (!window.communityCharactersList || window.communityCharactersList.length === 0) {
+                            fetchCommunityChars();
+                        }
                     } else {
                         // Теперь наша проверка из прошлого шага сработает идеально!
                         renderCustomCharacters(); 
@@ -2471,7 +2474,13 @@
                 btnMine.className = "flex-1 py-2 rounded-xl text-[11px] font-medium tab-inactive";
                 // ЖЕСТКО ПРЯЧЕМ плюсик во вкладке Сообщества
                 if (fab) fab.classList.add('hidden'); 
-                fetchCommunityChars();
+                
+                // Проверяем: если список уже загружен в память, мы не делаем повторный fetch.
+                // Это предотвратит стирание HTML и двойное срабатывание анимации.
+                const container = document.getElementById('community-chars-container');
+                if (!window.communityCharactersList || window.communityCharactersList.length === 0 || container.innerHTML.trim() === '') {
+                    fetchCommunityChars();
+                }
             }
         }
         
