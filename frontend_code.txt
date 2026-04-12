@@ -1059,6 +1059,7 @@
     
     <script>
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
+        let currentStyle = 'real';
         let toastTimeout;
         let customCharsLoaded = 0;
         const CUSTOM_CHARS_PER_PAGE = 10;
@@ -1174,6 +1175,20 @@
                     }
                     if(document.getElementById('balance-gems')) {
                         document.getElementById('balance-gems').innerText = user.gems || 0;
+                    }
+
+                    if (user.is_anime_mode === true) {
+                        // Если сервер говорит, что у нас аниме-режим, переключаем UI БЕЗ отправки запроса обратно
+                        currentStyle = 'anime';
+                        const btnReal = document.getElementById('btn-style-real');
+                        const btnAnime = document.getElementById('btn-style-anime');
+                        
+                        if (btnReal && btnAnime) {
+                            btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md z-10 relative";
+                            btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
+                        }
+                    } else {
+                        currentStyle = 'real';
                     }
         
                     // --- 3. ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА ---
@@ -2125,8 +2140,6 @@
               .catch(() => tg.showAlert("Ошибка"));
         }
 
-        // --- ЛОГИКА ПЕРЕКЛЮЧАТЕЛЯ АНИМЕ/РЕАЛИЗМ ---
-        let currentStyle = 'real';
 
         function toggleStyle(style) {
             if (currentStyle === style) return;
