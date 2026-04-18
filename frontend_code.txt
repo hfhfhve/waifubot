@@ -1064,6 +1064,9 @@
         let customCharsLoaded = 0;
         const CUSTOM_CHARS_PER_PAGE = 10;
         let customScrollObserver = null;
+        let communityCharsLoaded = 0;
+        const COMMUNITY_CHARS_PER_PAGE = 8; // Грузим по 8 штук
+        let communityScrollObserver = null;
         function showToast(message, type = 'info') {
             const toast = document.getElementById('custom-toast');
             const icon = document.getElementById('toast-icon');
@@ -2660,16 +2663,16 @@
                 } else {
                     window.communityCharactersList = [];
                 }
-                renderCommunityChars();
+                renderCommunityChars(true); // <--- ПЕРЕДАЕМ true ДЛЯ СБРОСА ПАГИНАЦИИ
             })
             .catch(err => {
                 console.error("Ошибка загрузки сообщества:", err);
                 window.communityCharactersList = [];
-                renderCommunityChars();
+                renderCommunityChars(true); // <--- ЗДЕСЬ ТОЖЕ
             });
         }
         
-        function renderCommunityChars() {
+        function renderCommunityChars(reset = false) {
             const container = document.getElementById('community-chars-container');
             
             if (!window.communityCharactersList || window.communityCharactersList.length === 0) {
@@ -2680,11 +2683,22 @@
                     </div>`;
                 return;
             }
-
-            container.innerHTML = window.communityCharactersList.map((char, index) => {
-                const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
+        
+            // === ЛОГИКА ПАГИНАЦИИ ===
+            if (reset) {
+                container.innerHTML = '';
+                communityCharsLoaded = 0;
+            }
+        
+            // Отрезаем следующий кусок в 8 персонажей
+            const charsToRender = window.communityCharactersList.slice(communityCharsLoaded, communityCharsLoaded + COMMUNITY_CHARS_PER_PAGE);
+        
+            if (charsToRender.length === 0) return; // Все уже загружены
+        
+            const html = charsToRender.map((char, index) => {
+                // Задержка анимации только при первичном рендере
+                const delayClass = reset ? (index % 2 === 0 ? 'delay-100' : 'delay-200') : '';
                 
-                // СТАТИСТИКА НА КАРТОЧКЕ (Показываем всегда, всем, но кликать нельзя)
                 let staticStatsHtml = `
                     <div class="absolute top-2 right-2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 z-20 pointer-events-none">
                         <span class="text-green-400 text-[10px] font-bold flex items-center gap-1">
@@ -2695,7 +2709,7 @@
                         </span>
                     </div>
                 `;
-
+        
                 return `
                 <div onclick="openCharacterModal('${char.id}', 'community')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-blue-500/20 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
                     <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
@@ -2709,6 +2723,39 @@
                 </div>
                 `;
             }).join('');
+        
+            // Добавляем новые карточки в конец сетки
+            container.insertAdjacentHTML('beforeend', html);
+            communityCharsLoaded += charsToRender.length;
+        
+            // Навешиваем умный датчик скролла
+            setupCommunityScrollObserver();
+        }
+
+        function setupCommunityScrollObserver() {
+            // Удаляем старый датчик, если он был
+            const oldTrigger = document.getElementById('community-scroll-trigger');
+            if (oldTrigger) oldTrigger.remove();
+        
+            // Если загружены все персонажи — датчик больше не нужен
+            if (communityCharsLoaded >= window.communityCharactersList.length) return;
+        
+            const container = document.getElementById('community-chars-container');
+            // Вставляем невидимый блок-триггер в самый низ списка
+            container.insertAdjacentHTML('beforeend', `<div id="community-scroll-trigger" class="col-span-2 h-4 w-full opacity-0"></div>`);
+        
+            const trigger = document.getElementById('community-scroll-trigger');
+        
+            if (communityScrollObserver) communityScrollObserver.disconnect();
+        
+            // Создаем новый обзервер
+            communityScrollObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    renderCommunityChars(false); // Грузим следующие 8 штук
+                }
+            }, { rootMargin: "50px", threshold: 0.1 });
+        
+            communityScrollObserver.observe(trigger);
         }
         
         // --- ЛОГИКА ПУБЛИКАЦИИ ---
