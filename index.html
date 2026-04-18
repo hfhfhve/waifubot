@@ -2026,9 +2026,11 @@
                         if (status === 'paid') { 
                             tg.showAlert("Успешная оплата! 🎉"); 
                             closePaymentModal(); 
+                            // Запрашиваем актуальные данные с сервера, чтобы обновить баланс
+                            fetchUserData(); 
                         }
                     });
-                } 
+                }
                 else {
                     tg.showAlert("Что-то пошло не так: " + JSON.stringify(data).substring(0, 100));
                 }
