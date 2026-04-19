@@ -124,6 +124,29 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
+        /* === БАБЛЫ ДЛЯ ИСТОРИИ ЧАТА === */
+        .msg-bubble {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #7928ca 0%, #ff0080 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-ai {
+            align-self: flex-start;
+            background: #222;
+            color: #e0e0e0;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
         /* Переключатели */
         .custom-tab-bg {
             background: rgba(0, 0, 0, 0.4);
@@ -393,42 +416,32 @@
 
     <div class="h-20 w-full"></div>
 
-    <div id="tab-chat-room" class="hidden fixed inset-0 z-[150] bg-[#050505] flex flex-col animate-fade-up">
-        <div class="glass-nav px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
-            <button onclick="closeChatRoom()" class="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90 transition-all">
-                <i class="fa-solid fa-chevron-left text-xl"></i>
-            </button>
-            <div class="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
-                <img id="chat-room-avatar" src="" class="w-full h-full object-cover">
-            </div>
-            <div class="flex-1 min-w-0">
-                <h3 id="chat-room-name" class="text-sm font-black text-white truncate leading-none mb-1">Name</h3>
-                <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Online</span>
-            </div>
-        </div>
-    
-        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll flex flex-col">
-            </div>
-    
-        <div id="ai-typing-indicator" class="hidden px-6 py-2 text-[10px] text-gray-500 italic">
-            <span id="ai-typing-name">Character</span> печатает...
-        </div>
-    
-        <div class="p-4 bg-[#0a0a0a] border-t border-white/5 shrink-0 pb-8">
-            <div class="flex items-center gap-2 mb-3">
-                <button onclick="requestPhotoInChat()" class="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-pink-400 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i class="fa-solid fa-camera"></i> ФОТО
+    <div id="chat-history-modal" class="fixed inset-0 z-[160] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeChatHistoryModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full char-modal-content bg-[#111] overflow-hidden flex flex-col h-[90vh]">
+            
+            <div class="glass-nav px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0 z-20">
+                <button onclick="closeChatHistoryModal()" class="w-8 h-8 flex items-center justify-center text-gray-400 active:scale-90 transition-all">
+                    <i class="fa-solid fa-chevron-left text-xl"></i>
                 </button>
-                <button onclick="requestVoiceInChat()" class="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-blue-400 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i class="fa-solid fa-microphone"></i> ГОЛОС
+                <div class="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+                    <img id="history-avatar" src="" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 id="history-name" class="text-base font-black text-white truncate leading-tight">Name</h3>
+                    <span class="text-[10px] text-gray-400 font-medium" data-i18n="history_subtitle">История переписки</span>
+                </div>
+            </div>
+    
+            <div id="history-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll relative z-10 flex flex-col">
+                </div>
+    
+            <div class="p-4 bg-gradient-to-t from-[#000] to-transparent shrink-0 z-20">
+                <button id="btn-resume-history" class="w-full h-14 bg-gradient-to-r from-pink-600 to-purple-700 rounded-xl font-black text-white shadow-[0_5px_20px_rgba(219,39,119,0.3)] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> <span data-i18n="btn_resume_chat">ВЫБРАТЬ ПЕРСОНАЖА</span>
                 </button>
             </div>
-            <div class="flex items-end gap-2 bg-[#1a1a1a] rounded-2xl p-1.5 border border-white/10">
-                <textarea id="chat-input" placeholder="Напиши что-нибудь..." class="flex-1 bg-transparent border-none outline-none text-sm text-white p-2 max-h-32 resize-none custom-scroll" rows="1"></textarea>
-                <button onclick="sendMessageTma()" class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-purple-700 text-white flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-pink-500/20">
-                    <i class="fa-solid fa-paper-plane text-sm"></i>
-                </button>
-            </div>
+    
         </div>
     </div>
 
@@ -3398,7 +3411,7 @@
                 const safeName = displayName.replace(/'/g, "\\'");
         
                 return `
-                <div onclick="resumeChat('${char.id}', '${chat.session_id}', '${safeName}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
+                <div onclick="openChatHistoryModal('${char.id}', '${chat.session_id}', '${safeName}', '${char.image}')" class="bg-[#1a1a1a] rounded-2xl... p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
                         <div class="w-14 h-14 rounded-full overflow-hidden border border-white/10">
                             <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover">
@@ -3439,6 +3452,66 @@
             }
         
             container.innerHTML = html;
+        }
+
+        function openChatHistoryModal(characterId, sessionId, charName, avatarUrl) {
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            // Заполняем шапку
+            document.getElementById('history-name').innerText = charName;
+            document.getElementById('history-avatar').src = avatarUrl || 'https://placehold.co/100x100/111/fff?text=U';
+            
+            // Привязываем функцию к кнопке внизу
+            const btnResume = document.getElementById('btn-resume-history');
+            btnResume.onclick = () => {
+                closeChatHistoryModal();
+                resumeChat(characterId, sessionId, charName);
+            };
+        
+            const modal = document.getElementById('chat-history-modal');
+            const container = document.getElementById('history-messages');
+            
+            // Показываем лоадер
+            container.innerHTML = '<div class="flex flex-col items-center justify-center h-full opacity-50"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-3"></i><p class="text-xs text-gray-400" data-i18n="loading">' + (translations[currentLang].loading || 'Загрузка...') + '</p></div>';
+        
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-open'), 10);
+        
+            // Тянем полную историю с бэкенда
+            fetch(`${BASE_URL}/webhook/get-full-history`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.messages) {
+                    container.innerHTML = ''; // Чистим лоадер
+                    
+                    data.messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `msg-bubble ${msg.role === 'user' ? 'msg-user' : 'msg-ai'}`;
+                        div.innerText = msg.content;
+                        container.appendChild(div);
+                    });
+        
+                    // Прокручиваем вниз к последнему сообщению
+                    setTimeout(() => {
+                        container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
+                    }, 50);
+                } else {
+                    container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка загрузки истории.</p>';
+                }
+            })
+            .catch(err => {
+                container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка соединения.</p>';
+            });
+        }
+        
+        function closeChatHistoryModal() {
+            const modal = document.getElementById('chat-history-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         // --- УМНОЕ ФОРМАТИРОВАНИЕ ВРЕМЕНИ ЧАТОВ ---
