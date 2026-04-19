@@ -132,6 +132,29 @@
             border: 1px solid var(--glass-border);
         }
 
+        .msg-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #7928ca 0%, #ff0080 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-ai {
+            align-self: flex-start;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
         .tab-active {
             background: #222;
             color: white;
@@ -369,6 +392,45 @@
     </div>
 
     <div class="h-20 w-full"></div>
+
+    <div id="tab-chat-room" class="hidden fixed inset-0 z-[150] bg-[#050505] flex flex-col animate-fade-up">
+        <div class="glass-nav px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
+            <button onclick="closeChatRoom()" class="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90 transition-all">
+                <i class="fa-solid fa-chevron-left text-xl"></i>
+            </button>
+            <div class="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
+                <img id="chat-room-avatar" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 id="chat-room-name" class="text-sm font-black text-white truncate leading-none mb-1">Name</h3>
+                <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Online</span>
+            </div>
+        </div>
+    
+        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll flex flex-col">
+            </div>
+    
+        <div id="ai-typing-indicator" class="hidden px-6 py-2 text-[10px] text-gray-500 italic">
+            <span id="ai-typing-name">Character</span> печатает...
+        </div>
+    
+        <div class="p-4 bg-[#0a0a0a] border-t border-white/5 shrink-0 pb-8">
+            <div class="flex items-center gap-2 mb-3">
+                <button onclick="requestPhotoInChat()" class="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-pink-400 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fa-solid fa-camera"></i> ФОТО
+                </button>
+                <button onclick="requestVoiceInChat()" class="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-blue-400 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fa-solid fa-microphone"></i> ГОЛОС
+                </button>
+            </div>
+            <div class="flex items-end gap-2 bg-[#1a1a1a] rounded-2xl p-1.5 border border-white/10">
+                <textarea id="chat-input" placeholder="Напиши что-нибудь..." class="flex-1 bg-transparent border-none outline-none text-sm text-white p-2 max-h-32 resize-none custom-scroll" rows="1"></textarea>
+                <button onclick="sendMessageTma()" class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-purple-700 text-white flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-pink-500/20">
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="tab-home" class="px-3 min-h-screen">
         
@@ -3454,30 +3516,111 @@
             tg.close(); 
         }
 
-        function resumeChat(characterId, sessionId, charName) { // <--- Добавили charName
-            tg.HapticFeedback.impactOccurred('light');
+        let currentOpenSession = null;
+        let currentOpenCharacter = null;
         
-            // Отправляем запрос на сервер
-            fetch(WEBHOOK_RESUME, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    character_id: characterId,
-                    session_id: sessionId,
-                    char_name: charName, // <--- Передаем имя на бэкенд
-                    chat_id: tg.initDataUnsafe?.user?.id,
-                    initData: tg.initData
-                })
-            })
-            .then(() => {
-                // Как только запрос ушел и сервер его принял — сразу закрываем апп!
-                tg.close(); 
-            })
-            .catch(err => {
-                // Даже если браузер Телеграма вдруг чихнет и выдаст сетевую ошибку, 
-                // мы знаем, что бэкенд уже отправил сообщения. Жестко закрываем окно!
-                tg.close();
-            });
+        // Переписываем функцию открытия чата
+        async function resumeChat(characterId, sessionId, charName) {
+            tg.HapticFeedback.impactOccurred('medium');
+            currentOpenSession = sessionId;
+            
+            // Ищем данные персонажа для шапки
+            const char = (window.activeCharactersList || []).find(c => c.id === characterId || c.id.replace('char:', '') === characterId) 
+                      || (window.customCharactersList || []).find(c => c.id === characterId);
+        
+            if (!char) return;
+            currentOpenCharacter = char;
+        
+            // Заполняем шапку
+            document.getElementById('chat-room-avatar').src = char.image;
+            document.getElementById('chat-room-name').innerText = charName;
+            document.getElementById('ai-typing-name').innerText = charName;
+            
+            // Показываем экран чата
+            const chatRoom = document.getElementById('tab-chat-room');
+            chatRoom.classList.remove('hidden');
+            
+            // Очищаем старые сообщения и грузим историю
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '<div class="flex justify-center py-10 opacity-30"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/webhook/get-messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, initData: tg.initData })
+                });
+                const data = await response.json();
+                
+                container.innerHTML = ''; // Очищаем лоадер
+                if (data.success && data.messages) {
+                    data.messages.forEach(msg => appendMessage(msg.role, msg.content));
+                    scrollToBottom();
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки истории:", e);
+            }
+        }
+        
+        function appendMessage(role, content) {
+            const container = document.getElementById('chat-messages-container');
+            const div = document.createElement('div');
+            div.className = `msg-bubble ${role === 'user' ? 'msg-user' : 'msg-ai'} animate-fade-up`;
+            div.innerText = content;
+            container.appendChild(div);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            const container = document.getElementById('chat-messages-container');
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        }
+        
+        function closeChatRoom() {
+            document.getElementById('tab-chat-room').classList.add('hidden');
+            currentOpenSession = null;
+            fetchChatsList(); // Обновляем список чатов на главном экране
+        }
+        
+        async function sendMessageTma() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentOpenSession) return;
+        
+            input.value = '';
+            tg.HapticFeedback.impactOccurred('light');
+            
+            // 1. Показываем сообщение юзера
+            appendMessage('user', text);
+            
+            // 2. Показываем индикатор печати
+            document.getElementById('ai-typing-indicator').classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/webhook/chat-tma`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        session_id: currentOpenSession, 
+                        text: text,
+                        initData: tg.initData 
+                    })
+                });
+                const data = await response.json();
+                
+                document.getElementById('ai-typing-indicator').classList.add('hidden');
+                
+                if (data.success) {
+                    appendMessage('assistant', data.response);
+                    // Обновляем баланс звезд, если он пришел
+                    if (data.new_stars !== undefined) document.getElementById('balance-stars').innerText = data.new_stars;
+                } else {
+                    showToast(data.message || "Ошибка отправки", "error");
+                }
+            } catch (e) {
+                document.getElementById('ai-typing-indicator').classList.add('hidden');
+                showToast("Ошибка сети", "error");
+            }
         }
 
         // --- ЛОГИКА НАСТРОЕК ЧАТА (ТРИ ТОЧКИ) ---
