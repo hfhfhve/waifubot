@@ -2731,7 +2731,7 @@
         }
         
         function fetchCommunityChars() {
-            fetch('https://waifubot.website/webhook/get-community-chars', {
+            fetch('https://api.waifubot.website/webhook/get-community-chars', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ initData: tg.initData })
@@ -2915,7 +2915,7 @@
             }
 
             // Отправляем голос на бэкенд
-            fetch('https://waifubot.website/webhook/vote-character', {
+            fetch('https://api.waifubot.website/webhook/vote-character', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ character_id: charId, is_like: isLike, initData: tg.initData })
