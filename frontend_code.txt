@@ -3593,46 +3593,38 @@
         let currentOpenCharacter = null;
         
         // Переписываем функцию открытия чата
-        async function resumeChat(characterId, sessionId, charName) {
-            tg.HapticFeedback.impactOccurred('medium');
-            currentOpenSession = sessionId;
-            
-            // Ищем данные персонажа для шапки
-            const char = (window.activeCharactersList || []).find(c => c.id === characterId || c.id.replace('char:', '') === characterId) 
-                      || (window.customCharactersList || []).find(c => c.id === characterId);
+        function resumeChat(characterId, sessionId, charName) { 
+            tg.HapticFeedback.impactOccurred('light');
         
-            if (!char) return;
-            currentOpenCharacter = char;
-        
-            // Заполняем шапку
-            document.getElementById('chat-room-avatar').src = char.image;
-            document.getElementById('chat-room-name').innerText = charName;
-            document.getElementById('ai-typing-name').innerText = charName;
-            
-            // Показываем экран чата
-            const chatRoom = document.getElementById('tab-chat-room');
-            chatRoom.classList.remove('hidden');
-            
-            // Очищаем старые сообщения и грузим историю
-            const container = document.getElementById('chat-messages-container');
-            container.innerHTML = '<div class="flex justify-center py-10 opacity-30"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
-            
-            try {
-                const response = await fetch(`${BASE_URL}/webhook/get-messages`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: sessionId, initData: tg.initData })
-                });
-                const data = await response.json();
-                
-                container.innerHTML = ''; // Очищаем лоадер
-                if (data.success && data.messages) {
-                    data.messages.forEach(msg => appendMessage(msg.role, msg.content));
-                    scrollToBottom();
-                }
-            } catch (e) {
-                console.error("Ошибка загрузки истории:", e);
+            // Если функция вызвана из модалки истории, показываем спиннер на кнопке
+            const btnResume = document.getElementById('btn-resume-history');
+            if (btnResume) {
+                btnResume.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="loading">ЗАПУСКАЕМ...</span>';
+                btnResume.disabled = true;
             }
+        
+            // Отправляем запрос на сервер для смены активного персонажа и отправки сообщения в ТГ
+            fetch(WEBHOOK_RESUME, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    character_id: characterId,
+                    session_id: sessionId,
+                    char_name: charName, // Передаем имя на бэкенд
+                    chat_id: tg.initDataUnsafe?.user?.id,
+                    initData: tg.initData
+                })
+            })
+            .then(() => {
+                // Как только запрос ушел и сервер его принял — сразу жестко закрываем апп!
+                tg.close(); 
+            })
+            .catch(err => {
+                console.error("Ошибка возобновления чата:", err);
+                // Даже если браузер Телеграма вдруг чихнет и выдаст сетевую ошибку, 
+                // мы знаем, что бэкенд уже скорее всего отработал. Жестко закрываем окно!
+                tg.close();
+            });
         }
         
         function appendMessage(role, content) {
