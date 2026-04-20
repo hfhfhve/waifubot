@@ -1362,6 +1362,7 @@
                     // === 👇 ВСТАВЛЯЕМ ЛОГИКУ ТАЙМЕРА LTO СЮДА 👇 ===
                     // Прямо внутри if (user), чтобы у нас был доступ к переменной data
                     if (data.lto_seconds_left && data.lto_seconds_left > 0) {
+                        updateLtoBannerLanguage(currentLang);
                         const ltoBanner = document.getElementById('lto-banner');
                         const ltoTimer = document.getElementById('lto-timer');
                         const navbar = document.querySelector('.fixed.top-0.left-0.w-full.z-50'); 
