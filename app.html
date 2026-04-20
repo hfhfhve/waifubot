@@ -16,6 +16,7 @@
         }
     </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
 
@@ -1510,13 +1511,16 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
-                    // Добавили ключи, в которых есть HTML-теги (<b>, <br>, <span> и тд)
-                    const htmlKeys = ['come_back', 'invite_desc', 'age_tos_agree', 'community_info', 'publish_desc'];
+                    // Список ключей, где НУЖЕН HTML (безопасные ключи)
+                    const safeHtmlKeys = ['come_back', 'invite_desc', 'age_tos_agree', 'community_info', 'publish_desc'];
                     
-                    if (htmlKeys.includes(key)) {
-                        el.innerHTML = translations[lang][key];
+                    if (safeHtmlKeys.includes(key)) {
+                        // Для этих ключей можно HTML, но с санитизацией
+                        const sanitized = DOMPurify.sanitize(translations[lang][key]);
+                        el.innerHTML = sanitized;
                     } else {
-                        el.innerText = translations[lang][key];
+                        // Для всех остальных - только текст!
+                        el.textContent = translations[lang][key];
                     }
                 }
             });
@@ -1786,7 +1790,8 @@
 
             container.innerHTML = listToRender.map((char, index) => {
                 const name = char['name_' + currentLang] || char['name_en'];
-                const desc = char['desc_' + currentLang] || char['desc_en'];
+                let desc = char['desc_' + currentLang] || char['desc_en'];
+                desc = desc.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
 
@@ -1878,7 +1883,8 @@
 
             document.getElementById('char-modal-img').src = char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo';
             document.getElementById('char-modal-name').innerText = name;
-            document.getElementById('char-modal-desc').innerText = fullDesc;
+            const descEl = document.getElementById('char-modal-desc');
+            descEl.textContent = fullDesc;
 
             // --- ТЕГИ ---
             const tagsContainer = document.getElementById('char-modal-tags');
@@ -2748,6 +2754,7 @@
                 const shortDesc = (char.intro_messages && char.intro_messages['short_desc_' + currentLang]) 
                     ? char.intro_messages['short_desc_' + currentLang] 
                     : (char.intro_messages && char.intro_messages['short_desc_en'] ? char.intro_messages['short_desc_en'] : '');
+                const safeShortDesc = shortDesc.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 
                 return `
                 <div onclick="openCharacterModal('${char.id}', 'mine')" class="relative rounded-3xl overflow-hidden h-[240px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-purple-500/30 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
@@ -2756,7 +2763,7 @@
                     
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform z-20">
                         <h3 class="text-lg font-black text-white leading-tight drop-shadow-md">${char.name}</h3>
-                        <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${shortDesc}</p> ${tagsHtml}
+                        <p class="text-[10px] text-gray-300 line-clamp-1 mt-1 opacity-90">${safeShortDesc}</p>
                         <div class="w-full h-[2px] bg-gradient-to-r from-purple-500 to-transparent mt-2 opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                 </div>
@@ -3458,6 +3465,8 @@
                 const localTime = formatChatDate(chat.created_at_ts, lang);
                 const defaultName = isCustom ? char.name : (char['name_' + lang] || char.name);
                 const displayName = chat.custom_name || defaultName;
+                const safeDisplayName = displayName.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const safeLastMessage = chat.last_message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
                 const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
@@ -3475,10 +3484,10 @@
                     
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="text-sm font-bold text-white truncate">${pinIcon}${displayName}</h3>
+                            <h3 class="text-sm font-bold text-white truncate">${pinIcon}${safeDisplayName}</h3>
                             <span class="text-[10px] text-gray-500 shrink-0 font-mono">${localTime}</span>
                         </div>
-                        <p class="text-xs text-gray-400 truncate italic">${prefix}${chat.last_message}</p>
+                        <p class="text-xs text-gray-400 truncate italic">${prefix}${safeLastMessage}</p>
                     </div>
                     
                     <div class="shrink-0 flex items-center">
@@ -3956,7 +3965,7 @@
                             <i class="fa-solid fa-user"></i>
                         </div>
                         <div class="overflow-hidden">
-                            <div class="text-xs font-bold text-white truncate">${ref.name || 'Игрок ' + ref.id}</div>
+                            <div class="text-xs font-bold text-white truncate">${(ref.name || 'Игрок ' + ref.id).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
                             <div class="text-[9px] text-gray-500 font-mono truncate">ID: ${ref.id}</div>
                         </div>
                     </div>
