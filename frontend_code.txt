@@ -2162,17 +2162,22 @@ const characters = [
         </div>
     </div>
 
-    <div id="lto-banner" class="hidden fixed top-0 left-0 w-full z-[100] bg-gradient-to-r from-red-600 to-pink-600 p-3 shadow-lg shadow-red-500/50 cursor-pointer active:scale-95 transition-transform" onclick="openPaymentModal('pack_starter_lto', '🔥 Starter Pack -50%', 99, 1.99)">
+    <div id="lto-banner" class="hidden fixed top-0 left-0 w-full z-[100] bg-gradient-to-r from-red-600 to-pink-600 p-2 shadow-lg shadow-red-500/50 cursor-pointer active:scale-95 transition-transform" onclick="openPaymentModal('pack_starter_lto', '🔥 Starter Pack -50%', 99, 1.99)">
         <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl animate-pulse">🔥</div>
-                <div>
-                    <div class="text-white font-black text-sm leading-tight uppercase">Starter Pack -50%</div>
-                    <div class="text-red-200 text-[10px] font-bold">$1.99 / 99 ⭐️ (Обычно $3.99)</div>
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-lg animate-pulse shrink-0 shadow-inner">🔥</div>
+                <div class="flex flex-col">
+                    <div class="text-white font-black text-sm leading-tight uppercase" data-i18n="lto_title">STARTER PACK -50%</div>
+                    <div class="text-red-100 text-[10px] font-bold leading-tight">
+                        $1.99 / 99 ⭐️ (<span data-i18n="lto_old_price">Обычно $3.99</span>)
+                    </div>
+                    <div class="text-yellow-300 text-[11px] font-black leading-tight mt-0.5 drop-shadow-md">
+                        +500 ⚡ | +120 💎
+                    </div>
                 </div>
             </div>
-            <div class="bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
-                <span id="lto-timer" class="text-white font-mono font-black text-lg tracking-wider">20:00</span>
+            <div class="bg-black/40 px-2 py-1.5 rounded-lg border border-white/20 shrink-0">
+                <span id="lto-timer" class="text-white font-mono font-black text-base tracking-wider">20:00</span>
             </div>
         </div>
     </div>
@@ -3205,7 +3210,11 @@ const characters = [
                         const navbar = document.querySelector('.fixed.top-0.left-0.w-full.z-50'); 
                         
                         ltoBanner.classList.remove('hidden');
-                        if (navbar) navbar.style.top = '64px'; 
+                        setTimeout(() => {
+                            const bannerHeight = ltoBanner.offsetHeight;
+                            if (navbar) navbar.style.top = bannerHeight + 'px';
+                            document.body.style.paddingTop = bannerHeight + 'px'; // Сдвигаем всё тело сайта
+                        }, 10);
                         
                         let timeLeft = data.lto_seconds_left;
                         
@@ -3219,6 +3228,7 @@ const characters = [
                                 clearInterval(window.ltoInterval); // Останавливаем
                                 ltoBanner.classList.add('hidden');
                                 if (navbar) navbar.style.top = '0px';
+                                document.body.style.paddingTop = '0px';
                             } else {
                                 const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                                 const s = (timeLeft % 60).toString().padStart(2, '0');
