@@ -131,6 +131,7 @@ const translations = {
                 toast_banned_hate: "❌ Запрещено! Пропаганда ненависти и запрещенные символы недопустимы.",
                 history_subtitle: "История переписки",
                 btn_resume_chat: "ВЫБРАТЬ ПЕРСОНАЖА",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Обычно $3.99",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -264,6 +265,7 @@ const translations = {
                 toast_banned_hate: "❌ Yasak! Nefret söylemi ve yasaklı sembollere izin verilmez.",
                 history_subtitle: "Sohbet Geçmişi",
                 btn_resume_chat: "KARAKTER SEÇ",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Normalde $3.99",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -397,6 +399,7 @@ const translations = {
                 toast_banned_hate: "❌ Prohibited! Hate speech and banned symbols are not allowed.",
                 history_subtitle: "Chat History",
                 btn_resume_chat: "SELECT CHARACTER",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Normally $3.99",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -530,6 +533,7 @@ const translations = {
                 toast_banned_hate: "❌ ¡Prohibido! El discurso de odio y los símbolos prohibidos no están permitidos.",
                 history_subtitle: "Historial de chat",
                 btn_resume_chat: "SELECCIONAR PERSONAJE",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Normalmente $3.99",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -663,6 +667,7 @@ const translations = {
                 toast_banned_hate: "❌ Proibido! Discurso de ódio e símbolos proibidos não são permitidos.",
                 history_subtitle: "Histórico de bate-papo",
                 btn_resume_chat: "SELECIONAR PERSONAGEM",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Normalmente $3.99",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -796,6 +801,7 @@ const translations = {
                 toast_banned_hate: "❌ Dilarang! Ujaran kebencian dan simbol terlarang tidak diperbolehkan.",
                 history_subtitle: "Riwayat Obrolan",
                 btn_resume_chat: "PILIH KARAKTER",
+                lto_title: "STARTER PACK -50%", lto_old_price: "Biasanya $3.99",
             }
         };
 
