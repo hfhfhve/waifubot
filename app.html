@@ -2298,14 +2298,11 @@
         function toggleStyle(style) {
             if (currentStyle === style) return;
             currentStyle = style;
-            
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
-
             const btnReal = document.getElementById('btn-style-real');
             const btnAnime = document.getElementById('btn-style-anime');
-
             if (style === 'anime') {
                 btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md z-10 relative";
                 btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
@@ -2313,14 +2310,14 @@
                 btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md z-10 relative";
                 btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
             }
-
             const userId = tg.initDataUnsafe?.user?.id;
             if (userId) {
-                fetch('https://waifubot.website/webhook/set-anime-mode', {
+                // ✅ ИСПРАВЛЕНО: Используем BASE_URL
+                fetch(`${BASE_URL}/webhook/set-anime-mode`, { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        chat_id: userId, 
+                    body: JSON.stringify({
+                        chat_id: userId,
                         is_anime: (style === 'anime'),
                         initData: tg.initData
                     })
@@ -2928,12 +2925,12 @@
         
         function confirmPublish() {
             if (!charToPublish) return;
-            
             tg.MainButton.showProgress();
             const btn = document.getElementById('btn-confirm-publish');
             btn.disabled = true;
             
-            fetch('https://waifubot.website/webhook/publish-character', {
+            // ✅ ИСПРАВЛЕНО: Используем BASE_URL вместо хардкода
+            fetch(`${BASE_URL}/webhook/publish-character`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ character_id: charToPublish, initData: tg.initData })
@@ -2943,23 +2940,15 @@
                 tg.MainButton.hideProgress();
                 btn.disabled = false;
                 closePublishModal();
-                closeCharacterModal(); // Закрываем карточку
-                
+                closeCharacterModal(); 
                 if (data.success) {
                     showToast("✅ Отправлено на модерацию!", "success");
-                    
-                    // === 🛠 ИСПРАВЛЕНИЕ: Обновляем статус локально ===
                     if (window.customCharactersList) {
                         const char = window.customCharactersList.find(c => c.id === charToPublish);
-                        if (char) char.moderation_status = 'pending'; // Ставим статус "в ожидании"
+                        if (char) char.moderation_status = 'pending'; 
                     }
-                    
-                    // Перерисовываем список, чтобы тег на карточке поменялся на ПРОВЕРКА
-                    renderCustomCharacters(true); 
-                    
-                    // На всякий случай дергаем сервер, чтобы обновить все данные
-                    fetchUserData(); 
-                    // ===============================================
+                    renderCustomCharacters(true);
+                    fetchUserData();
                 } else {
                     showToast("❌ " + data.message, "error");
                 }
