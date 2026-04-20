@@ -3671,23 +3671,6 @@ const characters = [
             `}).join('');
         }
 
-        function updateLtoBannerLanguage(lang) {
-            // Проверяем, загружены ли переводы
-            if (typeof translations === 'undefined' || !translations[lang]) return;
-        
-            // Находим элементы плашки по атрибуту data-i18n
-            const titleEl = document.querySelector('[data-i18n="lto_title"]');
-            const oldPriceEl = document.querySelector('[data-i18n="lto_old_price"]');
-        
-            // Применяем перевод
-            if (titleEl && translations[lang].lto_title) {
-                titleEl.innerText = translations[lang].lto_title;
-            }
-            if (oldPriceEl && translations[lang].lto_old_price) {
-                oldPriceEl.innerText = translations[lang].lto_old_price;
-            }
-        }
-
         async function saveLanguageToServer(chatId, newLangCode) {    
             try {
                 const response = await fetch(webhookUrl, {
