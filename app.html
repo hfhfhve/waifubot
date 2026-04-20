@@ -3313,8 +3313,8 @@
                         document.getElementById('balance-gems').innerText = data.new_gems;
                     }
                     
-                    switchCreateSubTab('mine');
-                    fetchUserData(); 
+                    closeCreateFlow(); // Она уберет hidden с табов и сама переключит на 'mine'
+                    fetchUserData();
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                     let errMsg = translations[currentLang][data.error_code] || data.message || "Error";
