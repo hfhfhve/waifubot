@@ -2209,6 +2209,18 @@
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
         }
+
+        function updateLtoBannerLanguage(lang) {
+            if (typeof translations === 'undefined' || !translations[lang]) return;
+            const titleEl = document.querySelector('[data-i18n="lto_title"]');
+            const oldPriceEl = document.querySelector('[data-i18n="lto_old_price"]');
+            if (titleEl && translations[lang].lto_title) {
+                titleEl.innerText = translations[lang].lto_title;
+            }
+            if (oldPriceEl && translations[lang].lto_old_price) {
+                oldPriceEl.innerText = translations[lang].lto_old_price;
+            }
+        }
         
         function closePromoModal() {
             const modal = document.getElementById('promo-modal');
