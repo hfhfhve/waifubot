@@ -2168,7 +2168,7 @@ const characters = [
         </div>
     </div>
 
-    <div id="lto-banner" class="hidden fixed top-0 left-0 w-full z-[100] bg-gradient-to-r from-red-600 to-pink-600 p-2 shadow-lg shadow-red-500/50 cursor-pointer active:scale-95 transition-transform" onclick="openPaymentModal('pack_starter_lto', '🔥 Starter Pack -50%', 99, 1.99)">
+    <div id="lto-banner" class="hidden fixed top-0 left-0 w-full z-[100] bg-gradient-to-r from-red-600 to-pink-600 p-2 shadow-lg shadow-red-500/50 cursor-pointer active:scale-95 transition-transform" onclick="openPaymentModal('pack_starter_lto', translations[currentLang].lto_title, 99, 1.99)">
         <div class="max-w-md mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-lg animate-pulse shrink-0 shadow-inner">🔥</div>
@@ -2178,7 +2178,7 @@ const characters = [
                         $1.99 / 99 ⭐️ (<span data-i18n="lto_old_price">Обычно $3.99</span>)
                     </div>
                     <div class="text-yellow-300 text-[11px] font-black leading-tight mt-0.5 drop-shadow-md">
-                        +500 ⚡ | +120 💎
+                        +200 ⚡ | +50 💎
                     </div>
                 </div>
             </div>
