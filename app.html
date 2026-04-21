@@ -303,6 +303,43 @@
             background: rgba(255, 255, 255, 0.2); 
             border-radius: 4px; 
         }
+        /* === АНИМАЦИИ ДЛЯ БОНУСНОЙ КАРТОЧКИ === */
+        @keyframes bonusGlow {
+          0%, 100% { border-color: rgba(234,179,8,0.3); box-shadow: 0 0 12px rgba(234,179,8,0.15); }
+          50%      { border-color: rgba(234,179,8,0.65); box-shadow: 0 0 24px rgba(234,179,8,0.35); }
+        }
+        @keyframes bonusFloat {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-3px); }
+        }
+        @keyframes bonusShimmer {
+          0%   { left: -100%; }
+          100% { left: 200%; }
+        }
+        
+        /* Состояние: ГОТОВО К СБОРУ */
+        .bonus-ready {
+          animation: bonusGlow 2.2s ease-in-out infinite, bonusFloat 3s ease-in-out infinite;
+          position: relative;
+          overflow: hidden;
+        }
+        .bonus-ready::after {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%; width: 60%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+          animation: bonusShimmer 3.5s infinite;
+          pointer-events: none;
+        }
+        
+        /* Состояние: КУЛДАУН */
+        .bonus-cooldown {
+          border-color: rgba(255,255,255,0.08) !important;
+          background: linear-gradient(to right, #0f0f0f, #161616) !important;
+          opacity: 0.65;
+          animation: none !important;
+          pointer-events: auto; /* кликабельно, но визуально "спит" */
+        }
     </style>
 </head>
 <body>
@@ -1737,39 +1774,47 @@
         }
 
         function updateBonusCardUI() {
-            if (!window.dailyState) return; // Если данные с сервера еще не пришли, ждем
-            
-            const state = window.dailyState;
-            const lang = currentLang; // Берем текущий язык
-            
-            const dailyTitle = document.getElementById('daily-title');
-            const dailyText = document.getElementById('daily-text');
-            const bonusCard = document.getElementById('bonus-card');
-            const giftIcon = bonusCard ? bonusCard.querySelector('.fa-gift')?.parentElement : null;
-
-            // Обновляем заголовок (День X / Day X)
-            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
-
-            // Обновляем дизайн и текст
-            if (state.canClaim) {
-                if (bonusCard) {
-                    bonusCard.classList.add('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                    bonusCard.classList.remove('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                }
-                if (giftIcon) giftIcon.classList.add('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                if (giftIcon) giftIcon.classList.remove('bg-white/10', 'text-gray-500', 'shadow-none');
-                if (dailyText) dailyText.innerHTML = translations[lang].claim_now;
-            } else {
-                if (bonusCard) {
-                    bonusCard.classList.remove('bg-gradient-to-r', 'from-[#1a1500]', 'to-[#2a1a00]', 'border-yellow-500/20');
-                    bonusCard.classList.add('opacity-80', 'bg-[#1a1a1a]', 'border-white/5');
-                }
-                if (giftIcon) giftIcon.classList.remove('animate-pulse', 'from-yellow-300', 'to-orange-500');
-                if (giftIcon) giftIcon.classList.add('bg-white/10', 'text-gray-500', 'shadow-none');
-                if (dailyText) dailyText.innerHTML = `<span class="text-gray-500">${translations[lang].available_in}${state.hoursLeft}${translations[lang].hours_short}</span>`;
+          if (!window.dailyState) return;
+          const state = window.dailyState;
+          const lang = currentLang;
+          const bonusCard = document.getElementById('bonus-card');
+          const dailyTitle = document.getElementById('daily-title');
+          const dailyText = document.getElementById('daily-text');
+          const giftWrap = bonusCard?.querySelector('.fa-gift')?.parentElement;
+        
+          // Сброс классов
+          bonusCard.classList.remove('bonus-ready', 'bonus-cooldown');
+        
+          if (state.canClaim) {
+            // ✅ ДОСТУПНО: свечение, флоат, шиммер, яркий CTA
+            bonusCard.classList.add('bonus-ready');
+            bonusCard.style.background = '';
+            bonusCard.style.borderColor = '';
+            if (giftWrap) {
+              giftWrap.classList.remove('animate-pulse');
+              giftWrap.classList.add('animate-bounce'); // сильнее цепляет глаз
+              giftWrap.style.background = 'linear-gradient(to bottom, #fbbf24, #f97316)';
             }
+            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
+            if (dailyText) dailyText.innerHTML = `<span class="text-yellow-400 font-black text-sm tracking-wide">🔥 ${translations[lang].claim_now}</span>`;
+            
+            // Тактильный якорь при первом показе (только если юзер только зашел)
+            if (!window._bonusHapticFired && window.Telegram?.WebApp?.HapticFeedback) {
+              window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+              window._bonusHapticFired = true;
+            }
+        
+          } else {
+            // ⏳ КУЛДАУН: приглушено, четкий таймер, нет анимаций
+            bonusCard.classList.add('bonus-cooldown');
+            if (giftWrap) {
+              giftWrap.classList.remove('animate-bounce', 'animate-pulse');
+              giftWrap.style.background = 'linear-gradient(to bottom, #374151, #1f2937)';
+            }
+            if (dailyTitle) dailyTitle.innerText = translations[lang].day_prefix + state.streak;
+            if (dailyText) dailyText.innerHTML = `<span class="text-gray-500 font-medium text-xs">⏳ ${translations[lang].available_in} ${state.hoursLeft}${translations[lang].hours_short}</span>`;
+          }
         }
-
         function renderCharacters() {
             const container = document.getElementById('characters-container');
             if (!window.activeCharactersList) return; 
