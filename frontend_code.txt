@@ -1870,6 +1870,58 @@ const characters = [
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
 
     <style>
+        /* === НОВЫЕ СТИЛИ ДЛЯ ПРОФИЛЯ === */
+        .profile-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 4px;
+            letter-spacing: 0.5px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+        .profile-menu-item:first-child { border-radius: 16px 16px 0 0; }
+        .profile-menu-item:last-child { border-radius: 0 0 16px 16px; border-bottom: none; }
+        .profile-menu-item:active { background: rgba(255, 255, 255, 0.08); }
+        .profile-icon-box {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; margin-right: 14px;
+        }
+        .profile-text { flex: 1; font-size: 15px; font-weight: 500; color: #fff; }
+        .profile-value { font-size: 14px; color: #888; font-weight: 400; display: flex; align-items: center; gap: 6px; }
+        .profile-chevron { color: #444; font-size: 12px; }
+        
+        /* Реферальная карточка (Виджет) */
+        .ref-widget {
+            background: linear-gradient(135deg, #1a1a24 0%, #0f0f14 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ref-widget::before {
+            content: ''; position: absolute; top: -50%; right: -20%;
+            width: 150px; height: 150px; background: #7928ca;
+            filter: blur(60px); opacity: 0.15; pointer-events: none;
+        }
+        .ref-stats { display: flex; gap: 12px; margin-bottom: 14px; }
+        .ref-stat-box {
+            flex: 1; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; text-align: center;
+        }
+        .ref-stat-num { font-size: 18px; font-weight: 800; color: #fff; display: block; }
+        .ref-stat-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
         .admin-input {
             background: #111; border: 1px solid #333; color: white;
             padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 10px;
@@ -2577,55 +2629,91 @@ const characters = [
             </div>
     </div>
 
-    <div id="tab-profile" class="hidden px-4 animate-fade pb-20 min-h-screen">
-        <div class="flex flex-col items-center pt-2 mb-4 relative">
-             <div class="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-32 bg-pink-600/20 rounded-full blur-[40px] pointer-events-none"></div>
-            <div class="relative group active:scale-95 transition-transform cursor-pointer">
-                <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-[#222] shadow-xl relative z-10">
-                    <img id="profile-avatar" src="https://placehold.co/200x200/222/fff?text=U" class="w-full h-full object-cover">
+    <div id="tab-profile" class="hidden px-4 animate-fade pb-24 min-h-screen">
+    
+        <!-- 1. Верхняя часть: Имя и ID (без аватарки) -->
+        <div class="pt-6 pb-6 text-center relative">
+            <h2 id="profile-name" class="text-2xl font-black text-white tracking-tight mb-1">Player</h2>
+            <div class="inline-flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 cursor-pointer active:scale-95 transition-transform" onclick="copyId()">
+                <span class="text-xs text-gray-500 font-mono">ID: <span id="profile-id-display">---</span></span>
+                <i class="fa-regular fa-copy text-[10px] text-gray-400"></i>
+            </div>
+            <div id="copy-feedback" class="text-[10px] text-green-400 opacity-0 transition-opacity font-bold mt-1 absolute left-0 right-0" data-i18n="copied">Скопировано!</div>
+        </div>
+    
+        <!-- 2. Группа: Настройки и Действия -->
+        <div class="profile-section-title" data-i18n="settings">Настройки</div>
+        <div class="premium-card mb-6 overflow-hidden">
+            
+            <!-- Смена языка -->
+            <div class="profile-menu-item" onclick="toggleLanguage()">
+                <div class="flex items-center">
+                    <div class="profile-icon-box bg-blue-500/10 text-blue-400"><i class="fa-solid fa-globe"></i></div>
+                    <span class="profile-text" data-i18n="language">Язык</span>
+                </div>
+                <div class="profile-value">
+                    <img id="profile-lang-flag" src="https://flagcdn.com/w20/ru.png" class="w-5 rounded-sm">
+                    <span id="profile-lang-text">RU</span>
+                    <i class="fa-solid fa-chevron-right profile-chevron ml-1"></i>
                 </div>
             </div>
-            <h2 id="profile-name" class="text-2xl font-black mt-3 text-white tracking-tight">Настройки</h2>
-            <button onclick="copyId()" id="copy-btn" class="flex items-center gap-2 mt-1.5 bg-white/5 hover:bg-white/10 px-3 py-1 rounded-full border border-white/5 transition-all active:scale-95">
-                <span class="text-[11px] text-gray-400 font-mono tracking-wider">ID: 84932921</span>
-                <i class="fa-regular fa-copy text-[10px] text-gray-500"></i>
-            </button>
-            <div id="copy-feedback" class="text-[10px] text-green-400 opacity-0 transition-opacity font-bold absolute -bottom-3" data-i18n="copied">Скопировано!</div>
-        </div>
-
-        <div class="space-y-2.5">
-            <div class="premium-card p-3.5 flex justify-between items-center group cursor-pointer active:scale-98" onclick="toggleLanguage()">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-[#1a1a1a] flex items-center justify-center text-gray-400 border border-white/5">
-                        <i class="fa-solid fa-globe text-sm"></i>
-                    </div>
-                    <span data-i18n="language" class="font-medium text-sm text-gray-200">Язык</span>
+    
+            <!-- Промокод -->
+            <div class="profile-menu-item" onclick="openPromoModal()">
+                <div class="flex items-center">
+                    <div class="profile-icon-box bg-pink-500/10 text-pink-400"><i class="fa-solid fa-ticket"></i></div>
+                    <span class="profile-text" data-i18n="promo">Промокод</span>
                 </div>
+                <div class="profile-value"><i class="fa-solid fa-chevron-right profile-chevron"></i></div>
+            </div>
+    
+            <!-- Админ панель (Скрыта по умолчанию) -->
+            <div id="admin-menu-item" class="profile-menu-item hidden" onclick="showTab('admin')">
+                <div class="flex items-center">
+                    <div class="profile-icon-box bg-red-500/10 text-red-400"><i class="fa-solid fa-shield-halved"></i></div>
+                    <span class="profile-text" style="color: #ef4444;">God Mode</span>
+                </div>
+                <div class="profile-value"><i class="fa-solid fa-chevron-right profile-chevron"></i></div>
+            </div>
+        </div>
+    
+        <!-- 3. Группа: Реферальная программа (Виджет) -->
+        <div class="profile-section-title" data-i18n="invite_title">Пригласи друга</div>
+        <div class="ref-widget mb-6">
+            <div class="flex items-center justify-between mb-3 relative z-10">
                 <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
-                        <img id="flag-icon" src="https://flagcdn.com/w20/ru.png" class="w-4 rounded-sm shadow-sm">
-                        <span id="lang-text" class="text-[11px] font-bold text-gray-300">RU</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-gray-600 group-hover:text-white transition-colors"></i>
+                    <i class="fa-solid fa-users text-purple-400"></i>
+                    <span class="font-bold text-white text-sm" data-i18n="ref_modal_title">Твои друзья</span>
+                </div>
+                <span class="text-xs text-gray-500" data-i18n="invite_condition">*После верификации 18+</span>
+            </div>
+            
+            <div class="ref-stats relative z-10">
+                <div class="ref-stat-box">
+                    <span class="ref-stat-num text-yellow-400" id="ref-stars-display">0</span>
+                    <span class="ref-stat-label">⭐️ / Друг</span>
+                </div>
+                <div class="ref-stat-box">
+                    <span class="ref-stat-num text-cyan-400" id="ref-gems-display">0</span>
+                    <span class="ref-stat-label">💎 / Друг</span>
                 </div>
             </div>
-
-            <button onclick="openPromoModal()" class="w-full h-12 bg-gradient-to-r from-pink-600 to-purple-700 rounded-2xl font-bold shadow-[0_5px_15px_rgba(219,39,119,0.2)] active:scale-98 transition-all flex items-center justify-center gap-2 border border-white/10 group overflow-hidden relative">
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] translate-x-[-150%] group-hover:animate-shine transition-all duration-1000"></div>
-                <i class="fa-solid fa-ticket text-white/80 text-sm"></i> 
-                <span data-i18n="promo" class="tracking-wide text-[13px]">АКТИВИРОВАТЬ ПРОМОКОД</span>
-            </button>
+    
+            <div class="flex gap-2 relative z-10">
+                <button onclick="copyReferralLink()" class="flex-1 bg-white/5 hover:bg-white/10 py-2.5 rounded-xl text-sm font-bold text-gray-300 flex items-center justify-center gap-2 transition-colors active:scale-95">
+                    <i class="fa-regular fa-copy"></i> <span data-i18n="btn_copy">Копировать</span>
+                </button>
+                <button onclick="shareReferral()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 py-2.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 transition-transform">
+                    <i class="fa-solid fa-paper-plane"></i> <span data-i18n="btn_share">Отправить</span>
+                </button>
+            </div>
         </div>
-
-        <div class="premium-card p-4 mt-4 relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/20 rounded-full blur-xl"></div>
-            <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-users text-blue-400 mr-1"></i> <span data-i18n="invite_title">Пригласи друга</span></h3>
-            <p class="text-[10px] text-gray-400 mb-1.5 leading-tight" data-i18n="invite_desc">Получи <span class="text-yellow-400 font-bold">20 ⭐️</span> и <span class="text-cyan-400 font-bold">3 💎</span> за каждого нового игрока!</p>
-            <p class="text-[9px] text-pink-500/80 mb-3 leading-tight font-medium" data-i18n="invite_condition">* Бонус придет после того, как друг подтвердит 18+ в приложении</p>
-            <button onclick="openReferralModal()" class="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(37,99,235,0.3)] active:scale-95 transition-all">
-                <i class="fa-solid fa-user-plus"></i> <span data-i18n="invite_btn">ПРИГЛАСИТЬ</span>
-            </button>
-        </div>
+    
+        <!-- 4. Кнопка Поддержки -->
+        <button onclick="tg.openTelegramLink('https://t.me/Midnight_Supportbot')" class="w-full py-3 text-center text-xs font-bold text-gray-500 hover:text-gray-300 transition-colors">
+            <i class="fa-regular fa-life-ring mr-1"></i> <span data-i18n="maint_btn">Техподдержка</span>
+        </button>
+    
     </div>
     
     <div id="tab-admin" class="hidden px-4 animate-fade pb-24 min-h-screen">
@@ -3102,49 +3190,45 @@ const characters = [
                 return; 
             }
         
-            // Создаем контроллер для отмены зависшего запроса
+            // Контроллер для отмены зависшего запроса
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // Таймер на 10 секунд
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
         
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: userId, initData: tg.initData }),
-                signal: controller.signal // Привязываем контроллер к запросу
+                signal: controller.signal
             })
             .then(res => {
-                clearTimeout(timeoutId); // Если сервер ответил быстро - отменяем таймер
+                clearTimeout(timeoutId);
                 return res.json();
             })
             .then(data => {
-                // === ВОТ ЭТОТ БЛОК ДОБАВИТЬ ===
+                // === БЛОК ТЕХНИЧЕСКИХ РАБОТ ===
                 if (data.maintenance === true) {
-                    hideLoadingScreen(); // Прячем лоадер
+                    hideLoadingScreen();
                     const maintScreen = document.getElementById('maintenance-screen');
                     if (maintScreen) {
                         maintScreen.classList.remove('hidden');
                         maintScreen.classList.add('flex');
                     }
-                    return; // Прекращаем загрузку приложения
+                    return;
                 }
-                // ==============================
+        
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
+                    // --- 1. ОЧИСТКА И УСТАНОВКА ЯЗЫКА ---
                     let serverLang = String(user.language_code || 'ru')
-                        .replace(/::text/g, '') // Удаляем именно приписку ::text
-                        .replace(/['"]/g, '')   // Удаляем кавычки
+                        .replace(/::text/g, '')
+                        .replace(/['"]/g, '')
                         .trim()
                         .toLowerCase();
                     
-                    // Список языков, которые мы поддерживаем
                     const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
-                    
-                    // Если в базе лежит поддерживаемый язык — ставим его, иначе английский
                     let cleanLang = supportedLangs.includes(serverLang) ? serverLang : 'en';
                     
-                    // Сохраняем в память и применяем к интерфейсу
                     localStorage.setItem('app_lang', cleanLang);
                     setLanguage(cleanLang);
         
@@ -3156,21 +3240,44 @@ const characters = [
                     }
         
                     window.isAgeVerified = user.is_age_verified;
+        
+                    // --- 3. ОБНОВЛЕНИЕ НОВОГО UI ПРОФИЛЯ ---
+                    // Имя (берем из Telegram, так как бэкенд его не возвращает)
+                    const profileNameEl = document.getElementById('profile-name');
+                    if (profileNameEl) profileNameEl.innerText = tg.initDataUnsafe?.user?.first_name || 'Игрок';
                     
-                    // Обновляем баланс
-                    if(document.getElementById('balance-stars')) {
-                        document.getElementById('balance-stars').innerText = user.stars || 0;
+                    // ID под именем
+                    const idDisplay = document.getElementById('profile-id-display');
+                    if (idDisplay) idDisplay.innerText = userId;
+                    
+                    // Флаг и текст языка в профиле
+                    const flagEl = document.getElementById('profile-lang-flag');
+                    const langTextEl = document.getElementById('profile-lang-text');
+                    if (flagEl && langTextEl) {
+                        const flags = { ru: 'ru', en: 'us', es: 'es', pt: 'br', tr: 'tr', id: 'id' };
+                        flagEl.src = `https://flagcdn.com/w20/${flags[cleanLang] || 'us'}.png`;
+                        langTextEl.innerText = cleanLang.toUpperCase();
                     }
-                    if(document.getElementById('balance-gems')) {
-                        document.getElementById('balance-gems').innerText = user.gems || 0;
+        
+                    // Админка (показываем и в меню профиля, и в нижнем баре)
+                    if (user.is_admin) {
+                        const adminMenuItem = document.getElementById('admin-menu-item');
+                        if (adminMenuItem) adminMenuItem.classList.remove('hidden');
+                        const adminNav = document.getElementById('nav-admin');
+                        if (adminNav) adminNav.classList.remove('hidden');
                     }
-
+        
+                    // --- 4. ОБНОВЛЕНИЕ БАЛАНСА ---
+                    const starsEl = document.getElementById('balance-stars');
+                    if (starsEl) starsEl.innerText = user.stars || 0;
+                    const gemsEl = document.getElementById('balance-gems');
+                    if (gemsEl) gemsEl.innerText = user.gems || 0;
+        
+                    // --- 5. СТИЛЬ АНИМЕ/РЕАЛИЗМ ---
                     if (user.is_anime_mode === true) {
-                        // Если сервер говорит, что у нас аниме-режим, переключаем UI БЕЗ отправки запроса обратно
                         currentStyle = 'anime';
                         const btnReal = document.getElementById('btn-style-real');
                         const btnAnime = document.getElementById('btn-style-anime');
-                        
                         if (btnReal && btnAnime) {
                             btnAnime.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md z-10 relative";
                             btnReal.className = "flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 bg-transparent z-10 relative";
@@ -3179,7 +3286,7 @@ const characters = [
                         currentStyle = 'real';
                     }
         
-                    // --- 3. ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА ---
+                    // --- 6. ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА ---
                     let nextDay = 1; 
                     let isSameDay = false; 
                     let hoursLeft = 0;
@@ -3187,7 +3294,6 @@ const characters = [
                     if (user.last_bonus_date) {
                         const lastClaim = new Date(user.last_bonus_date);
                         const now = new Date();
-                        
                         const todayMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
                         const lastClaimMidnight = Date.UTC(lastClaim.getUTCFullYear(), lastClaim.getUTCMonth(), lastClaim.getUTCDate());
                         const diffDays = (todayMidnight - lastClaimMidnight) / 86400000;
@@ -3211,43 +3317,28 @@ const characters = [
                     }
         
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
-
-                    // ОБНОВЛЯЕМ КАРТОЧКУ БОНУСА НА ГЛАВНОМ ЭКРАНЕ
                     updateBonusCardUI();
         
-                    // --- 4. АДМИН-ПАНЕЛЬ ---
-                    if (user.is_admin) {
-                        const adminNav = document.getElementById('nav-admin');
-                        if (adminNav) adminNav.classList.remove('hidden');
-                    }
-
-                    // --- 5. КАСТОМНЫЕ ПЕРСОНАЖИ ---
-                    if (user.custom_characters) {
-                        window.customCharactersList = user.custom_characters;
-                    } else {
-                        window.customCharactersList = [];
-                    }
-                    renderCustomCharacters(true); // <--- ДОБАВИЛИ true, чтобы список сбрасывался и рисовался заново!
-
-                    // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
+                    // --- 7. КАСТОМНЫЕ ПЕРСОНАЖИ ---
+                    window.customCharactersList = user.custom_characters || [];
+                    renderCustomCharacters(true);
+        
+                    // --- 8. ФИЛЬТР ПЕРСОНАЖЕЙ ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
                         window.activeCharactersList = user.active_characters.map(serverChar => {
                             const activeId = serverChar.id; 
                             const localChar = characters.find(c => c.id === activeId || c.id.replace('char:', '') === activeId);
-                            
                             if (localChar) {
                                 return { ...localChar, has_image: serverChar.has_image, has_voice: serverChar.has_voice };
                             }
                             return null;
                         }).filter(Boolean); 
                     } else {
-                        // ИСПРАВЛЕНИЕ: Если список пуст, оставляем его пустым. 
                         window.activeCharactersList = [];
                     }
-                            renderCharacters();
+                    renderCharacters();
         
-                    // === 👇 ВСТАВЛЯЕМ ЛОГИКУ ТАЙМЕРА LTO СЮДА 👇 ===
-                    // Прямо внутри if (user), чтобы у нас был доступ к переменной data
+                    // --- 9. ТАЙМЕР LTO ---
                     if (data.lto_seconds_left && data.lto_seconds_left > 0) {
                         updateLtoBannerLanguage(currentLang);
                         const ltoBanner = document.getElementById('lto-banner');
@@ -3258,19 +3349,16 @@ const characters = [
                         setTimeout(() => {
                             const bannerHeight = ltoBanner.offsetHeight;
                             if (navbar) navbar.style.top = bannerHeight + 'px';
-                            document.body.style.paddingTop = bannerHeight + 'px'; // Сдвигаем всё тело сайта
+                            document.body.style.paddingTop = bannerHeight + 'px';
                         }, 10);
                         
                         let timeLeft = data.lto_seconds_left;
-                        
-                        // Очищаем старый таймер, если он уже был запущен
                         if (window.ltoInterval) clearInterval(window.ltoInterval);
                         
-                        // Запускаем новый и сохраняем его ID в глобальную переменную
                         window.ltoInterval = setInterval(() => {
                             timeLeft--;
                             if (timeLeft <= 0) {
-                                clearInterval(window.ltoInterval); // Останавливаем
+                                clearInterval(window.ltoInterval);
                                 ltoBanner.classList.add('hidden');
                                 if (navbar) navbar.style.top = '0px';
                                 document.body.style.paddingTop = '0px';
@@ -3281,10 +3369,8 @@ const characters = [
                             }
                         }, 1000);
                     }
-                    // === 👆 КОНЕЦ ЛОГИКИ LTO 👆 ===
-        
-                } // <-- Закрывающая скобка if (user)
-            }) // <-- Закрывающая скобка .then
+                }
+            })
             .catch(err => {
                 console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
                 showMaintenanceScreen();
