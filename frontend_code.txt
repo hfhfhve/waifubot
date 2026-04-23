@@ -3508,6 +3508,15 @@ const characters = [
         
             updateBonusCardUI();
             renderCharacters();
+            
+            // --- ДОБАВЛЕНО: Принудительно перерисовываем комьюнити и кастомных персонажей ---
+            if (window.customCharactersList) {
+                renderCustomCharacters(true);
+            }
+            if (window.communityCharactersList && window.communityCharactersList.length > 0) {
+                renderCommunityChars(true);
+            }
+            // ---------------------------------------------------------------------------------
         
             if (window.shopItemsList) {
                 renderShop(window.shopItemsList);
