@@ -770,6 +770,10 @@ const translations = {
                 history_subtitle: "История переписки",
                 btn_resume_chat: "ВЫБРАТЬ ПЕРСОНАЖА",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Обычно $3.99",
+                bento_invite_title: "Пригласить<br>друга", bento_invite_desc: "20 ⭐️ и 3 💎",
+                bento_promo_title: "Ввести<br>промокод", bento_promo_desc: "Бонусы и гемы",
+                profile_settings_title: "Настройки", profile_lang_btn: "Язык приложения",
+                profile_support_btn: "Служба поддержки", profile_rules_btn: "Правила и 18+",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -904,6 +908,10 @@ const translations = {
                 history_subtitle: "Sohbet Geçmişi",
                 btn_resume_chat: "KARAKTER SEÇ",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Normalde $3.99",
+                bento_invite_title: "Arkadaş<br>Davet Et", bento_invite_desc: "20 ⭐️ ve 3 💎",
+                bento_promo_title: "Promosyon<br>Kodu", bento_promo_desc: "Bonuslar ve elmaslar",
+                profile_settings_title: "Ayarlar", profile_lang_btn: "Uygulama dili",
+                profile_support_btn: "Destek hizmeti", profile_rules_btn: "Kurallar & 18+",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1038,6 +1046,10 @@ const translations = {
                 history_subtitle: "Chat History",
                 btn_resume_chat: "SELECT CHARACTER",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Normally $3.99",
+                bento_invite_title: "Invite<br>Friend", bento_invite_desc: "20 ⭐️ and 3 💎",
+                bento_promo_title: "Enter<br>Promo", bento_promo_desc: "Bonuses and gems",
+                profile_settings_title: "Settings", profile_lang_btn: "App language",
+                profile_support_btn: "Support service", profile_rules_btn: "Rules & 18+",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -1172,6 +1184,10 @@ const translations = {
                 history_subtitle: "Historial de chat",
                 btn_resume_chat: "SELECCIONAR PERSONAJE",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Normalmente $3.99",
+                bento_invite_title: "Invitar<br>Amigo", bento_invite_desc: "20 ⭐️ y 3 💎",
+                bento_promo_title: "Ingresar<br>Código", bento_promo_desc: "Bonos y gemas",
+                profile_settings_title: "Ajustes", profile_lang_btn: "Idioma de la app",
+                profile_support_btn: "Servicio de soporte", profile_rules_btn: "Reglas y 18+",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -1306,6 +1322,10 @@ const translations = {
                 history_subtitle: "Histórico de bate-papo",
                 btn_resume_chat: "SELECIONAR PERSONAGEM",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Normalmente $3.99",
+                bento_invite_title: "Convidar<br>Amigo", bento_invite_desc: "20 ⭐️ e 3 💎",
+                bento_promo_title: "Inserir<br>Código", bento_promo_desc: "Bônus e gemas",
+                profile_settings_title: "Configurações", profile_lang_btn: "Idioma do app",
+                profile_support_btn: "Serviço de suporte", profile_rules_btn: "Regras e 18+",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -1440,6 +1460,10 @@ const translations = {
                 history_subtitle: "Riwayat Obrolan",
                 btn_resume_chat: "PILIH KARAKTER",
                 lto_title: "STARTER PACK -50%", lto_old_price: "Biasanya $3.99",
+                bento_invite_title: "Undang<br>Teman", bento_invite_desc: "20 ⭐️ dan 3 💎",
+                bento_promo_title: "Masukkan<br>Kode", bento_promo_desc: "Bonus dan permata",
+                profile_settings_title: "Pengaturan", profile_lang_btn: "Bahasa aplikasi",
+                profile_support_btn: "Layanan dukungan", profile_rules_btn: "Aturan & 18+",
             }
         };
 
