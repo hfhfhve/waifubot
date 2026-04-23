@@ -2371,7 +2371,6 @@ const characters = [
     </div>
 
     <div id="tab-home" class="px-3 min-h-screen">
-        
         <div class="mb-4 animate-fade-up">
             <div id="bonus-card" onclick="openDailyModal()" class="w-full p-4 rounded-3xl relative overflow-hidden border border-yellow-500/20 bg-gradient-to-r from-[#1a1500] to-[#2a1a00] group cursor-pointer active:scale-98 transition-transform shadow-lg">
                 <div class="flex justify-between items-center relative z-10">
@@ -3470,7 +3469,15 @@ const characters = [
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) {
                     // Список ключей, где НУЖЕН HTML (безопасные ключи)
-                    const safeHtmlKeys = ['come_back', 'invite_desc', 'age_tos_agree', 'community_info', 'publish_desc', 'bento_invite_title', 'bento_promo_title'];
+                    const safeHtmlKeys = [
+                        'come_back', 
+                        'invite_desc', 
+                        'age_tos_agree', 
+                        'community_info', 
+                        'publish_desc', 
+                        'bento_invite_title', // Добавили это
+                        'bento_promo_title'   // И это
+                    ];
                     
                     if (safeHtmlKeys.includes(key)) {
                         // Для этих ключей можно HTML, но с санитизацией
