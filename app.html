@@ -2678,18 +2678,29 @@
                     // Универсальный шаблон для энергии
                     let iconHtml = `<i class="fa-solid fa-bolt"></i>`;
                     let extraCardClasses = "";
-                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-yellow-400";
+                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-yellow-500/70";
                     let badge = "";
 
-                    if (item.reward_energy >= 3000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`;
-                    else if (item.reward_energy >= 1000) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`;
+                    // Визуальный прогресс паков (без букв S, M, L)
+                    if (item.reward_energy >= 3000) {
+                        // Максимальный пак: яркий градиент, свечение и бейдж MAX на углу иконки
+                        badge = `<span class="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-wider shadow-lg">MAX</span>`;
+                        iconWrapperClasses = "bg-gradient-to-br from-yellow-500/20 to-orange-600/20 border border-yellow-500/50 text-yellow-400 text-xl shadow-[0_0_15px_rgba(234,179,8,0.3)]";
+                        extraCardClasses = "border-yellow-500/30 bg-gradient-to-r from-[#1a1500] to-transparent";
+                        iconHtml = `<i class="fa-solid fa-bolt-lightning"></i>`;
+                    }
+                    else if (item.reward_energy >= 1000) {
+                        iconWrapperClasses = "bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-lg";
+                        iconHtml = `<i class="fa-solid fa-bolt-lightning"></i>`;
+                    }
                     else if (item.reward_energy >= 450 && item.reward_energy < 1000) {
-                        extraCardClasses = "border-yellow-500/30 bg-yellow-900/10";
-                        iconWrapperClasses = "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-xl";
+                        extraCardClasses = "border-yellow-500/20 bg-yellow-900/5";
+                        iconWrapperClasses = "bg-[#2a2211] border border-yellow-500/20 text-yellow-500 text-lg";
                         iconHtml = `<i class="fa-solid fa-fire"></i>`;
                     }
-                    else if (item.reward_energy >= 200) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
-                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
+                    else if (item.reward_energy >= 200) {
+                        iconWrapperClasses = "bg-[#1f1f1f] border border-white/10 text-yellow-400";
+                    }
 
                     energyHtml += `
                     <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_energy} ${translations[lang].energy_unit}', ${item.price_stars}, ${item.price_usd})">
@@ -2709,18 +2720,29 @@
                     // Универсальный шаблон для гемов
                     let iconHtml = `<i class="fa-regular fa-gem"></i>`;
                     let extraCardClasses = "";
-                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-cyan-400";
+                    let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-cyan-500/70";
                     let badge = "";
 
-                    if (item.reward_gems >= 500) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">MAX</span>`; iconHtml = `<i class="fa-solid fa-boxes-stacked"></i>`; }
-                    else if (item.reward_gems >= 260) { badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">L</span>`; iconHtml = `<i class="fa-solid fa-sack-dollar"></i>`; }
-                    else if (item.reward_gems >= 120 && item.reward_gems < 200) {
-                        extraCardClasses = "border-cyan-500/30 bg-cyan-900/10";
-                        iconWrapperClasses = "bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-xl shadow-lg shadow-cyan-500/20";
+                    // Визуальный прогресс паков
+                    if (item.reward_gems >= 500) {
+                        badge = `<span class="absolute -top-2 -right-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-wider shadow-lg">MAX</span>`;
+                        iconWrapperClasses = "bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-400/50 text-cyan-300 text-xl shadow-[0_0_15px_rgba(34,211,238,0.3)]";
+                        extraCardClasses = "border-cyan-500/30 bg-gradient-to-r from-[#001a1f] to-transparent";
                         iconHtml = `<i class="fa-solid fa-gem"></i>`;
                     }
-                    else if (item.reward_gems >= 50) badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">M</span>`;
-                    else badge = `<span class="absolute -bottom-1 -right-1 text-[9px] font-bold text-gray-500">S</span>`;
+                    else if (item.reward_gems >= 260) {
+                        iconWrapperClasses = "bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-lg";
+                        // Эффект нескольких камней:
+                        iconHtml = `<i class="fa-regular fa-gem"></i><i class="fa-solid fa-gem absolute text-cyan-400/30 ml-2 mt-2 blur-[1px] text-sm"></i>`;
+                    }
+                    else if (item.reward_gems >= 120 && item.reward_gems < 200) {
+                        extraCardClasses = "border-cyan-500/20 bg-cyan-900/5";
+                        iconWrapperClasses = "bg-[#11222a] border border-cyan-500/20 text-cyan-500 text-lg";
+                        iconHtml = `<i class="fa-solid fa-gem"></i>`;
+                    }
+                    else if (item.reward_gems >= 50) {
+                        iconWrapperClasses = "bg-[#1f1f1f] border border-white/10 text-cyan-400";
+                    }
 
                     gemsHtml += `
                     <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_gems} ${translations[lang].gems_unit}', ${item.price_stars}, ${item.price_usd})">
