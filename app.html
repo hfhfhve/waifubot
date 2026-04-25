@@ -2679,12 +2679,9 @@
                     let iconHtml = `<i class="fa-solid fa-bolt"></i>`;
                     let extraCardClasses = "";
                     let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-yellow-500/70";
-                    let badge = "";
 
-                    // Визуальный прогресс паков (без букв S, M, L)
+                    // Визуальный прогресс паков (никаких надписей)
                     if (item.reward_energy >= 3000) {
-                        // Максимальный пак: яркий градиент, свечение и бейдж MAX на углу иконки
-                        badge = `<span class="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-wider shadow-lg">MAX</span>`;
                         iconWrapperClasses = "bg-gradient-to-br from-yellow-500/20 to-orange-600/20 border border-yellow-500/50 text-yellow-400 text-xl shadow-[0_0_15px_rgba(234,179,8,0.3)]";
                         extraCardClasses = "border-yellow-500/30 bg-gradient-to-r from-[#1a1500] to-transparent";
                         iconHtml = `<i class="fa-solid fa-bolt-lightning"></i>`;
@@ -2706,7 +2703,7 @@
                     <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_energy} ${translations[lang].energy_unit}', ${item.price_stars}, ${item.price_usd})">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
-                                ${iconHtml} ${badge}
+                                ${iconHtml}
                             </div>
                             <div>
                                 <div class="font-bold text-white">${item.reward_energy} ${translations[lang].energy_unit}</div>
@@ -2715,24 +2712,21 @@
                         </div>
                         <div class="w-8 h-8 rounded-full ${extraCardClasses ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-400'} flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
                     </div>`;
-                } 
+                }
                 else if (item.type === 'gems') {
                     // Универсальный шаблон для гемов
                     let iconHtml = `<i class="fa-regular fa-gem"></i>`;
                     let extraCardClasses = "";
                     let iconWrapperClasses = "bg-[#1f1f1f] border border-white/5 text-cyan-500/70";
-                    let badge = "";
 
-                    // Визуальный прогресс паков
+                    // Визуальный прогресс паков (никаких надписей)
                     if (item.reward_gems >= 500) {
-                        badge = `<span class="absolute -top-2 -right-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-wider shadow-lg">MAX</span>`;
                         iconWrapperClasses = "bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-400/50 text-cyan-300 text-xl shadow-[0_0_15px_rgba(34,211,238,0.3)]";
                         extraCardClasses = "border-cyan-500/30 bg-gradient-to-r from-[#001a1f] to-transparent";
                         iconHtml = `<i class="fa-solid fa-gem"></i>`;
                     }
                     else if (item.reward_gems >= 260) {
                         iconWrapperClasses = "bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-lg";
-                        // Эффект нескольких камней:
                         iconHtml = `<i class="fa-regular fa-gem"></i><i class="fa-solid fa-gem absolute text-cyan-400/30 ml-2 mt-2 blur-[1px] text-sm"></i>`;
                     }
                     else if (item.reward_gems >= 120 && item.reward_gems < 200) {
@@ -2748,7 +2742,7 @@
                     <div class="premium-card p-3 flex items-center justify-between active:scale-98 transition-transform mb-3 ${extraCardClasses}" onclick="openPaymentModal('${item.id}', '${item.reward_gems} ${translations[lang].gems_unit}', ${item.price_stars}, ${item.price_usd})">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg relative ${iconWrapperClasses}">
-                                ${iconHtml} ${badge}
+                                ${iconHtml}
                             </div>
                             <div>
                                 <div class="font-bold text-white">${item.reward_gems} ${translations[lang].gems_unit}</div>
