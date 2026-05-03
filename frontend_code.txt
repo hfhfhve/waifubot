@@ -3111,7 +3111,7 @@ const characters = [
         <div id="toast-text" class="text-sm font-bold text-white whitespace-pre-line leading-tight"></div>
     </div>
 
-    <script src="data.js?v=777"></script>
+    <script src="data.js?v=778"></script>
     
     <script>
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
