@@ -774,6 +774,9 @@ const translations = {
                 bento_promo_title: "Ввести<br>промокод", bento_promo_desc: "Бонусы и гемы",
                 profile_settings_title: "Настройки", profile_lang_btn: "Язык приложения",
                 profile_support_btn: "Служба поддержки", profile_rules_btn: "Правила и 18+",
+                custom_cta_title: "СОЗДАЙ СВОЮ", 
+                custom_cta_desc: "Попробуй десятки персонажей от сообщества или сгенерируй свою идеальную вайфу!", 
+                custom_cta_btn: "ПЕРЕЙТИ В КАТАЛОГ",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -912,6 +915,9 @@ const translations = {
                 bento_promo_title: "Promosyon<br>Kodu", bento_promo_desc: "Bonuslar ve elmaslar",
                 profile_settings_title: "Ayarlar", profile_lang_btn: "Uygulama dili",
                 profile_support_btn: "Destek hizmeti", profile_rules_btn: "Kurallar & 18+",
+                custom_cta_title: "KENDİNKİNİ YARAT", 
+                custom_cta_desc: "Düzinelerce topluluk karakterini deneyin veya mükemmel waifu'nuzu yaratın!", 
+                custom_cta_btn: "KATALOĞU AÇ",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1050,6 +1056,9 @@ const translations = {
                 bento_promo_title: "Enter<br>Promo", bento_promo_desc: "Bonuses and gems",
                 profile_settings_title: "Settings", profile_lang_btn: "App language",
                 profile_support_btn: "Support service", profile_rules_btn: "Rules & 18+",
+                custom_cta_title: "CREATE YOUR OWN", 
+                custom_cta_desc: "Try dozens of community characters or generate your perfect waifu!", 
+                custom_cta_btn: "OPEN CATALOG",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -1188,6 +1197,9 @@ const translations = {
                 bento_promo_title: "Ingresar<br>Código", bento_promo_desc: "Bonos y gemas",
                 profile_settings_title: "Ajustes", profile_lang_btn: "Idioma de la app",
                 profile_support_btn: "Servicio de soporte", profile_rules_btn: "Reglas y 18+",
+                custom_cta_title: "CREA LA TUYA", 
+                custom_cta_desc: "¡Prueba decenas de personajes de la comunidad o genera tu waifu perfecta!", 
+                custom_cta_btn: "ABRIR CATÁLOGO",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -1326,6 +1338,9 @@ const translations = {
                 bento_promo_title: "Inserir<br>Código", bento_promo_desc: "Bônus e gemas",
                 profile_settings_title: "Configurações", profile_lang_btn: "Idioma do app",
                 profile_support_btn: "Serviço de suporte", profile_rules_btn: "Regras e 18+",
+                custom_cta_title: "CRIE A SUA", 
+                custom_cta_desc: "Experimente dezenas de personagens da comunidade ou gere sua waifu perfeita!", 
+                custom_cta_btn: "ABRIR CATÁLOGO",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -1464,6 +1479,9 @@ const translations = {
                 bento_promo_title: "Masukkan<br>Kode", bento_promo_desc: "Bonus dan permata",
                 profile_settings_title: "Pengaturan", profile_lang_btn: "Bahasa aplikasi",
                 profile_support_btn: "Layanan dukungan", profile_rules_btn: "Aturan & 18+",
+                custom_cta_title: "BUAT SENDIRI", 
+                custom_cta_desc: "Coba puluhan karakter komunitas atau buat waifu sempurnamu!", 
+                custom_cta_btn: "BUKA KATALOG",
             }
         };
 
