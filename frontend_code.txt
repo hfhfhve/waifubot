@@ -3173,15 +3173,18 @@ const characters = [
                 return; 
             }
         
-            // Создаем контроллер для отмены зависшего запроса
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // Таймер на 10 секунд
+            const timeoutId = setTimeout(() => controller.abort(), 10000); 
         
             fetch(WEBHOOK_GET_USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: userId, initData: tg.initData }),
-                signal: controller.signal // Привязываем контроллер к запросу
+                body: JSON.stringify({ 
+                    chat_id: userId, 
+                    initData: tg.initData,
+                    start_param: tg.initDataUnsafe?.start_param || null // <--- ДОБАВЬ ВОТ ЭТУ СТРОКУ
+                }),
+                signal: controller.signal 
             })
             .then(res => {
                 clearTimeout(timeoutId); // Если сервер ответил быстро - отменяем таймер
