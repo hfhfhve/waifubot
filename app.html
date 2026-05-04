@@ -466,6 +466,26 @@
         </div>
     </div>
 
+    <div id="delete-char-modal" class="fixed inset-0 z-[190] hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeDeleteCharModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-sm bg-[#111] rounded-3xl p-6 border border-red-500/30 shadow-[0_10px_40px_rgba(239,68,68,0.2)] flex flex-col items-center text-center z-10 opacity-0 scale-95 transition-all duration-300" id="delete-char-content">
+
+            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20">
+                <i class="fa-solid fa-trash-can text-3xl text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>
+            </div>
+
+            <h3 class="text-xl font-black text-white mb-2" data-i18n="delete_char_title">Удалить персонажа?</h3>
+            <p class="text-xs text-gray-400 mb-6 px-2 leading-relaxed" data-i18n="delete_char_desc">Он навсегда пропадет из ваших персонажей. Если он уже опубликован в сообществе, вы продолжите получать с него 10% пассивного дохода.</p>
+
+            <button id="btn-confirm-delete-char" onclick="confirmDeleteChar()" class="w-full h-12 bg-red-600 hover:bg-red-700 active:scale-95 transition-all text-white font-bold rounded-xl mb-3 flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(220,38,38,0.3)]">
+                <i class="fa-solid fa-trash-can"></i> <span data-i18n="btn_delete_char">Удалить</span>
+            </button>
+            <button onclick="closeDeleteCharModal()" class="w-full h-12 bg-[#1a1a1a] border border-white/5 hover:bg-white/10 active:scale-95 transition-all text-gray-400 font-bold rounded-xl" data-i18n="btn_cancel">
+                Отмена
+            </button>
+        </div>
+    </div>
+
     <div class="h-20 w-full"></div>
 
     <div id="chat-history-modal" class="fixed inset-0 z-[160] hidden">
@@ -2031,6 +2051,7 @@
                     } else {
                         tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openPublishModal('${char.id}')" class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 animate-pulse"><i class="fa-solid fa-upload"></i> ${translations[currentLang]?.tag_publish || "ОПУБЛИКОВАТЬ"}</button>`;
                     }
+                    tagsHtml += `<button onclick="event.stopPropagation(); closeCharacterModal(); openDeleteCharModal('${char.id}')" class="px-2 py-0.5 bg-red-500/10 text-red-500 border border-red-500/30 rounded-md text-[10px] font-bold flex items-center justify-center active:scale-90 transition-transform ml-auto"><i class="fa-solid fa-trash-can"></i></button>`;
                 }
                 tagsContainer.innerHTML = tagsHtml;
             }
@@ -3666,6 +3687,76 @@
             }
         
             container.innerHTML = html;
+        }
+
+        // --- ЛОГИКА УДАЛЕНИЯ КАСТОМНОГО ПЕРСОНАЖА ---
+        let charToDelete = null;
+
+        function openDeleteCharModal(charId) {
+            charToDelete = charId;
+            tg.HapticFeedback.impactOccurred('medium');
+            const modal = document.getElementById('delete-char-modal');
+            const content = document.getElementById('delete-char-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        }
+
+        function closeDeleteCharModal() {
+            const modal = document.getElementById('delete-char-modal');
+            const content = document.getElementById('delete-char-content');
+            
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function confirmDeleteChar() {
+            if (!charToDelete) return;
+            tg.MainButton.showProgress();
+            
+            const btn = document.getElementById('btn-confirm-delete-char');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            fetch(`${BASE_URL}/webhook/delete-character`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ character_id: charToDelete, initData: tg.initData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                
+                if (data.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    showToast(translations[currentLang]?.toast_char_deleted_ok || "✅ Удалено!", "success");
+                    closeDeleteCharModal();
+                    
+                    // Удаляем из локального массива "Моих персонажей"
+                    if (window.customCharactersList) {
+                        window.customCharactersList = window.customCharactersList.filter(c => c.id !== charToDelete);
+                    }
+                    
+                    // Перерисовываем список, обнуляя счетчик пагинации
+                    renderCustomCharacters(true);
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                    showToast("❌ " + (data.message || "Ошибка"), "error");
+                }
+            })
+            .catch(() => {
+                tg.MainButton.hideProgress();
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showToast("Ошибка сети", "error");
+            });
         }
 
         function openChatHistoryModal(characterId, sessionId, charName, avatarUrl) {
