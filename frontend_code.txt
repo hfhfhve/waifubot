@@ -777,6 +777,10 @@ const translations = {
                 custom_cta_title: "СОЗДАЙ СВОЮ", 
                 custom_cta_desc: "Попробуй десятки персонажей от сообщества или сгенерируй свою идеальную вайфу!", 
                 custom_cta_btn: "ПЕРЕЙТИ В КАТАЛОГ",
+                btn_delete_char: "Удалить",
+                delete_char_title: "Удалить персонажа?",
+                delete_char_desc: "Он навсегда пропадет из ваших персонажей. Если он уже опубликован в сообществе, вы продолжите получать с него 10% пассивного дохода.",
+                toast_char_deleted_ok: "Персонаж удален 🗑️",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -918,6 +922,10 @@ const translations = {
                 custom_cta_title: "KENDİNKİNİ YARAT", 
                 custom_cta_desc: "Düzinelerce topluluk karakterini deneyin veya mükemmel waifu'nuzu yaratın!", 
                 custom_cta_btn: "KATALOĞU AÇ",
+                btn_delete_char: "Sil",
+                delete_char_title: "Karakteri sil?",
+                delete_char_desc: "Karakterlerinizden sonsuza kadar kaybolacak. Eğer toplulukta yayınlanmışsa, ondan %10 pasif gelir elde etmeye devam edeceksiniz.",
+                toast_char_deleted_ok: "Karakter silindi 🗑️",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -1059,6 +1067,10 @@ const translations = {
                 custom_cta_title: "CREATE YOUR OWN", 
                 custom_cta_desc: "Try dozens of community characters or generate your perfect waifu!", 
                 custom_cta_btn: "OPEN CATALOG",
+                btn_delete_char: "Delete",
+                delete_char_title: "Delete character?",
+                delete_char_desc: "It will disappear from your characters forever. If it's already published in the community, you will continue to receive 10% passive income from it.",
+                toast_char_deleted_ok: "Character deleted 🗑️",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -1200,6 +1212,10 @@ const translations = {
                 custom_cta_title: "CREA LA TUYA", 
                 custom_cta_desc: "¡Prueba decenas de personajes de la comunidad o genera tu waifu perfecta!", 
                 custom_cta_btn: "ABRIR CATÁLOGO",
+                btn_delete_char: "Eliminar",
+                delete_char_title: "¿Eliminar personaje?",
+                delete_char_desc: "Desaparecerá de tus personajes para siempre. Si ya está publicado en la comunidad, seguirás recibiendo el 10% de ingresos pasivos.",
+                toast_char_deleted_ok: "Personaje eliminado 🗑️",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -1341,6 +1357,10 @@ const translations = {
                 custom_cta_title: "CRIE A SUA", 
                 custom_cta_desc: "Experimente dezenas de personagens da comunidade ou gere sua waifu perfeita!", 
                 custom_cta_btn: "ABRIR CATÁLOGO",
+                btn_delete_char: "Excluir",
+                delete_char_title: "Excluir personagem?",
+                delete_char_desc: "Ele desaparecerá de seus personagens para sempre. Se já estiver publicado na comunidade, você continuará a receber 10% de renda passiva.",
+                toast_char_deleted_ok: "Personagem excluído 🗑️",
             },
             id: {
                 hello: "Halo", player: "Pemain", girls: "PEREMPUAN", guys: "LAKI-LAKI", packs: "PAKET", energy: "ENERGI", gems: "PERMATA",
@@ -1482,6 +1502,10 @@ const translations = {
                 custom_cta_title: "BUAT SENDIRI", 
                 custom_cta_desc: "Coba puluhan karakter komunitas atau buat waifu sempurnamu!", 
                 custom_cta_btn: "BUKA KATALOG",
+                btn_delete_char: "Hapus",
+                delete_char_title: "Hapus karakter?",
+                delete_char_desc: "Karakter ini akan hilang dari daftar selamanya. Jika sudah dipublikasikan di komunitas, kamu akan terus menerima penghasilan pasif 10%.",
+                toast_char_deleted_ok: "Karakter dihapus 🗑️",
             }
         };
 
