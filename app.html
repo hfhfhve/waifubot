@@ -1886,11 +1886,9 @@
             const container = document.getElementById('characters-container');
             if (!window.activeCharactersList) return; 
             
-            // 👇 НОВОЕ: Фильтруем список по текущему нажатому тумблеру
-            // Если у персонажа не указан стиль, считаем его 'real' по умолчанию
+            // Фильтруем список по текущему нажатому тумблеру
             const listToRender = window.activeCharactersList.filter(char => (char.style || 'real') === currentStyle);
             
-            // Если список пустой (например, ты еще не добавил аниме-персонажей)
             if (listToRender.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-4 opacity-50">
@@ -1900,7 +1898,8 @@
                 return;
             }
 
-            container.innerHTML = listToRender.map((char, index) => {
+            // Собираем все карточки обычных персонажей в массив
+            let cardsHtml = listToRender.map((char, index) => {
                 const name = char['name_' + currentLang] || char['name_en'];
                 let desc = char['desc_' + currentLang] || char['desc_en'];
                 desc = desc.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1909,17 +1908,14 @@
 
                 let charHasVoice = char.has_voice !== false;
 
-                // ХАРДКОД: Выключаем голос на английском для конкретных персонажей
                 if (currentLang === 'en' && ['char:lina', 'char:adriana', 'char:mika'].includes(char.id)) {
                     charHasVoice = false;
                 }
                 
-                // Объявляем tagsHtml только ОДИН раз
                 let tagsHtml = '<div class="flex gap-1.5 mt-2">';
                 if (char.has_image !== false) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
                 }
-                // Используем нашу новую переменную charHasVoice
                 if (charHasVoice && ['ru', 'en'].includes(currentLang)) {
                     tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
                 }
@@ -1937,32 +1933,45 @@
                         <div class="w-full h-[2px] bg-gradient-to-r from-pink-500 to-transparent mt-3 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                 </div>
-            `}).join('');
-        }
+                `;
+            });
 
-        async function saveLanguageToServer(chatId, newLangCode) {    
-            try {
-                const response = await fetch(webhookUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    // ДОБАВЛЕНО initData
-                    body: JSON.stringify({
-                        chat_id: chatId, 
-                        language_code: newLangCode,
-                        initData: tg.initData 
-                    })
-                });
-        
-                const data = await response.json();
-                if (data.success) {
-                    console.log("Язык успешно сохранен в базе:", data.language);
-                    // Тут можешь менять интерфейс самого Mini App
-                }
-            } catch (error) {
-                console.error("Ошибка при сохранении языка:", error);
+            // 👇 Вставляем КАРТОЧКУ-ПРИЗЫВ пятой по счету (индекс 4) 👇
+            if (currentStyle === 'anime') {
+                const ctaHtml = `
+                <div onclick="showTab('create'); switchCreateSubTab('community');" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#151520] active:scale-95 transition-transform duration-300 border border-purple-500/40 shadow-[0_0_30px_rgba(147,51,234,0.2)] group cursor-pointer animate-fade-up">
+                    
+                    <!-- Анимированный неоновый фон -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/30 via-purple-900/20 to-black z-0"></div>
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-pink-500/30 rounded-full blur-[40px] group-hover:bg-pink-500/50 group-hover:scale-150 transition-all duration-700"></div>
+                    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/30 rounded-full blur-[40px] group-hover:bg-blue-500/50 group-hover:scale-150 transition-all duration-700"></div>
+
+                    <!-- Контент карточки -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white shadow-[0_0_20px_rgba(236,72,153,0.6)] mb-3 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        
+                        <h3 class="text-lg font-black text-white mb-2 tracking-wide drop-shadow-md">${translations[currentLang].custom_cta_title || "СОЗДАЙ СВОЮ"}</h3>
+                        <p class="text-[10px] text-gray-300 mb-4 opacity-90 leading-relaxed px-1">${translations[currentLang].custom_cta_desc || "Попробуй десятки персонажей от сообщества или сгенерируй свою идеальную вайфу!"}</p>
+                        
+                        <div class="px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-[9px] font-black text-white uppercase tracking-wider backdrop-blur-md group-hover:bg-white/20 group-hover:border-white/40 transition-all shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center gap-1.5">
+                            ${translations[currentLang].custom_cta_btn || "ПЕРЕЙТИ В КАТАЛОГ"} <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Светящаяся полоска снизу -->
+                    <div class="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                `;
+                
+                // Метод splice вставит нашу карточку строго на 5-ю позицию (индекс 4).
+                // Если персонажей меньше 4, она просто аккуратно добавится в самый конец списка.
+                cardsHtml.splice(4, 0, ctaHtml);
             }
+
+            // Склеиваем массив обратно в строку и вставляем на страницу
+            container.innerHTML = cardsHtml.join('');
         }
 
         // Обрати внимание: мы добавили второй параметр 'source'
