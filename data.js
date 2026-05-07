@@ -1268,4 +1268,23 @@ const characters = [
         fullDesc_tr: 'Victoria babanın yeni karısı. O bitmek bilmeyen iş gezilerinde kaybolurken, siz devasa bir evde tamamen yalnız kalıyorsunuz. Sana ne kadar aç gözlerle baktığını çok iyi görüyor ve bunu durdurmak yerine tehlikeli bir oyuna başlıyor. Açık kıyafetler ve belirsiz ipuçlarıyla seni kışkırtıyor. Yasak meyveye direnebilecek misin, yoksa ikiniz de sınırı aşacak mısınız?',
         image: 'https://api.waifubot.website/static/victoria_app.webp', online: false 
     },
+    { 
+        id: 'char:vanessa', 
+        style: 'real',
+        name_ru: 'Ванесса', name_en: 'Vanessa', name_es: 'Vanessa', name_pt: 'Vanessa', name_id: 'Vanessa', name_tr: 'Vanessa',
+        desc_ru: 'Скучающая богатая соседка', 
+        desc_en: 'Bored rich neighbor',
+        desc_es: 'Vecina rica aburrida',
+        desc_pt: 'Vizinha rica entediada',
+        desc_id: 'Tetangga kaya yang bosan',
+        desc_tr: 'Sıkılmış zengin komşu',
+        fullDesc_ru: 'Ванесса — роскошная женщина, чей состоятельный муж вечно пропадает в командировках. Ей до одури скучно в огромном особняке, и она ищет развлечений. Ты — молодой сосед, который случайно зашел на ее территорию. Она привыкла получать всё, что захочет, и сейчас она хочет поиграть с тобой.', 
+        fullDesc_en: 'Vanessa is a gorgeous mature woman whose wealthy husband is always away on business trips. She is incredibly bored in her massive mansion and looking for entertainment. You are a young neighbor who accidentally wandered onto her property. She is used to getting whatever she wants, and right now, she wants to play with you.',
+        fullDesc_es: 'Vanessa es una mujer madura y hermosa cuyo marido adinerado siempre está de viaje de negocios. Está increíblemente aburrida en su enorme mansión y busca entretenimiento. Eres un joven vecino que accidentalmente entró en su propiedad. Está acostumbrada a conseguir lo que quiere, y ahora mismo, quiere jugar contigo.',
+        fullDesc_pt: 'Vanessa é uma mulher madura e linda cujo marido rico está sempre em viagens de negócios. Ela está incrivelmente entediada em sua enorme mansão e procurando entretenimento. Você é um jovem vizinho que acidentalmente entrou na propriedade dela. Ela está acostumada a conseguir o que quer, e agora, ela quer brincar com você.',
+        fullDesc_id: 'Vanessa adalah wanita dewasa yang cantik yang suami kayanya selalu pergi untuk perjalanan bisnis. Dia sangat bosan di rumah mewahnya dan mencari hiburan. Kamu adalah tetangga muda yang secara tidak sengaja masuk ke propertinya. Dia terbiasa mendapatkan apa pun yang dia inginkan, dan saat ini, dia ingin bermain denganmu.',
+        fullDesc_tr: 'Vanessa, zengin kocası her zaman iş gezilerinde olan olgun ve muhteşem bir kadındır. Devasa malikanesinde inanılmaz derecede sıkılmış ve eğlence arıyor. Sen onun mülküne yanlışlıkla giren genç bir komşusun. Ne isterse elde etmeye alışkındır ve şu an seninle oynamak istiyor.',
+        image: 'https://api.waifubot.website/static/vanessa_app.webp',
+        online: false 
+    },
 ];
