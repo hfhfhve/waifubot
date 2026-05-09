@@ -1263,6 +1263,10 @@
     <script>
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
         let currentStyle = 'real';
+        let historyOffset = 0;
+        let historyHasMore = true;
+        let historyIsFetching = false;
+        let currentHistorySession = null;
         let toastTimeout;
         let customCharsLoaded = 0;
         const CUSTOM_CHARS_PER_PAGE = 10;
@@ -3776,40 +3780,108 @@
             const modal = document.getElementById('chat-history-modal');
             const container = document.getElementById('history-messages');
             
-            // Показываем лоадер
+            // СБРАСЫВАЕМ ДАННЫЕ ПАГИНАЦИИ ПРИ ОТКРЫТИИ НОВОГО ЧАТА
+            historyOffset = 0;
+            historyHasMore = true;
+            historyIsFetching = false;
+            currentHistorySession = sessionId;
+            
+            // Показываем главный лоадер
             container.innerHTML = '<div class="flex flex-col items-center justify-center h-full opacity-50"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500 mb-3"></i><p class="text-xs text-gray-400" data-i18n="loading">' + (translations[currentLang].loading || 'Загрузка...') + '</p></div>';
         
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-open'), 10);
         
-            // Тянем полную историю с бэкенда
+            // Вешаем слушатель скролла
+            container.onscroll = handleHistoryScroll;
+        
+            // Запрашиваем первую пачку (20 сообщений)
+            fetchHistoryChunk(true);
+        }
+        
+        function handleHistoryScroll() {
+            const container = document.getElementById('history-messages');
+            // Если пользователь докрутил до верха (осталось меньше 50px)
+            if (container.scrollTop < 50) {
+                fetchHistoryChunk(false);
+            }
+        }
+        
+        function fetchHistoryChunk(isInitial = false) {
+            // Защита от дублирующихся запросов или если история уже закончилась
+            if (historyIsFetching || !historyHasMore) return;
+            historyIsFetching = true;
+            
+            const container = document.getElementById('history-messages');
+            // Запоминаем текущую высоту контента (нужно, чтобы при вставке сверху экран не дергался)
+            let oldScrollHeight = container.scrollHeight;
+        
+            if (!isInitial) {
+                // Если это подгрузка старых (скролл вверх), добавляем маленький крутилятор сверху
+                const topLoader = `<div id="top-history-loader" class="text-center py-3 w-full"><i class="fa-solid fa-circle-notch fa-spin text-pink-500 text-lg"></i></div>`;
+                container.insertAdjacentHTML('afterbegin', topLoader);
+            }
+        
             fetch(`${BASE_URL}/webhook/get-full-history`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: sessionId, initData: tg.initData })
+                body: JSON.stringify({ 
+                    session_id: currentHistorySession, 
+                    offset: historyOffset, 
+                    limit: 20, 
+                    initData: tg.initData 
+                })
             })
             .then(res => res.json())
             .then(data => {
+                historyIsFetching = false;
+                
+                // Убираем мини-лоадер
+                const topLoader = document.getElementById('top-history-loader');
+                if (topLoader) topLoader.remove();
+        
                 if (data.success && data.messages) {
-                    container.innerHTML = ''; // Чистим лоадер
+                    if (isInitial) container.innerHTML = ''; // Убираем центральный лоадер при первом запуске
                     
+                    // Если пришло меньше 20 сообщений, значит это самое начало диалога
+                    if (data.messages.length < 20) {
+                        historyHasMore = false;
+                    }
+        
+                    // Формируем HTML кусок
+                    let htmlChunk = '';
                     data.messages.forEach(msg => {
-                        const div = document.createElement('div');
-                        div.className = `msg-bubble ${msg.role === 'user' ? 'msg-user' : 'msg-ai'}`;
-                        div.innerText = msg.content;
-                        container.appendChild(div);
+                        htmlChunk += `<div class="msg-bubble ${msg.role === 'user' ? 'msg-user' : 'msg-ai'}">${msg.content}</div>`;
                     });
         
-                    // Прокручиваем вниз к последнему сообщению
-                    setTimeout(() => {
-                        container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
-                    }, 50);
+                    if (isInitial) {
+                        // ПЕРВАЯ ЗАГРУЗКА: просто вставляем и скроллим в самый низ
+                        container.innerHTML = htmlChunk;
+                        setTimeout(() => {
+                            container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
+                        }, 50);
+                    } else {
+                        // ПОДГРУЗКА ПРИ СКРОЛЛЕ: вставляем в САМОЕ НАЧАЛО (вверх)
+                        container.insertAdjacentHTML('afterbegin', htmlChunk);
+                        
+                        // МАГИЯ: Корректируем скролл, чтобы юзер остался на том же сообщении, которое читал
+                        const newScrollHeight = container.scrollHeight;
+                        container.scrollTop = newScrollHeight - oldScrollHeight;
+                    }
+                    
+                    // Увеличиваем смещение на количество реально загруженных сообщений
+                    historyOffset += data.messages.length;
+                    
                 } else {
-                    container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка загрузки истории.</p>';
+                    if (isInitial) container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка загрузки истории.</p>';
+                    historyHasMore = false;
                 }
             })
             .catch(err => {
-                container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка соединения.</p>';
+                historyIsFetching = false;
+                const topLoader = document.getElementById('top-history-loader');
+                if (topLoader) topLoader.remove();
+                if (isInitial) container.innerHTML = '<p class="text-center text-red-500 mt-10">Ошибка соединения.</p>';
             });
         }
         
