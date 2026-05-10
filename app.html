@@ -1218,15 +1218,15 @@
                     </div>
                     <div id="lang-check-tr" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
-                <button onclick="selectLanguage('id')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
+                <button onclick="selectLanguage('fr')" class="w-full bg-[#1a1a1a] border border-white/5 hover:border-pink-500/30 active:scale-98 rounded-xl p-3 flex items-center justify-between transition-all group">
                     <div class="flex items-center gap-4">
-                        <img src="https://flagcdn.com/w40/id.png" class="w-6 rounded-sm shadow-sm">
+                        <img src="https://flagcdn.com/w40/fr.png" class="w-6 rounded-sm shadow-sm">
                         <div class="text-left">
-                            <div class="text-sm font-black text-white tracking-wide">INDONESIA</div>
-                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">Indonesian</div>
+                            <div class="text-sm font-black text-white tracking-wide">FRANÇAIS</div>
+                            <div class="text-[10px] text-gray-500 font-medium leading-none mt-0.5">French</div>
                         </div>
                     </div>
-                    <div id="lang-check-id" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
+                    <div id="lang-check-fr" class="w-5 h-5 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all"></div>
                 </button>
             </div>
         </div>
@@ -1560,7 +1560,7 @@
             if (!startLang) {
                 // Если в кэше пусто (самый первый заход), берем язык из Telegram
                 const tgLang = tg.initDataUnsafe?.user?.language_code;
-                const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
+                const supportedLangs = ['ru', 'en', 'es', 'pt', 'fr', 'tr'];
                 
                 if (tgLang && supportedLangs.includes(tgLang)) {
                     startLang = tgLang; // Испанцу - испанский, португальцу - португальский
@@ -1603,7 +1603,7 @@
             fetchShopData();
         });
 
-        const languages = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
+        const languages = ['ru', 'en', 'es', 'pt', 'fr', 'tr'];
         let currentLang = localStorage.getItem('app_lang') || 'ru';
 
         const langConfig = {
