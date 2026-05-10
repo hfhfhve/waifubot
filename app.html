@@ -1258,7 +1258,7 @@
         <div id="toast-text" class="text-sm font-bold text-white whitespace-pre-line leading-tight"></div>
     </div>
 
-    <script src="data.js?v=778"></script>
+    <script src="data.js?v=777"></script>
     
     <script>
         // --- КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
@@ -1611,7 +1611,7 @@
             'en': { flag: 'https://flagcdn.com/w20/us.png', text: 'EN' },
             'es': { flag: 'https://flagcdn.com/w20/es.png', text: 'ES' },
             'pt': { flag: 'https://flagcdn.com/w20/br.png', text: 'PT' },
-            'id': { flag: 'https://flagcdn.com/w20/id.png', text: 'ID' },
+            'fr': { flag: 'https://flagcdn.com/w20/fr.png', text: 'FR' },
             'tr': { flag: 'https://flagcdn.com/w20/tr.png', text: 'TR' }
         };
 
@@ -1838,7 +1838,12 @@
             
             const userId = tg.initDataUnsafe?.user?.id;
             if (userId) {
-                saveLanguageToServer(userId, lang);
+                // ИСПРАВЛЕНО: Отправляем реальный запрос вместо вызова несуществующей функции
+                fetch(`${BASE_URL}/webhook/set-language`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: userId, language_code: lang, initData: tg.initData })
+                }).catch(err => console.error("Ошибка сохранения языка:", err));
             }
             
             // Красиво закрываем модалку с небольшой задержкой
@@ -1848,8 +1853,8 @@
         }
 
         function updateLanguageChecks() {
-            // Логика отрисовки галочки напротив выбранного языка (уменьшенный размер)
-            const langs = ['ru', 'en', 'es', 'pt', 'id'];
+            // ИСПРАВЛЕНО: Убрали 'id', добавили 'fr' и 'tr'
+            const langs = ['ru', 'en', 'es', 'pt', 'fr', 'tr'];
             langs.forEach(l => {
                 const check = document.getElementById('lang-check-' + l);
                 if (check) {
