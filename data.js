@@ -143,6 +143,8 @@ const translations = {
                 delete_char_title: "Удалить персонажа?",
                 delete_char_desc: "Он навсегда пропадет из ваших персонажей. Если он уже опубликован в сообществе, вы продолжите получать с него 10% пассивного дохода.",
                 toast_char_deleted_ok: "Персонаж удален 🗑️",
+                form_environment: "ОКРУЖЕНИЕ / ЛОКАЦИЯ", 
+                ph_environment: "Мрачный замок, неон, киберпанк город, уютная спальня...",
             },
             tr: {
                 hello: "Merhaba", player: "Oyuncu", girls: "KIZLAR", guys: "ERKEKLER", packs: "PAKETLER", energy: "ENERJİ", gems: "ELMASLAR",
@@ -288,6 +290,8 @@ const translations = {
                 delete_char_title: "Karakteri sil?",
                 delete_char_desc: "Karakterlerinizden sonsuza kadar kaybolacak. Eğer toplulukta yayınlanmışsa, ondan %10 pasif gelir elde etmeye devam edeceksiniz.",
                 toast_char_deleted_ok: "Karakter silindi 🗑️",
+                form_environment: "ÇEVRE / KONUM", 
+                ph_environment: "Kasvetli şato, neon, siberpunk şehir, rahat yatak odası...",
             },
             en: {
                 hello: "Hello", player: "Player", girls: "GIRLS", guys: "BOYS", packs: "PACKS", energy: "ENERGY", gems: "GEMS",
@@ -433,6 +437,8 @@ const translations = {
                 delete_char_title: "Delete character?",
                 delete_char_desc: "It will disappear from your characters forever. If it's already published in the community, you will continue to receive 10% passive income from it.",
                 toast_char_deleted_ok: "Character deleted 🗑️",
+                form_environment: "ENVIRONMENT / LOCATION", 
+                ph_environment: "Gloomy castle, neon, cyberpunk city, cozy bedroom...",
             },
             es: {
                 hello: "Hola", player: "Jugador", girls: "CHICAS", guys: "CHICOS", packs: "PAQUETES", energy: "ENERGÍA", gems: "GEMAS",
@@ -578,6 +584,8 @@ const translations = {
                 delete_char_title: "¿Eliminar personaje?",
                 delete_char_desc: "Desaparecerá de tus personajes para siempre. Si ya está publicado en la comunidad, seguirás recibiendo el 10% de ingresos pasivos.",
                 toast_char_deleted_ok: "Personaje eliminado 🗑️",
+                form_environment: "ENTORNO / UBICACIÓN", 
+                ph_environment: "Castillo lúgubre, neón, ciudad ciberpunk, dormitorio acogedor...",
             },
             pt: {
                 hello: "Olá", player: "Jogador", girls: "GAROTAS", guys: "GAROTOS", packs: "PACOTES", energy: "ENERGIA", gems: "GEMAS",
@@ -723,6 +731,8 @@ const translations = {
                 delete_char_title: "Excluir personagem?",
                 delete_char_desc: "Ele desaparecerá de seus personagens para sempre. Se já estiver publicado na comunidade, você continuará a receber 10% de renda passiva.",
                 toast_char_deleted_ok: "Personagem excluído 🗑️",
+                form_environment: "AMBIENTE / LOCALIZAÇÃO", 
+                ph_environment: "Castelo sombrio, neon, cidade cyberpunk, quarto aconchegante...",
             },
             fr: {
                 hello: "Bonjour", player: "Joueur", girls: "FILLES", guys: "GARÇONS", packs: "PACKS", energy: "ÉNERGIE", gems: "GEMMES",
@@ -873,6 +883,8 @@ const translations = {
                 delete_char_title: "Supprimer le personnage ?",
                 delete_char_desc: "Il disparaîtra de vos personnages pour toujours. S'il est déjà publié dans la communauté, vous continuerez à recevoir 10 % de revenus passifs.",
                 toast_char_deleted_ok: "Personnage supprimé 🗑️",
+                form_environment: "ENVIRONNEMENT / LIEU", 
+                ph_environment: "Château sombre, néon, ville cyberpunk, chambre douillette...",
             }
         };
 
