@@ -2942,8 +2942,10 @@ const characters = [
                     ];
                     
                     if (safeHtmlKeys.includes(key)) {
-                        // Для этих ключей можно HTML, но с санитизацией
-                        const sanitized = DOMPurify.sanitize(translations[lang][key]);
+                        // Для этих ключей можно HTML, разрешаем оставлять атрибут onclick
+                        const sanitized = DOMPurify.sanitize(translations[lang][key], { 
+                            ADD_ATTR: ['onclick'] 
+                        });
                         el.innerHTML = sanitized;
                     } else {
                         // Для всех остальных - только текст!
