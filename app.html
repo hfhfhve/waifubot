@@ -1346,7 +1346,7 @@
         
                 if (user) {
                     // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
-                    let serverLang = String(user.language_code || 'ru')
+                    let serverLang = String(user.language_code || 'en')
                         .replace(/::text/g, '') // Удаляем именно приписку ::text
                         .replace(/['"]/g, '')   // Удаляем кавычки
                         .trim()
