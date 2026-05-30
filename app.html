@@ -1659,7 +1659,7 @@
                 renderCustomCharacters(true);
             }
             if (window.communityCharactersList && window.communityCharactersList.length > 0) {
-                renderCommunityChars(true);
+                renderCommunityChars(window.communityCharactersList, true);
             }
             // ---------------------------------------------------------------------------------
         
@@ -2965,11 +2965,13 @@
             communityScrollObserver.observe(trigger);
         }
         
+        // ==========================================
+        // ЛОГИКА СООБЩЕСТВА (ПАГИНАЦИЯ)
+        // ==========================================
         let isCommunityFetching = false;
         let hasMoreCommunity = true;
         
         function fetchCommunityChars(reset = false) {
-            // Защита от спама запросами и остановка, если больше нет персонажей
             if (isCommunityFetching) return;
             if (!hasMoreCommunity && !reset) return;
             
@@ -2980,11 +2982,13 @@
                 window.communityCharactersList = [];
                 hasMoreCommunity = true;
                 
-                // Временно показываем лоадер
-                document.getElementById('community-chars-container').innerHTML = `
-                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
-                        <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-purple-500"></i>
-                    </div>`;
+                const container = document.getElementById('community-chars-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
+                            <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-purple-500"></i>
+                        </div>`;
+                }
             }
 
             fetch(`${BASE_URL}/webhook/get-community-chars`, {
@@ -3001,36 +3005,34 @@
                 isCommunityFetching = false;
                 
                 if (data.success && data.characters) {
-                    // Если бэкенд прислал меньше лимита, значит это конец списка
                     if (data.characters.length < COMMUNITY_CHARS_PER_PAGE) {
                         hasMoreCommunity = false;
                     }
-                    renderCommunityCharsChunk(data.characters, reset);
+                    renderCommunityChars(data.characters, reset);
                 } else {
                     hasMoreCommunity = false;
-                    if (reset) renderCommunityCharsChunk([], true);
+                    if (reset) renderCommunityChars([], true);
                 }
             })
             .catch(err => {
                 isCommunityFetching = false;
                 console.error("Ошибка загрузки сообщества:", err);
-                if (reset) renderCommunityCharsChunk([], true);
+                if (reset) renderCommunityChars([], true);
             });
         }
         
-        function renderCommunityCharsChunk(chars, reset = false) {
+        function renderCommunityChars(chars, reset = false) {
             const container = document.getElementById('community-chars-container');
+            if (!container) return;
             
             if (reset) {
                 container.innerHTML = '';
             }
 
-            // Удаляем старый триггер (кружок загрузки внизу)
             const oldTrigger = document.getElementById('community-scroll-trigger');
             if (oldTrigger) oldTrigger.remove();
 
-            // Если список пуст
-            if (reset && chars.length === 0) {
+            if (reset && (!chars || chars.length === 0)) {
                 container.innerHTML = `
                     <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
                         <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-500"></i>
@@ -3039,9 +3041,8 @@
                 return;
             }
 
-            if (chars.length === 0) return;
+            if (!chars || chars.length === 0) return;
 
-            // Рисуем полученный с бэкенда кусок
             const html = chars.map((char, index) => {
                 const delayClass = reset ? (index % 2 === 0 ? 'delay-100' : 'delay-200') : '';
                 const displayName = (char.intro_messages && char.intro_messages['name_' + currentLang]) 
@@ -3075,7 +3076,6 @@
         
             container.insertAdjacentHTML('beforeend', html);
             
-            // Сохраняем в глобальный список для работы модального окна персонажа
             if (reset) {
                 window.communityCharactersList = chars;
             } else {
@@ -3084,34 +3084,24 @@
             
             communityCharsLoaded += chars.length;
         
-            // Если есть еще персонажи — вешаем триггер для дозагрузки
             if (hasMoreCommunity) {
                 setupCommunityScrollObserver();
             }
         }
 
         function setupCommunityScrollObserver() {
-            // Удаляем старый датчик, если он был
-            const oldTrigger = document.getElementById('community-scroll-trigger');
-            if (oldTrigger) oldTrigger.remove();
-        
-            // Если загружены все персонажи — датчик больше не нужен
-            if (communityCharsLoaded >= window.communityCharactersList.length) return;
-        
             const container = document.getElementById('community-chars-container');
-            // Вставляем невидимый блок-триггер в самый низ списка
-            container.insertAdjacentHTML('beforeend', `<div id="community-scroll-trigger" class="col-span-2 h-4 w-full opacity-0"></div>`);
+            container.insertAdjacentHTML('beforeend', `<div id="community-scroll-trigger" class="col-span-2 h-10 w-full flex justify-center opacity-50"><i class="fa-solid fa-circle-notch fa-spin text-purple-500"></i></div>`);
         
             const trigger = document.getElementById('community-scroll-trigger');
         
             if (communityScrollObserver) communityScrollObserver.disconnect();
         
-            // Создаем новый обзервер
             communityScrollObserver = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
-                    renderCommunityChars(false); // Грузим следующие 8 штук
+                    fetchCommunityChars(false); 
                 }
-            }, { rootMargin: "50px", threshold: 0.1 });
+            }, { rootMargin: "100px", threshold: 0.1 });
         
             communityScrollObserver.observe(trigger);
         }
