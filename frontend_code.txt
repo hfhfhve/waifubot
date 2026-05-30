@@ -2978,7 +2978,9 @@ const characters = [
                 renderCustomCharacters(true);
             }
             if (window.communityCharactersList && window.communityCharactersList.length > 0) {
-                renderCommunityChars(true);
+                // Обнуляем счетчик пагинации и передаем уже загруженный массив персонажей
+                communityCharsLoaded = 0;
+                renderCommunityChars(window.communityCharactersList, true);
             }
             // ---------------------------------------------------------------------------------
         
