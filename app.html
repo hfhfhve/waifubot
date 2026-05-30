@@ -2946,59 +2946,91 @@
             setupCustomScrollObserver();
         }
 
-        function setupCustomScrollObserver() {
-            // Удаляем старый датчик, если он был
-            const oldTrigger = document.getElementById('custom-scroll-trigger');
-            if (oldTrigger) oldTrigger.remove();
-
-            // Если загружены все персонажи — датчик больше не нужен
-            if (customCharsLoaded >= window.customCharactersList.length) return;
-
-            const container = document.getElementById('my-custom-chars-container');
-            // Вставляем невидимый блок, который займет всю ширину (col-span-2)
-            container.insertAdjacentHTML('beforeend', `<div id="custom-scroll-trigger" class="col-span-2 h-4 w-full opacity-0"></div>`);
-
-            const trigger = document.getElementById('custom-scroll-trigger');
-
-            // Сбрасываем старый обзервер
-            if (customScrollObserver) customScrollObserver.disconnect();
-
+        function setupCommunityScrollObserver() {
+            const container = document.getElementById('community-chars-container');
+            // Вставляем невидимый блок-триггер в самый низ списка
+            container.insertAdjacentHTML('beforeend', `<div id="community-scroll-trigger" class="col-span-2 h-10 w-full flex justify-center opacity-50"><i class="fa-solid fa-circle-notch fa-spin text-purple-500"></i></div>`);
+        
+            const trigger = document.getElementById('community-scroll-trigger');
+        
+            if (communityScrollObserver) communityScrollObserver.disconnect();
+        
             // Создаем новый обзервер
-            customScrollObserver = new IntersectionObserver((entries) => {
+            communityScrollObserver = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
-                    renderCustomCharacters(false); // Грузим следующие 10 штук
+                    fetchCommunityChars(false); // ИДЕМ НА БЭКЕНД за следующей партией
                 }
-            }, { rootMargin: "50px", threshold: 0.1 }); // rootMargin 50px значит, что начнет грузить чуть ДО того, как юзер долистает до самого конца
-
-            customScrollObserver.observe(trigger);
+            }, { rootMargin: "100px", threshold: 0.1 });
+        
+            communityScrollObserver.observe(trigger);
         }
         
-        function fetchCommunityChars() {
-            fetch('https://api.waifubot.website/webhook/get-community-chars', {
+        let isCommunityFetching = false;
+        let hasMoreCommunity = true;
+        
+        function fetchCommunityChars(reset = false) {
+            // Защита от спама запросами и остановка, если больше нет персонажей
+            if (isCommunityFetching) return;
+            if (!hasMoreCommunity && !reset) return;
+            
+            isCommunityFetching = true;
+            
+            if (reset) {
+                communityCharsLoaded = 0;
+                window.communityCharactersList = [];
+                hasMoreCommunity = true;
+                
+                // Временно показываем лоадер
+                document.getElementById('community-chars-container').innerHTML = `
+                    <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
+                        <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-purple-500"></i>
+                    </div>`;
+            }
+
+            fetch(`${BASE_URL}/webhook/get-community-chars`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData })
+                body: JSON.stringify({ 
+                    initData: tg.initData,
+                    offset: communityCharsLoaded,
+                    limit: COMMUNITY_CHARS_PER_PAGE
+                })
             })
             .then(res => res.json())
             .then(data => {
+                isCommunityFetching = false;
+                
                 if (data.success && data.characters) {
-                    window.communityCharactersList = data.characters;
+                    // Если бэкенд прислал меньше лимита, значит это конец списка
+                    if (data.characters.length < COMMUNITY_CHARS_PER_PAGE) {
+                        hasMoreCommunity = false;
+                    }
+                    renderCommunityCharsChunk(data.characters, reset);
                 } else {
-                    window.communityCharactersList = [];
+                    hasMoreCommunity = false;
+                    if (reset) renderCommunityCharsChunk([], true);
                 }
-                renderCommunityChars(true); // <--- ПЕРЕДАЕМ true ДЛЯ СБРОСА ПАГИНАЦИИ
             })
             .catch(err => {
+                isCommunityFetching = false;
                 console.error("Ошибка загрузки сообщества:", err);
-                window.communityCharactersList = [];
-                renderCommunityChars(true); // <--- ЗДЕСЬ ТОЖЕ
+                if (reset) renderCommunityCharsChunk([], true);
             });
         }
         
-        function renderCommunityChars(reset = false) {
+        function renderCommunityCharsChunk(chars, reset = false) {
             const container = document.getElementById('community-chars-container');
             
-            if (!window.communityCharactersList || window.communityCharactersList.length === 0) {
+            if (reset) {
+                container.innerHTML = '';
+            }
+
+            // Удаляем старый триггер (кружок загрузки внизу)
+            const oldTrigger = document.getElementById('community-scroll-trigger');
+            if (oldTrigger) oldTrigger.remove();
+
+            // Если список пуст
+            if (reset && chars.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-2 flex flex-col items-center justify-center pt-10 pb-6 opacity-50">
                         <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-500"></i>
@@ -3006,23 +3038,12 @@
                     </div>`;
                 return;
             }
-        
-            // === ЛОГИКА ПАГИНАЦИИ ===
-            if (reset) {
-                container.innerHTML = '';
-                communityCharsLoaded = 0;
-            }
-        
-            // Отрезаем следующий кусок в 8 персонажей
-            const charsToRender = window.communityCharactersList.slice(communityCharsLoaded, communityCharsLoaded + COMMUNITY_CHARS_PER_PAGE);
-        
-            if (charsToRender.length === 0) return; // Все уже загружены
-        
-            const html = charsToRender.map((char, index) => {
-                // Задержка анимации только при первичном рендере
+
+            if (chars.length === 0) return;
+
+            // Рисуем полученный с бэкенда кусок
+            const html = chars.map((char, index) => {
                 const delayClass = reset ? (index % 2 === 0 ? 'delay-100' : 'delay-200') : '';
-                
-                // --- Достаем переведенное имя ---
                 const displayName = (char.intro_messages && char.intro_messages['name_' + currentLang]) 
                     ? char.intro_messages['name_' + currentLang] 
                     : char.name;
@@ -3052,12 +3073,21 @@
                 `;
             }).join('');
         
-            // Добавляем новые карточки в конец сетки
             container.insertAdjacentHTML('beforeend', html);
-            communityCharsLoaded += charsToRender.length;
+            
+            // Сохраняем в глобальный список для работы модального окна персонажа
+            if (reset) {
+                window.communityCharactersList = chars;
+            } else {
+                window.communityCharactersList = window.communityCharactersList.concat(chars);
+            }
+            
+            communityCharsLoaded += chars.length;
         
-            // Навешиваем умный датчик скролла
-            setupCommunityScrollObserver();
+            // Если есть еще персонажи — вешаем триггер для дозагрузки
+            if (hasMoreCommunity) {
+                setupCommunityScrollObserver();
+            }
         }
 
         function setupCommunityScrollObserver() {
