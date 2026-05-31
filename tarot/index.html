@@ -1062,41 +1062,65 @@
     }
 
     const tg = window.Telegram.WebApp;
-    const initData = tg.initData;
+    const API_URL = "https://твой-бэкенд.com/api"; // URL твоего сервера
     
+    async function apiRequest(endpoint, method = "POST", data = {}) {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "X-Telegram-Init-Data": tg.initData // ВОТ ОНА — СВЯЗЬ И ЗАЩИТА!
+            },
+            body: method === "GET" ? null : JSON.stringify(data)
+        });
+    
+        if (!response.ok) {
+            if (response.status === 403) {
+                console.error("Ошибка авторизации: подпись неверна");
+            }
+            throw new Error("Network error");
+        }
+        return await response.json();
+    }
+    
+    // ПРИМЕР: Получение данных пользователя при загрузке
+    async function initUserData() {
+        try {
+            const data = await apiRequest("/get-user");
+            document.getElementById("star-balance").textContent = data.stars;
+            // сохраняем баланс в локальную переменную
+        } catch (e) {
+            console.error("Не удалось загрузить данные пользователя");
+        }
+    }
+    
+    // ПРИМЕР: Отправка сообщения в чат
     async function sendMessage() {
         const input = document.getElementById('message-input');
         const text = input.value.trim();
         if (!text || !currentChat) return;
     
-        // Визуально добавляем сообщение юзера
-        addMessageToUI('user', text);
-        input.value = '';
-        showTyping(true);
+        // Рендерим сообщение юзера в UI...
+        renderMessages(); 
     
         try {
-            const response = await fetch('/api/chat/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'init-data': initData // Передаем данные авторизации
-                },
-                body: JSON.stringify({
-                    user_id: tg.initDataUnsafe.user.id,
-                    text: text,
-                    persona: currentChat
-                })
+            const data = await apiRequest("/chat/send", "POST", {
+                text: text,
+                persona: currentChat
             });
-            
-            const data = await response.json();
-            showTyping(false);
-            addMessageToUI('ai', data.response);
+    
+            if (data.success) {
+                // Добавляем ответ ИИ в чат
+                chatMessages[currentChat].push({ type: 'ai', text: data.response });
+                renderMessages();
+                // Обновляем баланс энергии на экране
+            } else if (data.message === "no_energy") {
+                showToast("У тебя закончилась энергия!", "ph-warning");
+            }
         } catch (e) {
-            showToast('Ошибка связи со звездами', 'ph-warning');
-            showTyping(false);
+            showToast("Ошибка связи с сервером", "ph-warning");
         }
     }
-
     // ==================== TOAST ====================
     function showToast(message, icon = 'ph-check-circle') {
       const toast = document.getElementById('toast');
