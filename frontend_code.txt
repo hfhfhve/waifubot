@@ -7200,46 +7200,90 @@ const characters = [
 
   <!-- ==================== SCRIPTS ==================== -->
   <script>
-    // ==================== STATE ====================
+    // ==================== STATE & CONFIG ====================
     let activeTab = 'home';
     let currentChat = null;
     let isCardFlipped = false;
     let activeLanguage = 'ru';
+    let userBalance = { stars: 0, energy: 0 };
 
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Открываем на весь экран
+
+    // ВАЖНО: Замени на реальный домен, когда запустишь сервер
+    const API_URL = "https://твой-домен.com/api"; 
+
+    // Хранилище сообщений (пока локальное)
     const chatMessages = {
-      tarot: [
-        { type: 'ai', text: 'Здравствуй! Я ИИ-Таролог. Готов помочь тебе с раскладом карт. Задай свой вопрос или выбери готовый расклад.' }
-      ]
+      tarot: [{ type: 'ai', text: 'Здравствуй! Я ИИ-Таролог. Готов помочь тебе с раскладом карт. Задай свой вопрос или выбери готовый расклад.' }],
+      astro: [{ type: 'ai', text: 'Приветствую. Я Астролог. Укажи свои данные, и мы заглянем в твою натальную карту.' }],
+      dream: [{ type: 'ai', text: 'Я толкователь снов. Опиши то, что тебе приснилось.' }]
     };
+
+    // ==================== API CORE ====================
+    async function apiRequest(endpoint, method = "POST", data = {}) {
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Telegram-Init-Data": tg.initData // Подпись Телеграма для защиты!
+                },
+                body: method === "GET" ? null : JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                if (response.status === 403) console.error("Ошибка авторизации: подпись неверна");
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return await response.json();
+        } catch (e) {
+            console.error("API Error:", e);
+            showToast("Ошибка связи со звездами", "ph-warning-circle");
+            return { success: false };
+        }
+    }
+
+    // ==================== INITIALIZATION ====================
+    async function initApp() {
+        navigateTo('home'); // Сразу показываем UI
+        
+        // Стучимся на бэкенд за данными юзера
+        const data = await apiRequest("/get-user");
+        if (data.success) {
+            userBalance.stars = data.stars;
+            userBalance.energy = data.energy;
+            updateBalanceUI();
+        }
+    }
+
+    function updateBalanceUI() {
+        document.getElementById("star-balance").textContent = userBalance.stars;
+        // Если куда-то нужно вывести энергию, добавь здесь
+    }
 
     // ==================== NAVIGATION ====================
     function navigateTo(tab) {
         const isSubScreen = tab === 'chat-room';
-        
-        if (!isSubScreen) {
-            activeTab = tab;
-        }
+        if (!isSubScreen) activeTab = tab;
 
-        // Прячем все экраны
         document.querySelectorAll('.screen').forEach(s => {
             s.classList.add('hidden');
             s.classList.remove('animate-fade-in');
         });
 
-        // Показываем нужный экран
         const target = document.getElementById(`screen-${tab}`);
         if (target) {
             target.classList.remove('hidden');
             target.classList.add('animate-fade-in');
         }
 
-        // Обновляем подсветку кнопок в нижнем меню
         document.querySelectorAll('.nav-btn').forEach(btn => {
             const isActive = btn.dataset.tab === activeTab && !isSubScreen; 
             btn.classList.toggle('active', isActive);
         });
 
-        // Прячем нижнее меню, если мы в чат-комнате
         const bottomNav = document.getElementById('bottom-nav');
         if (tab === 'chat-room') {
             bottomNav.classList.add('hidden');
@@ -7247,49 +7291,29 @@ const characters = [
             bottomNav.classList.remove('hidden');
         }
 
-        // Скролл наверх
         document.getElementById('app').scrollTop = 0;
     }
 
-    // ==================== 3D CARD FLIP ====================
-    function flipCard() {
-      const card = document.getElementById('daily-card');
-      isCardFlipped = !isCardFlipped;
-      card.classList.toggle('flipped', isCardFlipped);
+    // ==================== FEATURES ====================
+    
+    // Карта дня (с обращением к БД)
+    async function flipCard() {
+        if (isCardFlipped) return; // Не даем переворачивать дважды бесплатно
+        
+        const card = document.getElementById('daily-card');
+        
+        // Спрашиваем бэкенд, какую карту выдать
+        const data = await apiRequest("/tarot/daily");
+        
+        if (data.success) {
+            // Тут можно подставлять картинку в зависимости от data.card_id
+            isCardFlipped = true;
+            card.classList.add('flipped');
+        } else {
+            showToast('Сегодня карты молчат', 'ph-warning-circle');
+        }
     }
 
-    // ==================== MODALS ====================
-    function openModal(modalId) {
-      closeAllModals();
-      document.getElementById('overlay').classList.add('active');
-      const modal = document.getElementById('modal-' + modalId);
-      if (modal) {
-        setTimeout(() => modal.classList.add('active'), 10);
-      }
-    }
-
-    function closeAllModals() {
-      document.querySelectorAll('.bottom-sheet').forEach(sheet => {
-        sheet.classList.remove('active');
-      });
-      document.getElementById('overlay').classList.remove('active');
-    }
-
-    // ==================== LANGUAGE ====================
-    function selectLanguage(code, nameStr) {
-      activeLanguage = code;
-      // Меняем галочки
-      document.querySelectorAll('.language-check').forEach(check => {
-          check.classList.toggle('hidden', check.dataset.lang !== code);
-      });
-      // Обновляем текст в профиле
-      document.getElementById('current-lang-display').innerHTML = `${nameStr}`;
-      
-      showToast('Язык изменён ✓', 'ph-globe');
-      setTimeout(closeAllModals, 300);
-    }
-
-    // ==================== SPREADS & CHAT ====================
     function selectSpread(type) {
         closeAllModals();
         const spreadMessages = {
@@ -7310,7 +7334,7 @@ const characters = [
         const text = input.value.trim();
         if(!text) return showToast('Сначала опишите сон', 'ph-warning-circle');
         
-        openChatWithAI('tarot'); // Ведем к тарологу для толкования
+        openChatWithAI('dream'); 
         setTimeout(() => {
             document.getElementById('message-input').value = 'Растолкуй сон: ' + text;
             sendMessage();
@@ -7318,8 +7342,60 @@ const characters = [
         }, 400);
     }
 
+    // ==================== MODALS & UI ====================
+    function openModal(modalId) {
+      closeAllModals();
+      document.getElementById('overlay').classList.add('active');
+      const modal = document.getElementById('modal-' + modalId);
+      if (modal) {
+        setTimeout(() => modal.classList.add('active'), 10);
+      }
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+        sheet.classList.remove('active');
+      });
+      document.getElementById('overlay').classList.remove('active');
+    }
+
+    function selectLanguage(code, nameStr) {
+      activeLanguage = code;
+      document.querySelectorAll('.language-check').forEach(check => {
+          check.classList.toggle('hidden', check.dataset.lang !== code);
+      });
+      document.getElementById('current-lang-display').innerHTML = `${nameStr}`;
+      showToast('Язык изменён ✓', 'ph-globe');
+      setTimeout(closeAllModals, 300);
+    }
+
+    function showToast(message, icon = 'ph-check-circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = message;
+      document.getElementById('toast-icon').className = `ph-fill ${icon} text-neon-indigo text-xl`;
+      
+      toast.classList.remove('opacity-0', 'translate-y-[-20px]');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-[-20px]');
+      }, 2500);
+    }
+
+    function copyReferralLink() {
+      const link = 'https://t.me/CosmicTarobot?ref=' + tg.initDataUnsafe?.user?.id || '12345';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link);
+      }
+      showToast('Ссылка скопирована!', 'ph-copy');
+    }
+
+    // ==================== CHAT LOGIC ====================
     function openChatWithAI(chatId) {
       currentChat = chatId;
+      const names = { tarot: 'ИИ-Таролог', astro: 'Астролог', dream: 'Сонник' };
+      document.getElementById('chat-name').textContent = names[chatId] || 'ИИ';
       renderMessages();
       navigateTo('chat-room');
     }
@@ -7348,29 +7424,50 @@ const characters = [
       container.scrollTop = container.scrollHeight;
     }
 
-    function sendMessage() {
-      const input = document.getElementById('message-input');
-      const text = input.value.trim();
-      if (!text || !currentChat) return;
-
-      if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
-      chatMessages[currentChat].push({ type: 'user', text });
-      input.value = '';
-      renderMessages();
-
-      document.getElementById('typing-indicator').classList.remove('hidden');
-      scrollToBottom();
-
-      setTimeout(() => {
-        document.getElementById('typing-indicator').classList.add('hidden');
-        chatMessages[currentChat].push({ type: 'ai', text: 'Звезды услышали твой запрос. Дай мне мгновение заглянуть за завесу вероятностей...' });
-        renderMessages();
-      }, 1500 + Math.random() * 1000);
-    }
-
     function sendQuickReply(text) {
       document.getElementById('message-input').value = text;
       sendMessage();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('message-input');
+        const text = input.value.trim();
+        if (!text || !currentChat) return;
+
+        // 1. Отображаем сообщение пользователя
+        if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
+        chatMessages[currentChat].push({ type: 'user', text });
+        input.value = '';
+        renderMessages();
+
+        // 2. Показываем индикатор "печатает"
+        document.getElementById('typing-indicator').classList.remove('hidden');
+        scrollToBottom();
+
+        // 3. Отправляем запрос на БЭКЕНД
+        const data = await apiRequest("/chat/send", "POST", {
+            text: text,
+            persona: currentChat
+        });
+
+        // 4. Убираем индикатор
+        document.getElementById('typing-indicator').classList.add('hidden');
+
+        // 5. Обрабатываем ответ
+        if (data.success) {
+            chatMessages[currentChat].push({ type: 'ai', text: data.response });
+            // Синхронизируем баланс
+            userBalance.energy = data.energy;
+            userBalance.stars = data.stars;
+            updateBalanceUI();
+        } else {
+            if (data.message === "no_energy" || data.message === "no_balance") {
+                showToast("Недостаточно энергии или звезд!", "ph-warning");
+            } else {
+                chatMessages[currentChat].push({ type: 'ai', text: 'Связь со звездами прервалась. Попробуй позже.' });
+            }
+        }
+        renderMessages();
     }
 
     function confirmDeleteChat() {
@@ -7382,94 +7479,8 @@ const characters = [
       showToast('Чат удален', 'ph-trash');
     }
 
-    // ==================== REFERRAL ====================
-    function copyReferralLink() {
-      const link = 'https://t.me/CosmicTarobot?ref=12345';
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(link);
-      }
-      showToast('Ссылка скопирована!', 'ph-copy');
-    }
-
-    const tg = window.Telegram.WebApp;
-    const API_URL = "https://твой-бэкенд.com/api"; // URL твоего сервера
-    
-    async function apiRequest(endpoint, method = "POST", data = {}) {
-        const response = await fetch(`${API_URL}${endpoint}`, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json",
-                "X-Telegram-Init-Data": tg.initData // ВОТ ОНА — СВЯЗЬ И ЗАЩИТА!
-            },
-            body: method === "GET" ? null : JSON.stringify(data)
-        });
-    
-        if (!response.ok) {
-            if (response.status === 403) {
-                console.error("Ошибка авторизации: подпись неверна");
-            }
-            throw new Error("Network error");
-        }
-        return await response.json();
-    }
-    
-    // ПРИМЕР: Получение данных пользователя при загрузке
-    async function initUserData() {
-        try {
-            const data = await apiRequest("/get-user");
-            document.getElementById("star-balance").textContent = data.stars;
-            // сохраняем баланс в локальную переменную
-        } catch (e) {
-            console.error("Не удалось загрузить данные пользователя");
-        }
-    }
-    
-    // ПРИМЕР: Отправка сообщения в чат
-    async function sendMessage() {
-        const input = document.getElementById('message-input');
-        const text = input.value.trim();
-        if (!text || !currentChat) return;
-    
-        // Рендерим сообщение юзера в UI...
-        renderMessages(); 
-    
-        try {
-            const data = await apiRequest("/chat/send", "POST", {
-                text: text,
-                persona: currentChat
-            });
-    
-            if (data.success) {
-                // Добавляем ответ ИИ в чат
-                chatMessages[currentChat].push({ type: 'ai', text: data.response });
-                renderMessages();
-                // Обновляем баланс энергии на экране
-            } else if (data.message === "no_energy") {
-                showToast("У тебя закончилась энергия!", "ph-warning");
-            }
-        } catch (e) {
-            showToast("Ошибка связи с сервером", "ph-warning");
-        }
-    }
-    // ==================== TOAST ====================
-    function showToast(message, icon = 'ph-check-circle') {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-message').textContent = message;
-      document.getElementById('toast-icon').className = `ph-fill ${icon} text-neon-indigo text-xl`;
-      
-      toast.classList.remove('opacity-0', 'translate-y-[-20px]');
-      toast.classList.add('opacity-100', 'translate-y-0');
-      
-      setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-[-20px]');
-      }, 2500);
-    }
-
-    // ==================== INIT ====================
-    document.addEventListener('DOMContentLoaded', () => {
-      navigateTo('home');
-    });
+    // ==================== SYSTEM ====================
+    document.addEventListener('DOMContentLoaded', initApp);
 
     document.addEventListener('touchmove', (e) => {
       if (e.target.closest('.bottom-sheet')) return;
