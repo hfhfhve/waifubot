@@ -181,7 +181,7 @@
                 <div>
                     <div class="flex items-center gap-2 mb-1 opacity-70">
                         <i class="ph-fill ph-sparkle text-neon-fuchsia text-xs animate-pulse"></i>
-                        <p class="text-[10px] uppercase tracking-widest font-bold text-white">Воскресенье, 31 Мая</p>
+                        <p id="current-date-display" class="text-[10px] uppercase tracking-widest font-bold text-white">Загрузка...</p>
                     </div>
                     <h1 class="text-white text-3xl font-mystic font-bold leading-tight drop-shadow-md">
                         Звезды готовы,<br><span class="italic text-white/90">Странник</span>
@@ -633,13 +633,13 @@
                 </button>
                 
                 <!-- Birth Data -->
-                <button class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
+                <button onclick="openModal('edit-profile')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-calendar-blank"></i></div>
                         <span class="text-sm font-medium text-white/90">Данные рождения</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-white/40 font-medium">Добавить</span>
+                        <span id="profile-birthdate-display" class="text-xs text-white/40 font-medium">Добавить</span>
                         <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
                     </div>
                 </button>
@@ -966,6 +966,12 @@
     // ==================== INITIALIZATION ====================
     async function initApp() {
         navigateTo('home'); 
+        
+        // --- УСТАНОВКА ТЕКУЩЕЙ ДАТЫ ---
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        const today = new Date();
+        const dateString = today.toLocaleDateString('ru-RU', dateOptions);
+        document.getElementById('current-date-display').textContent = dateString;
         
         // 1. ПОДТЯГИВАЕМ ДАННЫЕ ИЗ TELEGRAM
         const tgUser = tg.initDataUnsafe?.user;
