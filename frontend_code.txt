@@ -6471,32 +6471,76 @@ const characters = [
       background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(99, 102, 241, 0.1));
       border: 1px solid rgba(34, 211, 238, 0.2);
     }
-
-    /* Индикатор навигации */
-    .nav-btn {
-        position: relative;
-        color: #475569;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-    .nav-btn.active {
-        color: #e879f9;
-    }
-    /* Космическая неоновая полоска сверху активного таба */
-    .nav-btn.active::before {
-        content: '';
-        position: absolute;
-        top: 0;
+    .bottom-nav-container {
+        position: fixed;
+        bottom: 24px; /* Парит над нижним краем */
         left: 50%;
         transform: translateX(-50%);
-        width: 36px;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #e879f9, transparent); 
-        border-radius: 0 0 4px 4px;
-        box-shadow: 0 2px 8px rgba(232, 121, 249, 0.6);
+        width: calc(100% - 32px); /* Отступы по бокам */
+        max-width: 400px;
+        z-index: 50;
     }
-    .nav-btn i { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .nav-btn.active i { transform: translateY(-3px) scale(1.1); filter: drop-shadow(0 0 6px rgba(232, 121, 249, 0.4)); }
+    
+    .glass-nav {
+        background: rgba(10, 10, 26, 0.75);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px; /* Закругленная капсула */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 8px 4px;
+    }
+
+    .nav-btn {
+        position: relative;
+        color: rgba(255, 255, 255, 0.35); /* Приглушенный цвет неактивных иконок */
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 56px;
+        border-radius: 16px;
+    }
+
+    /* Мягкая неоновая подложка для активного таба */
+    .nav-btn.active {
+        color: #fff;
+        background: linear-gradient(180deg, rgba(232, 121, 249, 0.15) 0%, rgba(232, 121, 249, 0) 100%);
+        border-top: 1px solid rgba(232, 121, 249, 0.4);
+    }
+
+    .nav-btn i {
+        font-size: 24px;
+        margin-bottom: 3px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Анимация иконки при нажатии */
+    .nav-btn:active i {
+        transform: scale(0.9);
+    }
+
+    .nav-btn.active i {
+        color: #e879f9; /* Неоновый фуксия */
+        transform: translateY(-2px) scale(1.1);
+        filter: drop-shadow(0 0 10px rgba(232, 121, 249, 0.6));
+    }
+
+    .nav-btn span {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: color 0.4s;
+    }
+
+    .nav-btn.active span {
+        color: #e879f9;
+    }
   </style>
 </head>
 <body class="bg-space-900 min-h-screen">
@@ -7010,30 +7054,30 @@ const characters = [
     </div>
 
     <!-- ==================== BOTTOM NAVIGATION ==================== -->
-    <nav id="bottom-nav" class="fixed bottom-0 w-full max-w-md bg-space-900/95 backdrop-blur-xl border-t border-white/5 pb-safe z-40">
-        <div class="px-2 py-2 flex items-center justify-around h-[65px]">
-            <button onclick="navigateTo('home')" class="nav-btn active flex flex-col items-center justify-center w-16" data-tab="home">
-                <i class="ph-fill ph-house text-2xl mb-1 drop-shadow-md"></i>
-                <span class="text-[9px] font-bold tracking-wide">Главная</span>
+    <div id="bottom-nav-wrapper" class="bottom-nav-container pb-safe">
+        <nav id="bottom-nav" class="glass-nav">
+            <button onclick="navigateTo('home')" class="nav-btn active" data-tab="home">
+                <i class="ph-fill ph-house"></i>
+                <span>Главная</span>
             </button>
-            <button onclick="navigateTo('spreads')" class="nav-btn flex flex-col items-center justify-center w-16" data-tab="spreads">
-                <i class="ph-fill ph-cards text-2xl mb-1"></i>
-                <span class="text-[9px] font-bold tracking-wide">Расклады</span>
+            <button onclick="navigateTo('spreads')" class="nav-btn" data-tab="spreads">
+                <i class="ph-fill ph-cards"></i>
+                <span>Расклады</span>
             </button>
-            <button onclick="navigateTo('chats')" class="nav-btn flex flex-col items-center justify-center w-16" data-tab="chats">
-                <i class="ph-fill ph-chat-circle text-2xl mb-1"></i>
-                <span class="text-[9px] font-bold tracking-wide">Чаты</span>
+            <button onclick="navigateTo('chats')" class="nav-btn" data-tab="chats">
+                <i class="ph-fill ph-chat-circle"></i>
+                <span>Чаты</span>
             </button>
-            <button onclick="navigateTo('shop')" class="nav-btn flex flex-col items-center justify-center w-16" data-tab="shop">
-                <i class="ph-fill ph-shopping-bag text-2xl mb-1"></i>
-                <span class="text-[9px] font-bold tracking-wide">Магазин</span>
+            <button onclick="navigateTo('shop')" class="nav-btn" data-tab="shop">
+                <i class="ph-fill ph-shopping-bag"></i>
+                <span>Магазин</span>
             </button>
-            <button onclick="navigateTo('profile')" class="nav-btn flex flex-col items-center justify-center w-16" data-tab="profile">
-                <i class="ph-fill ph-user-circle text-2xl mb-1"></i>
-                <span class="text-[9px] font-bold tracking-wide">Профиль</span>
+            <button onclick="navigateTo('profile')" class="nav-btn" data-tab="profile">
+                <i class="ph-fill ph-user-circle"></i>
+                <span>Профиль</span>
             </button>
-        </div>
-    </nav>
+        </nav>
+    </div>
 
     <!-- ==================== OVERLAY ==================== -->
     <div id="overlay" class="overlay fixed inset-0 bg-black/70 backdrop-blur-sm z-50" onclick="closeAllModals()"></div>
@@ -7484,11 +7528,11 @@ const characters = [
             btn.classList.toggle('active', isActive);
         });
 
-        const bottomNav = document.getElementById('bottom-nav');
+        const bottomNavWrapper = document.getElementById('bottom-nav-wrapper');
         if (tab === 'chat-room') {
-            bottomNav.classList.add('hidden');
+            bottomNavWrapper.classList.add('hidden');
         } else {
-            bottomNav.classList.remove('hidden');
+            bottomNavWrapper.classList.remove('hidden');
         }
 
         document.getElementById('app').scrollTop = 0;
