@@ -7490,8 +7490,8 @@ const characters = [
         
         // 3. ГЕНЕРИРУЕМ ПЕРСОНАЛЬНУЮ РЕФЕРАЛЬНУЮ ССЫЛКУ
         // ВАЖНО: Замени 'CosmicTarobot' на юзернейм своего реального бота!
-        const botUsername = "tarot_neurobot";
-        const refLink = `https://t.me/${botUsername}/app?startapp=${tgUser?.id || '0'}`;
+        const botUsername = "tarot_neurobot"; 
+        const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
         const refInput = document.getElementById('ref-link-input');
         if (refInput) {
             refInput.value = refLink;
