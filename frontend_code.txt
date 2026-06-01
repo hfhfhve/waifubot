@@ -7430,17 +7430,17 @@ const characters = [
     let isCardFlipped = false;
     let activeLanguage = 'ru';
     let userBalance = { energy: 0, streak: 0 };
+    let currentSpread = { type: null, requiredCards: 0, pickedCards: [], drawnVisualIndices: [] };
 
     // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Открываем на весь экран
+    tg.expand(); 
     tg.setBackgroundColor('#03030b');
     tg.setHeaderColor('#03030b');
 
-    // ВАЖНО: Замени на реальный домен, когда запустишь сервер
     const API_URL = "https://tarot.waifubot.website/api"; 
 
-    // Хранилище сообщений (пока локальное)
+    // Хранилище сообщений
     const chatMessages = {
       tarot: [{ type: 'ai', text: 'Здравствуй! Я ИИ-Таролог. Готов помочь тебе с раскладом карт. Задай свой вопрос или выбери готовый расклад.' }],
       astro: [{ type: 'ai', text: 'Приветствую. Я Астролог. Укажи свои данные, и мы заглянем в твою натальную карту.' }],
@@ -7479,14 +7479,12 @@ const characters = [
         const container = document.getElementById('shop-items-container');
         if (!container) return;
 
-        // Запрашиваем товары с бэкенда
         const data = await apiRequest("/shop/items", "GET");
         
         if (data.success && data.items.length > 0) {
             container.innerHTML = '';
             
             data.items.forEach((item, index) => {
-                // Массив стилей для креативности (чередуются по кругу)
                 const styles = [
                     {
                         glow: 'hover:shadow-[0_0_30px_rgba(251,191,36,0.15)]',
@@ -7510,37 +7508,26 @@ const characters = [
 
                 const style = styles[index % styles.length];
 
-                // Генерируем HTML карточки-кнопки
                 const itemHTML = `
                     <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="w-full text-left relative glass bg-space-800 ${style.border} ${style.glow} rounded-[24px] p-6 mb-4 flex items-center justify-between group active:scale-[0.98] transition-all duration-300 overflow-hidden">
-                        
-                        <!-- Заливка при наведении -->
                         <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300 pointer-events-none"></div>
-
                         <div class="flex items-center gap-5 relative z-10">
-                            <!-- Иконка с анимацией -->
                             <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border ${style.icon} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                                 <i class="ph-fill ph-lightning text-3xl drop-shadow-md"></i>
                             </div>
-                            
-                            <!-- Текст -->
                             <div class="flex items-baseline gap-1.5">
                                 <h3 class="text-white font-black text-2xl md:text-3xl tracking-wide">${item.amount}</h3>
                                 <span class="text-white/50 text-sm font-medium">Энергии</span>
                             </div>
                         </div>
-                        
-                        <!-- Визуальная кнопка цены (клики идут через главную карточку) -->
                         <div class="shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors duration-300 pointer-events-none relative z-10 ${style.price}">
                             ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-base drop-shadow-sm"></i>
                         </div>
                     </button>
                 `;
-                
                 container.innerHTML += itemHTML;
             });
         } else {
-            // Заглушка, если магазин пуст
             container.innerHTML = `
                 <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center">
                     <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
@@ -7556,13 +7543,11 @@ const characters = [
     async function initApp() {
         navigateTo('home'); 
         
-        // --- УСТАНОВКА ТЕКУЩЕЙ ДАТЫ ---
         const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
         const today = new Date();
         const dateString = today.toLocaleDateString('ru-RU', dateOptions);
         document.getElementById('current-date-display').textContent = dateString;
         
-        // 1. ПОДТЯГИВАЕМ ДАННЫЕ ИЗ TELEGRAM
         const tgUser = tg.initDataUnsafe?.user;
         const avatarContainer = document.getElementById('profile-avatar-container');
         const nameElement = document.getElementById('profile-name');
@@ -7581,11 +7566,7 @@ const characters = [
             avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
         }
         
-        // 2. ПОЛУЧАЕМ БАЛАНС, СТРИК И РЕФЕРАЛОВ ИЗ БЭКЕНДА
-        // Ловим реф-код, если юзер перешел по чужой ссылке
         const startParam = tg.initDataUnsafe?.start_param || null;
-        
-        // Отправляем запрос, передавая start_param
         const data = await apiRequest("/get-user", "POST", { start_param: startParam });
         
         if (data.success) {
@@ -7593,7 +7574,6 @@ const characters = [
             userBalance.streak = data.streak || 0; 
             updateBalanceUI();
             
-            // Обновляем счетчик друзей в модалке
             const refCountEl = document.getElementById('referrals-count-display');
             if (refCountEl) {
                 refCountEl.textContent = data.referrals_count || 0;
@@ -7611,7 +7591,6 @@ const characters = [
                 document.getElementById('card-back-img').src = data.daily_card.image;
                 document.getElementById('card-back-title').textContent = data.daily_card.name;
                 
-                // Вставляем ИИ-текст и показываем блок
                 document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.daily_card.interpretation);
                 document.getElementById('daily-reading-container').classList.remove('hidden');
                 
@@ -7624,12 +7603,10 @@ const characters = [
                     const [y, m, d] = data.birth_date.split('-');
                     displayEl.textContent = `${d}.${m}.${y}`;
                 }
-                updateZodiacUI(data.birth_date); // Та самая функция расчета знаков, которую мы добавили в прошлом шаге
+                updateZodiacUI(data.birth_date);
             }
         }
         
-        // 3. ГЕНЕРИРУЕМ ПЕРСОНАЛЬНУЮ РЕФЕРАЛЬНУЮ ССЫЛКУ
-        // ВАЖНО: Замени 'CosmicTarobot' на юзернейм своего реального бота!
         const botUsername = "tarot_neurobot"; 
         const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
         const refInput = document.getElementById('ref-link-input');
@@ -7644,18 +7621,14 @@ const characters = [
         const btn = document.getElementById('daily-bonus-btn');
         const text = document.getElementById('daily-bonus-text');
         
-        // Отправляем запрос на бэкенд
         const data = await apiRequest("/bonus/claim", "POST");
         
         if (data.success) {
-            // Если успешно - обновляем баланс и стрик
             userBalance.energy = data.energy;
-            userBalance.streak = data.streak || 0; // <--- ДОБАВЛЕНО ВОТ СЮДА
+            userBalance.streak = data.streak || 0;
             updateBalanceUI();
             
             showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
-            
-            // Делаем кнопку неактивной до завтра
             btn.classList.add('opacity-50', 'pointer-events-none');
             text.textContent = "Собран до завтра";
         } else if (data.message === "already_claimed") {
@@ -7669,33 +7642,25 @@ const characters = [
 
     async function saveBirthDateOnly() {
         const dateInput = document.getElementById('edit-birthdate-only').value;
-        
         if (!dateInput) {
             return showToast("Сначала выбери дату", "ph-warning-circle");
         }
     
-        // Проверка адекватности года
         const year = new Date(dateInput).getFullYear();
         if (year < 1926 || year > 2026) {
             return showToast("Укажи реальный год рождения", "ph-warning-circle");
         }
     
-        // Отправляем дату на бэкенд
-        const data = await apiRequest("/profile/update", "POST", {
-            birth_date: dateInput
-        });
+        const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
     
         if (data.success) {
             showToast("Звезды запомнили эту дату!", "ph-check-circle");
-            
             const displayEl = document.getElementById('profile-birthdate-display');
             if (displayEl) {
                 const [y, m, d] = dateInput.split('-');
                 displayEl.textContent = `${d}.${m}.${y}`;
             }
-            
-            updateZodiacUI(dateInput); // <--- ДОБАВИТЬ ЭТУ СТРОЧКУ СЮДА
-            
+            updateZodiacUI(dateInput);
             closeAllModals();
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
@@ -7704,17 +7669,12 @@ const characters = [
 
     async function buyEnergy(itemId, priceStars) {
         showToast("Создаем чек...", "ph-spinner animate-spin");
-        
-        // 1. Просим бэкенд сгенерировать ссылку на оплату
         const data = await apiRequest("/shop/invoice", "POST", { item_id: itemId });
         
         if (data.success && data.invoice_url) {
-            // 2. Открываем нативное окно оплаты Telegram Stars
             tg.openInvoice(data.invoice_url, function(status) {
                 if (status === 'paid') {
                     showToast("Оплата успешна! Энергия в пути.", "ph-check-circle text-green-400");
-                    
-                    // Ждем 2 секунды, пока сервер Телеграма пнет наш бэкенд, и обновляем баланс
                     setTimeout(async () => {
                         const userData = await apiRequest("/get-user");
                         if (userData.success) {
@@ -7722,7 +7682,6 @@ const characters = [
                             updateBalanceUI();
                         }
                     }, 2000);
-                    
                 } else if (status === 'cancelled') {
                     showToast("Оплата отменена", "ph-x-circle text-red-400");
                 } else {
@@ -7735,88 +7694,72 @@ const characters = [
     }
 
     function updateBalanceUI() {
-        // 1. Энергия на главном экране
         const energyBalanceElement = document.getElementById("star-balance");
         if (energyBalanceElement) {
             energyBalanceElement.textContent = userBalance.energy;
         }
-        
-        // 2. Энергия в профиле
         const profileEnergyBalance = document.getElementById("profile-star-balance");
         if (profileEnergyBalance) {
             profileEnergyBalance.textContent = userBalance.energy;
         }
-        
-        // 3. СТРИК в профиле (Обновляем число и склоняем слово)
         const streakCount = document.getElementById("profile-streak-count");
         const streakWord = document.getElementById("profile-streak-word");
         if (streakCount && streakWord) {
             streakCount.textContent = userBalance.streak;
-            // Передаем массив ['день', 'дня', 'дней']
             streakWord.textContent = declension(userBalance.streak, ['день', 'дня', 'дней']);
         }
     }
 
     // ==================== NAVIGATION ====================
     function navigateTo(tab) {
-    const isSubScreen = tab === 'chat-room' || tab === 'tarot-table';
-    if (!isSubScreen) activeTab = tab;
+        const isSubScreen = tab === 'chat-room' || tab === 'tarot-table';
+        if (!isSubScreen) activeTab = tab;
 
-    document.querySelectorAll('.screen').forEach(s => {
-        s.classList.add('hidden');
-        s.classList.remove('animate-fade-in');
-    });
+        document.querySelectorAll('.screen').forEach(s => {
+            s.classList.add('hidden');
+            s.classList.remove('animate-fade-in');
+        });
 
-    const target = document.getElementById(`screen-${tab}`);
-    if (target) {
-        target.classList.remove('hidden');
-        target.classList.add('animate-fade-in');
+        const target = document.getElementById(`screen-${tab}`);
+        if (target) {
+            target.classList.remove('hidden');
+            target.classList.add('animate-fade-in');
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            const isActive = btn.dataset.tab === activeTab && !isSubScreen; 
+            btn.classList.toggle('active', isActive);
+        });
+
+        const bottomNavWrapper = document.getElementById('bottom-nav-wrapper');
+        if (tab === 'chat-room' || tab === 'tarot-table') {
+            bottomNavWrapper.classList.add('hidden');
+        } else {
+            bottomNavWrapper.classList.remove('hidden');
+        }
+
+        document.getElementById('app').scrollTop = 0;
     }
-
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isActive = btn.dataset.tab === activeTab && !isSubScreen; 
-        btn.classList.toggle('active', isActive);
-    });
-
-    // КРИТИЧЕСКИЙ ФИКС: Прячем навигацию на столе таролога, чтобы она не перекрывала кнопку
-    const bottomNavWrapper = document.getElementById('bottom-nav-wrapper');
-    if (tab === 'chat-room' || tab === 'tarot-table') {
-        bottomNavWrapper.classList.add('hidden');
-    } else {
-        bottomNavWrapper.classList.remove('hidden');
-    }
-
-    document.getElementById('app').scrollTop = 0;
 
     // ==================== FEATURES ====================
-    
-    // Карта дня (с обращением к БД)
     async function flipCard() {
         if (isCardFlipped) return; 
-        
         const card = document.getElementById('daily-card');
-        
-        // Показываем юзеру, что ИИ думает (это занимает 3-5 секунд)
         showToast('ИИ-Таролог читает звезды...', 'ph-spinner animate-spin');
         
         const data = await apiRequest("/tarot/daily", "POST");
         
         if (data.success && data.card) {
-            // Подставляем данные в карту
             document.getElementById('card-back-img').src = data.card.image; 
             document.getElementById('card-back-title').textContent = data.card.name;
-            
-            // Вставляем сгенерированный текст в нижний блок
             document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.card.interpretation);
             
-            // Переворачиваем карту и плавно показываем текст
             isCardFlipped = true;
             card.classList.add('flipped');
             
             setTimeout(() => {
                 document.getElementById('daily-reading-container').classList.remove('hidden');
-            }, 400); // Показываем текст сразу после переворота
-            
+            }, 400);
             showToast('Карта дня открыта!', 'ph-stars');
         } else {
             showToast('Связь со звездами прервалась.', 'ph-warning-circle');
@@ -7825,23 +7768,16 @@ const characters = [
 
     async function saveNameOnly() {
         const nameInput = document.getElementById('edit-name-input').value.trim();
-        
         if (!nameInput) {
             return showToast("Введи имя", "ph-warning-circle");
         }
 
-        // Отправляем имя на бэкенд
-        const data = await apiRequest("/profile/update", "POST", {
-            first_name: nameInput
-        });
+        const data = await apiRequest("/profile/update", "POST", { first_name: nameInput });
 
         if (data.success) {
             showToast("Имя изменено!", "ph-check-circle");
-            
-            // Обновляем имя в самом профиле (если ты добавил id="profile-name", как мы обсуждали ранее)
             const nameEl = document.getElementById('profile-name');
             if (nameEl) nameEl.textContent = nameInput;
-            
             closeAllModals();
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
@@ -7852,7 +7788,7 @@ const characters = [
         if (!dateString) return;
         const date = new Date(dateString);
         const day = date.getDate();
-        const month = date.getMonth() + 1; // Месяцы в JS идут с 0
+        const month = date.getMonth() + 1;
     
         let sign = "Неизвестно"; let element = "—"; let planet = "—";
     
@@ -7889,29 +7825,18 @@ const characters = [
 
         if (data.success) {
             showToast("Звезды запомнили эту дату!", "ph-check-circle");
-            
             const displayEl = document.getElementById('profile-birthdate-display');
             if (displayEl) {
                 const [y, m, d] = dateInput.split('-');
                 displayEl.textContent = `${d}.${m}.${y}`;
             }
-            
-            updateZodiacUI(dateInput); // <--- ДОБАВИТЬ ЭТУ СТРОЧКУ СЮДА
-            
+            updateZodiacUI(dateInput); 
             closeAllModals();
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
         }
     }
 
-    // Состояние текущего расклада
-    let currentSpread = {
-        type: null,
-        requiredCards: 0,
-        pickedCards: [], // Здесь будут ID выбранных карт (от 1 до 78)
-        drawnVisualIndices: [] // Индексы карт из веера, чтобы нельзя было кликнуть дважды
-    };
-    
     // Вызывается с экрана "Расклады"
     function selectSpread(type) {
         const spreadConfig = {
@@ -7925,7 +7850,6 @@ const characters = [
         const config = spreadConfig[type];
         if (!config) return;
     
-        // Инициализируем состояние
         currentSpread = {
             type: type,
             requiredCards: config.req,
@@ -7933,11 +7857,9 @@ const characters = [
             drawnVisualIndices: []
         };
     
-        // Настраиваем UI стола
         document.getElementById('table-spread-name').textContent = config.name;
         document.getElementById('table-instruction-subtitle').textContent = config.subtitle;
         
-        // Скрываем кнопку анализа
         const btnAnalyze = document.getElementById('btn-analyze-spread');
         btnAnalyze.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
         btnAnalyze.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
@@ -7947,80 +7869,96 @@ const characters = [
     }
     
     function renderTarotTable() {
-    const deckContainer = document.getElementById('card-deck-container');
-    const slotsContainer = document.getElementById('selected-cards-slots');
-    
-    deckContainer.innerHTML = '';
-    slotsContainer.innerHTML = '';
-
-    // Генерируем красивую ленту из 30 карт face-down
-    const cardsInDeckCount = 30;
-    for (let i = 0; i < cardsInDeckCount; i++) {
-        const card = document.createElement('div');
-        card.className = 'tarot-deck-card';
-        card.dataset.index = i;
+        const deckContainer = document.getElementById('card-deck-container');
+        const slotsContainer = document.getElementById('selected-cards-slots');
         
-        card.onclick = () => pickCardFromTable(i, card);
-        deckContainer.appendChild(card);
-    }
+        deckContainer.innerHTML = '';
+        slotsContainer.innerHTML = '';
 
-    // Генерируем слоты под выбранные карты
-    for (let i = 0; i < currentSpread.requiredCards; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'card-slot';
-        slot.id = `slot-${i}`;
-        slot.innerHTML = `<i class="ph-fill ph-plus text-white/10 text-sm"></i>`;
-        slotsContainer.appendChild(slot);
-    }
-    
+        const cardsInDeckCount = 30;
+        for (let i = 0; i < cardsInDeckCount; i++) {
+            const card = document.createElement('div');
+            card.className = 'tarot-deck-card';
+            card.dataset.index = i;
+            
+            card.onclick = () => pickCardFromTable(i, card);
+            deckContainer.appendChild(card);
+        }
+
+        for (let i = 0; i < currentSpread.requiredCards; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'card-slot';
+            slot.id = `slot-${i}`;
+            slot.innerHTML = `<i class="ph-fill ph-plus text-white/10 text-sm"></i>`;
+            slotsContainer.appendChild(slot);
+        }
+    } // Фикс скобки: renderTarotTable теперь закрыта корректно!
+
     function pickCardFromTable(visualIndex, cardElement) {
-    // Стоп, если уже набрали максимум
-    if (currentSpread.pickedCards.length >= currentSpread.requiredCards) return;
-    if (currentSpread.drawnVisualIndices.includes(visualIndex)) return;
+        if (currentSpread.pickedCards.length >= currentSpread.requiredCards) return;
+        if (currentSpread.drawnVisualIndices.includes(visualIndex)) return;
 
-    currentSpread.drawnVisualIndices.push(visualIndex);
+        currentSpread.drawnVisualIndices.push(visualIndex);
+        cardElement.classList.add('picked-anim');
 
-    // Запускаем красивую CSS анимацию исчезновения карты из колоды
-    cardElement.classList.add('picked-anim');
-
-    // Генерируем случайный уникальный ID карты (1-78)
-    let realCardId;
-    do {
-        realCardId = Math.floor(Math.random() * 78) + 1;
-    } while (currentSpread.pickedCards.includes(realCardId));
-    
-    currentSpread.pickedCards.push(realCardId);
-
-    // Подсвечиваем текущий пустой слот на фронте
-    const currentSlotIndex = currentSpread.pickedCards.length - 1;
-    const slot = document.getElementById(`slot-${currentSlotIndex}`);
-    slot.innerHTML = `<span class="text-[10px] text-neon-fuchsia font-bold font-mystic">#${realCardId}</span>`;
-    slot.classList.add('filled');
-
-    // Если все карты собраны, выкатываем кнопку отправки к ИИ
-    if (currentSpread.pickedCards.length === currentSpread.requiredCards) {
-        document.getElementById('table-instruction-subtitle').textContent = "Отличный выбор. Карты готовы говорить.";
+        let realCardId;
+        do {
+            realCardId = Math.floor(Math.random() * 78) + 1;
+        } while (currentSpread.pickedCards.includes(realCardId));
         
-        const btnAnalyze = document.getElementById('btn-analyze-spread');
-        btnAnalyze.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
-        btnAnalyze.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
-    }
-    
-    // Отправка расклада ИИ
-    function sendSpreadToAI() {
+        currentSpread.pickedCards.push(realCardId);
+
+        const currentSlotIndex = currentSpread.pickedCards.length - 1;
+        const slot = document.getElementById(`slot-${currentSlotIndex}`);
+        slot.innerHTML = `<span class="text-[10px] text-neon-fuchsia font-bold font-mystic">#${realCardId}</span>`;
+        slot.classList.add('filled');
+
+        if (currentSpread.pickedCards.length === currentSpread.requiredCards) {
+            document.getElementById('table-instruction-subtitle').textContent = "Отличный выбор. Карты готовы говорить.";
+            
+            const btnAnalyze = document.getElementById('btn-analyze-spread');
+            btnAnalyze.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            btnAnalyze.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        }
+    } // Фикс скобки: pickCardFromTable теперь закрыта корректно!
+
+    // Отправка расклада ИИ на новый бэкенд-роут /tarot/spread
+    async function sendSpreadToAI() {
         const pickedCards = currentSpread.pickedCards;
         const spreadType = currentSpread.type;
-    
-        // Тут ты открываешь чат и отправляешь системное/невидимое сообщение с массивом ID карт на бэкенд.
-        // Пока сделаем простой переход в чат.
-        
+
+        showToast('Таролог изучает карты...', 'ph-spinner animate-spin');
         openChatWithAI('tarot');
-        setTimeout(() => {
-            const input = document.getElementById('message-input');
-            // Формируем текстовый запрос, но в идеале на бэкенд нужно передать массив [12, 45, 78]
-            input.value = `Сделай расклад "${spreadType}". Выпавшие карты ID: ${pickedCards.join(', ')}`;
-            sendMessage();
-        }, 400);
+        
+        const spreadName = document.getElementById('table-spread-name').textContent;
+        chatMessages['tarot'].push({ 
+            type: 'user', 
+            text: `Я вытянул карты для расклада "${spreadName}". Прочти их.` 
+        });
+        renderMessages();
+        document.getElementById('typing-indicator').classList.remove('hidden');
+        scrollToBottom();
+
+        const data = await apiRequest("/tarot/spread", "POST", {
+            spread_type: spreadType,
+            cards: pickedCards
+        });
+
+        document.getElementById('typing-indicator').classList.add('hidden');
+
+        if (data.success) {
+            chatMessages['tarot'].push({ type: 'ai', text: data.interpretation });
+            userBalance.energy = data.energy;
+            updateBalanceUI();
+        } else {
+            if (data.message === "no_energy") {
+                showToast("Недостаточно энергии!", "ph-lightning text-neon-amber");
+                chatMessages['tarot'].push({ type: 'ai', text: 'У тебя не хватает энергии для этого расклада. Загляни в магазин.' });
+            } else {
+                chatMessages['tarot'].push({ type: 'ai', text: 'Связь со звездами прервалась. Попробуй позже.' });
+            }
+        }
+        renderMessages();
     }
 
     function decodeDream() {
@@ -8079,7 +8017,6 @@ const characters = [
 
     function copyReferralLink() {
         const input = document.getElementById('ref-link-input');
-        // Кроссбраузерное копирование
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(input.value);
         } else {
@@ -8092,7 +8029,6 @@ const characters = [
     function shareReferralLink() {
         const link = document.getElementById('ref-link-input').value;
         const text = "Присоединяйся к Космическому Таро! 🌌 Узнай свою карту дня и получи ответы на волнующие вопросы.";
-        // Нативное окно выбора чатов в Телеграме
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
         tg.openTelegramLink(shareUrl);
     }
@@ -8127,7 +8063,7 @@ const characters = [
 
     function scrollToBottom() {
       const container = document.getElementById('messages-container');
-      container.scrollTop = container.scrollHeight;
+      if (container) container.scrollTop = container.scrollHeight;
     }
 
     function sendQuickReply(text) {
@@ -8140,35 +8076,28 @@ const characters = [
         const text = input.value.trim();
         if (!text || !currentChat) return;
 
-        // 1. Отображаем сообщение пользователя
         if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
         chatMessages[currentChat].push({ type: 'user', text });
         input.value = '';
         renderMessages();
 
-        // 2. Показываем индикатор "печатает"
         document.getElementById('typing-indicator').classList.remove('hidden');
         scrollToBottom();
 
-        // 3. Отправляем запрос на БЭКЕНД
         const data = await apiRequest("/chat/send", "POST", {
             text: text,
             persona: currentChat
         });
 
-        // 4. Убираем индикатор
         document.getElementById('typing-indicator').classList.add('hidden');
 
-        // 5. Обрабатываем ответ
         if (data.success) {
             chatMessages[currentChat].push({ type: 'ai', text: data.response });
-            // Синхронизируем баланс
             userBalance.energy = data.energy;
-            userBalance.stars = data.stars;
             updateBalanceUI();
         } else {
-            if (data.message === "no_energy" || data.message === "no_balance") {
-                showToast("Недостаточно энергии или звезд!", "ph-warning");
+            if (data.message === "no_energy") {
+                showToast("Недостаточно энергии!", "ph-warning");
             } else {
                 chatMessages[currentChat].push({ type: 'ai', text: 'Связь со звездами прервалась. Попробуй позже.' });
             }
