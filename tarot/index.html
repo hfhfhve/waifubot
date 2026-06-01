@@ -1140,6 +1140,14 @@
             if (refCountEl) {
                 refCountEl.textContent = data.referrals_count || 0;
             }
+            if (data.birth_date) {
+                const displayEl = document.getElementById('profile-birthdate-display');
+                if (displayEl) {
+                    const [y, m, d] = data.birth_date.split('-');
+                    displayEl.textContent = `${d}.${m}.${y}`;
+                }
+                updateZodiacUI(data.birth_date); // Та самая функция расчета знаков, которую мы добавили в прошлом шаге
+            }
         }
         
         // 3. ГЕНЕРИРУЕМ ПЕРСОНАЛЬНУЮ РЕФЕРАЛЬНУЮ ССЫЛКУ
