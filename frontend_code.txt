@@ -6946,12 +6946,12 @@ const characters = [
     </div>
 
     <!-- ==================== 6. CHAT ROOM SCREEN ==================== -->
-    <div id="screen-chat-room" class="screen hidden flex-1 flex flex-col h-full z-30 bg-space-900 pb-safe">
+    <div id="screen-chat-room" class="screen hidden flex-1 flex flex-col h-full z-30 bg-space-900 pb-safe relative">
         
-        <!-- Общий скролл-враппер: теперь шапка уезжает наверх при прокрутке сообщений -->
-        <div class="flex-1 overflow-y-auto hide-scrollbar flex flex-col" id="chat-scroll-wrapper">
+        <!-- Единый контейнер скролла: шапка и сообщения крутятся вместе -->
+        <div id="chat-scroll-wrapper" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col justify-start">
             
-            <!-- Динамическая Шапка чата -->
+            <!-- Динамическая Шапка (без sticky top-0, уезжает вверх при скролле) -->
             <div class="glass px-4 py-3 flex items-center gap-3 border-b border-white/5 w-full shrink-0">
                 <button onclick="backToChats()" class="w-8 h-8 flex items-center justify-center text-white/60 active:text-white transition-colors">
                     <i class="ph-bold ph-caret-left text-xl"></i>
@@ -6968,33 +6968,39 @@ const characters = [
                 </button>
             </div>
 
-            <!-- Контейнер для сообщений -->
-            <div id="messages-container" class="px-4 py-4 space-y-4 flex flex-col justify-end">
-                <!-- Сюда падают баблы сообщений -->
+            <!-- Зона сообщений (отступ снизу увеличен, чтобы парящая панель не перекрывала текст) -->
+            <div id="messages-container" class="px-4 pt-4 pb-36 space-y-4 flex flex-col justify-end flex-1">
+                <!-- Сообщения вставляются сюда -->
             </div>
         </div>
 
-        <div id="typing-indicator" class="hidden px-4 pb-2">
-            <div class="message-bubble-ai inline-flex items-center gap-1 px-4 py-3 rounded-2xl rounded-tl-sm">
-                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+        <!-- Абсолютно позиционированный индикатор печати прямо над инпутом -->
+        <div id="typing-indicator" class="hidden absolute bottom-36 left-4 z-20">
+            <div class="message-bubble-ai inline-flex items-center gap-1 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-md">
+                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"></div>
+                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                <div class="typing-dot w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:0.4s]"></div>
             </div>
         </div>
 
-        <!-- Quick Replies -->
-        <div id="quick-replies" class="px-4 pb-3 flex gap-2 overflow-x-auto hide-scrollbar">
-            <button onclick="sendQuickReply('Сделай предсказание')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Предсказание</button>
-            <button onclick="sendQuickReply('Посмотри натальную карту')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Астро-прогноз</button>
-        </div>
+        <!-- ПАРЯЩАЯ ИНПУТ-КАПСУЛА С МЯГКОЙ ПОДЛОЖКОЙ -->
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-space-900 via-space-900/90 to-transparent pt-8 pb-5 px-4 flex flex-col gap-2.5 z-20 pointer-events-none">
+            
+            <!-- Быстрые ответы (тоже парят) -->
+            <div id="quick-replies" class="flex gap-2 overflow-x-auto hide-scrollbar pointer-events-auto">
+                <button onclick="sendQuickReply('Сделай предсказание')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800/60 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Предсказание</button>
+                <button onclick="sendQuickReply('Посмотри натальную карту')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800/60 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Астро-прогноз</button>
+            </div>
 
-        <div class="glass px-4 py-3 flex items-center gap-3 sticky bottom-0 border-t border-white/5">
-            <input id="message-input" type="text" placeholder="Задай вопрос Оракулу..." 
-                class="flex-1 bg-white/5 rounded-2xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-neon-indigo/50 border border-white/5 transition-colors"
-                onkeypress="if(event.key==='Enter') sendMessage()">
-            <button onclick="sendMessage()" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_5px_15px_rgba(99,102,241,0.3)] shrink-0">
-                <i class="ph-fill ph-paper-plane-right text-white text-xl"></i>
-            </button>
+            <!-- Сама висящая в воздухе закругленная хрень -->
+            <div class="flex items-center gap-2 pointer-events-auto glass bg-space-800/50 rounded-2xl px-3 py-1.5 border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+                <input id="message-input" type="text" placeholder="Задай вопрос Оракулу..." 
+                    class="flex-1 bg-transparent px-2 py-2.5 text-white text-sm placeholder-white/30 outline-none"
+                    onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-gradient-to-r from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_4px_12px_rgba(99,102,241,0.3)] shrink-0">
+                    <i class="ph-fill ph-paper-plane-right text-white text-lg"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -7437,6 +7443,13 @@ const characters = [
     let activeLanguage = 'ru';
     let userBalance = { energy: 0, streak: 0 };
     let currentSpread = { type: null, requiredCards: 0, pickedCards: [], drawnVisualIndices: [] };
+    const langMap = {
+        'ru': '🇷🇺 Русский',
+        'en': '🇬🇧 English',
+        'es': '🇪🇸 Español',
+        'fr': '🇫🇷 Français',
+        'de': '🇩🇪 Deutsch'
+    };
 
     // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
@@ -7589,6 +7602,13 @@ const characters = [
                 if (createdAtEl) {
                     createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
                 }
+            }
+            if (data.language_code) {
+                  activeLanguage = data.language_code.toLowerCase().trim();
+                  const langDisplayEl = document.getElementById('current-lang-display');
+                  if (langDisplayEl) {
+                      langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
+                  }
             }
             if (data.daily_card) {
                 const card = document.getElementById('daily-card');
@@ -7995,7 +8015,8 @@ const characters = [
       document.querySelectorAll('.language-check').forEach(check => {
           check.classList.toggle('hidden', check.dataset.lang !== code);
       });
-      document.getElementById('current-lang-display').innerHTML = `${nameStr}`;
+      // Подставляем строго отформатированную строку из нашего маппинга
+      document.getElementById('current-lang-display').innerHTML = langMap[code] || '🇷🇺 Русский';
       showToast('Язык изменён ✓', 'ph-globe');
       setTimeout(closeAllModals, 300);
     }
