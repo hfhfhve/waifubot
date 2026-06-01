@@ -7212,7 +7212,7 @@ const characters = [
     tg.expand(); // Открываем на весь экран
 
     // ВАЖНО: Замени на реальный домен, когда запустишь сервер
-    const API_URL = "https://твой-домен.com/api"; 
+    const API_URL = "https://tarot.waifubot.website/api"; 
 
     // Хранилище сообщений (пока локальное)
     const chatMessages = {
