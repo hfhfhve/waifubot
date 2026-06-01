@@ -7273,6 +7273,24 @@ const characters = [
     async function initApp() {
         navigateTo('home'); 
         
+        // 1. ПОДТЯГИВАЕМ ДАННЫЕ ИЗ TELEGRAM
+        const tgUser = tg.initDataUnsafe?.user;
+        if (tgUser) {
+            // Формируем имя: берем first_name, если нет - username, если ничего - дефолт
+            const userName = tgUser.first_name || tgUser.username || 'Странник';
+            document.getElementById('profile-name').textContent = userName;
+            
+            // Загружаем аватарку
+            const avatarContainer = document.getElementById('profile-avatar-container');
+            if (tgUser.photo_url) {
+                avatarContainer.innerHTML = `<img src="${tgUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
+            } else {
+                // Если аватарки нет, ставим первую букву имени
+                avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
+            }
+        }
+        
+        // 2. ПОЛУЧАЕМ БАЛАНС ИЗ БЭКЕНДА
         const data = await apiRequest("/get-user");
         if (data.success) {
             userBalance.stars = data.stars;
@@ -7282,8 +7300,17 @@ const characters = [
     }
 
     function updateBalanceUI() {
-        document.getElementById("star-balance").textContent = userBalance.stars;
-        // Если куда-то нужно вывести энергию, добавь здесь
+        // Обновляем баланс на главной странице
+        const starBalanceElement = document.getElementById("star-balance");
+        if (starBalanceElement) {
+            starBalanceElement.textContent = userBalance.stars;
+        }
+        
+        // Обновляем баланс в профиле (новый ID)
+        const profileStarBalance = document.getElementById("profile-star-balance");
+        if (profileStarBalance) {
+            profileStarBalance.textContent = userBalance.stars;
+        }
     }
 
     // ==================== NAVIGATION ====================
