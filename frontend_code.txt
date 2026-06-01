@@ -6880,10 +6880,12 @@ const characters = [
                 
                 <div class="flex items-center gap-4 mb-6 relative z-10">
                     <div class="w-16 h-16 rounded-full p-0.5 bg-gradient-to-br from-neon-indigo to-neon-fuchsia shadow-[0_0_15px_rgba(232,121,249,0.3)]">
-                        <div class="w-full h-full bg-space-900 rounded-full flex items-center justify-center font-mystic text-2xl text-white font-bold">И</div>
+                        <div id="profile-avatar-container" class="w-full h-full bg-space-900 rounded-full flex items-center justify-center font-mystic text-2xl text-white font-bold overflow-hidden">
+                            <span id="profile-avatar-initial">И</span>
+                        </div>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-mystic font-bold text-white mb-0.5 tracking-wide">Имя пользователя</h2>
+                        <h2 id="profile-name" class="text-2xl font-mystic font-bold text-white mb-0.5 tracking-wide">Загрузка...</h2>
                         <p class="text-[10px] text-white/50 uppercase tracking-widest font-medium">С нами с 31 мая</p>
                     </div>
                 </div>
@@ -6924,7 +6926,8 @@ const characters = [
                     </div>
                     <div>
                         <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5">БАЛАНС</p>
-                        <p class="text-white font-bold text-sm">125 <span class="font-normal text-xs text-white/40">✦</span></p>
+                        <!-- Баланс с ID -->
+                        <p class="text-white font-bold text-sm"><span id="profile-star-balance">0</span> <span class="font-normal text-xs text-white/40">✦</span></p>
                     </div>
                 </div>
             </div>
@@ -7042,40 +7045,64 @@ const characters = [
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center">Выбор языка</h3>
                 <div class="space-y-2.5" id="lang-list">
-                    <button onclick="selectLanguage('ru', '🇷🇺 Русский')" class="w-full p-4 rounded-2xl bg-white/5 flex items-center justify-between active:bg-white/10 transition-colors border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl drop-shadow-md">🇷🇺</span>
-                            <span class="text-white font-bold text-sm">Русский</span>
+                    <!-- RU -->
+                    <button onclick="selectLanguage('ru', '🇷🇺 Русский')" class="w-full bg-space-800 border border-white/5 hover:border-neon-fuchsia/30 active:scale-95 rounded-[16px] p-4 flex items-center justify-between transition-all group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://flagcdn.com/w40/ru.png" class="w-6 rounded-sm shadow-sm" alt="RU">
+                            <div class="text-left">
+                                <div class="text-sm font-black text-white tracking-wide">РУССКИЙ</div>
+                                <div class="text-[10px] text-white/40 font-medium leading-none mt-0.5">Russian</div>
+                            </div>
                         </div>
-                        <i class="ph-bold ph-check text-neon-fuchsia text-lg language-check" data-lang="ru"></i>
+                        <i class="ph-bold ph-check text-neon-fuchsia text-xl language-check" data-lang="ru"></i>
                     </button>
-                    <button onclick="selectLanguage('en', '🇬🇧 English')" class="w-full p-4 rounded-2xl bg-white/5 flex items-center justify-between active:bg-white/10 transition-colors border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl drop-shadow-md">🇬🇧</span>
-                            <span class="text-white font-bold text-sm">English</span>
+
+                    <!-- EN -->
+                    <button onclick="selectLanguage('en', '🇬🇧 English')" class="w-full bg-space-800 border border-white/5 hover:border-neon-fuchsia/30 active:scale-95 rounded-[16px] p-4 flex items-center justify-between transition-all group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://flagcdn.com/w40/gb.png" class="w-6 rounded-sm shadow-sm" alt="EN">
+                            <div class="text-left">
+                                <div class="text-sm font-black text-white tracking-wide">ENGLISH</div>
+                                <div class="text-[10px] text-white/40 font-medium leading-none mt-0.5">English</div>
+                            </div>
                         </div>
-                        <i class="ph-bold ph-check text-neon-fuchsia text-lg language-check hidden" data-lang="en"></i>
+                        <i class="ph-bold ph-check text-neon-fuchsia text-xl language-check hidden" data-lang="en"></i>
                     </button>
-                    <button onclick="selectLanguage('es', '🇪🇸 Español')" class="w-full p-4 rounded-2xl bg-white/5 flex items-center justify-between active:bg-white/10 transition-colors border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl drop-shadow-md">🇪🇸</span>
-                            <span class="text-white font-bold text-sm">Español</span>
+
+                    <!-- ES -->
+                    <button onclick="selectLanguage('es', '🇪🇸 Español')" class="w-full bg-space-800 border border-white/5 hover:border-neon-fuchsia/30 active:scale-95 rounded-[16px] p-4 flex items-center justify-between transition-all group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://flagcdn.com/w40/es.png" class="w-6 rounded-sm shadow-sm" alt="ES">
+                            <div class="text-left">
+                                <div class="text-sm font-black text-white tracking-wide">ESPAÑOL</div>
+                                <div class="text-[10px] text-white/40 font-medium leading-none mt-0.5">Spanish</div>
+                            </div>
                         </div>
-                        <i class="ph-bold ph-check text-neon-fuchsia text-lg language-check hidden" data-lang="es"></i>
+                        <i class="ph-bold ph-check text-neon-fuchsia text-xl language-check hidden" data-lang="es"></i>
                     </button>
-                    <button onclick="selectLanguage('fr', '🇫🇷 Français')" class="w-full p-4 rounded-2xl bg-white/5 flex items-center justify-between active:bg-white/10 transition-colors border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl drop-shadow-md">🇫🇷</span>
-                            <span class="text-white font-bold text-sm">Français</span>
+
+                    <!-- FR -->
+                    <button onclick="selectLanguage('fr', '🇫🇷 Français')" class="w-full bg-space-800 border border-white/5 hover:border-neon-fuchsia/30 active:scale-95 rounded-[16px] p-4 flex items-center justify-between transition-all group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://flagcdn.com/w40/fr.png" class="w-6 rounded-sm shadow-sm" alt="FR">
+                            <div class="text-left">
+                                <div class="text-sm font-black text-white tracking-wide">FRANÇAIS</div>
+                                <div class="text-[10px] text-white/40 font-medium leading-none mt-0.5">French</div>
+                            </div>
                         </div>
-                        <i class="ph-bold ph-check text-neon-fuchsia text-lg language-check hidden" data-lang="fr"></i>
+                        <i class="ph-bold ph-check text-neon-fuchsia text-xl language-check hidden" data-lang="fr"></i>
                     </button>
-                    <button onclick="selectLanguage('de', '🇩🇪 Deutsch')" class="w-full p-4 rounded-2xl bg-white/5 flex items-center justify-between active:bg-white/10 transition-colors border border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl drop-shadow-md">🇩🇪</span>
-                            <span class="text-white font-bold text-sm">Deutsch</span>
+
+                    <!-- DE -->
+                    <button onclick="selectLanguage('de', '🇩🇪 Deutsch')" class="w-full bg-space-800 border border-white/5 hover:border-neon-fuchsia/30 active:scale-95 rounded-[16px] p-4 flex items-center justify-between transition-all group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://flagcdn.com/w40/de.png" class="w-6 rounded-sm shadow-sm" alt="DE">
+                            <div class="text-left">
+                                <div class="text-sm font-black text-white tracking-wide">DEUTSCH</div>
+                                <div class="text-[10px] text-white/40 font-medium leading-none mt-0.5">German</div>
+                            </div>
                         </div>
-                        <i class="ph-bold ph-check text-neon-fuchsia text-lg language-check hidden" data-lang="de"></i>
+                        <i class="ph-bold ph-check text-neon-fuchsia text-xl language-check hidden" data-lang="de"></i>
                     </button>
                 </div>
             </div>
