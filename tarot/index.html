@@ -565,7 +565,7 @@
                     </div>
                     <div>
                         <h2 id="profile-name" class="text-2xl font-mystic font-bold text-white mb-0.5 tracking-wide">Загрузка...</h2>
-                        <p class="text-[10px] text-white/50 uppercase tracking-widest font-medium">С нами с 31 мая</p>
+                        <p id="profile-created-at" class="text-[10px] text-white/50 uppercase tracking-widest font-medium">С нами с ...</p>
                     </div>
                 </div>
 
@@ -1139,6 +1139,14 @@
             const refCountEl = document.getElementById('referrals-count-display');
             if (refCountEl) {
                 refCountEl.textContent = data.referrals_count || 0;
+            }
+            if (data.created_at) {
+                const dateObj = new Date(data.created_at);
+                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                const createdAtEl = document.getElementById('profile-created-at');
+                if (createdAtEl) {
+                    createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
+                }
             }
             if (data.birth_date) {
                 const displayEl = document.getElementById('profile-birthdate-display');
