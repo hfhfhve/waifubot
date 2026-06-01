@@ -265,7 +265,7 @@
                 <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
             </div>
 
-            <div id="daily-card" class="card-3d relative w-56 h-80 cursor-pointer group" onclick="flipCard()">
+            <div id="daily-card" class="card-3d relative w-56 h-80 cursor-pointer group mx-auto mb-6" onclick="flipCard()">
                 <!-- Рубашка -->
                 <div class="card-front absolute inset-0 rounded-[24px] overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(99,102,241,0.15)] bg-space-800">
                     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/20 via-space-900 to-space-900"></div>
@@ -277,21 +277,27 @@
                         </div>
                     </div>
                 </div>
-                <!-- Лицо -->
+                <!-- Лицо (Только картинка и имя) -->
                 <div class="card-back absolute inset-0 rounded-[24px] overflow-hidden bg-space-800 border border-neon-amber/40 shadow-[0_0_40px_rgba(251,191,36,0.15)]">
-                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-space-900/80 to-space-900 z-10 pointer-events-none"></div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Swords07.jpg" alt="Семёрка Мечей" class="w-full h-full object-cover opacity-60">
-                    
-                    <div class="absolute inset-0 z-20 flex flex-col justify-end p-5 text-center">
-                        <span class="text-neon-amber text-[9px] font-bold uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Старший Аркан</span>
-                        <h3 class="text-white font-mystic text-3xl font-bold leading-tight mb-2 drop-shadow-lg">Башня</h3>
-                        <p class="text-white/80 text-xs leading-relaxed mb-4 font-light drop-shadow-md">
-                            Внезапные перемены, разрушение иллюзий. То, что строилось на ложном фундаменте, рухнет, открывая путь свету.
-                        </p>
-                        <button onclick="event.stopPropagation(); openChatWithAI('tarot')" class="w-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white py-3 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-2">
-                            <i class="ph-fill ph-chat-circle-text text-base"></i> Обсудить с ИИ
-                        </button>
+                    <img id="card-back-img" src="" alt="Карта" class="w-full h-full object-cover">
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-space-900 via-space-900/80 to-transparent p-4 text-center">
+                        <h3 id="card-back-title" class="text-white font-mystic text-2xl font-bold drop-shadow-lg"></h3>
                     </div>
+                </div>
+            </div>
+
+            <!-- НОВЫЙ БЛОК ДЛЯ ИИ-ПРЕДСКАЗАНИЯ (Скрыт по умолчанию) -->
+            <div id="daily-reading-container" class="w-full hidden animate-fade-in mb-4">
+                <div class="glass bg-space-800 rounded-[24px] p-6 border border-white/10 shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-neon-indigo/20 blur-3xl rounded-full pointer-events-none"></div>
+                    
+                    <div id="daily-reading-text" class="text-white/80 text-sm leading-relaxed space-y-4 font-light relative z-10">
+                        <!-- Сюда вставится HTML от нейросети -->
+                    </div>
+
+                    <button onclick="navigateTo('spreads')" class="w-full mt-6 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-white/10 relative z-10">
+                        <i class="ph-fill ph-cards"></i> Сделать полный расклад
+                    </button>
                 </div>
             </div>
         </div>
@@ -1148,6 +1154,18 @@
                     createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
                 }
             }
+            if (data.daily_card) {
+                const card = document.getElementById('daily-card');
+                document.getElementById('card-back-img').src = data.daily_card.image;
+                document.getElementById('card-back-title').textContent = data.daily_card.name;
+                
+                // Вставляем ИИ-текст и показываем блок
+                document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.daily_card.interpretation);
+                document.getElementById('daily-reading-container').classList.remove('hidden');
+                
+                isCardFlipped = true;
+                card.classList.add('flipped');
+            }
             if (data.birth_date) {
                 const displayEl = document.getElementById('profile-birthdate-display');
                 if (displayEl) {
@@ -1326,32 +1344,30 @@
         
         const card = document.getElementById('daily-card');
         
-        // Показываем, что идет загрузка
-        showToast('Звезды выбирают твою карту...', 'ph-spinner animate-spin');
+        // Показываем юзеру, что ИИ думает (это занимает 3-5 секунд)
+        showToast('ИИ-Таролог читает звезды...', 'ph-spinner animate-spin');
         
-        // Запрашиваем карту у бэкенда
         const data = await apiRequest("/tarot/daily", "POST");
         
         if (data.success && data.card) {
-            // 1. Находим элементы на рубашке (задней стороне карты)
-            const cardBack = card.querySelector('.card-back');
-            const imgEl = cardBack.querySelector('img');
-            const arcanaEl = cardBack.querySelector('span');
-            const nameEl = cardBack.querySelector('h3');
-            const descEl = cardBack.querySelector('p');
+            // Подставляем данные в карту
+            document.getElementById('card-back-img').src = data.card.image; 
+            document.getElementById('card-back-title').textContent = data.card.name;
             
-            // 2. Подставляем реальные данные с бэкенда!
-            imgEl.src = data.card.image; 
-            arcanaEl.textContent = data.card.arcana;
-            nameEl.textContent = data.card.name;
-            descEl.textContent = data.card.description;
+            // Вставляем сгенерированный текст в нижний блок
+            document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.card.interpretation);
             
-            // 3. Красиво переворачиваем карту
+            // Переворачиваем карту и плавно показываем текст
             isCardFlipped = true;
             card.classList.add('flipped');
+            
+            setTimeout(() => {
+                document.getElementById('daily-reading-container').classList.remove('hidden');
+            }, 400); // Показываем текст сразу после переворота
+            
             showToast('Карта дня открыта!', 'ph-stars');
         } else {
-            showToast('Сегодня карты молчат. Попробуй позже.', 'ph-warning-circle');
+            showToast('Связь со звездами прервалась.', 'ph-warning-circle');
         }
     }
 
