@@ -1022,77 +1022,73 @@
         const data = await apiRequest("/shop/items", "GET");
         
         if (data.success && data.items.length > 0) {
-            container.innerHTML = ''; // Очищаем скелетоны загрузки
+            container.innerHTML = ''; // Очищаем скелетоны
             
             data.items.forEach((item, index) => {
-                const isHit = index === 1;
+                const isHit = index === 1; // Только второй товар будет выделяться
                 const isPremium = index === 2;
                 
-                // Настраиваем цвета и свечения в зависимости от типа пакета
-                let bgClass, iconBg, iconColor, iconName, btnClass, borderClass;
+                // Настраиваем спокойный дизайн
+                let bgClass = 'bg-space-800';
+                let borderClass = 'border-white/5 hover:border-white/10';
+                let iconColor = 'text-white/70';
+                let iconBg = 'bg-white/5';
+                let btnClass = 'bg-white/10 hover:bg-white/20 text-white';
+                let badgeHTML = '';
                 
                 if (isHit) {
-                    // ХИТ ПРОДАЖ: Яркий фиолетовый неон
-                    bgClass = 'bg-gradient-to-br from-space-800 to-space-700 shadow-[0_0_30px_rgba(99,102,241,0.15)]';
-                    borderClass = 'border border-neon-indigo/40';
-                    iconBg = 'bg-neon-indigo/20 border border-neon-indigo/30 shadow-[inset_0_0_15px_rgba(99,102,241,0.4)]';
-                    iconColor = 'text-neon-indigo drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]';
-                    iconName = 'ph-lightning';
-                    btnClass = 'bg-gradient-to-r from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.4)] border border-white/10';
+                    // Элегантное выделение для хита
+                    borderClass = 'border-neon-indigo/30';
+                    iconColor = 'text-neon-indigo';
+                    iconBg = 'bg-neon-indigo/10';
+                    btnClass = 'bg-neon-indigo text-white shadow-md shadow-neon-indigo/20';
+                    // Аккуратная таблетка, вылезающая за верхний край
+                    badgeHTML = '<div class="absolute -top-2.5 left-4 bg-neon-indigo text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Самый выгодный</div>';
                 } else if (isPremium) {
-                    // ПРЕМИУМ: Глубокая фуксия
-                    bgClass = 'bg-space-800 shadow-[0_5px_20px_rgba(0,0,0,0.3)]';
-                    borderClass = 'border border-neon-fuchsia/20 hover:border-neon-fuchsia/40';
-                    iconBg = 'bg-neon-fuchsia/10 border border-neon-fuchsia/20';
-                    iconColor = 'text-neon-fuchsia drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]';
-                    iconName = 'ph-sparkle';
-                    btnClass = 'bg-white/10 text-white hover:bg-white/20 border border-white/5';
-                } else {
-                    // БАЗОВЫЙ: Спокойный янтарь
-                    bgClass = 'bg-space-800 shadow-[0_5px_20px_rgba(0,0,0,0.3)]';
-                    borderClass = 'border border-white/5 hover:border-neon-amber/30';
-                    iconBg = 'bg-neon-amber/10 border border-neon-amber/20';
-                    iconColor = 'text-neon-amber drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]';
-                    iconName = 'ph-lightning';
-                    btnClass = 'bg-white/10 text-white hover:bg-white/20 border border-white/5';
+                    iconColor = 'text-neon-fuchsia';
+                    iconBg = 'bg-neon-fuchsia/10';
                 }
 
-                const badge = isHit ? '<div class="absolute top-0 right-0 bg-gradient-to-r from-neon-indigo to-neon-purple text-white text-[9px] font-bold px-3 py-1.5 rounded-bl-[16px] uppercase tracking-widest shadow-lg">Хит продаж</div>' : '';
-                const subtitle = isHit ? '<span class="text-neon-amber font-bold">+ Бонус</span>' : (isPremium ? '<span class="text-neon-fuchsia font-bold">Выгодный пак</span>' : 'Базовый пакет');
+                const subtitle = isHit ? '+ Бонусная энергия' : 'Базовый пакет';
 
-                // Генерируем HTML премиальной карточки
+                // Генерируем HTML строгой карточки
                 const itemHTML = `
-                    <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="w-full relative glass ${bgClass} ${borderClass} rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-all duration-300 group overflow-hidden">
-                        ${isHit ? '<div class="absolute -right-10 -top-10 w-32 h-32 bg-neon-indigo/20 blur-3xl rounded-full pointer-events-none group-hover:bg-neon-indigo/30 transition-colors duration-500"></div>' : ''}
-                        ${badge}
+                    <div class="relative w-full glass ${bgClass} ${borderClass} rounded-[20px] p-4 flex items-center justify-between mb-3 transition-colors duration-300">
+                        ${badgeHTML}
                         
-                        <div class="flex items-center gap-4 relative z-10">
-                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-active:scale-95 transition-transform duration-300 ${iconBg}">
-                                <i class="ph-fill ${iconName} text-3xl ${iconColor}"></i>
+                        <div class="flex items-center gap-4">
+                            <!-- Иконка-сквиркл -->
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}">
+                                <i class="ph-fill ph-lightning text-2xl ${iconColor}"></i>
                             </div>
+                            
                             <div class="text-left">
-                                <h3 class="text-white font-black text-2xl leading-none mb-1 tracking-wide">${item.amount} <span class="text-white/50 text-sm font-medium tracking-normal">Энергии</span></h3>
-                                <p class="text-[10px] uppercase tracking-wider opacity-90">${subtitle}</p>
+                                <div class="flex items-baseline gap-1 mb-0.5">
+                                    <h3 class="text-white font-bold text-xl leading-none">${item.amount}</h3>
+                                    <span class="text-white/50 text-xs font-medium">Энергии</span>
+                                </div>
+                                <p class="text-[10px] text-white/40 uppercase tracking-widest">${subtitle}</p>
                             </div>
                         </div>
                         
-                        <div class="px-4 py-2.5 rounded-[14px] font-bold text-sm relative z-10 flex items-center gap-1.5 transition-colors ${btnClass}">
-                            ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-sm drop-shadow-md"></i>
-                        </div>
-                    </button>
+                        <!-- Аккуратная кнопка покупки -->
+                        <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-1.5 active:scale-95 transition-all ${btnClass}">
+                            ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-sm drop-shadow-sm"></i>
+                        </button>
+                    </div>
                 `;
                 
                 container.innerHTML += itemHTML;
             });
         } else {
-            // Если товаров нет, показываем красивую пустую заглушку
+            // Заглушка, если магазин пуст
             container.innerHTML = `
-                <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center">
-                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                        <i class="ph-fill ph-storefront text-3xl text-white/30"></i>
+                <div class="glass bg-space-800 rounded-[20px] p-6 text-center border border-white/5 flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-storefront text-2xl text-white/30"></i>
                     </div>
-                    <h3 class="text-white font-bold text-lg mb-1">Магазин пуст</h3>
-                    <p class="text-white/40 text-sm">Звезды сейчас отдыхают. Возвращайся позже.</p>
+                    <h3 class="text-white font-bold text-sm mb-1">Магазин обновляется</h3>
+                    <p class="text-white/40 text-xs">Новые пакеты энергии появятся позже.</p>
                 </div>`;
         }
     }
