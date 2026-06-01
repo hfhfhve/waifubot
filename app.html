@@ -1295,11 +1295,8 @@
                 loader.classList.add('opacity-0');
                 setTimeout(() => {
                     loader.classList.add('hidden');
-                    
-                    // Проверяем: если сервер сказал, что 18+ НЕ подтверждено — показываем окно
-                    if (window.isAgeVerified === false) {
-                        checkAgeVerification();
-                    }
+                    // Проверка 18+ отключена, пускаем всех
+                    window.isAgeVerified = true; 
                 }, 500);
             }
         }
