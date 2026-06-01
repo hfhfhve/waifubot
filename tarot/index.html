@@ -598,10 +598,10 @@
     <div id="screen-chats" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar">
         <div class="px-5 pt-8 pb-4">
             <h1 class="text-white text-3xl font-mystic font-bold mb-1">Чаты</h1>
-            <p class="text-white/50 text-sm">Твои проводники во вселенную</p>
+            <p class="text-white/50 text-sm">Твой единый проводник во вселенную</p>
         </div>
         <div id="chat-list" class="px-5 space-y-3 mt-4">
-            <button onclick="openChat('tarot')" class="w-full glass bg-space-800 rounded-[20px] p-4 flex items-center gap-4 text-left active:scale-95 transition-transform border border-white/5">
+            <button onclick="openChatWithAI('oracle')" class="w-full glass bg-space-800 rounded-[20px] p-4 flex items-center gap-4 text-left active:scale-95 transition-transform border border-white/5">
                 <div class="relative shrink-0">
                     <div class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center border-2 border-space-900">
                         <i class="ph-fill ph-sparkle text-white text-2xl"></i>
@@ -610,10 +610,9 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
-                        <p class="text-white font-bold text-sm">ИИ-Таролог</p>
-                        <p class="text-white/30 text-[10px]">14:32</p>
+                        <p class="text-white font-bold text-sm">Вселенский Оракул</p>
                     </div>
-                    <p class="text-white/50 text-xs truncate">Карта Солнце говорит о новых возможностях...</p>
+                    <p class="text-white/50 text-xs truncate">Таро, Астрология и Сны в одном сверхразуме...</p>
                 </div>
             </button>
         </div>
@@ -621,24 +620,31 @@
 
     <!-- ==================== 6. CHAT ROOM SCREEN ==================== -->
     <div id="screen-chat-room" class="screen hidden flex-1 flex flex-col h-full z-30 bg-space-900 pb-safe">
-        <div class="glass px-4 py-3 flex items-center gap-3 sticky top-0 z-20 border-b border-white/5">
-            <button onclick="backToChats()" class="w-8 h-8 flex items-center justify-center text-white/60 active:text-white transition-colors">
-                <i class="ph-bold ph-caret-left text-xl"></i>
-            </button>
-            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shrink-0" id="chat-avatar">
-                <i class="ph-fill ph-sparkle text-white"></i>
+        
+        <!-- Общий скролл-враппер: теперь шапка уезжает наверх при прокрутке сообщений -->
+        <div class="flex-1 overflow-y-auto hide-scrollbar flex flex-col" id="chat-scroll-wrapper">
+            
+            <!-- Динамическая Шапка чата -->
+            <div class="glass px-4 py-3 flex items-center gap-3 border-b border-white/5 w-full shrink-0">
+                <button onclick="backToChats()" class="w-8 h-8 flex items-center justify-center text-white/60 active:text-white transition-colors">
+                    <i class="ph-bold ph-caret-left text-xl"></i>
+                </button>
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shrink-0" id="chat-avatar">
+                    <i class="ph-fill ph-sparkle text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white text-sm font-bold truncate" id="chat-name">Вселенский Оракул</p>
+                    <p class="text-green-400 text-[10px]">на связи</p>
+                </div>
+                <button onclick="openModal('delete_chat')" class="w-8 h-8 flex items-center justify-center text-white/40 active:text-white transition-colors shrink-0">
+                    <i class="ph-fill ph-trash text-lg"></i>
+                </button>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-white text-sm font-bold truncate" id="chat-name">ИИ-Таролог</p>
-                <p class="text-green-400 text-[10px]">печатает...</p>
-            </div>
-            <button onclick="openModal('delete_chat')" class="w-8 h-8 flex items-center justify-center text-white/40 active:text-white transition-colors shrink-0">
-                <i class="ph-fill ph-trash text-lg"></i>
-            </button>
-        </div>
 
-        <div id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hide-scrollbar">
-            <!-- Messages inserted here -->
+            <!-- Контейнер для сообщений -->
+            <div id="messages-container" class="px-4 py-4 space-y-4 flex flex-col justify-end">
+                <!-- Сюда падают баблы сообщений -->
+            </div>
         </div>
 
         <div id="typing-indicator" class="hidden px-4 pb-2">
@@ -651,12 +657,12 @@
 
         <!-- Quick Replies -->
         <div id="quick-replies" class="px-4 pb-3 flex gap-2 overflow-x-auto hide-scrollbar">
-            <button onclick="sendQuickReply('Расклад на день')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Расклад на день</button>
-            <button onclick="sendQuickReply('Совет карт')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Совет карт</button>
+            <button onclick="sendQuickReply('Сделай предсказание')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Предсказание</button>
+            <button onclick="sendQuickReply('Посмотри натальную карту')" class="flex-shrink-0 px-4 py-2 rounded-full glass bg-space-800 text-white/70 text-xs font-medium active:scale-95 transition-transform border border-white/5">Астро-прогноз</button>
         </div>
 
         <div class="glass px-4 py-3 flex items-center gap-3 sticky bottom-0 border-t border-white/5">
-            <input id="message-input" type="text" placeholder="Задайте вопрос картам..." 
+            <input id="message-input" type="text" placeholder="Задай вопрос Оракулу..." 
                 class="flex-1 bg-white/5 rounded-2xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-neon-indigo/50 border border-white/5 transition-colors"
                 onkeypress="if(event.key==='Enter') sendMessage()">
             <button onclick="sendMessage()" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_5px_15px_rgba(99,102,241,0.3)] shrink-0">
@@ -1115,9 +1121,7 @@
 
     // Хранилище сообщений
     const chatMessages = {
-      tarot: [{ type: 'ai', text: 'Здравствуй! Я ИИ-Таролог. Готов помочь тебе с раскладом карт. Задай свой вопрос или выбери готовый расклад.' }],
-      astro: [{ type: 'ai', text: 'Приветствую. Я Астролог. Укажи свои данные, и мы заглянем в твою натальную карту.' }],
-      dream: [{ type: 'ai', text: 'Я толкователь снов. Опиши то, что тебе приснилось.' }]
+      oracle: [{ type: 'ai', text: 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.' }]
     };
 
     // ==================== API CORE ====================
@@ -1600,11 +1604,11 @@
         const pickedCards = currentSpread.pickedCards;
         const spreadType = currentSpread.type;
 
-        showToast('Таролог изучает карты...', 'ph-spinner animate-spin');
-        openChatWithAI('tarot');
+        showToast('Оракул изучает карты...', 'ph-spinner animate-spin');
+        openChatWithAI('oracle'); // Перенаправляем на единого оракула
         
         const spreadName = document.getElementById('table-spread-name').textContent;
-        chatMessages['tarot'].push({ 
+        chatMessages['oracle'].push({ 
             type: 'user', 
             text: `Я вытянул карты для расклада "${spreadName}". Прочти их.` 
         });
@@ -1620,16 +1624,11 @@
         document.getElementById('typing-indicator').classList.add('hidden');
 
         if (data.success) {
-            chatMessages['tarot'].push({ type: 'ai', text: data.interpretation });
+            chatMessages['oracle'].push({ type: 'ai', text: data.interpretation });
             userBalance.energy = data.energy;
             updateBalanceUI();
         } else {
-            if (data.message === "no_energy") {
-                showToast("Недостаточно энергии!", "ph-lightning text-neon-amber");
-                chatMessages['tarot'].push({ type: 'ai', text: 'У тебя не хватает энергии для этого расклада. Загляни в магазин.' });
-            } else {
-                chatMessages['tarot'].push({ type: 'ai', text: 'Связь со звездами прервалась. Попробуй позже.' });
-            }
+            chatMessages['oracle'].push({ type: 'ai', text: 'Связь со звездами прервалась. Попробуй позже.' });
         }
         renderMessages();
     }
@@ -1639,9 +1638,9 @@
         const text = input.value.trim();
         if(!text) return showToast('Сначала опишите сон', 'ph-warning-circle');
         
-        openChatWithAI('dream'); 
+        openChatWithAI('oracle'); // Перенаправляем на единого оракула
         setTimeout(() => {
-            document.getElementById('message-input').value = 'Растолкуй сон: ' + text;
+            document.getElementById('message-input').value = 'Растолкуй мой сон: ' + text;
             sendMessage();
             input.value = '';
         }, 400);
@@ -1709,8 +1708,8 @@
     // ==================== CHAT LOGIC ====================
     function openChatWithAI(chatId) {
       currentChat = chatId;
-      const names = { tarot: 'ИИ-Таролог', astro: 'Астролог', dream: 'Сонник' };
-      document.getElementById('chat-name').textContent = names[chatId] || 'ИИ';
+      const names = { oracle: 'Вселенский Оракул' };
+      document.getElementById('chat-name').textContent = names[chatId] || 'Вселенский Оракул';
       renderMessages();
       navigateTo('chat-room');
     }
@@ -1735,7 +1734,7 @@
     }
 
     function scrollToBottom() {
-      const container = document.getElementById('messages-container');
+      const container = document.getElementById('chat-scroll-wrapper');
       if (container) container.scrollTop = container.scrollHeight;
     }
 
