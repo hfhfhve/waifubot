@@ -779,6 +779,30 @@
         </div>
     </div>
 
+    <div id="modal-edit-profile" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="p-6">
+                <h3 class="text-white font-bold text-2xl mb-5 text-center">Твои данные</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Имя в приложении</label>
+                        <input type="text" id="edit-name" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-sm" placeholder="Как к тебе обращаться?">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Дата рождения</label>
+                        <input type="date" id="edit-birthdate" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-sm">
+                    </div>
+                    <button onclick="saveProfileData()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-4 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
+                        СОХРАНИТЬ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- REFERRAL MODAL -->
     <div id="modal-referral" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col max-h-[85vh]">
@@ -945,19 +969,23 @@
         
         // 1. ПОДТЯГИВАЕМ ДАННЫЕ ИЗ TELEGRAM
         const tgUser = tg.initDataUnsafe?.user;
-        if (tgUser) {
-            // Формируем имя: берем first_name, если нет - username, если ничего - дефолт
+        const avatarContainer = document.getElementById('profile-avatar-container');
+        const nameElement = document.getElementById('profile-name');
+
+        // Проверяем, есть ли данные от Телеграма
+        if (tgUser && Object.keys(tgUser).length > 0) {
             const userName = tgUser.first_name || tgUser.username || 'Странник';
-            document.getElementById('profile-name').textContent = userName;
+            nameElement.textContent = userName;
             
-            // Загружаем аватарку
-            const avatarContainer = document.getElementById('profile-avatar-container');
             if (tgUser.photo_url) {
                 avatarContainer.innerHTML = `<img src="${tgUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
             } else {
-                // Если аватарки нет, ставим первую букву имени
                 avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
             }
+        } else {
+            // ФОЛБЭК: Если открыто просто в браузере
+            nameElement.textContent = 'Тестовый Искатель';
+            avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
         }
         
         // 2. ПОЛУЧАЕМ БАЛАНС ИЗ БЭКЕНДА
@@ -1031,6 +1059,29 @@
             card.classList.add('flipped');
         } else {
             showToast('Сегодня карты молчат', 'ph-warning-circle');
+        }
+    }
+
+    async function saveProfileData() {
+        const nameInput = document.getElementById('edit-name').value.trim();
+        const dateInput = document.getElementById('edit-birthdate').value;
+
+        if (!nameInput && !dateInput) {
+            return showToast("Заполните хотя бы одно поле", "ph-warning-circle");
+        }
+
+        const data = await apiRequest("/profile/update", "POST", {
+            first_name: nameInput || null,
+            birth_date: dateInput || null
+        });
+
+        if (data.success) {
+            if (nameInput) document.getElementById('profile-name').textContent = nameInput;
+            showToast("Данные сохранены!", "ph-check-circle");
+            closeAllModals();
+            // Тут можно будет обновить знак зодиака на фронте, если бэкенд его вернул
+        } else {
+            showToast("Ошибка сохранения", "ph-warning-circle");
         }
     }
 
