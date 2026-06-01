@@ -7495,6 +7495,38 @@ const characters = [
         }
     }
 
+    async function buyEnergy(itemId, priceStars) {
+        showToast("Создаем чек...", "ph-spinner animate-spin");
+        
+        // 1. Просим бэкенд сгенерировать ссылку на оплату
+        const data = await apiRequest("/shop/invoice", "POST", { item_id: itemId });
+        
+        if (data.success && data.invoice_url) {
+            // 2. Открываем нативное окно оплаты Telegram Stars
+            tg.openInvoice(data.invoice_url, function(status) {
+                if (status === 'paid') {
+                    showToast("Оплата успешна! Энергия в пути.", "ph-check-circle text-green-400");
+                    
+                    // Ждем 2 секунды, пока сервер Телеграма пнет наш бэкенд, и обновляем баланс
+                    setTimeout(async () => {
+                        const userData = await apiRequest("/get-user");
+                        if (userData.success) {
+                            userBalance.energy = userData.energy;
+                            updateBalanceUI();
+                        }
+                    }, 2000);
+                    
+                } else if (status === 'cancelled') {
+                    showToast("Оплата отменена", "ph-x-circle text-red-400");
+                } else {
+                    showToast("Ошибка при оплате", "ph-warning-circle text-red-400");
+                }
+            });
+        } else {
+            showToast("Ошибка создания счета", "ph-warning-circle");
+        }
+    }
+
     function updateBalanceUI() {
         // 1. Энергия на главном экране
         const energyBalanceElement = document.getElementById("star-balance");
