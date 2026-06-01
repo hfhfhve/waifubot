@@ -587,7 +587,10 @@
                     </div>
                     <div>
                         <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5">ПОДРЯД</p>
-                        <p class="text-white font-bold text-sm">1 <span class="font-normal text-xs text-white/40">день</span></p>
+                        <p class="text-white font-bold text-sm">
+                            <span id="profile-streak-count">0</span> 
+                            <span id="profile-streak-word" class="font-normal text-xs text-white/40">дней</span>
+                        </p>
                     </div>
                 </div>
                 <div class="glass bg-space-800 rounded-[20px] p-4 flex items-center gap-3 relative border border-white/5">
@@ -962,7 +965,7 @@
     let currentChat = null;
     let isCardFlipped = false;
     let activeLanguage = 'ru';
-    let userBalance = { stars: 0, energy: 0 };
+    let userBalance = { energy: 0, streak: 0 };
 
     // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
@@ -999,6 +1002,13 @@
         }
     }
 
+    function declension(number, titles) {
+        const cases = [2, 0, 1, 1, 1, 2];
+        return titles[
+            (number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]
+        ];
+    }
+
     // ==================== INITIALIZATION ====================
     async function initApp() {
         navigateTo('home'); 
@@ -1014,7 +1024,6 @@
         const avatarContainer = document.getElementById('profile-avatar-container');
         const nameElement = document.getElementById('profile-name');
 
-        // Проверяем, есть ли данные от Телеграма
         if (tgUser && Object.keys(tgUser).length > 0) {
             const userName = tgUser.first_name || tgUser.username || 'Странник';
             nameElement.textContent = userName;
@@ -1025,16 +1034,15 @@
                 avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
             }
         } else {
-            // ФОЛБЭК: Если открыто просто в браузере
             nameElement.textContent = 'Тестовый Искатель';
             avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
         }
         
-        // 2. ПОЛУЧАЕМ БАЛАНС ИЗ БЭКЕНДА
+        // 2. ПОЛУЧАЕМ БАЛАНС И СТРИК ИЗ БЭКЕНДА
         const data = await apiRequest("/get-user");
         if (data.success) {
-            userBalance.stars = data.stars;
             userBalance.energy = data.energy;
+            userBalance.streak = data.streak || 0; // <--- ДОБАВЛЕНО ВОТ СЮДА
             updateBalanceUI();
         }
     }
@@ -1047,8 +1055,9 @@
         const data = await apiRequest("/bonus/claim", "POST");
         
         if (data.success) {
-            // Если успешно - обновляем баланс и меняем вид кнопки
+            // Если успешно - обновляем баланс и стрик
             userBalance.energy = data.energy;
+            userBalance.streak = data.streak || 0; // <--- ДОБАВЛЕНО ВОТ СЮДА
             updateBalanceUI();
             
             showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
@@ -1099,16 +1108,25 @@
     }
 
     function updateBalanceUI() {
-        // Обновляем баланс на главной странице
-        const starBalanceElement = document.getElementById("star-balance");
-        if (starBalanceElement) {
-            starBalanceElement.textContent = userBalance.stars;
+        // 1. Энергия на главном экране
+        const energyBalanceElement = document.getElementById("star-balance");
+        if (energyBalanceElement) {
+            energyBalanceElement.textContent = userBalance.energy;
         }
         
-        // Обновляем баланс в профиле (новый ID)
-        const profileStarBalance = document.getElementById("profile-star-balance");
-        if (profileStarBalance) {
-            profileStarBalance.textContent = userBalance.stars;
+        // 2. Энергия в профиле
+        const profileEnergyBalance = document.getElementById("profile-star-balance");
+        if (profileEnergyBalance) {
+            profileEnergyBalance.textContent = userBalance.energy;
+        }
+        
+        // 3. СТРИК в профиле (Обновляем число и склоняем слово)
+        const streakCount = document.getElementById("profile-streak-count");
+        const streakWord = document.getElementById("profile-streak-word");
+        if (streakCount && streakWord) {
+            streakCount.textContent = userBalance.streak;
+            // Передаем массив ['день', 'дня', 'дней']
+            streakWord.textContent = declension(userBalance.streak, ['день', 'дня', 'дней']);
         }
     }
 
