@@ -6678,49 +6678,32 @@ const characters = [
         </div>
 
         <!-- Карта дня -->
-        <div class="px-5 mb-10 flex flex-col items-center">
+        <div class="px-5 mb-10">
             <div class="w-full flex items-center gap-2 mb-4 opacity-70">
                 <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/20"></div>
                 <i class="ph-fill ph-moon text-white text-sm"></i>
-                <p class="text-xs uppercase tracking-widest font-bold text-white text-center">КАРТА ДНЯ</p>
+                <p class="text-xs uppercase tracking-widest font-bold text-white text-center">Энергия дня</p>
                 <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
             </div>
 
-            <div id="daily-card" class="card-3d relative w-56 h-80 cursor-pointer group mx-auto mb-6" onclick="flipCard()">
-                <!-- Рубашка -->
-                <div class="card-front absolute inset-0 rounded-[24px] overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(99,102,241,0.15)] bg-space-800">
-                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/20 via-space-900 to-space-900"></div>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6">
-                        <div class="w-20 h-20 border-2 border-dashed border-neon-indigo/30 rounded-full flex items-center justify-center animate-[spin_20s_linear_infinite]"></div>
-                        <div class="absolute flex flex-col items-center">
-                            <i class="ph-fill ph-sparkle text-3xl text-neon-indigo/80 animate-pulse-slow"></i>
-                            <p class="text-white/40 text-[10px] uppercase tracking-widest mt-4 font-bold text-center">Коснись<br>для открытия</p>
-                        </div>
+            <button onclick="openDailyCardModal()" class="w-full glass bg-space-800 rounded-[24px] p-1 border border-white/10 active:scale-[0.98] transition-all relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-r from-neon-indigo/10 to-neon-purple/10 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div class="flex items-center gap-4 relative z-10 p-3">
+                    <!-- Загадочная упаковка / Миниатюра карты -->
+                    <div id="home-daily-thumb" class="w-16 h-24 rounded-[10px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/30 to-space-900 border border-white/20 shadow-inner flex items-center justify-center overflow-hidden shrink-0 transition-all duration-500">
+                        <i id="home-daily-icon" class="ph-fill ph-sparkle text-3xl text-white/60 animate-pulse"></i>
+                        <img id="home-daily-img" src="" class="w-full h-full object-cover hidden" alt="Thumb">
                     </div>
-                </div>
-                <!-- Лицо (Только картинка и имя) -->
-                <div class="card-back absolute inset-0 rounded-[24px] overflow-hidden bg-space-800 border border-neon-amber/40 shadow-[0_0_40px_rgba(251,191,36,0.15)]">
-                    <img id="card-back-img" src="" alt="Карта" class="w-full h-full object-cover">
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-space-900 via-space-900/80 to-transparent p-4 text-center">
-                        <h3 id="card-back-title" class="text-white font-mystic text-2xl font-bold drop-shadow-lg"></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- НОВЫЙ БЛОК ДЛЯ ИИ-ПРЕДСКАЗАНИЯ (Скрыт по умолчанию) -->
-            <div id="daily-reading-container" class="w-full hidden animate-fade-in mb-4">
-                <div class="glass bg-space-800 rounded-[24px] p-6 border border-white/10 shadow-lg relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-neon-indigo/20 blur-3xl rounded-full pointer-events-none"></div>
                     
-                    <div id="daily-reading-text" class="text-white/80 text-sm leading-relaxed space-y-4 font-light relative z-10">
-                        <!-- Сюда вставится HTML от нейросети -->
+                    <div class="text-left flex-1 pr-2">
+                        <h3 id="home-daily-title" class="text-white font-mystic text-xl font-bold mb-1">Твоя Карта Дня</h3>
+                        <p id="home-daily-subtitle" class="text-white/50 text-xs leading-snug">Вселенная приготовила послание. Открой, чтобы узнать.</p>
                     </div>
-
-                    <button onclick="navigateTo('spreads')" class="w-full mt-6 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-white/10 relative z-10">
-                        <i class="ph-fill ph-cards"></i> Сделать полный расклад
-                    </button>
+                    
+                    <i class="ph-bold ph-caret-right text-white/30"></i>
                 </div>
-            </div>
+            </button>
         </div>
 
         <!-- Возможности (Сетка 2x2) -->
@@ -7186,6 +7169,84 @@ const characters = [
         </nav>
     </div>
 
+    <!-- ==================== ПОЛНОЭКРАННАЯ МОДАЛКА КАРТЫ ДНЯ ==================== -->
+    <div id="modal-daily-card" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 backdrop-blur-md bg-black/60">
+        <!-- Контейнер модалки -->
+        <div class="glass-strong w-full max-w-lg h-[80vh] max-h-[650px] rounded-[32px] flex flex-col overflow-hidden relative border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform scale-95 transition-transform duration-300" id="daily-modal-content">
+            
+            <!-- Шапка модалки -->
+            <div class="px-5 py-4 border-b border-white/5 flex justify-between items-center bg-space-900/80 z-20">
+                <h3 class="text-white font-mystic font-bold text-xl">Послание Звезд</h3>
+                <button onclick="closeDailyModal()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-colors active:scale-95">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <!-- Тело (Горизонтальный сплит) -->
+            <div class="flex-1 flex overflow-hidden relative">
+                
+                <!-- ЛЕВАЯ ЧАСТЬ: Карта и Статы -->
+                <div class="w-2/5 min-w-[140px] bg-black/30 p-4 border-r border-white/5 flex flex-col items-center overflow-y-auto hide-scrollbar z-10 relative">
+                    <div class="absolute inset-0 bg-gradient-to-b from-neon-indigo/10 to-transparent pointer-events-none"></div>
+                    
+                    <!-- Контейнер для 3D карты -->
+                    <div id="daily-modal-card-3d" class="card-3d relative w-full aspect-[2/3] cursor-pointer group mb-4 shrink-0">
+                        <!-- Рубашка -->
+                        <div class="card-front absolute inset-0 rounded-[12px] overflow-hidden border border-white/20 shadow-[0_0_15px_rgba(99,102,241,0.2)] bg-space-800 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/30 to-space-900"></div>
+                            <i class="ph-fill ph-question text-4xl text-white/30 animate-pulse relative z-10"></i>
+                        </div>
+                        <!-- Лицо -->
+                        <div class="card-back absolute inset-0 rounded-[12px] overflow-hidden border border-neon-amber/30 shadow-[0_0_25px_rgba(251,191,36,0.2)]">
+                            <img id="modal-card-img" src="" alt="Карта" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Статы (Скрыты до открытия) -->
+                    <div id="daily-modal-stats" class="w-full space-y-2 opacity-0 transition-opacity duration-500 delay-300 relative z-10">
+                        <div class="bg-white/5 rounded-xl p-2.5 text-center border border-white/5 backdrop-blur-sm">
+                            <i class="ph-fill ph-clock text-neon-cyan text-sm mb-0.5"></i>
+                            <p class="text-[9px] text-white/40 uppercase font-bold tracking-wider">Удачное время</p>
+                            <p id="stat-time" class="text-xs text-white font-medium">--:--</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-2.5 text-center border border-white/5 backdrop-blur-sm">
+                            <i class="ph-fill ph-fire text-neon-rose text-sm mb-0.5" id="stat-element-icon"></i>
+                            <p class="text-[9px] text-white/40 uppercase font-bold tracking-wider">Элемент</p>
+                            <p id="stat-element" class="text-xs text-white font-medium">---</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Кнопка вытянуть (исчезает после клика) -->
+                    <button id="btn-pull-daily" onclick="processDailyCard()" class="w-full py-3.5 mt-auto rounded-xl bg-gradient-to-r from-neon-indigo to-neon-purple text-white text-xs font-bold active:scale-95 transition-transform shadow-[0_5px_15px_rgba(99,102,241,0.3)] relative z-10 shrink-0">
+                        Вытянуть карту
+                    </button>
+                </div>
+
+                <!-- ПРАВАЯ ЧАСТЬ: Огромный текст ИИ -->
+                <div class="flex-1 p-5 overflow-y-auto hide-scrollbar relative bg-space-900/40">
+                    
+                    <!-- Лоадер -->
+                    <div id="daily-reading-loader" class="absolute inset-0 flex flex-col items-center justify-center hidden bg-space-900/90 z-20 backdrop-blur-sm">
+                        <i class="ph-fill ph-spinner animate-spin text-4xl text-neon-indigo mb-4"></i>
+                        <p class="text-sm text-white/70 font-medium">Оракул читает знаки...</p>
+                    </div>
+                    
+                    <!-- Текст от ИИ -->
+                    <div id="modal-daily-text" class="text-white/80 text-sm leading-relaxed space-y-4 font-light hidden pb-6">
+                        <!-- Сюда вставится HTML -->
+                    </div>
+                    
+                    <!-- Заглушка до открытия -->
+                    <div id="modal-daily-placeholder" class="h-full flex flex-col items-center justify-center opacity-50 text-center px-2">
+                        <i class="ph-fill ph-sparkle text-4xl mb-3 text-white/30"></i>
+                        <p class="text-sm text-white">Вытяни карту слева, чтобы ИИ составил для тебя глубокий прогноз на сегодняшний день.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== OVERLAY ==================== -->
     <div id="overlay" class="overlay fixed inset-0 bg-black/70 backdrop-blur-sm z-50" onclick="closeAllModals()"></div>
 
@@ -7611,15 +7672,8 @@ const characters = [
                   }
             }
             if (data.daily_card) {
-                const card = document.getElementById('daily-card');
-                document.getElementById('card-back-img').src = data.daily_card.image;
-                document.getElementById('card-back-title').textContent = data.daily_card.name;
-                
-                document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.daily_card.interpretation);
-                document.getElementById('daily-reading-container').classList.remove('hidden');
-                
-                isCardFlipped = true;
-                card.classList.add('flipped');
+                dailyCardDataCache = data.daily_card; // Сохраняем в кэш модалки
+                updateHomeWidget(data.daily_card);    // Меняем виджет на открытый
             }
             if (data.birth_date) {
                 const displayEl = document.getElementById('profile-birthdate-display');
@@ -7766,28 +7820,119 @@ const characters = [
     }
 
     // ==================== FEATURES ====================
-    async function flipCard() {
-        if (isCardFlipped) return; 
-        const card = document.getElementById('daily-card');
-        showToast('ИИ-Таролог читает звезды...', 'ph-spinner animate-spin');
+    // ==================== DAILY CARD LOGIC ====================
+    let dailyCardDataCache = null; // Кэшируем карту, чтобы не делать запросы при каждом открытии модалки
+    
+    // Генератор фейковых, но правдоподобных статов на основе ID карты
+    function generateCardStats(cardId) {
+        const elements = [
+            { name: "Огонь", icon: "ph-fire", color: "text-neon-rose" },
+            { name: "Вода", icon: "ph-drop", color: "text-blue-400" },
+            { name: "Воздух", icon: "ph-wind", color: "text-neon-cyan" },
+            { name: "Земля", icon: "ph-plant", color: "text-neon-emerald" }
+        ];
+        // Детерминированный выбор на основе ID
+        const el = elements[cardId % 4]; 
+        
+        // Генерируем случайное, но фиксированное время для карты
+        const startHour = 8 + (cardId % 10); 
+        const endHour = startHour + 2;
+        
+        return { element: el, time: `${startHour}:00 – ${endHour}:30` };
+    }
+
+    function openDailyCardModal() {
+        const modal = document.getElementById('modal-daily-card');
+        const content = document.getElementById('daily-modal-content');
+        
+        modal.classList.remove('hidden');
+        // Небольшая задержка для CSS-анимации появления
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }, 10);
+
+        // Если карта уже была вытянута ранее (при загрузке приложения)
+        if (dailyCardDataCache) {
+            setupOpenedCardUI(dailyCardDataCache);
+        }
+    }
+
+    function closeDailyModal() {
+        const modal = document.getElementById('modal-daily-card');
+        const content = document.getElementById('daily-modal-content');
+        
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // Главная функция вытягивания карты
+    async function processDailyCard() {
+        // Меняем UI на состояние загрузки
+        document.getElementById('btn-pull-daily').classList.add('hidden');
+        document.getElementById('modal-daily-placeholder').classList.add('hidden');
+        document.getElementById('daily-reading-loader').classList.remove('hidden');
         
         const data = await apiRequest("/tarot/daily", "POST");
         
         if (data.success && data.card) {
-            document.getElementById('card-back-img').src = data.card.image; 
-            document.getElementById('card-back-title').textContent = data.card.name;
-            document.getElementById('daily-reading-text').innerHTML = DOMPurify.sanitize(data.card.interpretation);
+            dailyCardDataCache = data.card; // Кэшируем
             
-            isCardFlipped = true;
-            card.classList.add('flipped');
+            // Заполняем данные
+            setupOpenedCardUI(data.card);
             
-            setTimeout(() => {
-                document.getElementById('daily-reading-container').classList.remove('hidden');
-            }, 400);
+            // Обновляем миниатюру на главном экране
+            updateHomeWidget(data.card);
             showToast('Карта дня открыта!', 'ph-stars');
         } else {
             showToast('Связь со звездами прервалась.', 'ph-warning-circle');
+            // Возвращаем кнопку, если ошибка
+            document.getElementById('btn-pull-daily').classList.remove('hidden');
+            document.getElementById('daily-reading-loader').classList.add('hidden');
+            document.getElementById('modal-daily-placeholder').classList.remove('hidden');
         }
+    }
+
+    // Вспомогательная функция для обновления UI внутри модалки
+    function setupOpenedCardUI(cardData) {
+        // Убираем лоадер и плейсхолдер
+        document.getElementById('daily-reading-loader').classList.add('hidden');
+        document.getElementById('modal-daily-placeholder').classList.add('hidden');
+        document.getElementById('btn-pull-daily').classList.add('hidden');
+        
+        // Вставляем текст
+        document.getElementById('modal-daily-text').innerHTML = DOMPurify.sanitize(cardData.interpretation);
+        document.getElementById('modal-daily-text').classList.remove('hidden');
+
+        // Настраиваем 3D карту
+        document.getElementById('modal-card-img').src = cardData.image;
+        document.getElementById('daily-modal-card-3d').classList.add('flipped');
+
+        // Заполняем статы
+        const stats = generateCardStats(cardData.id);
+        document.getElementById('stat-time').textContent = stats.time;
+        document.getElementById('stat-element').textContent = stats.element.name;
+        
+        const elIcon = document.getElementById('stat-element-icon');
+        elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-sm mb-0.5`;
+
+        // Показываем блок со статами
+        document.getElementById('daily-modal-stats').classList.remove('opacity-0');
+    }
+
+    // Вспомогательная функция для обновления виджета на главном экране
+    function updateHomeWidget(cardData) {
+        document.getElementById('home-daily-icon').classList.add('hidden');
+        
+        const thumbImg = document.getElementById('home-daily-img');
+        thumbImg.src = cardData.image;
+        thumbImg.classList.remove('hidden');
+        
+        document.getElementById('home-daily-title').textContent = cardData.name;
+        document.getElementById('home-daily-subtitle').textContent = "Послание расшифровано. Нажми, чтобы перечитать.";
     }
 
     async function saveNameOnly() {
