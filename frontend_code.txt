@@ -6954,7 +6954,7 @@ const characters = [
 
             <div class="glass bg-space-800 rounded-[24px] overflow-hidden mb-6 border border-white/5">
                 <!-- Name (No language modal trigger here anymore) -->
-                <button class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
+                <button onclick="openModal('edit-name')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-user"></i></div>
                         <span class="text-sm font-medium text-white/90">Имя</span>
@@ -6963,7 +6963,7 @@ const characters = [
                 </button>
                 
                 <!-- Birth Data -->
-                <button onclick="openModal('edit-profile')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
+                <button onclick="openModal('birthdate')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-calendar-blank"></i></div>
                         <span class="text-sm font-medium text-white/90">Данные рождения</span>
@@ -7109,6 +7109,24 @@ const characters = [
         </div>
     </div>
 
+    <div id="modal-birthdate" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="p-6">
+                <h3 class="text-white font-bold text-2xl mb-5 text-center">Твой день рождения</h3>
+                <div class="space-y-4">
+                    <input type="date" id="edit-birthdate-only" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" style="color-scheme: dark;">
+                    
+                    <button onclick="saveBirthDateOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
+                        СОХРАНИТЬ ДАТУ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-edit-profile" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
             <div class="flex justify-center pt-4 pb-3">
@@ -7170,6 +7188,24 @@ const characters = [
                     <i class="ph-fill ph-ghost text-4xl text-white/30 mb-2"></i>
                     <p class="text-sm font-bold text-white/60 mb-1">Пока пусто</p>
                     <p class="text-xs text-white/40">Отправь ссылку друзьям, чтобы получить бонусы</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit-name" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="p-6">
+                <h3 class="text-white font-bold text-2xl mb-5 text-center">Как к тебе обращаться?</h3>
+                <div class="space-y-4">
+                    <input type="text" id="edit-name-input" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" placeholder="Твое имя...">
+                    
+                    <button onclick="saveNameOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
+                        СОХРАНИТЬ ИМЯ
+                    </button>
                 </div>
             </div>
         </div>
@@ -7333,6 +7369,35 @@ const characters = [
         }
     }
 
+    async function saveBirthDateOnly() {
+        const dateInput = document.getElementById('edit-birthdate-only').value;
+        
+        if (!dateInput) {
+            return showToast("Сначала выбери дату", "ph-warning-circle");
+        }
+
+        // Отправляем дату на твой бэкенд
+        const data = await apiRequest("/profile/update", "POST", {
+            birth_date: dateInput
+        });
+
+        if (data.success) {
+            showToast("Звезды запомнили эту дату!", "ph-check-circle");
+            
+            // Обновляем текст на кнопке в профиле
+            const displayEl = document.getElementById('profile-birthdate-display');
+            if (displayEl) {
+                // Переводим формат из YYYY-MM-DD в красивый (например, 15.04.1995)
+                const [year, month, day] = dateInput.split('-');
+                displayEl.textContent = `${day}.${month}.${year}`;
+            }
+            
+            closeAllModals();
+        } else {
+            showToast("Ошибка сохранения", "ph-warning-circle");
+        }
+    }
+
     function updateBalanceUI() {
         // Обновляем баланс на главной странице
         const starBalanceElement = document.getElementById("star-balance");
@@ -7395,6 +7460,31 @@ const characters = [
             card.classList.add('flipped');
         } else {
             showToast('Сегодня карты молчат', 'ph-warning-circle');
+        }
+    }
+
+    async function saveNameOnly() {
+        const nameInput = document.getElementById('edit-name-input').value.trim();
+        
+        if (!nameInput) {
+            return showToast("Введи имя", "ph-warning-circle");
+        }
+
+        // Отправляем имя на бэкенд
+        const data = await apiRequest("/profile/update", "POST", {
+            first_name: nameInput
+        });
+
+        if (data.success) {
+            showToast("Имя изменено!", "ph-check-circle");
+            
+            // Обновляем имя в самом профиле (если ты добавил id="profile-name", как мы обсуждали ранее)
+            const nameEl = document.getElementById('profile-name');
+            if (nameEl) nameEl.textContent = nameInput;
+            
+            closeAllModals();
+        } else {
+            showToast("Ошибка сохранения", "ph-warning-circle");
         }
     }
 
