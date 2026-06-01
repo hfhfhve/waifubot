@@ -7224,21 +7224,24 @@ const characters = [
     // ==================== API CORE ====================
     async function apiRequest(endpoint, method = "POST", data = {}) {
         try {
-            const response = await fetch(`${API_URL}${endpoint}`, {
+            const fullUrl = `${API_URL}${endpoint}`;
+            
+            const response = await fetch(fullUrl, {
                 method: method,
                 headers: {
                     "Content-Type": "application/json",
-                    "X-Telegram-Init-Data": tg.initData // Подпись Телеграма для защиты!
+                    "X-Telegram-Init-Data": tg.initData || ""
                 },
                 body: method === "GET" ? null : JSON.stringify(data)
             });
 
             if (!response.ok) {
-                if (response.status === 403) console.error("Ошибка авторизации: подпись неверна");
+                alert(`🚨 Ошибка сервера: ${response.status} по адресу ${fullUrl}`);
                 throw new Error(`HTTP Error: ${response.status}`);
             }
             return await response.json();
         } catch (e) {
+            alert(`🚨 Ошибка отправки (Fetch Error): ${e.message}\nПроверь API_URL: ${API_URL}`);
             console.error("API Error:", e);
             showToast("Ошибка связи со звездами", "ph-warning-circle");
             return { success: false };
