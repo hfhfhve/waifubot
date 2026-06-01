@@ -196,19 +196,19 @@
 
         <!-- Баннер -->
         <div class="px-5 mb-8">
-            <div class="bg-gradient-to-r from-space-800 to-space-700 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-lg cursor-pointer active:scale-95 transition-transform relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-fuchsia/20 blur-xl rounded-full"></div>
+            <button id="daily-bonus-btn" onclick="claimDailyBonus()" class="w-full bg-gradient-to-r from-space-800 to-space-700 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-fuchsia/20 blur-xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
                 <div class="flex items-center gap-3 relative z-10">
                     <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30">
                         <i class="ph-fill ph-gift text-neon-fuchsia text-lg"></i>
                     </div>
-                    <div>
-                        <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Приветственный бонус</p>
-                        <p class="text-white font-bold text-sm leading-none italic">Забери свои +5 <i class="ph-fill ph-star text-[10px] text-neon-amber"></i></p>
+                    <div class="text-left">
+                        <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Ежедневный бонус</p>
+                        <p id="daily-bonus-text" class="text-white font-bold text-sm leading-none italic">Забери свои +5 энергии</p>
                     </div>
                 </div>
                 <i class="ph ph-arrow-right text-white/30 relative z-10"></i>
-            </div>
+            </button>
         </div>
 
         <!-- Карта дня -->
@@ -1036,6 +1036,32 @@
             userBalance.stars = data.stars;
             userBalance.energy = data.energy;
             updateBalanceUI();
+        }
+    }
+
+    async function claimDailyBonus() {
+        const btn = document.getElementById('daily-bonus-btn');
+        const text = document.getElementById('daily-bonus-text');
+        
+        // Отправляем запрос на бэкенд
+        const data = await apiRequest("/bonus/claim", "POST");
+        
+        if (data.success) {
+            // Если успешно - обновляем баланс и меняем вид кнопки
+            userBalance.energy = data.energy;
+            updateBalanceUI();
+            
+            showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
+            
+            // Делаем кнопку неактивной до завтра
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            text.textContent = "Собран до завтра";
+        } else if (data.message === "already_claimed") {
+            showToast("Ты уже забирал бонус сегодня!", "ph-warning-circle");
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            text.textContent = "Собран до завтра";
+        } else {
+            showToast("Ошибка связи со звездами", "ph-warning-circle");
         }
     }
 
