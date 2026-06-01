@@ -7652,19 +7652,36 @@ const characters = [
     
     // Карта дня (с обращением к БД)
     async function flipCard() {
-        if (isCardFlipped) return; // Не даем переворачивать дважды бесплатно
+        if (isCardFlipped) return; 
         
         const card = document.getElementById('daily-card');
         
-        // Спрашиваем бэкенд, какую карту выдать
-        const data = await apiRequest("/tarot/daily");
+        // Показываем, что идет загрузка
+        showToast('Звезды выбирают твою карту...', 'ph-spinner animate-spin');
         
-        if (data.success) {
-            // Тут можно подставлять картинку в зависимости от data.card_id
+        // Запрашиваем карту у бэкенда
+        const data = await apiRequest("/tarot/daily", "POST");
+        
+        if (data.success && data.card) {
+            // 1. Находим элементы на рубашке (задней стороне карты)
+            const cardBack = card.querySelector('.card-back');
+            const imgEl = cardBack.querySelector('img');
+            const arcanaEl = cardBack.querySelector('span');
+            const nameEl = cardBack.querySelector('h3');
+            const descEl = cardBack.querySelector('p');
+            
+            // 2. Подставляем реальные данные с бэкенда!
+            imgEl.src = data.card.image; 
+            arcanaEl.textContent = data.card.arcana;
+            nameEl.textContent = data.card.name;
+            descEl.textContent = data.card.description;
+            
+            // 3. Красиво переворачиваем карту
             isCardFlipped = true;
             card.classList.add('flipped');
+            showToast('Карта дня открыта!', 'ph-stars');
         } else {
-            showToast('Сегодня карты молчат', 'ph-warning-circle');
+            showToast('Сегодня карты молчат. Попробуй позже.', 'ph-warning-circle');
         }
     }
 
