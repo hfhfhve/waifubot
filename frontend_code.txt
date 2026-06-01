@@ -6865,53 +6865,10 @@ const characters = [
     </div>
 
     <!-- ==================== 7. SHOP SCREEN ==================== -->
-    <div id="screen-shop" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar">
-        <div class="px-5 pt-8 pb-6 text-center">
-            <h1 class="text-3xl font-mystic text-white font-bold mb-2">Магазин Звезд</h1>
-            <p class="text-white/50 text-sm max-w-[250px] mx-auto">Звезды нужны для создания раскладов и общения с ИИ</p>
-        </div>
-
-        <div class="px-5 space-y-4">
-            <button class="w-full glass bg-space-800 border-white/5 rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-transform">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-neon-amber/10 flex items-center justify-center border border-neon-amber/20">
-                        <i class="ph-fill ph-star text-2xl text-neon-amber"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-white font-bold text-lg leading-none mb-1">50 Звезд</p>
-                        <p class="text-white/40 text-[10px]">Базовый пакет</p>
-                    </div>
-                </div>
-                <div class="bg-white/10 px-4 py-2 rounded-xl text-white font-bold text-sm">150 ₽</div>
-            </button>
-
-            <button class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border-neon-indigo/30 rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-transform relative overflow-hidden shadow-[0_0_20px_rgba(99,102,241,0.1)]">
-                <div class="absolute top-0 right-0 bg-neon-indigo text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Хит продаж</div>
-                <div class="flex items-center gap-4 relative z-10">
-                    <div class="w-12 h-12 rounded-full bg-neon-indigo/20 flex items-center justify-center border border-neon-indigo/40 shadow-inner">
-                        <i class="ph-fill ph-stars text-2xl text-neon-indigo"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-white font-bold text-lg leading-none mb-1">200 Звезд</p>
-                        <p class="text-neon-amber text-[10px] font-bold">+20 в подарок</p>
-                    </div>
-                </div>
-                <div class="bg-neon-indigo px-4 py-2 rounded-xl text-white font-bold text-sm relative z-10 shadow-[0_5px_15px_rgba(99,102,241,0.4)]">450 ₽</div>
-            </button>
-            
-            <button class="w-full glass bg-space-800 border-white/5 rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-transform">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/20">
-                        <i class="ph-fill ph-sparkle text-2xl text-neon-fuchsia"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-white font-bold text-lg leading-none mb-1">500 Звезд</p>
-                        <p class="text-neon-fuchsia text-[10px] font-bold">+100 в подарок</p>
-                    </div>
-                </div>
-                <div class="bg-white/10 px-4 py-2 rounded-xl text-white font-bold text-sm">990 ₽</div>
-            </button>
-        </div>
+    <div id="shop-items-container" class="px-5 space-y-4">
+        <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
+        <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
+        <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
     </div>
 
     <!-- ==================== 8. PROFILE SCREEN ==================== -->
@@ -7386,6 +7343,59 @@ const characters = [
         ];
     }
 
+    async function loadShopItems() {
+        const container = document.getElementById('shop-items-container');
+        if (!container) return;
+
+        // Запрашиваем товары с бэкенда (используем GET)
+        const data = await apiRequest("/shop/items", "GET");
+        
+        if (data.success && data.items.length > 0) {
+            container.innerHTML = ''; // Очищаем скелетоны загрузки
+            
+            data.items.forEach((item, index) => {
+                // Если это второй товар (index === 1), делаем его "Хитом продаж"
+                const isHit = index === 1;
+                
+                // Настраиваем дизайн в зависимости от товара
+                const iconBg = isHit ? 'bg-neon-indigo/20 border-neon-indigo/40 shadow-inner' : (index === 0 ? 'bg-neon-amber/10 border-neon-amber/20' : 'bg-neon-fuchsia/10 border-neon-fuchsia/20');
+                const iconColor = isHit ? 'text-neon-indigo' : (index === 0 ? 'text-neon-amber' : 'text-neon-fuchsia');
+                const iconName = isHit ? 'ph-lightning' : (index === 0 ? 'ph-lightning' : 'ph-sparkle'); // Использую молнию для Энергии
+                
+                const cardClass = isHit 
+                    ? 'w-full glass bg-gradient-to-r from-space-800 to-space-700 border-neon-indigo/30 rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-transform relative overflow-hidden shadow-[0_0_20px_rgba(99,102,241,0.1)]'
+                    : 'w-full glass bg-space-800 border-white/5 rounded-[24px] p-5 flex items-center justify-between active:scale-95 transition-transform';
+                
+                const buttonClass = isHit
+                    ? 'bg-neon-indigo px-4 py-2 rounded-xl text-white font-bold text-sm relative z-10 shadow-[0_5px_15px_rgba(99,102,241,0.4)]'
+                    : 'bg-white/10 px-4 py-2 rounded-xl text-white font-bold text-sm';
+
+                // Генерируем HTML карточки
+                const itemHTML = `
+                    <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="${cardClass}">
+                        ${isHit ? '<div class="absolute top-0 right-0 bg-neon-indigo text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Хит продаж</div>' : ''}
+                        
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center border ${iconBg}">
+                                <i class="ph-fill ${iconName} text-2xl ${iconColor}"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-white font-bold text-lg leading-none mb-1">${item.amount} Энергии</p>
+                                <p class="text-white/40 text-[10px]">${isHit ? '<span class="text-neon-amber font-bold">+ Бонус</span>' : 'Базовый пакет'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="${buttonClass}">${item.price_stars} ⭐️</div>
+                    </button>
+                `;
+                
+                container.innerHTML += itemHTML;
+            });
+        } else {
+            container.innerHTML = '<p class="text-center text-white/50 text-sm py-4">Магазин временно пуст. Звезды отдыхают.</p>';
+        }
+    }
+
     // ==================== INITIALIZATION ====================
     async function initApp() {
         navigateTo('home'); 
@@ -7422,6 +7432,7 @@ const characters = [
             userBalance.streak = data.streak || 0; // <--- ДОБАВЛЕНО ВОТ СЮДА
             updateBalanceUI();
         }
+        loadShopItems();
     }
 
     async function claimDailyBonus() {
