@@ -787,7 +787,7 @@
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center">Твой день рождения</h3>
                 <div class="space-y-4">
-                    <input type="date" id="edit-birthdate-only" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" style="color-scheme: dark;">
+                    <input type="date" id="edit-birthdate-only" min="1926-01-01" max="2026-12-31" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" style="color-scheme: dark;">
                     
                     <button onclick="saveBirthDateOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
                         СОХРАНИТЬ ДАТУ
@@ -1045,21 +1045,25 @@
         if (!dateInput) {
             return showToast("Сначала выбери дату", "ph-warning-circle");
         }
-
-        // Отправляем дату на твой бэкенд
+    
+        // Проверка адекватности года
+        const year = new Date(dateInput).getFullYear();
+        if (year < 1926 || year > 2026) {
+            return showToast("Укажи реальный год рождения", "ph-warning-circle");
+        }
+    
+        // Отправляем дату на бэкенд
         const data = await apiRequest("/profile/update", "POST", {
             birth_date: dateInput
         });
-
+    
         if (data.success) {
             showToast("Звезды запомнили эту дату!", "ph-check-circle");
             
-            // Обновляем текст на кнопке в профиле
             const displayEl = document.getElementById('profile-birthdate-display');
             if (displayEl) {
-                // Переводим формат из YYYY-MM-DD в красивый (например, 15.04.1995)
-                const [year, month, day] = dateInput.split('-');
-                displayEl.textContent = `${day}.${month}.${year}`;
+                const [y, m, d] = dateInput.split('-');
+                displayEl.textContent = `${d}.${m}.${y}`;
             }
             
             closeAllModals();
