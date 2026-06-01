@@ -6331,6 +6331,7 @@ const characters = [
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <meta name="theme-color" content="#03030b">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Космическое Таро</title>
@@ -6502,7 +6503,7 @@ const characters = [
   <div class="fixed inset-0 stars-bg opacity-60 pointer-events-none"></div>
 
   <!-- Главный контейнер (мобильный вид) -->
-  <div id="app" class="relative max-w-md mx-auto min-h-screen bg-space-900/90 shadow-2xl shadow-neon-indigo/5 overflow-hidden flex flex-col">
+  <div id="app" class="relative max-w-md mx-auto min-h-screen bg-space-900 border-x border-neon-purple/20 shadow-[0_0_50px_rgba(168,85,247,0.15)] overflow-hidden flex flex-col">
     
     <!-- ==================== 1. ГЛАВНЫЙ ЭКРАН ==================== -->
     <div id="screen-home" class="screen flex-1 overflow-y-auto pb-24 hide-scrollbar">
@@ -7300,6 +7301,8 @@ const characters = [
     // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
     tg.expand(); // Открываем на весь экран
+    tg.setBackgroundColor('#03030b');
+    tg.setHeaderColor('#03030b');
 
     // ВАЖНО: Замени на реальный домен, когда запустишь сервер
     const API_URL = "https://tarot.waifubot.website/api"; 
