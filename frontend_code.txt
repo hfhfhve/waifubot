@@ -7006,7 +7006,7 @@ const characters = [
                     <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
                 </button>
 
-                <button class="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors">
+                <button onclick="tg.openLink('https://telegra.ph/Legal-Documents--Terms-of-Service-Summary-06-01')" class="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-shield-check"></i></div>
                         <span class="text-sm font-medium text-white/90">Соглашение и политика</span>
