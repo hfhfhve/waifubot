@@ -6900,20 +6900,23 @@ const characters = [
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 relative z-10">
+                    <!-- Знак Зодиака -->
                     <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center">
-                        <i class="ph-fill ph-sun text-neon-amber text-lg mb-1 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]"></i>
-                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">СОЛНЦЕ</span>
-                        <span class="text-xs font-bold text-white">Водолей</span>
+                        <i class="ph-fill ph-stars text-neon-amber text-lg mb-1 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]"></i>
+                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">ЗНАК</span>
+                        <span id="profile-zodiac" class="text-xs font-bold text-white">Неизвестно</span>
                     </div>
-                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-60">
-                        <i class="ph-fill ph-moon text-neon-indigo text-lg mb-1"></i>
-                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">ЛУНА</span>
-                        <span class="text-xs font-bold text-white">—</span>
+                    <!-- Стихия -->
+                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-90">
+                        <i class="ph-fill ph-sparkle text-neon-cyan text-lg mb-1"></i>
+                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">СТИХИЯ</span>
+                        <span id="profile-element" class="text-xs font-bold text-white">—</span>
                     </div>
-                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-60">
-                        <i class="ph-bold ph-arrow-up text-neon-rose text-lg mb-1"></i>
-                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">АСЦ</span>
-                        <span class="text-xs font-bold text-white">—</span>
+                    <!-- Планета -->
+                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-90">
+                        <i class="ph-fill ph-planet text-neon-fuchsia text-lg mb-1"></i>
+                        <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5">ПЛАНЕТА</span>
+                        <span id="profile-planet" class="text-xs font-bold text-white">—</span>
                     </div>
                 </div>
             </div>
@@ -7535,6 +7538,8 @@ const characters = [
                 displayEl.textContent = `${d}.${m}.${y}`;
             }
             
+            updateZodiacUI(dateInput); // <--- ДОБАВИТЬ ЭТУ СТРОЧКУ СЮДА
+            
             closeAllModals();
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
@@ -7672,6 +7677,32 @@ const characters = [
         }
     }
 
+    function updateZodiacUI(dateString) {
+        if (!dateString) return;
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.getMonth() + 1; // Месяцы в JS идут с 0
+    
+        let sign = "Неизвестно"; let element = "—"; let planet = "—";
+    
+        if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) { sign = "Овен"; element = "Огонь"; planet = "Марс"; }
+        else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) { sign = "Телец"; element = "Земля"; planet = "Венера"; }
+        else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) { sign = "Близнецы"; element = "Воздух"; planet = "Меркурий"; }
+        else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) { sign = "Рак"; element = "Вода"; planet = "Луна"; }
+        else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) { sign = "Лев"; element = "Огонь"; planet = "Солнце"; }
+        else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) { sign = "Дева"; element = "Земля"; planet = "Меркурий"; }
+        else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) { sign = "Весы"; element = "Воздух"; planet = "Венера"; }
+        else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) { sign = "Скорпион"; element = "Вода"; planet = "Плутон"; }
+        else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) { sign = "Стрелец"; element = "Огонь"; planet = "Юпитер"; }
+        else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) { sign = "Козерог"; element = "Земля"; planet = "Сатурн"; }
+        else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) { sign = "Водолей"; element = "Воздух"; planet = "Уран"; }
+        else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) { sign = "Рыбы"; element = "Вода"; planet = "Нептун"; }
+    
+        document.getElementById('profile-zodiac').textContent = sign;
+        document.getElementById('profile-element').textContent = element;
+        document.getElementById('profile-planet').textContent = planet;
+    }
+
     async function saveProfileData() {
         const nameInput = document.getElementById('edit-name').value.trim();
         const dateInput = document.getElementById('edit-birthdate').value;
@@ -7686,10 +7717,17 @@ const characters = [
         });
 
         if (data.success) {
-            if (nameInput) document.getElementById('profile-name').textContent = nameInput;
-            showToast("Данные сохранены!", "ph-check-circle");
+            showToast("Звезды запомнили эту дату!", "ph-check-circle");
+            
+            const displayEl = document.getElementById('profile-birthdate-display');
+            if (displayEl) {
+                const [y, m, d] = dateInput.split('-');
+                displayEl.textContent = `${d}.${m}.${y}`;
+            }
+            
+            updateZodiacUI(dateInput); // <--- ДОБАВИТЬ ЭТУ СТРОЧКУ СЮДА
+            
             closeAllModals();
-            // Тут можно будет обновить знак зодиака на фронте, если бэкенд его вернул
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
         }
