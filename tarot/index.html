@@ -1022,60 +1022,58 @@
         const data = await apiRequest("/shop/items", "GET");
         
         if (data.success && data.items.length > 0) {
-            container.innerHTML = ''; // Очищаем скелетоны
+            container.innerHTML = '';
             
             data.items.forEach((item, index) => {
-                const isHit = index === 1; // Только второй товар будет выделяться
-                const isPremium = index === 2;
-                
-                // Настраиваем спокойный дизайн
-                let bgClass = 'bg-space-800';
-                let borderClass = 'border-white/5 hover:border-white/10';
-                let iconColor = 'text-white/70';
-                let iconBg = 'bg-white/5';
-                let btnClass = 'bg-white/10 hover:bg-white/20 text-white';
-                let badgeHTML = '';
-                
-                if (isHit) {
-                    // Элегантное выделение для хита
-                    borderClass = 'border-neon-indigo/30';
-                    iconColor = 'text-neon-indigo';
-                    iconBg = 'bg-neon-indigo/10';
-                    btnClass = 'bg-neon-indigo text-white shadow-md shadow-neon-indigo/20';
-                    // Аккуратная таблетка, вылезающая за верхний край
-                    badgeHTML = '<div class="absolute -top-2.5 left-4 bg-neon-indigo text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Самый выгодный</div>';
-                } else if (isPremium) {
-                    iconColor = 'text-neon-fuchsia';
-                    iconBg = 'bg-neon-fuchsia/10';
-                }
+                // Массив стилей для креативности (чередуются по кругу)
+                const styles = [
+                    {
+                        glow: 'hover:shadow-[0_0_30px_rgba(251,191,36,0.15)]',
+                        border: 'border-white/5 hover:border-neon-amber/30',
+                        icon: 'bg-neon-amber/10 text-neon-amber border-neon-amber/20',
+                        price: 'bg-white/5 text-white group-hover:bg-white/10'
+                    },
+                    {
+                        glow: 'shadow-[0_0_20px_rgba(99,102,241,0.1)] hover:shadow-[0_0_40px_rgba(99,102,241,0.25)]',
+                        border: 'border-neon-indigo/30 hover:border-neon-indigo/50',
+                        icon: 'bg-neon-indigo/20 text-neon-indigo border-neon-indigo/30',
+                        price: 'bg-neon-indigo text-white shadow-lg shadow-neon-indigo/20'
+                    },
+                    {
+                        glow: 'hover:shadow-[0_0_30px_rgba(232,121,249,0.15)]',
+                        border: 'border-white/5 hover:border-neon-fuchsia/40',
+                        icon: 'bg-neon-fuchsia/10 text-neon-fuchsia border-neon-fuchsia/20',
+                        price: 'bg-white/5 text-white group-hover:bg-white/10'
+                    }
+                ];
 
-                const subtitle = isHit ? '+ Бонусная энергия' : 'Базовый пакет';
+                const style = styles[index % styles.length];
 
-                // Генерируем HTML строгой карточки
+                // Генерируем HTML карточки-кнопки
                 const itemHTML = `
-                    <div class="relative w-full glass ${bgClass} ${borderClass} rounded-[20px] p-4 flex items-center justify-between mb-3 transition-colors duration-300">
-                        ${badgeHTML}
+                    <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="w-full text-left relative glass bg-space-800 ${style.border} ${style.glow} rounded-[24px] p-6 mb-4 flex items-center justify-between group active:scale-[0.98] transition-all duration-300 overflow-hidden">
                         
-                        <div class="flex items-center gap-4">
-                            <!-- Иконка-сквиркл -->
-                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}">
-                                <i class="ph-fill ph-lightning text-2xl ${iconColor}"></i>
+                        <!-- Заливка при наведении -->
+                        <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300 pointer-events-none"></div>
+
+                        <div class="flex items-center gap-5 relative z-10">
+                            <!-- Иконка с анимацией -->
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border ${style.icon} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                                <i class="ph-fill ph-lightning text-3xl drop-shadow-md"></i>
                             </div>
                             
-                            <div class="text-left">
-                                <div class="flex items-baseline gap-1 mb-0.5">
-                                    <h3 class="text-white font-bold text-xl leading-none">${item.amount}</h3>
-                                    <span class="text-white/50 text-xs font-medium">Энергии</span>
-                                </div>
-                                <p class="text-[10px] text-white/40 uppercase tracking-widest">${subtitle}</p>
+                            <!-- Текст -->
+                            <div class="flex items-baseline gap-1.5">
+                                <h3 class="text-white font-black text-2xl md:text-3xl tracking-wide">${item.amount}</h3>
+                                <span class="text-white/50 text-sm font-medium">Энергии</span>
                             </div>
                         </div>
                         
-                        <!-- Аккуратная кнопка покупки -->
-                        <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-1.5 active:scale-95 transition-all ${btnClass}">
-                            ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-sm drop-shadow-sm"></i>
-                        </button>
-                    </div>
+                        <!-- Визуальная кнопка цены (клики идут через главную карточку) -->
+                        <div class="shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors duration-300 pointer-events-none relative z-10 ${style.price}">
+                            ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-base drop-shadow-sm"></i>
+                        </div>
+                    </button>
                 `;
                 
                 container.innerHTML += itemHTML;
@@ -1083,12 +1081,12 @@
         } else {
             // Заглушка, если магазин пуст
             container.innerHTML = `
-                <div class="glass bg-space-800 rounded-[20px] p-6 text-center border border-white/5 flex flex-col items-center">
-                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                        <i class="ph-fill ph-storefront text-2xl text-white/30"></i>
+                <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                        <i class="ph-fill ph-storefront text-3xl text-white/30"></i>
                     </div>
-                    <h3 class="text-white font-bold text-sm mb-1">Магазин обновляется</h3>
-                    <p class="text-white/40 text-xs">Новые пакеты энергии появятся позже.</p>
+                    <h3 class="text-white font-bold text-lg mb-1">Магазин пуст</h3>
+                    <p class="text-white/40 text-sm">Звезды пока не готовы к обмену.</p>
                 </div>`;
         }
     }
