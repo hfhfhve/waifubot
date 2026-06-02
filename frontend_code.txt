@@ -7467,7 +7467,7 @@ const characters = [
   <script>
     // ==================== STATE & CONFIG ====================
     let activeTab = 'home';
-    let currentChat = null;
+    let currentChat = 'oracle'; // <-- ЗАМЕНИ null НА 'oracle'
     let isCardFlipped = false;
     let activeLanguage = 'ru';
     let userBalance = { energy: 0, streak: 0 };
@@ -7686,7 +7686,8 @@ const characters = [
             refInput.value = refLink;
         }
 
-        loadShopItems();
+        loadShopItems()
+        loadLunarCalendar();
     }
 
     async function claimDailyBonus() {
@@ -8235,6 +8236,40 @@ const characters = [
         tg.openTelegramLink(shareUrl);
     }
 
+    async function loadLunarCalendar() {
+        const data = await apiRequest("/calendar/today", "GET");
+        
+        if (data.success) {
+            const iconEl = document.getElementById('lunar-icon');
+            if (iconEl) iconEl.className = `ph-fill ${data.icon} text-5xl text-neon-indigo mb-3 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]`;
+            
+            const phaseName = document.getElementById('lunar-phase-name');
+            if (phaseName) phaseName.textContent = data.phase_name;
+            
+            const phaseDesc = document.getElementById('lunar-phase-desc');
+            if (phaseDesc) phaseDesc.textContent = data.phase_desc;
+            
+            const r = data.recommendations;
+            if (r) {
+                const haircutEl = document.getElementById('lunar-haircut');
+                if (haircutEl) {
+                    haircutEl.textContent = r.haircut.status;
+                    haircutEl.className = `text-xs font-bold ${r.haircut.color}`;
+                }
+                const conflictEl = document.getElementById('lunar-conflict');
+                if (conflictEl) {
+                    conflictEl.textContent = r.conflict.status;
+                    conflictEl.className = `text-xs font-bold ${r.conflict.color}`;
+                }
+                const financeEl = document.getElementById('lunar-finance');
+                if (financeEl) {
+                    financeEl.textContent = r.finance.status;
+                    financeEl.className = `text-xs font-bold ${r.finance.color}`;
+                }
+            }
+        }
+    }
+
     // ==================== CHAT LOGIC ====================
     function renderMessages() {
         const container = document.getElementById('messages-container');
@@ -8253,9 +8288,37 @@ const characters = [
         scrollToBottom();
     }
 
-    function scrollToBottom() {
+    function checkScrollPosition() {
         const container = document.getElementById('chat-scroll-wrapper');
-        if (container) container.scrollTop = container.scrollHeight;
+        const btn = document.getElementById('scroll-to-bottom-btn');
+        if (!container || !btn) return;
+
+        const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+        
+        if (distanceToBottom > 150) {
+            btn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            btn.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        } else {
+            btn.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            btn.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        }
+    }
+
+    function scrollToBottomSmooth() {
+        const container = document.getElementById('chat-scroll-wrapper');
+        if (container) {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    function scrollToBottom() {
+        setTimeout(() => {
+            const container = document.getElementById('chat-scroll-wrapper');
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 50);
     }
 
     function sendQuickReply(text) {
