@@ -1006,7 +1006,20 @@
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center">Твой день рождения</h3>
                 <div class="space-y-4">
-                    <input type="date" id="edit-birthdate-only" min="1926-01-01" max="2026-12-31" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" style="color-scheme: dark;">
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="relative col-span-1">
+                            <select id="edit-day" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none text-center cursor-pointer"></select>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        </div>
+                        <div class="relative col-span-2">
+                            <select id="edit-month" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none cursor-pointer pl-4"></select>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        </div>
+                        <div class="relative col-span-1">
+                            <select id="edit-year" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none text-center cursor-pointer"></select>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        </div>
+                    </div>
                     
                     <button onclick="saveBirthDateOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
                         СОХРАНИТЬ ДАТУ
@@ -1112,7 +1125,20 @@
                 <form class="space-y-4" onsubmit="event.preventDefault(); submitAstroForm();">
                     <div>
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Дата рождения</label>
-                        <input id="astro-date" type="date" required class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
+                        <div class="grid grid-cols-4 gap-2">
+                            <div class="relative col-span-1">
+                                <select id="astro-day" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none text-center cursor-pointer"></select>
+                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                            </div>
+                            <div class="relative col-span-2">
+                                <select id="astro-month" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none cursor-pointer pl-4"></select>
+                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                            </div>
+                            <div class="relative col-span-1">
+                                <select id="astro-year" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none text-center cursor-pointer"></select>
+                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -1186,6 +1212,14 @@
         'es': '🇪🇸 Español',
         'fr': '🇫🇷 Français',
         'de': '🇩🇪 Deutsch'
+    };
+
+    const monthNamesMap = {
+        'ru': ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
+        'en': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        'es': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        'fr': ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+        'de': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
     };
 
     // Инициализация Telegram WebApp
@@ -1282,6 +1316,48 @@
                     <p class="text-white/40 text-sm">Кристаллы энергии еще формируются...</p>
                 </div>`;
         }
+    }
+
+    function initDateSelects() {
+        const days = Array.from({length: 31}, (_, i) => i + 1);
+        const currentYear = new Date().getFullYear();
+        const years = Array.from({length: 100}, (_, i) => currentYear - i); // От текущего года на 100 лет назад
+
+        const populateOptions = (selectId, options, isMonth = false) => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            select.innerHTML = '<option value="" disabled selected>-</option>'; // Плейсхолдер
+            options.forEach((opt, idx) => {
+                const val = isMonth ? (idx + 1).toString().padStart(2, '0') : opt.toString().padStart(2, '0');
+                select.innerHTML += `<option value="${val}">${opt}</option>`;
+            });
+        };
+
+        // Заполняем дни и года (они не зависят от языка)
+        populateOptions('edit-day', days); populateOptions('astro-day', days);
+        populateOptions('edit-year', years); populateOptions('astro-year', years);
+        
+        // Месяцы зависят от выбранного языка
+        updateMonthLanguage();
+    }
+
+    function updateMonthLanguage() {
+        const months = monthNamesMap[activeLanguage] || monthNamesMap['ru'];
+        
+        // Функция сохранения текущего выбора
+        const updateSelect = (selectId) => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="" disabled selected>Месяц</option>';
+            months.forEach((name, idx) => {
+                const val = (idx + 1).toString().padStart(2, '0');
+                select.innerHTML += `<option value="${val}" ${currentVal === val ? 'selected' : ''}>${name}</option>`;
+            });
+        };
+
+        updateSelect('edit-month');
+        updateSelect('astro-month');
     }
 
     async function buyEnergy(itemId, priceStars) {
@@ -1402,6 +1478,7 @@
 
         loadShopItems();
         loadLunarCalendar();
+        initDateSelects();
         flatpickr("#astro-date, #edit-birthdate, #edit-birthdate-only", {
               locale: "ru",
               dateFormat: "Y-m-d",
@@ -1435,21 +1512,19 @@
     }
 
     async function saveBirthDateOnly() {
-        const dateInput = document.getElementById('edit-birthdate-only').value;
-        if (!dateInput) return showToast("Сначала выбери дату", "ph-warning-circle");
-    
-        const year = new Date(dateInput).getFullYear();
-        if (year < 1926 || year > 2026) return showToast("Укажи реальный год рождения", "ph-warning-circle");
-    
+        const d = document.getElementById('edit-day').value;
+        const m = document.getElementById('edit-month').value;
+        const y = document.getElementById('edit-year').value;
+        
+        if (!d || !m || !y) return showToast("Укажи дату полностью", "ph-warning-circle");
+        
+        const dateInput = `${y}-${m}-${d}`;
         const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
     
         if (data.success) {
             showToast("Звезды запомнили эту дату!", "ph-check-circle");
             const displayEl = document.getElementById('profile-birthdate-display');
-            if (displayEl) {
-                const [y, m, d] = dateInput.split('-');
-                displayEl.textContent = `${d}.${m}.${y}`;
-            }
+            if (displayEl) displayEl.textContent = `${d}.${m}.${y}`;
             updateZodiacUI(dateInput);
             closeAllModals();
         } else {
@@ -1771,17 +1846,20 @@
     }
 
     async function submitAstroForm() {
-        const date = document.getElementById('astro-date').value;
+        const d = document.getElementById('astro-day').value;
+        const m = document.getElementById('astro-month').value;
+        const y = document.getElementById('astro-year').value;
         const time = document.getElementById('astro-time').value;
         const isUnknown = document.getElementById('astro-unknown-time').checked;
         const city = document.getElementById('astro-city').value.trim();
 
-        if (!date || !city) return showToast("Укажи дату и город", "ph-warning");
+        if (!d || !m || !y || !city) return showToast("Укажи дату и город", "ph-warning");
+        const dateInput = `${y}-${m}-${d}`;
 
         showToast("Звезды выстраиваются...", "ph-spinner animate-spin");
         
         const data = await apiRequest("/profile/astro", "POST", {
-            birth_date: date,
+            birth_date: dateInput,
             birth_time: time || null,
             birth_city: city,
             unknown_time: isUnknown
@@ -1830,6 +1908,7 @@
       document.getElementById('current-lang-display').innerHTML = langMap[code] || '🇷🇺 Русский';
       showToast('Язык изменён ✓', 'ph-globe');
       setTimeout(closeAllModals, 300);
+      updateMonthLanguage();
     }
 
     function showToast(message, icon = 'ph-check-circle') {
