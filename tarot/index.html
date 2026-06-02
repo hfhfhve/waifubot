@@ -1075,27 +1075,28 @@
                     <h3 class="text-2xl font-mystic text-white font-bold">Космо-Паспорт</h3>
                     <p class="text-sm text-white/50 mt-2">Укажи точные данные, чтобы ИИ учитывал влияние планет.</p>
                 </div>
-                <form class="space-y-4" onsubmit="event.preventDefault(); closeAllModals(); showToast('Натальная карта построена!', 'ph-check-circle');">
+                
+                <form class="space-y-4" onsubmit="event.preventDefault(); submitAstroForm();">
                     <div>
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Дата рождения</label>
-                        <input type="date" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" />
+                        <input id="astro-date" type="date" required class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Время</label>
-                            <input type="time" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" />
+                            <input id="astro-time" type="time" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
                         </div>
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider opacity-0">Х</label>
                             <div class="w-full h-[56px] bg-space-800 border border-white/10 rounded-2xl flex items-center px-4 cursor-pointer hover:border-white/20 transition-colors">
-                                <input type="checkbox" class="w-4 h-4 accent-neon-fuchsia cursor-pointer rounded" id="unknown-time"/>
-                                <label for="unknown-time" class="ml-2 text-xs text-white/70 font-medium cursor-pointer">Не знаю время</label>
+                                <input type="checkbox" class="w-4 h-4 accent-neon-fuchsia cursor-pointer rounded" id="astro-unknown-time"/>
+                                <label for="astro-unknown-time" class="ml-2 text-xs text-white/70 font-medium cursor-pointer">Не знаю</label>
                             </div>
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Город рождения</label>
-                        <input type="text" placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
+                        <input id="astro-city" type="text" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-4 rounded-2xl mt-6 shadow-[0_10px_20px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
                         РАССЧИТАТЬ КАРТУ
@@ -1802,6 +1803,36 @@
             }
         }
         renderMessages();
+    }
+
+    async function submitAstroForm() {
+        const date = document.getElementById('astro-date').value;
+        const time = document.getElementById('astro-time').value;
+        const isUnknown = document.getElementById('astro-unknown-time').checked;
+        const city = document.getElementById('astro-city').value.trim();
+
+        if (!date || !city) return showToast("Укажи дату и город", "ph-warning");
+
+        showToast("Звезды выстраиваются...", "ph-spinner animate-spin");
+        
+        const data = await apiRequest("/profile/astro", "POST", {
+            birth_date: date,
+            birth_time: time || null,
+            birth_city: city,
+            unknown_time: isUnknown
+        });
+
+        if (data.success) {
+            closeAllModals();
+            showToast("Космо-паспорт готов!", "ph-check-circle");
+            
+            // Заполняем профиль (Знак, Стихия, Планета)
+            document.getElementById('profile-zodiac').textContent = data.sun_sign;
+            document.getElementById('profile-element').textContent = data.element;
+            document.getElementById('profile-planet').textContent = data.planet;
+        } else {
+            showToast("Не удалось найти город", "ph-warning");
+        }
     }
 
     function decodeDream() {
