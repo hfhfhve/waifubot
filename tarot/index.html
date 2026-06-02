@@ -308,6 +308,38 @@
   </style>
 </head>
 <body class="bg-space-900 min-h-screen">
+  <div id="app-loading-screen" class="fixed inset-0 z-[10000] bg-[#03030b] flex flex-col items-center justify-center transition-opacity duration-500 pointer-events-auto">
+    <div class="fixed inset-0 stars-bg opacity-40 pointer-events-none"></div>
+    
+    <div class="relative w-24 h-24 mb-6 flex items-center justify-center">
+      <div class="absolute inset-0 rounded-full bg-neon-purple/10 blur-xl animate-pulse-slow"></div>
+      
+      <div class="absolute inset-0 border-2 border-dashed border-neon-indigo/20 rounded-full"></div>
+      <div class="absolute inset-0 border-2 border-neon-fuchsia border-t-transparent border-b-transparent rounded-full animate-spin [animation-duration:2s]"></div>
+      <div class="absolute inset-2 border border-neon-cyan border-l-transparent border-r-transparent rounded-full animate-spin [animation-duration:4s] [animation-direction:reverse]"></div>
+      
+      <div class="relative z-10 text-white text-3xl animate-pulse">
+        <i class="ph-fill ph-sparkle text-neon-amber drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]"></i>
+      </div>
+    </div>
+    
+    <div class="text-center">
+      <p class="text-white font-mystic text-xl font-bold tracking-widest mb-1 italic">Neuro Tarot</p>
+      <p id="loading-status-text" class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold animate-pulse">Синхронизация со звездами...</p>
+    </div>
+  </div>
+  <div id="maintenance-screen" class="fixed inset-0 z-[9999] hidden bg-space-900 flex-col items-center justify-center px-6 transition-all duration-500">
+      <div class="w-24 h-24 rounded-full bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 shadow-[0_0_30px_rgba(251,113,133,0.3)]">
+          <i class="ph-fill ph-warning-circle text-5xl text-neon-rose animate-pulse"></i>
+      </div>
+      <h2 class="text-2xl font-mystic font-bold text-white mb-3 text-center">Космические перегрузки</h2>
+      <p class="text-sm text-white/50 text-center mb-8 max-w-xs font-light leading-relaxed">
+          Связь со звездами временно прервана — сервер обновляется или база данных ушла в глубокую медитацию. Мы уже чиним! 🛠️
+      </p>
+      <button onclick="tg.openTelegramLink('https://t.me/neurotarot_supportbot')" class="w-full max-w-xs h-14 bg-space-800 hover:bg-space-700 rounded-2xl font-bold text-white border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg group">
+          <i class="ph-fill ph-headset text-lg text-neon-indigo group-hover:scale-110 transition-transform"></i> НАПИСАТЬ В САППОРТ
+      </button>
+  </div>
   <div class="fixed inset-0 stars-bg opacity-60 pointer-events-none"></div>
 
   <!-- Главный контейнер (мобильный вид) -->
@@ -1017,18 +1049,6 @@
         </div>
     </div>
 
-    <div id="maintenance-screen" class="fixed inset-0 z-[9999] hidden bg-space-900 flex-col items-center justify-center px-6 transition-all duration-500">
-        <div class="w-24 h-24 rounded-full bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 shadow-[0_0_30px_rgba(251,113,133,0.3)]">
-            <i class="ph-fill ph-warning-circle text-5xl text-neon-rose animate-pulse"></i>
-        </div>
-        <h2 class="text-2xl font-mystic font-bold text-white mb-3 text-center">Космические перегрузки</h2>
-        <p class="text-sm text-white/50 text-center mb-8 max-w-xs font-light leading-relaxed">
-            Связь со звездами временно прервана — сервер обновляется или база данных ушла в глубокую медитацию. Мы уже чиним! 🛠️
-        </p>
-        <button onclick="tg.openTelegramLink('https://t.me/neurotarot_supportbot')" class="w-full max-w-xs h-14 bg-space-800 hover:bg-space-700 rounded-2xl font-bold text-white border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg group">
-            <i class="ph-fill ph-headset text-lg text-neon-indigo group-hover:scale-110 transition-transform"></i> НАПИСАТЬ В САППОРТ
-        </button>
-    </div>
 
     <div id="modal-birthdate" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
@@ -1533,6 +1553,21 @@
         updateCustomMonthLanguage();
     }
 
+    function hideAppLoader() {
+        const loader = document.getElementById('app-loading-screen');
+        if (!loader) return;
+        
+        // Плавно тушим прозрачность (за счет класса transition-opacity duration-500 в HTML)
+        loader.classList.add('opacity-0');
+        // Делаем кликабельным интерфейс под ним
+        loader.classList.add('pointer-events-none');
+        
+        // Полностью убираем из DOM-дерева через 500мс после завершения анимации
+        setTimeout(() => {
+            loader.classList.add('hidden');
+        }, 500);
+    }
+
     function updateCustomMonthLanguage() {
         const months = monthNamesMap[activeLanguage] || monthNamesMap['ru'];
         
@@ -1579,6 +1614,7 @@
 
     // ==================== INITIALIZATION ====================
     async function initApp() {
+        // 1. Показываем базовый экран (пока под лоадером)
         navigateTo('home'); 
         
         const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -1588,6 +1624,7 @@
         const avatarContainer = document.getElementById('profile-avatar-container');
         const nameElement = document.getElementById('profile-name');
     
+        // Предзаполняем данные из Telegram
         if (tgUser && Object.keys(tgUser).length > 0) {
             const userName = tgUser.first_name || tgUser.username || 'Странник';
             nameElement.textContent = userName;
@@ -1602,58 +1639,79 @@
         }
         
         const startParam = tg.initDataUnsafe?.start_param || null;
+        const statusText = document.getElementById('loading-status-text');
         
-        // Делаем первый проверочный запрос на бэкенд
-        const data = await apiRequest("/get-user", "POST", { start_param: startParam });
-        
-        // Если бэкенд явно ответил, что включен режим тех. работ
-        if (data && data.maintenance === true) {
-            showMaintenanceScreen();
-            return; // Полностью рубим инициализацию дальше
-        }
-        
-        if (data && data.success) {
-            userBalance.energy = data.energy;
-            userBalance.streak = data.streak || 0; 
-            updateBalanceUI();
+        try {
+            if (statusText) statusText.textContent = "Чтение натальной карты...";
             
-            const refCountEl = document.getElementById('referrals-count-display');
-            if (refCountEl) refCountEl.textContent = data.referrals_count || 0;
+            // Главный запрос авторизации и проверки мейнтенанса
+            const data = await apiRequest("/get-user", "POST", { start_param: startParam });
             
-            if (data.created_at) {
-                const dateObj = new Date(data.created_at);
-                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-                const createdAtEl = document.getElementById('profile-created-at');
-                if (createdAtEl) createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
+            if (data && data.maintenance === true) {
+                showMaintenanceScreen();
+                hideAppLoader(); // Тушим лоадер, чтобы показать экран тех. работ
+                return;
             }
-            if (data.language_code) {
-                  activeLanguage = data.language_code.toLowerCase().trim();
-                  const langDisplayEl = document.getElementById('current-lang-display');
-                  if (langDisplayEl) langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
-            }
-            if (data.daily_card) {
-                dailyCardDataCache = data.daily_card; 
-                updateHomeWidget(data.daily_card);    
-            }
-            if (data.birth_date) {
-                const displayEl = document.getElementById('profile-birthdate-display');
-                if (displayEl) {
-                    const [y, m, d] = data.birth_date.split('-');
-                    displayEl.textContent = `${d}.${m}.${y}`;
+            
+            if (data && data.success) {
+                userBalance.energy = data.energy;
+                userBalance.streak = data.streak || 0; 
+                updateBalanceUI();
+                
+                const refCountEl = document.getElementById('referrals-count-display');
+                if (refCountEl) refCountEl.textContent = data.referrals_count || 0;
+                
+                if (data.created_at) {
+                    const dateObj = new Date(data.created_at);
+                    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                    const createdAtEl = document.getElementById('profile-created-at');
+                    if (createdAtEl) createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
                 }
-                updateZodiacUI(data.birth_date);
+                if (data.language_code) {
+                      activeLanguage = data.language_code.toLowerCase().trim();
+                      const langDisplayEl = document.getElementById('current-lang-display');
+                      if (langDisplayEl) langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
+                }
+                if (data.daily_card) {
+                    dailyCardDataCache = data.daily_card; 
+                    updateHomeWidget(data.daily_card);    
+                }
+                if (data.birth_date) {
+                    const displayEl = document.getElementById('profile-birthdate-display');
+                    if (displayEl) {
+                        const [y, m, d] = data.birth_date.split('-');
+                        displayEl.textContent = `${d}.${m}.${y}`;
+                    }
+                    updateZodiacUI(data.birth_date);
+                }
             }
-        }
-        
-        const botUsername = "tarot_neurobot"; 
-        const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
-        const refInput = document.getElementById('ref-link-input');
-        if (refInput) refInput.value = refLink;
+            
+            if (statusText) statusText.textContent = "Настройка порталов колоды...";
+            
+            // Генерируем реф. ссылку
+            const botUsername = "tarot_neurobot"; 
+            const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
+            const refInput = document.getElementById('ref-link-input');
+            if (refInput) refInput.value = refLink;
     
-        loadShopItems();
-        loadLunarCalendar();
-        initDateSelects();
-        initCustomDateSelects();
+            // Инициализируем селекты дат
+            initDateSelects();
+            initCustomDateSelects();
+    
+            // Загружаем магазин и календарь параллельно, дожидаясь их выполнения
+            await Promise.all([
+                loadShopItems(),
+                loadLunarCalendar()
+            ]);
+    
+            // Когда ВСЁ готово — убираем лоадер
+            hideAppLoader();
+    
+        } catch (error) {
+            console.error("Критическая ошибка инициализации:", error);
+            showMaintenanceScreen();
+            hideAppLoader();
+        }
     }
 
     async function claimDailyBonus() {
