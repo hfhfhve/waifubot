@@ -1134,7 +1134,10 @@
                     <div class="grid grid-cols-2 gap-4 relative z-40">
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Время</label>
-                            <input id="astro-time" type="time" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
+                            <div class="relative">
+                                <input id="astro-time" type="text" inputmode="numeric" placeholder="14:30" maxlength="5" oninput="formatTimeInput(this)" class="w-full bg-space-800 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-neon-fuchsia/50 transition-colors font-mono tracking-widest text-center" />
+                                <i class="ph-bold ph-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"></i>
+                            </div>
                         </div>
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider opacity-0">Х</label>
@@ -1464,7 +1467,9 @@
             const listEl = document.getElementById(`${prefix}-list`);
             const labelEl = document.getElementById(`label-${prefix}`);
             const inputEl = document.getElementById(prefix);
-            if (!listEl) return;
+            const btnEl = document.querySelector(`[data-target="${prefix}-list"]`); // Находим кнопку
+            
+            if (!listEl || !btnEl) return;
             
             listEl.innerHTML = '';
             months.forEach((name, idx) => {
@@ -1484,6 +1489,15 @@
                 if (inputEl.value === val) labelEl.textContent = name;
             });
             if (!inputEl.value) labelEl.textContent = 'Месяц';
+
+            // ВОТ ЭТО БЫЛО ПРОПУЩЕНО: Открытие списка по клику на Месяц
+            btnEl.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-select-btn').forEach(b => {
+                    if (b !== btnEl) document.getElementById(b.dataset.target)?.classList.add('hidden');
+                });
+                listEl.classList.toggle('hidden');
+            };
         };
 
         renderMonth('edit-month');
@@ -2098,6 +2112,38 @@
             }
         }
         renderMessages();
+    }
+
+    // Кастомная маска для времени (ЧЧ:ММ)
+    function formatTimeInput(input) {
+        // Удаляем все буквы и спецсимволы, оставляем только цифры
+        let val = input.value.replace(/\D/g, '');
+        
+        // Ограничиваем длину до 4 цифр
+        if (val.length > 4) val = val.substring(0, 4);
+        
+        // Подставляем двоеточие после вторых суток
+        if (val.length > 2) {
+            input.value = val.substring(0, 2) + ':' + val.substring(2, 4);
+        } else {
+            input.value = val;
+        }
+        
+        // Валидация: Часы не могут быть больше 23
+        if (val.length >= 2) {
+            let hours = parseInt(val.substring(0, 2));
+            if (hours > 23) {
+                input.value = '23' + (val.length > 2 ? ':' + val.substring(2) : '');
+            }
+        }
+        
+        // Валидация: Минуты не могут быть больше 59
+        if (val.length === 4) {
+            let mins = parseInt(val.substring(2, 4));
+            if (mins > 59) {
+                input.value = input.value.substring(0, 3) + '59';
+            }
+        }
     }
 
     function confirmDeleteChat() {
