@@ -1140,11 +1140,13 @@
   <script>
     // ==================== STATE & CONFIG ====================
     let activeTab = 'home';
-    let currentChat = 'oracle'; // <-- ЗАМЕНИ null НА 'oracle'
+    let currentChat = 'oracle'; // ВАЖНО: Теперь по умолчанию всегда Оракул!
     let isCardFlipped = false;
     let activeLanguage = 'ru';
     let userBalance = { energy: 0, streak: 0 };
     let currentSpread = { type: null, requiredCards: 0, pickedCards: [], drawnVisualIndices: [] };
+    let dailyCardDataCache = null; 
+    
     const langMap = {
         'ru': '🇷🇺 Русский',
         'en': '🇬🇧 English',
@@ -1165,15 +1167,6 @@
     const chatMessages = {
       oracle: [{ type: 'ai', text: 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.' }]
     };
-
-    function restartChat() {
-        chatMessages['oracle'] = [{ 
-            type: 'ai', 
-            text: 'Здравствуй! Я Вселенский Оракул. Мой разум открыт для новых вопросов. Разложи карты, опиши сон или спроси о будущем.' 
-        }];
-        renderMessages();
-        showToast('Энергия чата очищена', 'ph-arrows-clockwise');
-    }
 
     // ==================== API CORE ====================
     async function apiRequest(endpoint, method = "POST", data = {}) {
@@ -1203,6 +1196,7 @@
         ];
     }
 
+    // ==================== SHOP LOGIC ====================
     async function loadShopItems() {
         const container = document.getElementById('shop-items-container');
         if (!container) return;
@@ -1213,44 +1207,19 @@
             container.innerHTML = '';
             
             data.items.forEach((item, index) => {
-                // Премиальные стили по уровням (Тирам)
                 const tiers = [
-                    {
-                        gradient: 'from-neon-cyan/50 to-neon-indigo/50',
-                        textGrad: 'from-neon-cyan to-neon-indigo',
-                        badge: null,
-                        shadow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]'
-                    },
-                    {
-                        gradient: 'from-neon-fuchsia/60 to-neon-purple/60',
-                        textGrad: 'from-neon-fuchsia to-neon-purple',
-                        badge: 'ХИТ',
-                        shadow: 'shadow-[0_0_30px_rgba(232,121,249,0.25)]'
-                    },
-                    {
-                        gradient: 'from-neon-amber/60 to-orange-500/60',
-                        textGrad: 'from-neon-amber to-orange-400',
-                        badge: 'ВЫГОДА',
-                        shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]'
-                    }
+                    { gradient: 'from-neon-cyan/50 to-neon-indigo/50', textGrad: 'from-neon-cyan to-neon-indigo', badge: null, shadow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]' },
+                    { gradient: 'from-neon-fuchsia/60 to-neon-purple/60', textGrad: 'from-neon-fuchsia to-neon-purple', badge: 'ХИТ', shadow: 'shadow-[0_0_30px_rgba(232,121,249,0.25)]' },
+                    { gradient: 'from-neon-amber/60 to-orange-500/60', textGrad: 'from-neon-amber to-orange-400', badge: 'ВЫГОДА', shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]' }
                 ];
-
                 const tier = tiers[index % tiers.length];
-                
-                // Генерируем парящий бейдж, если он есть у тира
-                const badgeHTML = tier.badge ? 
-                    `<div class="absolute -top-3 right-4 bg-gradient-to-r ${tier.textGrad} px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg border border-white/20 z-20">${tier.badge}</div>` 
-                    : '';
+                const badgeHTML = tier.badge ? `<div class="absolute -top-3 right-4 bg-gradient-to-r ${tier.textGrad} px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg border border-white/20 z-20">${tier.badge}</div>` : '';
 
-                // Собираем карточку с 1px градиентной рамкой и глубоким блюром
                 const itemHTML = `
                     <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="relative w-full p-[1px] rounded-[24px] overflow-visible group active:scale-[0.98] transition-all duration-300">
                         <div class="absolute inset-0 bg-gradient-to-r ${tier.gradient} rounded-[24px] opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                        
                         ${badgeHTML}
-
                         <div class="relative bg-space-900/95 backdrop-blur-xl rounded-[23px] p-5 flex items-center justify-between ${tier.shadow} group-hover:bg-space-900/80 transition-colors h-full">
-                            
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-full bg-space-800 border border-white/10 flex items-center justify-center relative shrink-0 overflow-hidden">
                                     <div class="absolute inset-0 bg-gradient-to-b ${tier.gradient} opacity-20"></div>
@@ -1261,7 +1230,6 @@
                                     <div class="text-white/40 text-[10px] tracking-widest uppercase mt-1 font-semibold">Энергии</div>
                                 </div>
                             </div>
-
                             <div class="shrink-0 bg-space-800 border border-white/10 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
                                 <span class="text-white">${item.price_stars}</span>
                                 <i class="ph-fill ph-star text-neon-amber text-base drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"></i>
@@ -1272,7 +1240,6 @@
                 container.innerHTML += itemHTML;
             });
         } else {
-            // Элегантная заглушка, если товаров пока нет
             container.innerHTML = `
                 <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center mt-10">
                     <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
@@ -1281,135 +1248,6 @@
                     <h3 class="text-white font-bold text-lg mb-1">Витрина пуста</h3>
                     <p class="text-white/40 text-sm">Кристаллы энергии еще формируются...</p>
                 </div>`;
-        }
-    }
-
-    // ==================== INITIALIZATION ====================
-    async function initApp() {
-        navigateTo('home'); 
-        
-        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-        const today = new Date();
-        const dateString = today.toLocaleDateString('ru-RU', dateOptions);
-        document.getElementById('current-date-display').textContent = dateString;
-        
-        const tgUser = tg.initDataUnsafe?.user;
-        const avatarContainer = document.getElementById('profile-avatar-container');
-        const nameElement = document.getElementById('profile-name');
-
-        if (tgUser && Object.keys(tgUser).length > 0) {
-            const userName = tgUser.first_name || tgUser.username || 'Странник';
-            nameElement.textContent = userName;
-            
-            if (tgUser.photo_url) {
-                avatarContainer.innerHTML = `<img src="${tgUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
-            } else {
-                avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
-            }
-        } else {
-            nameElement.textContent = 'Тестовый Искатель';
-            avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
-        }
-        
-        const startParam = tg.initDataUnsafe?.start_param || null;
-        const data = await apiRequest("/get-user", "POST", { start_param: startParam });
-        
-        if (data.success) {
-            userBalance.energy = data.energy;
-            userBalance.streak = data.streak || 0; 
-            updateBalanceUI();
-            
-            const refCountEl = document.getElementById('referrals-count-display');
-            if (refCountEl) {
-                refCountEl.textContent = data.referrals_count || 0;
-            }
-            if (data.created_at) {
-                const dateObj = new Date(data.created_at);
-                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-                const createdAtEl = document.getElementById('profile-created-at');
-                if (createdAtEl) {
-                    createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
-                }
-            }
-            if (data.language_code) {
-                  activeLanguage = data.language_code.toLowerCase().trim();
-                  const langDisplayEl = document.getElementById('current-lang-display');
-                  if (langDisplayEl) {
-                      langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
-                  }
-            }
-            if (data.daily_card) {
-                dailyCardDataCache = data.daily_card; // Сохраняем в кэш модалки
-                updateHomeWidget(data.daily_card);    // Меняем виджет на открытый
-            }
-            if (data.birth_date) {
-                const displayEl = document.getElementById('profile-birthdate-display');
-                if (displayEl) {
-                    const [y, m, d] = data.birth_date.split('-');
-                    displayEl.textContent = `${d}.${m}.${y}`;
-                }
-                updateZodiacUI(data.birth_date);
-            }
-        }
-        
-        const botUsername = "tarot_neurobot"; 
-        const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
-        const refInput = document.getElementById('ref-link-input');
-        if (refInput) {
-            refInput.value = refLink;
-        }
-
-        loadShopItems()
-        loadLunarCalendar();
-    }
-
-    async function claimDailyBonus() {
-        const btn = document.getElementById('daily-bonus-btn');
-        const text = document.getElementById('daily-bonus-text');
-        
-        const data = await apiRequest("/bonus/claim", "POST");
-        
-        if (data.success) {
-            userBalance.energy = data.energy;
-            userBalance.streak = data.streak || 0;
-            updateBalanceUI();
-            
-            showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            text.textContent = "Собран до завтра";
-        } else if (data.message === "already_claimed") {
-            showToast("Ты уже забирал бонус сегодня!", "ph-warning-circle");
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            text.textContent = "Собран до завтра";
-        } else {
-            showToast("Ошибка связи со звездами", "ph-warning-circle");
-        }
-    }
-
-    async function saveBirthDateOnly() {
-        const dateInput = document.getElementById('edit-birthdate-only').value;
-        if (!dateInput) {
-            return showToast("Сначала выбери дату", "ph-warning-circle");
-        }
-    
-        const year = new Date(dateInput).getFullYear();
-        if (year < 1926 || year > 2026) {
-            return showToast("Укажи реальный год рождения", "ph-warning-circle");
-        }
-    
-        const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
-    
-        if (data.success) {
-            showToast("Звезды запомнили эту дату!", "ph-check-circle");
-            const displayEl = document.getElementById('profile-birthdate-display');
-            if (displayEl) {
-                const [y, m, d] = dateInput.split('-');
-                displayEl.textContent = `${d}.${m}.${y}`;
-            }
-            updateZodiacUI(dateInput);
-            closeAllModals();
-        } else {
-            showToast("Ошибка сохранения", "ph-warning-circle");
         }
     }
 
@@ -1439,15 +1277,153 @@
         }
     }
 
+    // ==================== LUNAR CALENDAR ====================
+    async function loadLunarCalendar() {
+        const data = await apiRequest("/calendar/today", "GET");
+        if (data.success) {
+            const iconEl = document.getElementById('lunar-icon');
+            if (iconEl) iconEl.className = `ph-fill ${data.icon} text-5xl text-neon-indigo mb-3 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]`;
+            
+            const phaseName = document.getElementById('lunar-phase-name');
+            if (phaseName) phaseName.textContent = data.phase_name;
+            
+            const phaseDesc = document.getElementById('lunar-phase-desc');
+            if (phaseDesc) phaseDesc.textContent = data.phase_desc;
+            
+            const r = data.recommendations;
+            if (r) {
+                const haircutEl = document.getElementById('lunar-haircut');
+                if (haircutEl) { haircutEl.textContent = r.haircut.status; haircutEl.className = `text-xs font-bold ${r.haircut.color}`; }
+                const conflictEl = document.getElementById('lunar-conflict');
+                if (conflictEl) { conflictEl.textContent = r.conflict.status; conflictEl.className = `text-xs font-bold ${r.conflict.color}`; }
+                const financeEl = document.getElementById('lunar-finance');
+                if (financeEl) { financeEl.textContent = r.finance.status; financeEl.className = `text-xs font-bold ${r.finance.color}`; }
+            }
+        }
+    }
+
+    // ==================== INITIALIZATION ====================
+    async function initApp() {
+        navigateTo('home'); 
+        
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('ru-RU', dateOptions);
+        
+        const tgUser = tg.initDataUnsafe?.user;
+        const avatarContainer = document.getElementById('profile-avatar-container');
+        const nameElement = document.getElementById('profile-name');
+
+        if (tgUser && Object.keys(tgUser).length > 0) {
+            const userName = tgUser.first_name || tgUser.username || 'Странник';
+            nameElement.textContent = userName;
+            if (tgUser.photo_url) {
+                avatarContainer.innerHTML = `<img src="${tgUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
+            } else {
+                avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
+            }
+        } else {
+            nameElement.textContent = 'Тестовый Искатель';
+            avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
+        }
+        
+        const startParam = tg.initDataUnsafe?.start_param || null;
+        const data = await apiRequest("/get-user", "POST", { start_param: startParam });
+        
+        if (data.success) {
+            userBalance.energy = data.energy;
+            userBalance.streak = data.streak || 0; 
+            updateBalanceUI();
+            
+            const refCountEl = document.getElementById('referrals-count-display');
+            if (refCountEl) refCountEl.textContent = data.referrals_count || 0;
+            
+            if (data.created_at) {
+                const dateObj = new Date(data.created_at);
+                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                const createdAtEl = document.getElementById('profile-created-at');
+                if (createdAtEl) createdAtEl.textContent = `С нами с ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
+            }
+            if (data.language_code) {
+                  activeLanguage = data.language_code.toLowerCase().trim();
+                  const langDisplayEl = document.getElementById('current-lang-display');
+                  if (langDisplayEl) langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
+            }
+            if (data.daily_card) {
+                dailyCardDataCache = data.daily_card; 
+                updateHomeWidget(data.daily_card);    
+            }
+            if (data.birth_date) {
+                const displayEl = document.getElementById('profile-birthdate-display');
+                if (displayEl) {
+                    const [y, m, d] = data.birth_date.split('-');
+                    displayEl.textContent = `${d}.${m}.${y}`;
+                }
+                updateZodiacUI(data.birth_date);
+            }
+        }
+        
+        const botUsername = "tarot_neurobot"; 
+        const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
+        const refInput = document.getElementById('ref-link-input');
+        if (refInput) refInput.value = refLink;
+
+        loadShopItems();
+        loadLunarCalendar();
+    }
+
+    async function claimDailyBonus() {
+        const btn = document.getElementById('daily-bonus-btn');
+        const text = document.getElementById('daily-bonus-text');
+        
+        const data = await apiRequest("/bonus/claim", "POST");
+        
+        if (data.success) {
+            userBalance.energy = data.energy;
+            userBalance.streak = data.streak || 0;
+            updateBalanceUI();
+            
+            showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            text.textContent = "Собран до завтра";
+        } else if (data.message === "already_claimed") {
+            showToast("Ты уже забирал бонус сегодня!", "ph-warning-circle");
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            text.textContent = "Собран до завтра";
+        } else {
+            showToast("Ошибка связи со звездами", "ph-warning-circle");
+        }
+    }
+
+    async function saveBirthDateOnly() {
+        const dateInput = document.getElementById('edit-birthdate-only').value;
+        if (!dateInput) return showToast("Сначала выбери дату", "ph-warning-circle");
+    
+        const year = new Date(dateInput).getFullYear();
+        if (year < 1926 || year > 2026) return showToast("Укажи реальный год рождения", "ph-warning-circle");
+    
+        const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
+    
+        if (data.success) {
+            showToast("Звезды запомнили эту дату!", "ph-check-circle");
+            const displayEl = document.getElementById('profile-birthdate-display');
+            if (displayEl) {
+                const [y, m, d] = dateInput.split('-');
+                displayEl.textContent = `${d}.${m}.${y}`;
+            }
+            updateZodiacUI(dateInput);
+            closeAllModals();
+        } else {
+            showToast("Ошибка сохранения", "ph-warning-circle");
+        }
+    }
+
     function updateBalanceUI() {
         const energyBalanceElement = document.getElementById("star-balance");
-        if (energyBalanceElement) {
-            energyBalanceElement.textContent = userBalance.energy;
-        }
+        if (energyBalanceElement) energyBalanceElement.textContent = userBalance.energy;
+        
         const profileEnergyBalance = document.getElementById("profile-star-balance");
-        if (profileEnergyBalance) {
-            profileEnergyBalance.textContent = userBalance.energy;
-        }
+        if (profileEnergyBalance) profileEnergyBalance.textContent = userBalance.energy;
+        
         const streakCount = document.getElementById("profile-streak-count");
         const streakWord = document.getElementById("profile-streak-word");
         if (streakCount && streakWord) {
@@ -1458,7 +1434,7 @@
 
     // ==================== NAVIGATION ====================
     function navigateTo(tab) {
-        const isSubScreen = tab === 'tarot-table'; // Теперь только стол таролога прячет меню
+        const isSubScreen = tab === 'tarot-table'; 
         if (!isSubScreen) activeTab = tab;
 
         document.querySelectorAll('.screen').forEach(s => {
@@ -1477,7 +1453,6 @@
             btn.classList.toggle('active', isActive);
         });
 
-        // Скрываем меню только на столе Таролога
         const bottomNavWrapper = document.getElementById('bottom-nav-wrapper');
         if (tab === 'tarot-table') {
             bottomNavWrapper.classList.add('hidden');
@@ -1485,7 +1460,6 @@
             bottomNavWrapper.classList.remove('hidden');
         }
 
-        // Если открыли вкладку чата - автоскролл вниз
         if (tab === 'chats') {
             currentChat = 'oracle';
             renderMessages();
@@ -1494,11 +1468,8 @@
             document.getElementById('app').scrollTop = 0;
         }
     }
-    // ==================== FEATURES ====================
+
     // ==================== DAILY CARD LOGIC ====================
-    let dailyCardDataCache = null; // Кэшируем карту, чтобы не делать запросы при каждом открытии модалки
-    
-    // Генератор фейковых, но правдоподобных статов на основе ID карты
     function generateCardStats(cardId) {
         const elements = [
             { name: "Огонь", icon: "ph-fire", color: "text-neon-rose" },
@@ -1506,13 +1477,9 @@
             { name: "Воздух", icon: "ph-wind", color: "text-neon-cyan" },
             { name: "Земля", icon: "ph-plant", color: "text-neon-emerald" }
         ];
-        // Детерминированный выбор на основе ID
         const el = elements[cardId % 4]; 
-        
-        // Генерируем случайное, но фиксированное время для карты
         const startHour = 8 + (cardId % 10); 
         const endHour = startHour + 2;
-        
         return { element: el, time: `${startHour}:00 – ${endHour}:30` };
     }
 
@@ -1521,16 +1488,12 @@
         const content = document.getElementById('daily-modal-content');
         
         modal.classList.remove('hidden');
-        // Небольшая задержка для CSS-анимации появления
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             content.classList.remove('scale-95');
         }, 10);
 
-        // Если карта уже была вытянута ранее (при загрузке приложения)
-        if (dailyCardDataCache) {
-            setupOpenedCardUI(dailyCardDataCache);
-        }
+        if (dailyCardDataCache) setupOpenedCardUI(dailyCardDataCache);
     }
 
     function closeDailyModal() {
@@ -1539,14 +1502,10 @@
         
         modal.classList.add('opacity-0');
         content.classList.add('scale-95');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
+        setTimeout(() => { modal.classList.add('hidden'); }, 300);
     }
 
-    // Главная функция вытягивания карты
     async function processDailyCard() {
-        // Меняем UI на состояние загрузки
         document.getElementById('btn-pull-daily').classList.add('hidden');
         document.getElementById('modal-daily-placeholder').classList.add('hidden');
         document.getElementById('daily-reading-loader').classList.remove('hidden');
@@ -1554,39 +1513,29 @@
         const data = await apiRequest("/tarot/daily", "POST");
         
         if (data.success && data.card) {
-            dailyCardDataCache = data.card; // Кэшируем
-            
-            // Заполняем данные
+            dailyCardDataCache = data.card; 
             setupOpenedCardUI(data.card);
-            
-            // Обновляем миниатюру на главном экране
             updateHomeWidget(data.card);
             showToast('Карта дня открыта!', 'ph-stars');
         } else {
             showToast('Связь со звездами прервалась.', 'ph-warning-circle');
-            // Возвращаем кнопку, если ошибка
             document.getElementById('btn-pull-daily').classList.remove('hidden');
             document.getElementById('daily-reading-loader').classList.add('hidden');
             document.getElementById('modal-daily-placeholder').classList.remove('hidden');
         }
     }
 
-    // Вспомогательная функция для обновления UI внутри модалки
     function setupOpenedCardUI(cardData) {
-        // Убираем лоадер и плейсхолдер
         document.getElementById('daily-reading-loader').classList.add('hidden');
         document.getElementById('modal-daily-placeholder').classList.add('hidden');
         document.getElementById('btn-pull-daily').classList.add('hidden');
         
-        // Вставляем текст
         document.getElementById('modal-daily-text').innerHTML = DOMPurify.sanitize(cardData.interpretation);
         document.getElementById('modal-daily-text').classList.remove('hidden');
 
-        // Настраиваем 3D карту
         document.getElementById('modal-card-img').src = cardData.image;
         document.getElementById('daily-modal-card-3d').classList.add('flipped');
 
-        // Заполняем статы
         const stats = generateCardStats(cardData.id);
         document.getElementById('stat-time').textContent = stats.time;
         document.getElementById('stat-element').textContent = stats.element.name;
@@ -1594,27 +1543,21 @@
         const elIcon = document.getElementById('stat-element-icon');
         elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-sm mb-0.5`;
 
-        // Показываем блок со статами
         document.getElementById('daily-modal-stats').classList.remove('opacity-0');
     }
 
-    // Вспомогательная функция для обновления виджета на главном экране
     function updateHomeWidget(cardData) {
         document.getElementById('home-daily-icon').classList.add('hidden');
-        
         const thumbImg = document.getElementById('home-daily-img');
         thumbImg.src = cardData.image;
         thumbImg.classList.remove('hidden');
-        
         document.getElementById('home-daily-title').textContent = cardData.name;
         document.getElementById('home-daily-subtitle').textContent = "Послание расшифровано. Нажми, чтобы перечитать.";
     }
 
     async function saveNameOnly() {
         const nameInput = document.getElementById('edit-name-input').value.trim();
-        if (!nameInput) {
-            return showToast("Введи имя", "ph-warning-circle");
-        }
+        if (!nameInput) return showToast("Введи имя", "ph-warning-circle");
 
         const data = await apiRequest("/profile/update", "POST", { first_name: nameInput });
 
@@ -1658,9 +1601,7 @@
         const nameInput = document.getElementById('edit-name').value.trim();
         const dateInput = document.getElementById('edit-birthdate').value;
 
-        if (!nameInput && !dateInput) {
-            return showToast("Заполните хотя бы одно поле", "ph-warning-circle");
-        }
+        if (!nameInput && !dateInput) return showToast("Заполните хотя бы одно поле", "ph-warning-circle");
 
         const data = await apiRequest("/profile/update", "POST", {
             first_name: nameInput || null,
@@ -1681,7 +1622,6 @@
         }
     }
 
-    // Вызывается с экрана "Расклады"
     function selectSpread(type) {
         const spreadConfig = {
             'one-card': { name: 'Карта дня / Да-Нет', req: 1, subtitle: 'Вытяни 1 карту для ответа' },
@@ -1690,16 +1630,10 @@
             'celtic': { name: 'Кельтский крест', req: 10, subtitle: 'Вытяни 10 карт (Глубинный анализ)' },
             'choice': { name: 'Проблема выбора', req: 5, subtitle: 'Вытяни 5 карт для сравнения путей' }
         };
-    
         const config = spreadConfig[type];
         if (!config) return;
     
-        currentSpread = {
-            type: type,
-            requiredCards: config.req,
-            pickedCards: [],
-            drawnVisualIndices: []
-        };
+        currentSpread = { type: type, requiredCards: config.req, pickedCards: [], drawnVisualIndices: [] };
     
         document.getElementById('table-spread-name').textContent = config.name;
         document.getElementById('table-instruction-subtitle').textContent = config.subtitle;
@@ -1719,12 +1653,10 @@
         deckContainer.innerHTML = '';
         slotsContainer.innerHTML = '';
 
-        const cardsInDeckCount = 30;
-        for (let i = 0; i < cardsInDeckCount; i++) {
+        for (let i = 0; i < 30; i++) {
             const card = document.createElement('div');
             card.className = 'tarot-deck-card';
             card.dataset.index = i;
-            
             card.onclick = () => pickCardFromTable(i, card);
             deckContainer.appendChild(card);
         }
@@ -1736,7 +1668,7 @@
             slot.innerHTML = `<i class="ph-fill ph-plus text-white/10 text-sm"></i>`;
             slotsContainer.appendChild(slot);
         }
-    } // Фикс скобки: renderTarotTable теперь закрыта корректно!
+    }
 
     function pickCardFromTable(visualIndex, cardElement) {
         if (currentSpread.pickedCards.length >= currentSpread.requiredCards) return;
@@ -1759,35 +1691,27 @@
 
         if (currentSpread.pickedCards.length === currentSpread.requiredCards) {
             document.getElementById('table-instruction-subtitle').textContent = "Отличный выбор. Карты готовы говорить.";
-            
             const btnAnalyze = document.getElementById('btn-analyze-spread');
             btnAnalyze.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
             btnAnalyze.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
         }
-    } // Фикс скобки: pickCardFromTable теперь закрыта корректно!
+    }
 
-    // Отправка расклада ИИ на новый бэкенд-роут /tarot/spread
     async function sendSpreadToAI() {
         const pickedCards = currentSpread.pickedCards;
         const spreadType = currentSpread.type;
 
         showToast('Оракул изучает карты...', 'ph-spinner animate-spin');
         
-        navigateTo('chats'); // Прямой переход в чат
+        navigateTo('chats'); 
         
         const spreadName = document.getElementById('table-spread-name').textContent;
-        chatMessages['oracle'].push({ 
-            type: 'user', 
-            text: `Я вытянул карты для расклада "${spreadName}". Прочти их.` 
-        });
+        chatMessages['oracle'].push({ type: 'user', text: `Я вытянул карты для расклада "${spreadName}". Прочти их.` });
         renderMessages();
         document.getElementById('typing-indicator').classList.remove('hidden');
         scrollToBottom();
 
-        const data = await apiRequest("/tarot/spread", "POST", {
-            spread_type: spreadType,
-            cards: pickedCards
-        });
+        const data = await apiRequest("/tarot/spread", "POST", { spread_type: spreadType, cards: pickedCards });
 
         document.getElementById('typing-indicator').classList.add('hidden');
 
@@ -1826,8 +1750,6 @@
         if (data.success) {
             closeAllModals();
             showToast("Космо-паспорт готов!", "ph-check-circle");
-            
-            // Заполняем профиль (Знак, Стихия, Планета)
             document.getElementById('profile-zodiac').textContent = data.sun_sign;
             document.getElementById('profile-element').textContent = data.element;
             document.getElementById('profile-planet').textContent = data.planet;
@@ -1841,7 +1763,7 @@
         const text = input.value.trim();
         if(!text) return showToast('Сначала опишите сон', 'ph-warning-circle');
         
-        navigateTo('chats'); // Прямой переход в чат
+        navigateTo('chats'); 
         setTimeout(() => {
             document.getElementById('message-input').value = 'Растолкуй мой сон: ' + text;
             sendMessage();
@@ -1854,24 +1776,17 @@
       closeAllModals();
       document.getElementById('overlay').classList.add('active');
       const modal = document.getElementById('modal-' + modalId);
-      if (modal) {
-        setTimeout(() => modal.classList.add('active'), 10);
-      }
+      if (modal) setTimeout(() => modal.classList.add('active'), 10);
     }
 
     function closeAllModals() {
-      document.querySelectorAll('.bottom-sheet').forEach(sheet => {
-        sheet.classList.remove('active');
-      });
+      document.querySelectorAll('.bottom-sheet').forEach(sheet => { sheet.classList.remove('active'); });
       document.getElementById('overlay').classList.remove('active');
     }
 
     function selectLanguage(code, nameStr) {
       activeLanguage = code;
-      document.querySelectorAll('.language-check').forEach(check => {
-          check.classList.toggle('hidden', check.dataset.lang !== code);
-      });
-      // Подставляем строго отформатированную строку из нашего маппинга
+      document.querySelectorAll('.language-check').forEach(check => { check.classList.toggle('hidden', check.dataset.lang !== code); });
       document.getElementById('current-lang-display').innerHTML = langMap[code] || '🇷🇺 Русский';
       showToast('Язык изменён ✓', 'ph-globe');
       setTimeout(closeAllModals, 300);
@@ -1881,10 +1796,8 @@
       const toast = document.getElementById('toast');
       document.getElementById('toast-message').textContent = message;
       document.getElementById('toast-icon').className = `ph-fill ${icon} text-neon-indigo text-xl`;
-      
       toast.classList.remove('opacity-0', 'translate-y-[-20px]');
       toast.classList.add('opacity-100', 'translate-y-0');
-      
       setTimeout(() => {
         toast.classList.remove('opacity-100', 'translate-y-0');
         toast.classList.add('opacity-0', 'translate-y-[-20px]');
@@ -1893,12 +1806,8 @@
 
     function copyReferralLink() {
         const input = document.getElementById('ref-link-input');
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(input.value);
-        } else {
-            input.select();
-            document.execCommand('copy');
-        }
+        if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(input.value); } 
+        else { input.select(); document.execCommand('copy'); }
         showToast('Ссылка скопирована!', 'ph-copy');
     }
 
@@ -1907,40 +1816,6 @@
         const text = "Присоединяйся к Космическому Таро! 🌌 Узнай свою карту дня и получи ответы на волнующие вопросы.";
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
         tg.openTelegramLink(shareUrl);
-    }
-
-    async function loadLunarCalendar() {
-        const data = await apiRequest("/calendar/today", "GET");
-        
-        if (data.success) {
-            const iconEl = document.getElementById('lunar-icon');
-            if (iconEl) iconEl.className = `ph-fill ${data.icon} text-5xl text-neon-indigo mb-3 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]`;
-            
-            const phaseName = document.getElementById('lunar-phase-name');
-            if (phaseName) phaseName.textContent = data.phase_name;
-            
-            const phaseDesc = document.getElementById('lunar-phase-desc');
-            if (phaseDesc) phaseDesc.textContent = data.phase_desc;
-            
-            const r = data.recommendations;
-            if (r) {
-                const haircutEl = document.getElementById('lunar-haircut');
-                if (haircutEl) {
-                    haircutEl.textContent = r.haircut.status;
-                    haircutEl.className = `text-xs font-bold ${r.haircut.color}`;
-                }
-                const conflictEl = document.getElementById('lunar-conflict');
-                if (conflictEl) {
-                    conflictEl.textContent = r.conflict.status;
-                    conflictEl.className = `text-xs font-bold ${r.conflict.color}`;
-                }
-                const financeEl = document.getElementById('lunar-finance');
-                if (financeEl) {
-                    financeEl.textContent = r.finance.status;
-                    financeEl.className = `text-xs font-bold ${r.finance.color}`;
-                }
-            }
-        }
     }
 
     // ==================== CHAT LOGIC ====================
@@ -1980,10 +1855,7 @@
     function scrollToBottomSmooth() {
         const container = document.getElementById('chat-scroll-wrapper');
         if (container) {
-            container.scrollTo({
-                top: container.scrollHeight,
-                behavior: 'smooth'
-            });
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
         }
     }
 
@@ -1992,6 +1864,12 @@
             const container = document.getElementById('chat-scroll-wrapper');
             if (container) container.scrollTop = container.scrollHeight;
         }, 50);
+    }
+
+    function restartChat() {
+        chatMessages['oracle'] = [{ type: 'ai', text: 'Здравствуй! Я Вселенский Оракул. Мой разум открыт для новых вопросов. Разложи карты, опиши сон или спроси о будущем.' }];
+        renderMessages();
+        showToast('Энергия чата очищена', 'ph-arrows-clockwise');
     }
 
     function sendQuickReply(text) {
@@ -2012,10 +1890,7 @@
         document.getElementById('typing-indicator').classList.remove('hidden');
         scrollToBottom();
 
-        const data = await apiRequest("/chat/send", "POST", {
-            text: text,
-            persona: currentChat
-        });
+        const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
 
         document.getElementById('typing-indicator').classList.add('hidden');
 
@@ -2036,12 +1911,18 @@
     function confirmDeleteChat() {
       closeAllModals();
       if (chatMessages['oracle']) {
-          // Оставляем только первое приветственное сообщение
           chatMessages['oracle'] = [chatMessages['oracle'][0]];
       }
       renderMessages();
       showToast('Чат очищен', 'ph-trash');
     }
+
+    // ==================== SYSTEM ====================
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    document.addEventListener('touchmove', (e) => {
+      if (e.target.closest('.bottom-sheet')) return;
+    }, { passive: true });
   </script>
 </body>
 </html>
