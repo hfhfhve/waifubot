@@ -7333,24 +7333,35 @@ const characters = [
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center">Твой день рождения</h3>
                 <div class="space-y-4">
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="relative col-span-1">
-                            <select id="edit-day" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none text-center cursor-pointer"></select>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                    <div class="grid grid-cols-12 gap-2">
+                        <!-- День -->
+                        <div class="relative col-span-3">
+                            <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-day-list">
+                                <span id="label-edit-day" class="truncate">ДД</span>
+                                <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                            </div>
+                            <div id="edit-day-list" class="absolute top-full left-0 w-full mt-1 bg-space-700 border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                            <input type="hidden" id="edit-day">
                         </div>
-                        <div class="relative col-span-2">
-                            <select id="edit-month" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none cursor-pointer pl-4"></select>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        <!-- Месяц -->
+                        <div class="relative col-span-5">
+                            <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-month-list">
+                                <span id="label-edit-month" class="truncate">Месяц</span>
+                                <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                            </div>
+                            <div id="edit-month-list" class="absolute top-full left-0 w-full mt-1 bg-space-700 border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                            <input type="hidden" id="edit-month">
                         </div>
-                        <div class="relative col-span-1">
-                            <select id="edit-year" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 appearance-none text-center cursor-pointer"></select>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        <!-- Год -->
+                        <div class="relative col-span-4">
+                            <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-year-list">
+                                <span id="label-edit-year" class="truncate">ГГГГ</span>
+                                <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                            </div>
+                            <div id="edit-year-list" class="absolute top-full left-0 w-full mt-1 bg-space-700 border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                            <input type="hidden" id="edit-year">
                         </div>
                     </div>
-                    
-                    <button onclick="saveBirthDateOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
-                        СОХРАНИТЬ ДАТУ
-                    </button>
                 </div>
             </div>
         </div>
@@ -7450,41 +7461,54 @@ const characters = [
                 </div>
                 
                 <form class="space-y-4" onsubmit="event.preventDefault(); submitAstroForm();">
-                    <div>
+                    <div class="relative z-50">
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Дата рождения</label>
-                        <div class="grid grid-cols-4 gap-2">
-                            <div class="relative col-span-1">
-                                <select id="astro-day" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none text-center cursor-pointer"></select>
-                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                        <div class="grid grid-cols-12 gap-2">
+                            <div class="relative col-span-3">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-fuchsia/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="astro-day-list">
+                                    <span id="label-astro-day" class="truncate">ДД</span>
+                                    <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                                </div>
+                                <div id="astro-day-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                                <input type="hidden" id="astro-day">
                             </div>
-                            <div class="relative col-span-2">
-                                <select id="astro-month" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none cursor-pointer pl-4"></select>
-                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                            <div class="relative col-span-5">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-fuchsia/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="astro-month-list">
+                                    <span id="label-astro-month" class="truncate">Месяц</span>
+                                    <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                                </div>
+                                <div id="astro-month-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                                <input type="hidden" id="astro-month">
                             </div>
-                            <div class="relative col-span-1">
-                                <select id="astro-year" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 appearance-none text-center cursor-pointer"></select>
-                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                            <div class="relative col-span-4">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-fuchsia/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="astro-year-list">
+                                    <span id="label-astro-year" class="truncate">ГГГГ</span>
+                                    <i class="ph-bold ph-caret-down text-white/40 text-[10px] shrink-0 ml-1"></i>
+                                </div>
+                                <div id="astro-year-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
+                                <input type="hidden" id="astro-year">
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+
+                    <div class="grid grid-cols-2 gap-4 relative z-40">
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Время</label>
-                            <input id="astro-time" type="time" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
+                            <input id="astro-time" type="time" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors" style="color-scheme: dark;" />
                         </div>
                         <div>
                             <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider opacity-0">Х</label>
-                            <div class="w-full h-[56px] bg-space-800 border border-white/10 rounded-2xl flex items-center px-4 cursor-pointer hover:border-white/20 transition-colors">
+                            <div class="w-full h-[56px] bg-space-800 border border-white/10 rounded-xl flex items-center px-4 cursor-pointer hover:border-white/20 transition-colors">
                                 <input type="checkbox" class="w-4 h-4 accent-neon-fuchsia cursor-pointer rounded" id="astro-unknown-time"/>
                                 <label for="astro-unknown-time" class="ml-2 text-xs text-white/70 font-medium cursor-pointer">Не знаю</label>
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div class="relative z-30">
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Город рождения</label>
-                        <input id="astro-city" type="text" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
+                        <input id="astro-city" type="text" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-4 rounded-2xl mt-6 shadow-[0_10px_20px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide">
+                    <button type="submit" class="w-full bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-4 rounded-xl mt-6 shadow-[0_10px_20px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide relative z-30">
                         РАССЧИТАТЬ КАРТУ
                     </button>
                 </form>
@@ -7738,6 +7762,102 @@ const characters = [
         }
     }
 
+    // Закрываем кастомные селекты при клике мимо
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-select-btn')) {
+            document.querySelectorAll('.custom-select-btn').forEach(btn => {
+                const list = document.getElementById(btn.dataset.target);
+                if (list) list.classList.add('hidden');
+            });
+        }
+    });
+
+    const monthNamesMap = {
+        'ru': ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
+        'en': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        'es': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        'fr': ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+        'de': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+    };
+
+    function initCustomDateSelects() {
+        const days = Array.from({length: 31}, (_, i) => (i + 1).toString().padStart(2, '0'));
+        const currentYear = new Date().getFullYear();
+        const years = Array.from({length: 100}, (_, i) => (currentYear - i).toString());
+
+        const setupDropdown = (prefix, options) => {
+            const listEl = document.getElementById(`${prefix}-list`);
+            const labelEl = document.getElementById(`label-${prefix}`);
+            const inputEl = document.getElementById(prefix);
+            const btnEl = document.querySelector(`[data-target="${prefix}-list"]`);
+            
+            if (!listEl || !btnEl) return;
+
+            listEl.innerHTML = '';
+            options.forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white cursor-pointer transition-colors border-b border-white/5 last:border-0';
+                item.textContent = opt;
+                
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    labelEl.textContent = opt;
+                    inputEl.value = opt;
+                    listEl.classList.add('hidden');
+                };
+                listEl.appendChild(item);
+            });
+
+            btnEl.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-select-btn').forEach(b => {
+                    if (b !== btnEl) document.getElementById(b.dataset.target)?.classList.add('hidden');
+                });
+                listEl.classList.toggle('hidden');
+            };
+        };
+
+        setupDropdown('edit-day', days);
+        setupDropdown('astro-day', days);
+        setupDropdown('edit-year', years);
+        setupDropdown('astro-year', years);
+        
+        updateCustomMonthLanguage();
+    }
+
+    function updateCustomMonthLanguage() {
+        const months = monthNamesMap[activeLanguage] || monthNamesMap['ru'];
+        
+        const renderMonth = (prefix) => {
+            const listEl = document.getElementById(`${prefix}-list`);
+            const labelEl = document.getElementById(`label-${prefix}`);
+            const inputEl = document.getElementById(prefix);
+            if (!listEl) return;
+            
+            listEl.innerHTML = '';
+            months.forEach((name, idx) => {
+                const val = (idx + 1).toString().padStart(2, '0');
+                const item = document.createElement('div');
+                item.className = 'px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white cursor-pointer transition-colors border-b border-white/5 last:border-0 truncate';
+                item.textContent = name;
+                
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    labelEl.textContent = name;
+                    inputEl.value = val;
+                    listEl.classList.add('hidden');
+                };
+                listEl.appendChild(item);
+                
+                if (inputEl.value === val) labelEl.textContent = name;
+            });
+            if (!inputEl.value) labelEl.textContent = 'Месяц';
+        };
+
+        renderMonth('edit-month');
+        renderMonth('astro-month');
+    }
+
     // ==================== INITIALIZATION ====================
     async function initApp() {
         navigateTo('home'); 
@@ -7806,6 +7926,7 @@ const characters = [
         loadShopItems();
         loadLunarCalendar();
         initDateSelects();
+        initCustomDateSelects();
         flatpickr("#astro-date, #edit-birthdate, #edit-birthdate-only", {
               locale: "ru",
               dateFormat: "Y-m-d",
@@ -8235,7 +8356,7 @@ const characters = [
       document.getElementById('current-lang-display').innerHTML = langMap[code] || '🇷🇺 Русский';
       showToast('Язык изменён ✓', 'ph-globe');
       setTimeout(closeAllModals, 300);
-      updateMonthLanguage();
+      updateCustomMonthLanguage();
     }
 
     function showToast(message, icon = 'ph-check-circle') {
