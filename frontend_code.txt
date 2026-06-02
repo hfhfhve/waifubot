@@ -7344,6 +7344,19 @@ const characters = [
         </div>
     </div>
 
+    <div id="maintenance-screen" class="fixed inset-0 z-[9999] hidden bg-space-900 flex-col items-center justify-center px-6 transition-all duration-500">
+        <div class="w-24 h-24 rounded-full bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 shadow-[0_0_30px_rgba(251,113,133,0.3)]">
+            <i class="ph-fill ph-warning-circle text-5xl text-neon-rose animate-pulse"></i>
+        </div>
+        <h2 class="text-2xl font-mystic font-bold text-white mb-3 text-center">Космические перегрузки</h2>
+        <p class="text-sm text-white/50 text-center mb-8 max-w-xs font-light leading-relaxed">
+            Связь со звездами временно прервана — сервер обновляется или база данных ушла в глубокую медитацию. Мы уже чиним! 🛠️
+        </p>
+        <button onclick="tg.openTelegramLink('https://t.me/neurotarot_supportbot')" class="w-full max-w-xs h-14 bg-space-800 hover:bg-space-700 rounded-2xl font-bold text-white border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg group">
+            <i class="ph-fill ph-headset text-lg text-neon-indigo group-hover:scale-110 transition-transform"></i> НАПИСАТЬ В САППОРТ
+        </button>
+    </div>
+
     <div id="modal-birthdate" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col">
             <div class="flex justify-center pt-4 pb-3">
@@ -7611,13 +7624,21 @@ const characters = [
                 },
                 body: method === "GET" ? null : JSON.stringify(data)
             });
-
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+    
+            // Если сервер вернул 500 ошибку (БД упала) или 503 (Сервис недоступен)
+            if (!response.ok) {
+                if (response.status === 500 || response.status === 503) {
+                    showMaintenanceScreen();
+                }
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+    
             return await response.json();
         } catch (e) {
             console.error("API Error:", e);
-            showToast("Ошибка связи со звездами", "ph-warning-circle");
-            return { success: false };
+            // Если вообще нет сети или Cloudflare Tunnel отвалился (TypeError: Failed to fetch)
+            showMaintenanceScreen();
+            return { success: false, maintenance: true };
         }
     }
 
@@ -7893,7 +7914,7 @@ const characters = [
         const tgUser = tg.initDataUnsafe?.user;
         const avatarContainer = document.getElementById('profile-avatar-container');
         const nameElement = document.getElementById('profile-name');
-
+    
         if (tgUser && Object.keys(tgUser).length > 0) {
             const userName = tgUser.first_name || tgUser.username || 'Странник';
             nameElement.textContent = userName;
@@ -7908,9 +7929,17 @@ const characters = [
         }
         
         const startParam = tg.initDataUnsafe?.start_param || null;
+        
+        // Делаем первый проверочный запрос на бэкенд
         const data = await apiRequest("/get-user", "POST", { start_param: startParam });
         
-        if (data.success) {
+        // Если бэкенд явно ответил, что включен режим тех. работ
+        if (data && data.maintenance === true) {
+            showMaintenanceScreen();
+            return; // Полностью рубим инициализацию дальше
+        }
+        
+        if (data && data.success) {
             userBalance.energy = data.energy;
             userBalance.streak = data.streak || 0; 
             updateBalanceUI();
@@ -7947,7 +7976,7 @@ const characters = [
         const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
         const refInput = document.getElementById('ref-link-input');
         if (refInput) refInput.value = refLink;
-
+    
         loadShopItems();
         loadLunarCalendar();
         initDateSelects();
@@ -7995,6 +8024,17 @@ const characters = [
             closeAllModals();
         } else {
             showToast("Ошибка сохранения", "ph-warning-circle");
+        }
+    }
+
+    function showMaintenanceScreen() {
+        const screen = document.getElementById('maintenance-screen');
+        if (screen) {
+            screen.classList.remove('hidden');
+            screen.classList.add('flex');
+        }
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('error');
         }
     }
 
