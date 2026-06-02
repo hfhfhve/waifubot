@@ -9,6 +9,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/ru.js"></script>
   
   <script>
     tailwind.config = {
@@ -91,6 +95,35 @@
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    }
+
+    /* Кастомная стилизация календаря Flatpickr */
+    .flatpickr-calendar.dark {
+        background: #0a0a1a !important; /* bg-space-800 */
+        border: 1px solid rgba(168, 85, 247, 0.3) !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.7) !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    .flatpickr-calendar.dark .flatpickr-day.selected, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange, 
+    .flatpickr-calendar.dark .flatpickr-day.selected.inRange, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange.inRange, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange.inRange, 
+    .flatpickr-calendar.dark .flatpickr-day.selected:focus, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange:focus, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange:focus, 
+    .flatpickr-calendar.dark .flatpickr-day.selected:hover, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange:hover, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange:hover, 
+    .flatpickr-calendar.dark .flatpickr-day.selected.prevMonthDay, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange.prevMonthDay, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange.prevMonthDay, 
+    .flatpickr-calendar.dark .flatpickr-day.selected.nextMonthDay, 
+    .flatpickr-calendar.dark .flatpickr-day.startRange.nextMonthDay, 
+    .flatpickr-calendar.dark .flatpickr-day.endRange.nextMonthDay {
+        background: #a855f7 !important; /* neon-purple */
+        border-color: #a855f7 !important;
     }
     
     /* 3D Карты */
@@ -1369,6 +1402,13 @@
 
         loadShopItems();
         loadLunarCalendar();
+        flatpickr("#astro-date, #edit-birthdate, #edit-birthdate-only", {
+              locale: "ru",
+              dateFormat: "Y-m-d",
+              disableMobile: false, // Оставляет нативный барабан на телефонах!
+              maxDate: "today",
+              theme: "dark"
+          });
     }
 
     async function claimDailyBonus() {
