@@ -6988,17 +6988,20 @@ const characters = [
     </div>
 
     <!-- ==================== 7. SHOP SCREEN ==================== -->
-    <div id="screen-shop" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar">
-        <div class="px-5 pt-8 pb-6 text-center">
-            <h1 class="text-3xl font-mystic text-white font-bold mb-2">Магазин</h1>
-            <p class="text-white/50 text-sm max-w-[250px] mx-auto">Энергия нужна для создания раскладов и общения с ИИ</p>
+    <div id="screen-shop" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar relative">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-64 bg-[radial-gradient(ellipse_at_top,_rgba(168,85,247,0.15),_transparent_70%)] pointer-events-none"></div>
+
+        <div class="px-5 pt-10 pb-6 text-center relative z-10">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-space-800 border border-white/10 shadow-[0_0_30px_rgba(168,85,247,0.2)] mb-4 relative">
+                <div class="absolute inset-0 bg-gradient-to-b from-neon-fuchsia/20 to-transparent rounded-full animate-pulse-slow"></div>
+                <i class="ph-fill ph-lightning text-3xl text-transparent bg-clip-text bg-gradient-to-b from-white to-neon-fuchsia"></i>
+            </div>
+            <h1 class="text-4xl font-mystic text-white font-bold mb-2">Энергия Звезд</h1>
+            <p class="text-white/50 text-xs max-w-[240px] mx-auto leading-relaxed">Кристаллы чистой энергии для глубоких раскладов и общения с Оракулом</p>
         </div>
 
-        <div id="shop-items-container" class="px-5 space-y-4">
-            <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
-            <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
-            <div class="w-full h-24 glass bg-space-800 rounded-[24px] animate-pulse"></div>
-        </div>
+        <div id="shop-items-container" class="px-5 space-y-5 relative z-10">
+            </div>
     </div>
 
     <!-- ==================== 8. PROFILE SCREEN ==================== -->
@@ -7563,56 +7566,73 @@ const characters = [
             container.innerHTML = '';
             
             data.items.forEach((item, index) => {
-                const styles = [
+                // Премиальные стили по уровням (Тирам)
+                const tiers = [
                     {
-                        glow: 'hover:shadow-[0_0_30px_rgba(251,191,36,0.15)]',
-                        border: 'border-white/5 hover:border-neon-amber/30',
-                        icon: 'bg-neon-amber/10 text-neon-amber border-neon-amber/20',
-                        price: 'bg-white/5 text-white group-hover:bg-white/10'
+                        gradient: 'from-neon-cyan/50 to-neon-indigo/50',
+                        textGrad: 'from-neon-cyan to-neon-indigo',
+                        badge: null,
+                        shadow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]'
                     },
                     {
-                        glow: 'shadow-[0_0_20px_rgba(99,102,241,0.1)] hover:shadow-[0_0_40px_rgba(99,102,241,0.25)]',
-                        border: 'border-neon-indigo/30 hover:border-neon-indigo/50',
-                        icon: 'bg-neon-indigo/20 text-neon-indigo border-neon-indigo/30',
-                        price: 'bg-neon-indigo text-white shadow-lg shadow-neon-indigo/20'
+                        gradient: 'from-neon-fuchsia/60 to-neon-purple/60',
+                        textGrad: 'from-neon-fuchsia to-neon-purple',
+                        badge: 'ХИТ',
+                        shadow: 'shadow-[0_0_30px_rgba(232,121,249,0.25)]'
                     },
                     {
-                        glow: 'hover:shadow-[0_0_30px_rgba(232,121,249,0.15)]',
-                        border: 'border-white/5 hover:border-neon-fuchsia/40',
-                        icon: 'bg-neon-fuchsia/10 text-neon-fuchsia border-neon-fuchsia/20',
-                        price: 'bg-white/5 text-white group-hover:bg-white/10'
+                        gradient: 'from-neon-amber/60 to-orange-500/60',
+                        textGrad: 'from-neon-amber to-orange-400',
+                        badge: 'ВЫГОДА',
+                        shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]'
                     }
                 ];
 
-                const style = styles[index % styles.length];
+                const tier = tiers[index % tiers.length];
+                
+                // Генерируем парящий бейдж, если он есть у тира
+                const badgeHTML = tier.badge ? 
+                    `<div class="absolute -top-3 right-4 bg-gradient-to-r ${tier.textGrad} px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg border border-white/20 z-20">${tier.badge}</div>` 
+                    : '';
 
+                // Собираем карточку с 1px градиентной рамкой и глубоким блюром
                 const itemHTML = `
-                    <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="w-full text-left relative glass bg-space-800 ${style.border} ${style.glow} rounded-[24px] p-6 mb-4 flex items-center justify-between group active:scale-[0.98] transition-all duration-300 overflow-hidden">
-                        <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300 pointer-events-none"></div>
-                        <div class="flex items-center gap-5 relative z-10">
-                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border ${style.icon} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                <i class="ph-fill ph-lightning text-3xl drop-shadow-md"></i>
+                    <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="relative w-full p-[1px] rounded-[24px] overflow-visible group active:scale-[0.98] transition-all duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-r ${tier.gradient} rounded-[24px] opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        ${badgeHTML}
+
+                        <div class="relative bg-space-900/95 backdrop-blur-xl rounded-[23px] p-5 flex items-center justify-between ${tier.shadow} group-hover:bg-space-900/80 transition-colors h-full">
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-space-800 border border-white/10 flex items-center justify-center relative shrink-0 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-b ${tier.gradient} opacity-20"></div>
+                                    <i class="ph-fill ph-lightning text-2xl text-transparent bg-clip-text bg-gradient-to-b ${tier.textGrad}"></i>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-white font-mystic text-3xl font-bold leading-none tracking-wide">${item.amount}</div>
+                                    <div class="text-white/40 text-[10px] tracking-widest uppercase mt-1 font-semibold">Энергии</div>
+                                </div>
                             </div>
-                            <div class="flex items-baseline gap-1.5">
-                                <h3 class="text-white font-black text-2xl md:text-3xl tracking-wide">${item.amount}</h3>
-                                <span class="text-white/50 text-sm font-medium">Энергии</span>
+
+                            <div class="shrink-0 bg-space-800 border border-white/10 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
+                                <span class="text-white">${item.price_stars}</span>
+                                <i class="ph-fill ph-star text-neon-amber text-base drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"></i>
                             </div>
-                        </div>
-                        <div class="shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors duration-300 pointer-events-none relative z-10 ${style.price}">
-                            ${item.price_stars} <i class="ph-fill ph-star text-neon-amber text-base drop-shadow-sm"></i>
                         </div>
                     </button>
                 `;
                 container.innerHTML += itemHTML;
             });
         } else {
+            // Элегантная заглушка, если товаров пока нет
             container.innerHTML = `
-                <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center">
-                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center mt-10">
+                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
                         <i class="ph-fill ph-storefront text-3xl text-white/30"></i>
                     </div>
-                    <h3 class="text-white font-bold text-lg mb-1">Магазин пуст</h3>
-                    <p class="text-white/40 text-sm">Звезды пока не готовы к обмену.</p>
+                    <h3 class="text-white font-bold text-lg mb-1">Витрина пуста</h3>
+                    <p class="text-white/40 text-sm">Кристаллы энергии еще формируются...</p>
                 </div>`;
         }
     }
