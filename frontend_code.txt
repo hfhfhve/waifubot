@@ -8266,29 +8266,35 @@ const characters = [
 
         // Открываем модалку
         openModal('daily-bonus');
-    }
-
-    if (data.success) {
-            userBalance.energy = data.energy;
-            userBalance.streak = data.streak || 0;
-            updateBalanceUI();
-            
-            showToast(`+${data.bonus_amount} энергии твои!`, "ph-lightning");
-            
-            // Обновляем визуал баннера на главной (делаем серым)
-            updateBonusBannerState();
-
-            // Перерисовываем модалку с новыми данными (чтобы кнопка сменилась на галочку)
-            setTimeout(() => {
-                openDailyBonusModal();
-            }, 500);
-            
-        } else if (data.message === "already_claimed") {
-            showToast("Уже собрано!", "ph-warning-circle");
-        } else {
-            showToast("Ошибка связи со звездами", "ph-warning-circle");
         }
-    }
+
+        // === ВОТ ЗДЕСЬ МЫ ДЕЛАЕМ ПРАВИЛЬНОЕ ОБЪЯВЛЕНИЕ ФУНКЦИИ ===
+        async function claimDailyBonusReward() {
+            showToast("Связываемся со звездами...", "ph-spinner animate-spin");
+            
+            const data = await apiRequest("/bonus/claim", "POST");
+            
+            if (data.success) {
+                userBalance.energy = data.energy;
+                userBalance.streak = data.streak || 0;
+                updateBalanceUI();
+                
+                showToast(`+${data.bonus_amount} энергии твои!`, "ph-lightning");
+                
+                // Обновляем визуал баннера на главной (делаем серым)
+                updateBonusBannerState();
+
+                // Перерисовываем модалку с новыми данными
+                setTimeout(() => {
+                    openDailyBonusModal();
+                }, 500);
+                
+            } else if (data.message === "already_claimed") {
+                showToast("Уже собрано!", "ph-warning-circle");
+            } else {
+                showToast("Ошибка связи со звездами", "ph-warning-circle");
+            }
+        }
 
     async function saveBirthDateOnly() {
         const d = document.getElementById('edit-day').value;
