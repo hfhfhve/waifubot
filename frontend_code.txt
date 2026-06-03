@@ -7223,104 +7223,102 @@ const characters = [
     <!-- ==================== ПОЛНОЭКРАННАЯ МОДАЛКА КАРТЫ ДНЯ ==================== -->
     <div id="modal-daily-card" class="fixed inset-0 z-[100] hidden opacity-0 transition-opacity duration-300 bg-[#02020a] overflow-y-auto hide-scrollbar flex flex-col">
         <!-- Звездный фон и неоновые туманности -->
-        <div class="fixed inset-0 stars-bg opacity-30 pointer-events-none z-0"></div>
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,_rgba(168,85,247,0.18),_rgba(99,102,241,0.05),_transparent_70%)] pointer-events-none z-0"></div>
+        <div class="fixed inset-0 stars-bg opacity-40 pointer-events-none z-0"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,_rgba(168,85,247,0.18),_transparent_75%)] pointer-events-none z-0"></div>
     
-        <!-- ВЕРХНИЙ НАВИГАЦИОННЫЙ БАР (Очевидная и крупная кнопка выхода) -->
-        <div class="sticky top-0 inset-x-0 glass-strong px-5 py-4 flex justify-between items-center z-50 bg-space-900/90 backdrop-blur-xl border-b border-white/5 shadow-lg">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-neon-amber/10 flex items-center justify-center border border-neon-amber/20 shadow-[0_0_10px_rgba(251,191,36,0.2)]">
-                    <i class="ph-fill ph-moon text-neon-amber text-sm animate-pulse-slow"></i>
-                </div>
-                <div>
-                    <p id="modal-lunar-phase" class="text-neon-amber text-[10px] font-black uppercase tracking-[0.15em] leading-none mb-1">Загрузка эфира...</p>
-                    <h3 id="modal-daily-card-name" class="text-white font-mystic font-bold text-xl leading-none tracking-wide">Название Карты</h3>
-                </div>
-            </div>
-            <!-- Крупная, контрастная кнопка закрытия -->
-            <button onclick="closeDailyModal()" class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-space-800 border-2 border-neon-rose/40 text-white hover:border-neon-rose/80 active:scale-95 transition-all shadow-[0_4px_15px_rgba(251,113,133,0.15)] group shrink-0">
-                <span class="text-xs font-black uppercase tracking-widest text-white/90 group-hover:text-white">Назад</span>
-                <i class="ph-bold ph-caret-right text-base text-neon-rose group-hover:translate-x-0.5 transition-transform"></i>
+        <!-- Шапка экрана с Крупной Навигацией -->
+        <div class="sticky top-0 inset-x-0 px-5 py-4 flex justify-between items-center z-50 bg-[#03030b]/90 backdrop-blur-xl border-b border-white/5 shadow-lg">
+            <button onclick="closeDailyModal()" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 active:scale-95 transition-all shadow-md group">
+                <i class="ph-bold ph-caret-left text-lg text-neon-rose group-hover:-translate-x-0.5 transition-transform"></i>
+                <span class="text-xs font-black uppercase tracking-wider">Назад</span>
             </button>
+            <div class="text-right">
+                <p id="modal-lunar-phase" class="text-neon-amber text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1">Убывающая луна</p>
+                <p class="text-white/40 text-[8px] uppercase tracking-widest font-bold">Энергия суток</p>
+            </div>
         </div>
     
-        <!-- ОСНОВНОЙ КОНТЕНТ -->
-        <div class="flex-1 w-full max-w-md mx-auto px-5 pt-4 pb-16 flex flex-col items-center relative z-10">
+        <!-- Основной Контентный Свиток -->
+        <div class="flex-1 w-full max-w-md mx-auto px-5 pt-6 pb-20 flex flex-col items-center relative z-10">
             
-            <!-- Лоадер настройки астрала -->
-            <div id="daily-reading-loader" class="absolute inset-x-0 top-24 bottom-0 flex flex-col items-center justify-center hidden bg-[#02020a]/95 z-40 backdrop-blur-md">
-                <div class="relative w-16 h-16 mb-4 flex items-center justify-center">
-                    <div class="absolute inset-0 border-4 border-neon-indigo/20 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-t-neon-fuchsia rounded-full animate-spin"></div>
-                </div>
-                <p class="text-sm font-mystic text-white/70 italic tracking-wide">Оракул настраивает астральные частоты...</p>
+            <!-- Лоадер частот -->
+            <div id="daily-reading-loader" class="absolute inset-0 flex flex-col items-center justify-center hidden bg-[#02020a]/95 z-40 backdrop-blur-md">
+                <i class="ph-fill ph-spinner animate-spin text-4xl text-neon-indigo mb-4"></i>
+                <p class="text-sm font-mystic text-white/70 italic">Оракул настраивает астральные частоты...</p>
             </div>
     
-            <!-- Интерфейс призыва (Если карта еще не вытянута) -->
+            <!-- Блок интерактива (До того как вытянули карту) -->
             <div id="modal-daily-placeholder" class="py-20 flex flex-col items-center text-center my-auto">
-                <div class="w-20 h-20 rounded-full bg-gradient-to-b from-neon-indigo/20 to-transparent flex items-center justify-center border border-neon-indigo/30 shadow-[0_0_40px_rgba(99,102,241,0.2)] mb-6 animate-float">
+                <div class="w-20 h-20 rounded-full bg-neon-indigo/10 border border-neon-indigo/20 flex items-center justify-center mb-6 animate-pulse-slow">
                     <i class="ph-fill ph-sparkle text-4xl text-neon-indigo"></i>
                 </div>
-                <p class="text-lg font-mystic text-white/90 mb-8 px-6 leading-relaxed">
-                    Звезды сошлись в твоей точке пространства.<br>
-                    <span class="italic text-white/50 text-sm">Коснись эфира, чтобы достать свою Карту Дня.</span>
-                </p>
-                <button id="btn-pull-daily" onclick="processDailyCard()" class="w-64 bg-gradient-to-r from-neon-indigo via-neon-purple to-neon-fuchsia text-white font-black py-4 rounded-2xl shadow-[0_10px_35px_rgba(168,85,247,0.4)] hover:shadow-[0_10px_45px_rgba(232,121,249,0.5)] border border-white/20 active:scale-95 transition-all text-xs tracking-[0.2em] uppercase">
-                    Вытянуть карту дня
+                <p class="text-xl font-mystic text-white font-bold mb-3 px-4">Звезды сошлись в твоей точке пространства</p>
+                <p class="text-xs text-white/50 max-w-xs leading-relaxed mb-8">Коснись эфира, чтобы Оракул вытянул твой персональный Аркан и составил ментальный план на эти сутки.</p>
+                <button id="btn-pull-daily" onclick="processDailyCard()" class="w-64 bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-black py-4 rounded-2xl shadow-[0_10px_30px_rgba(99,102,241,0.4)] active:scale-95 transition-all text-xs tracking-widest uppercase border border-white/10">
+                    Вытянуть карту
                 </button>
             </div>
     
-            <!-- Блок с результатами (Когда карта открыта) -->
-            <div id="daily-result-block" class="w-full flex flex-col items-center hidden">
+            <!-- Блок Результата (Отображается после открытия карты) -->
+            <div id="daily-result-block" class="w-full flex flex-col items-center hidden animate-fade-in">
                 
-                <!-- ОГРОМНАЯ 3D КАРТА (Размер увеличен, добавлены мощные тени) -->
-                <div id="daily-modal-card-3d" class="card-3d relative w-64 aspect-[2/3] my-6 z-10">
+                <!-- Динамическое Название Аркана -->
+                <div class="text-center mb-6">
+                    <h1 id="modal-daily-card-name" class="text-3xl font-mystic font-black text-white tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">Император</h1>
+                    <p class="text-neon-purple text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Главный Проводник Дня</p>
+                </div>
+    
+                <!-- Увеличенная 3D Карта с глубоким неоновым свечением -->
+                <div id="daily-modal-card-3d" class="card-3d relative w-64 aspect-[2/3] mb-8 z-10">
                     <!-- Рубашка -->
-                    <div class="card-front absolute inset-0 rounded-[24px] overflow-hidden border-2 border-white/10 bg-gradient-to-b from-space-800 to-space-900 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.9),_0_0_30px_rgba(168,85,247,0.1)]">
-                        <div class="absolute inset-4 border border-dashed border-white/5 rounded-[18px]"></div>
-                        <i class="ph-fill ph-question text-6xl text-white/10 animate-pulse"></i>
+                    <div class="card-front absolute inset-0 rounded-[24px] overflow-hidden border-2 border-white/10 bg-space-800 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
+                        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/30 via-space-900 to-black"></div>
+                        <i class="ph-fill ph-sparkle text-5xl text-white/20 animate-pulse"></i>
                     </div>
-                    <!-- Лицо карты -->
-                    <div class="card-back absolute inset-0 rounded-[24px] overflow-hidden border-2 border-neon-amber/40 shadow-[0_0_40px_rgba(251,191,36,0.3)]">
-                        <img id="modal-card-img" src="" alt="Карта дня" class="w-full h-full object-cover">
-                    </div>
-                </div>
-    
-                <!-- ИНФО-ПАНЕЛЬ МЕТРИК (Стильный трехколоночный грид) -->
-                <div id="daily-modal-stats" class="w-full grid grid-cols-3 gap-3 mb-8 opacity-0 transition-opacity duration-700">
-                    <!-- Удачный час -->
-                    <div class="glass bg-space-800/40 rounded-2xl p-3.5 text-center border border-white/5 shadow-inner">
-                        <div class="w-7 h-7 rounded-full bg-neon-cyan/10 flex items-center justify-center mx-auto mb-1.5 border border-neon-cyan/20">
-                            <i class="ph-fill ph-clock text-neon-cyan text-sm"></i>
-                        </div>
-                        <p class="text-[9px] text-white/40 uppercase font-black tracking-wider">Удачный час</p>
-                        <p id="stat-time" class="text-xs text-white font-bold mt-0.5">--:--</p>
-                    </div>
-                    <!-- Стихия -->
-                    <div class="glass bg-space-800/40 rounded-2xl p-3.5 text-center border border-white/5 shadow-inner">
-                        <div class="w-7 h-7 rounded-full bg-neon-rose/10 flex items-center justify-center mx-auto mb-1.5 border border-neon-rose/20">
-                            <i id="stat-element-icon" class="ph-fill ph-fire text-neon-rose text-sm"></i>
-                        </div>
-                        <p class="text-[9px] text-white/40 uppercase font-black tracking-wider">Стихия</p>
-                        <p id="stat-element" class="text-xs text-white font-bold mt-0.5">---</p>
-                    </div>
-                    <!-- Частота вибрации -->
-                    <div class="glass bg-space-800/40 rounded-2xl p-3.5 text-center border border-white/5 shadow-inner">
-                        <div class="w-7 h-7 rounded-full bg-neon-fuchsia/10 flex items-center justify-center mx-auto mb-1.5 border border-neon-fuchsia/20">
-                            <i class="ph-fill ph-wave-sine text-neon-fuchsia text-sm animate-pulse"></i>
-                        </div>
-                        <p class="text-[9px] text-white/40 uppercase font-black tracking-wider">Вибрация</p>
-                        <p id="stat-frequency" class="text-xs text-neon-fuchsia font-black mt-0.5">528 Hz</p>
+                    <!-- Лицо Карты -->
+                    <div class="card-back absolute inset-0 rounded-[24px] overflow-hidden border border-neon-amber/40 shadow-[0_0_40px_rgba(251,191,36,0.2)]">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+                        <img id="modal-card-img" src="" alt="Карта Дня" class="w-full h-full object-cover">
                     </div>
                 </div>
     
-                <!-- ТЕКСТ ПОСЛАНИЯ (Стилизованный под аккуратный свиток) -->
-                <div class="w-full glass bg-space-800/30 rounded-[28px] p-6 border border-white/5 shadow-2xl relative overflow-hidden backdrop-blur-md">
-                    <div class="absolute -top-24 -left-24 w-48 h-48 bg-neon-indigo/5 rounded-full blur-3xl pointer-events-none"></div>
-                    <div id="modal-daily-text" class="text-white/80 text-sm leading-relaxed space-y-6 font-light prose prose-invert max-w-none">
-                        <!-- Сюда ИИ рендерит HTML-структуру (Распорядок дня, че да как, туда сюда) -->
+                <!-- Сетка Астральных Метрик ("Космический Резонанс") -->
+                <div id="daily-modal-stats" class="w-full grid grid-cols-4 gap-2 mb-8 opacity-0 transition-opacity duration-700">
+                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
+                        <i class="ph-fill ph-clock text-neon-cyan text-base mb-1"></i>
+                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider">Час Силы</p>
+                        <p id="stat-time" class="text-[11px] text-white font-black mt-0.5 whitespace-nowrap">--:--</p>
+                    </div>
+                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
+                        <i class="ph-fill ph-fire text-neon-rose text-base mb-1" id="stat-element-icon"></i>
+                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider">Стихия</p>
+                        <p id="stat-element" class="text-[11px] text-white font-black mt-0.5">---</p>
+                    </div>
+                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
+                        <i class="ph-fill ph-wave-sine text-neon-fuchsia text-base mb-1 animate-pulse"></i>
+                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider">Вибрация</p>
+                        <p id="stat-frequency" class="text-[11px] text-neon-fuchsia font-black mt-0.5">---</p>
+                    </div>
+                    <!-- Четвертый новый прикольный параметр: Индекс Синхронизации с Космосом -->
+                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
+                        <i class="ph-fill ph-lightning text-neon-amber text-base mb-1"></i>
+                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider">Сонастрой</p>
+                        <p id="stat-sync" class="text-[11px] text-neon-amber font-black mt-0.5">98%</p>
                     </div>
                 </div>
+    
+                <!-- Разделительная линия -->
+                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+    
+                <!-- Контейнер для ИИ Текста (Инъекция HTML из бэкенда) -->
+                <div id="modal-daily-text" class="w-full text-white/85 text-sm leading-relaxed space-y-6 font-light pb-12 content-daily-markdown">
+                    <!-- Сюда залетает структурированный астральный распорядок -->
+                </div>
+                
+                <!-- Дополнительная жирная кнопка выхода снизу, чтобы не тянуться наверх -->
+                <button onclick="closeDailyModal()" class="w-full py-4 rounded-2xl glass bg-white/5 border border-white/10 text-white/60 hover:text-white font-bold text-xs tracking-widest uppercase active:scale-[0.98] transition-all">
+                    Вернуться в созвездия
+                </button>
     
             </div>
         </div>
@@ -8191,28 +8189,39 @@ const characters = [
 
     function openDailyCardModal() {
         const modal = document.getElementById('modal-daily-card');
-        const content = document.getElementById('daily-modal-content');
-        
         modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }, 10);
+        
+        // Синхронизируем название фазы луны с главной страницы
+        const mainLunarPhase = document.getElementById('lunar-phase-type');
+        if (mainLunarPhase) {
+            document.getElementById('modal-lunar-phase').textContent = mainLunarPhase.textContent;
+        }
 
-        if (dailyCardDataCache) setupOpenedCardUI(dailyCardDataCache);
+        setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
+    
+        if (dailyCardDataCache) {
+            setupOpenedCardUI(dailyCardDataCache);
+        } else {
+            document.getElementById('modal-daily-placeholder').classList.remove('hidden');
+            document.getElementById('daily-result-block').classList.add('hidden');
+            
+            // Сбрасываем 3D карту при новом открытии
+            document.getElementById('daily-modal-card-3d').classList.remove('flipped');
+        }
     }
 
     function closeDailyModal() {
         const modal = document.getElementById('modal-daily-card');
-        const content = document.getElementById('daily-modal-content');
-        
         modal.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        setTimeout(() => { 
+            modal.classList.add('hidden');
+            // При закрытии скроллим модалку обратно наверх, чтобы при следующем открытии она была готова
+            modal.scrollTop = 0;
+        }, 300);
     }
 
+
     async function processDailyCard() {
-        document.getElementById('btn-pull-daily').classList.add('hidden');
         document.getElementById('modal-daily-placeholder').classList.add('hidden');
         document.getElementById('daily-reading-loader').classList.remove('hidden');
         
@@ -8222,10 +8231,9 @@ const characters = [
             dailyCardDataCache = data.card; 
             setupOpenedCardUI(data.card);
             updateHomeWidget(data.card);
-            showToast('Карта дня открыта!', 'ph-stars');
+            showToast('Послание Звезд получено!', 'ph-sparkle');
         } else {
-            showToast('Связь со звездами прервалась.', 'ph-warning-circle');
-            document.getElementById('btn-pull-daily').classList.remove('hidden');
+            showToast('Не удалось установить ментальную связь', 'ph-warning-circle');
             document.getElementById('daily-reading-loader').classList.add('hidden');
             document.getElementById('modal-daily-placeholder').classList.remove('hidden');
         }
@@ -8234,24 +8242,32 @@ const characters = [
     function setupOpenedCardUI(cardData) {
         document.getElementById('daily-reading-loader').classList.add('hidden');
         document.getElementById('modal-daily-placeholder').classList.add('hidden');
-        document.getElementById('btn-pull-daily').classList.add('hidden');
-        
+        document.getElementById('daily-result-block').classList.remove('hidden');
+
+        document.getElementById('modal-daily-card-name').textContent = cardData.name;
         document.getElementById('modal-daily-text').innerHTML = DOMPurify.sanitize(cardData.interpretation);
-        document.getElementById('modal-daily-text').classList.remove('hidden');
 
         document.getElementById('modal-card-img').src = cardData.image;
-        document.getElementById('daily-modal-card-3d').classList.add('flipped');
+        
+        // Добавляем класс flipped для 3D переворота
+        document.getElementById('daily-modal-card-3d').classList.add('group', 'flipped');
 
         const stats = generateCardStats(cardData.id);
         document.getElementById('stat-time').textContent = stats.time;
         document.getElementById('stat-element').textContent = stats.element.name;
         
+        // НОВАЯ ФИЧА: Кристалл-талисман дня в зависимости от карты
+        const crystals = ["Аметист", "Розовый кварц", "Обсидиан", "Цитрин", "Лазурит", "Тигровый глаз", "Лунный камень", "Малахит", "Гранат"];
+        document.getElementById('stat-crystal').textContent = crystals[cardData.id % crystals.length];
+        
         const elIcon = document.getElementById('stat-element-icon');
-        elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-sm mb-0.5`;
-
-        document.getElementById('daily-modal-stats').classList.remove('opacity-0');
+        elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-xl mb-1.5`;
+    
+        // Плавно показываем блок со статами
+        const statsContainer = document.getElementById('daily-modal-stats');
+        statsContainer.classList.remove('opacity-0');
+        statsContainer.classList.add('opacity-100');
     }
-
     function updateHomeWidget(cardData) {
         document.getElementById('home-daily-icon').classList.add('hidden');
         const thumbImg = document.getElementById('home-daily-img');
