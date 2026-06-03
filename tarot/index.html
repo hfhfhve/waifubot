@@ -1493,24 +1493,46 @@
     // ==================== LUNAR CALENDAR ====================
     async function loadLunarCalendar() {
         const data = await apiRequest("/calendar/today", "GET");
-        if (data.success) {
-            const iconEl = document.getElementById('lunar-icon');
-            if (iconEl) iconEl.className = `ph-fill ${data.icon} text-5xl text-neon-indigo mb-3 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]`;
+        if (data.success && data.forecast) {
+            const f = data.forecast;
             
-            const phaseName = document.getElementById('lunar-phase-name');
-            if (phaseName) phaseName.textContent = data.phase_name;
+            // 1. Шапка лунного дня
+            document.getElementById('lunar-day-number').textContent = f.lunar_day || '--';
+            document.getElementById('lunar-phase-type').textContent = f.phase_type || 'Неизвестно';
+            document.getElementById('lunar-title').textContent = f.title || 'День';
+            document.getElementById('lunar-subtitle').textContent = f.subtitle || '';
+            document.getElementById('lunar-description').textContent = f.description || '';
+
+            // 2. Списки "Хорошо сегодня" и "Воздержись"
+            const dosList = document.getElementById('lunar-dos');
+            dosList.innerHTML = (f.dos || []).map(item => 
+                `<li class="flex items-start gap-2 text-white/80"><i class="ph-bold ph-check text-green-400 mt-0.5 shrink-0"></i> <span>${item}</span></li>`
+            ).join('');
             
-            const phaseDesc = document.getElementById('lunar-phase-desc');
-            if (phaseDesc) phaseDesc.textContent = data.phase_desc;
+            const dontsList = document.getElementById('lunar-donts');
+            dontsList.innerHTML = (f.donts || []).map(item => 
+                `<li class="flex items-start gap-2 text-white/80"><i class="ph-bold ph-x text-red-400 mt-0.5 shrink-0"></i> <span>${item}</span></li>`
+            ).join('');
+
+            // 3. Красота и Тело
+            if (f.beauty) {
+                document.getElementById('beauty-haircut').textContent = f.beauty.haircut || '—';
+                document.getElementById('beauty-coloring').textContent = f.beauty.coloring || '—';
+                document.getElementById('beauty-manicure').textContent = f.beauty.manicure || '—';
+                document.getElementById('beauty-face').textContent = f.beauty.face_care || '—';
+            }
+
+            // 4. Персональный Гороскоп
+            const signName = document.getElementById('horoscope-sign-name');
+            if (signName) signName.textContent = data.zodiac || 'Знак';
             
-            const r = data.recommendations;
-            if (r) {
-                const haircutEl = document.getElementById('lunar-haircut');
-                if (haircutEl) { haircutEl.textContent = r.haircut.status; haircutEl.className = `text-xs font-bold ${r.haircut.color}`; }
-                const conflictEl = document.getElementById('lunar-conflict');
-                if (conflictEl) { conflictEl.textContent = r.conflict.status; conflictEl.className = `text-xs font-bold ${r.conflict.color}`; }
-                const financeEl = document.getElementById('lunar-finance');
-                if (financeEl) { financeEl.textContent = r.finance.status; financeEl.className = `text-xs font-bold ${r.finance.color}`; }
+            const hText = document.getElementById('horoscope-text');
+            if (hText) hText.innerHTML = data.horoscope || 'Нет данных.';
+            
+            const hDate = document.getElementById('horoscope-date');
+            if (hDate) {
+                const dOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                hDate.textContent = new Date().toLocaleDateString('ru-RU', dOptions);
             }
         }
     }
@@ -1929,12 +1951,15 @@
         document.getElementById('stat-time').textContent = stats.time;
         document.getElementById('stat-element').textContent = stats.element.name;
         
-        // НОВАЯ ФИЧА: Кристалл-талисман дня в зависимости от карты
-        const crystals = ["Аметист", "Розовый кварц", "Обсидиан", "Цитрин", "Лазурит", "Тигровый глаз", "Лунный камень", "Малахит", "Гранат"];
-        document.getElementById('stat-crystal').textContent = crystals[cardData.id % crystals.length];
+        // Заполняем твои новые параметры: Вибрация и Сонастрой
+        const frequencies = ["432 Hz", "528 Hz", "639 Hz", "741 Hz", "852 Hz"];
+        const syncs = ["92%", "95%", "98%", "99%", "100%"];
+        
+        document.getElementById('stat-frequency').textContent = frequencies[cardData.id % frequencies.length];
+        document.getElementById('stat-sync').textContent = syncs[cardData.id % syncs.length];
         
         const elIcon = document.getElementById('stat-element-icon');
-        elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-xl mb-1.5`;
+        elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-base mb-1`;
     
         // Плавно показываем блок со статами
         const statsContainer = document.getElementById('daily-modal-stats');
