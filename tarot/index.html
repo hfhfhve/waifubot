@@ -367,18 +367,21 @@
 
         <!-- Баннер -->
         <div class="px-5 mb-8">
-            <button id="daily-bonus-btn" onclick="openDailyBonusModal()" class="w-full bg-gradient-to-r from-space-800 to-space-700 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-fuchsia/20 blur-xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
-                <div class="flex items-center gap-3 relative z-10">
-                    <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30">
-                        <i class="ph-fill ph-gift text-neon-fuchsia text-lg"></i>
+            <button id="daily-bonus-btn" onclick="openDailyBonusModal()" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-white/5 hover:border-neon-fuchsia/30 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
+                <div id="daily-bonus-glow" class="absolute -right-4 -top-4 w-20 h-20 bg-neon-fuchsia/20 blur-2xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div id="daily-bonus-icon-bg" class="w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30 shadow-inner shrink-0 transition-colors">
+                        <i id="daily-bonus-icon" class="ph-fill ph-gift text-neon-fuchsia text-xl animate-pulse"></i>
                     </div>
                     <div class="text-left">
-                        <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Ежедневный бонус</p>
-                        <p id="daily-bonus-text" class="text-white font-bold text-sm leading-none italic">Забери свои +5 энергии</p>
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none">Ежедневный бонус</p>
+                            <span id="daily-bonus-badge" class="bg-neon-fuchsia/20 text-neon-fuchsia border border-neon-fuchsia/30 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider hidden">ДЕНЬ 1</span>
+                        </div>
+                        <p id="daily-bonus-text" class="text-white font-bold text-sm leading-none">Заходи каждый день</p>
                     </div>
                 </div>
-                <i class="ph ph-arrow-right text-white/30 relative z-10"></i>
+                <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
             </button>
         </div>
 
@@ -998,7 +1001,7 @@
                 </div>
     
                 <!-- Увеличенная 3D Карта с глубоким неоновым свечением -->
-                <div id="daily-modal-card-3d" class="card-3d relative w-64 aspect-[2/3] mb-8 z-10">
+                <div id="daily-modal-card-3d" class="card-3d relative w-[55vw] max-w-[220px] aspect-[2/3] mb-5 z-10 mx-auto group">
                     <!-- Рубашка -->
                     <div class="card-front absolute inset-0 rounded-[24px] overflow-hidden border-2 border-white/10 bg-space-800 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
                         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/30 via-space-900 to-black"></div>
@@ -1012,7 +1015,7 @@
                 </div>
     
                 <!-- Сетка Астральных Метрик ("Космический Резонанс") -->
-                <div id="daily-modal-stats" class="w-full grid grid-cols-4 gap-2 mb-8 opacity-0 transition-opacity duration-700">
+                <div id="daily-modal-stats" class="w-full grid grid-cols-4 gap-2 mb-5 opacity-0 transition-opacity duration-700">
                     <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
                         <i class="ph-fill ph-clock text-neon-cyan text-base mb-1"></i>
                         <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider">Час Силы</p>
@@ -1037,7 +1040,7 @@
                 </div>
     
                 <!-- Разделительная линия -->
-                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
     
                 <!-- Контейнер для ИИ Текста (Инъекция HTML из бэкенда) -->
                 <div id="modal-daily-text" class="w-full text-white/85 text-sm leading-relaxed space-y-6 font-light pb-12 content-daily-markdown">
@@ -1812,7 +1815,8 @@
             // Загружаем магазин и календарь параллельно, дожидаясь их выполнения
             await Promise.all([
                 loadShopItems(),
-                loadLunarCalendar()
+                loadLunarCalendar(),
+                updateBonusBannerState() // <--- ДОБАВИЛИ СЮДА
             ]);
     
             // Когда ВСЁ готово — убираем лоадер
@@ -1828,6 +1832,38 @@
             
             showMaintenanceScreen();
             hideAppLoader();
+        }
+    }
+
+    async function updateBonusBannerState() {
+        // Запрашиваем инфу о бонусах в фоне
+        const data = await apiRequest("/bonus/info", "GET");
+        if (data && data.success) {
+            const text = document.getElementById('daily-bonus-text');
+            const badge = document.getElementById('daily-bonus-badge');
+            const iconBg = document.getElementById('daily-bonus-icon-bg');
+            const icon = document.getElementById('daily-bonus-icon');
+            const glow = document.getElementById('daily-bonus-glow');
+
+            // Показываем какой сегодня день
+            badge.textContent = `ДЕНЬ ${data.cycle_day}`;
+            badge.classList.remove('hidden');
+
+            if (data.claimed_today) {
+                // Если забрано - делаем серым и спокойным
+                text.textContent = "Собран до завтра";
+                text.className = "text-white/50 font-bold text-sm leading-none";
+                iconBg.className = "w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shadow-inner shrink-0 transition-colors";
+                icon.className = "ph-bold ph-check text-white/40 text-xl";
+                glow.classList.add('hidden');
+            } else {
+                // Если не забрано - делаем ярким и призывным
+                text.textContent = "Забери награду сейчас!";
+                text.className = "text-white font-bold text-sm leading-none";
+                iconBg.className = "w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30 shadow-inner shrink-0 transition-colors";
+                icon.className = "ph-fill ph-gift text-neon-fuchsia text-xl animate-pulse";
+                glow.classList.remove('hidden');
+            }
         }
     }
 
@@ -1905,23 +1941,15 @@
         openModal('daily-bonus');
     }
 
-    async function claimDailyBonusReward() {
-        showToast("Забираем энергию...", "ph-spinner animate-spin");
-        
-        const data = await apiRequest("/bonus/claim", "POST");
-        
-        if (data.success) {
+    if (data.success) {
             userBalance.energy = data.energy;
             userBalance.streak = data.streak || 0;
             updateBalanceUI();
             
             showToast(`+${data.bonus_amount} энергии твои!`, "ph-lightning");
             
-            // Обновляем баннер на главной, чтобы кнопка стала неактивной
-            const btn = document.getElementById('daily-bonus-btn');
-            const text = document.getElementById('daily-bonus-text');
-            if (btn) btn.classList.add('opacity-50', 'pointer-events-none');
-            if (text) text.textContent = "Собран до завтра";
+            // Обновляем визуал баннера на главной (делаем серым)
+            updateBonusBannerState();
 
             // Перерисовываем модалку с новыми данными (чтобы кнопка сменилась на галочку)
             setTimeout(() => {
