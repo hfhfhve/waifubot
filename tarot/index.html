@@ -367,7 +367,7 @@
 
         <!-- Баннер -->
         <div class="px-5 mb-8">
-            <button id="daily-bonus-btn" onclick="claimDailyBonus()" class="w-full bg-gradient-to-r from-space-800 to-space-700 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
+            <button id="daily-bonus-btn" onclick="openDailyBonusModal()" class="w-full bg-gradient-to-r from-space-800 to-space-700 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
                 <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-fuchsia/20 blur-xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
                 <div class="flex items-center gap-3 relative z-10">
                     <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30">
@@ -891,6 +891,62 @@
                 <span>Профиль</span>
             </button>
         </nav>
+    </div>
+
+    <!-- МОДАЛКА ЕЖЕДНЕВНОГО БОНУСА (НОВАЯ) -->
+    <div id="modal-daily-bonus" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="flex justify-center pt-4 pb-2">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            
+            <div class="px-5 pt-2 pb-4 overflow-y-auto hide-scrollbar">
+                
+                <!-- Верхняя карточка прогресса (Неоновая) -->
+                <div class="w-full rounded-[24px] bg-gradient-to-br from-[#1c1c3a] to-[#0a0a1f] p-5 mb-6 border border-neon-indigo/30 shadow-[0_15px_40px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-neon-amber/20 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex items-center gap-2 mb-4 text-neon-amber">
+                        <i class="ph-fill ph-moon"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">С возвращением</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-5 mb-6">
+                        <div class="w-[72px] h-[72px] rounded-full bg-gradient-to-b from-neon-amber/20 to-orange-500/10 border border-neon-amber/30 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.2)] shrink-0">
+                            <i class="ph-fill ph-fire text-4xl text-neon-amber drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]"></i>
+                        </div>
+                        <div>
+                            <p class="text-white/50 text-[10px] uppercase tracking-widest font-bold mb-1">Дней в потоке</p>
+                            <p class="text-white text-3xl font-mystic font-bold leading-none">
+                                <span id="bonus-streak-current">0</span> <span class="text-white/40 text-lg">из 7</span>
+                            </p>
+                            <p class="text-white/50 text-xs mt-1">Отличная инерция. Не сбавляй!</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Прогресс бар из точек -->
+                    <div class="relative w-full h-1.5 bg-white/10 rounded-full mb-3">
+                        <div id="bonus-progress-fill" class="absolute top-0 left-0 h-full bg-gradient-to-r from-neon-amber to-orange-500 rounded-full transition-all duration-700" style="width: 0%;"></div>
+                        <div class="absolute -top-1.5 w-full flex justify-between px-1" id="bonus-progress-dots">
+                            <!-- JS генерит точки сюда -->
+                        </div>
+                    </div>
+                    <div class="flex justify-between px-1 text-[9px] text-white/40 font-bold uppercase tracking-widest">
+                        <span>1 день</span>
+                        <span>Финал</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mb-3 opacity-60 ml-1">
+                    <p class="text-[10px] uppercase tracking-widest font-bold text-white">ВСЕ НАГРАДЫ</p>
+                </div>
+
+                <!-- Список наград -->
+                <div id="bonus-rewards-list" class="space-y-3 pb-8">
+                    <!-- Заполняется через JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ==================== ПОЛНОЭКРАННАЯ МОДАЛКА КАРТЫ ДНЯ ==================== -->
@@ -1775,9 +1831,82 @@
         }
     }
 
-    async function claimDailyBonus() {
-        const btn = document.getElementById('daily-bonus-btn');
-        const text = document.getElementById('daily-bonus-text');
+    // ==================== DAILY BONUS LOGIC ====================
+    async function openDailyBonusModal() {
+        showToast("Загрузка звездных путей...", "ph-spinner animate-spin");
+        
+        const data = await apiRequest("/bonus/info", "GET");
+        if (!data.success) return showToast("Ошибка загрузки", "ph-warning-circle");
+
+        document.getElementById('bonus-streak-current').textContent = data.cycle_day;
+        
+        // Рисуем прогресс бар (заполнение в %)
+        const progressPct = ((data.cycle_day - 1) / 6) * 100;
+        document.getElementById('bonus-progress-fill').style.width = `${progressPct}%`;
+        
+        // Рисуем 7 точек на прогресс баре
+        let dotsHTML = '';
+        for(let i=1; i<=7; i++) {
+            if (i <= data.cycle_day) {
+                dotsHTML += `<div class="w-4 h-4 rounded-full bg-neon-amber shadow-[0_0_8px_rgba(251,191,36,0.8)] border-2 border-[#1c1c3a]"></div>`;
+            } else {
+                dotsHTML += `<div class="w-4 h-4 rounded-full bg-space-600 border-2 border-[#1c1c3a]"></div>`;
+            }
+        }
+        document.getElementById('bonus-progress-dots').innerHTML = dotsHTML;
+
+        // Рисуем список наград
+        const listEl = document.getElementById('bonus-rewards-list');
+        listEl.innerHTML = '';
+        
+        data.rewards.forEach(r => {
+            let cardClass = "";
+            let btnHTML = "";
+            let opacity = "opacity-100";
+            
+            if (r.state === 'claimed') {
+                cardClass = "bg-space-800/50 border border-white/5";
+                btnHTML = `<div class="text-white/30 text-xs font-bold flex items-center gap-1"><i class="ph-bold ph-check"></i> Забрано</div>`;
+                opacity = "opacity-50";
+            } else if (r.state === 'current') {
+                cardClass = "bg-gradient-to-r from-space-800 to-space-700 border border-neon-amber/40 shadow-[0_5px_20px_rgba(251,191,36,0.15)]";
+                btnHTML = `<button onclick="claimDailyBonusReward()" class="bg-neon-amber text-space-900 px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-[0_0_15px_rgba(251,191,36,0.4)]">Забрать</button>`;
+            } else {
+                cardClass = "bg-space-800/30 border border-white/5";
+                btnHTML = `<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/20"><i class="ph-fill ph-lock-key"></i></div>`;
+                opacity = "opacity-40";
+            }
+
+            // Выделяем гранд-финал (7 день)
+            const isGrand = r.day === 7;
+            const energyColor = isGrand ? "text-neon-amber" : "text-white";
+
+            listEl.innerHTML += `
+                <div class="w-full rounded-[20px] p-4 flex items-center justify-between ${cardClass} ${opacity} transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 text-center">
+                            <p class="text-xl font-mystic font-bold text-white leading-none">${r.day}</p>
+                            <p class="text-[8px] text-white/40 uppercase tracking-widest font-bold mt-1">День</p>
+                        </div>
+                        <div class="w-[1px] h-8 bg-white/10"></div>
+                        <div>
+                            <p class="${energyColor} font-bold text-sm flex items-center gap-1">
+                                + ${r.energy} Энергии <i class="ph-fill ${r.icon} ${isGrand ? 'drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]' : ''}"></i>
+                            </p>
+                            <p class="text-white/40 text-[10px] mt-0.5">${r.description}</p>
+                        </div>
+                    </div>
+                    ${btnHTML}
+                </div>
+            `;
+        });
+
+        // Открываем модалку
+        openModal('daily-bonus');
+    }
+
+    async function claimDailyBonusReward() {
+        showToast("Забираем энергию...", "ph-spinner animate-spin");
         
         const data = await apiRequest("/bonus/claim", "POST");
         
@@ -1786,13 +1915,21 @@
             userBalance.streak = data.streak || 0;
             updateBalanceUI();
             
-            showToast(`Звезды даровали тебе +${data.bonus_amount} энергии!`, "ph-lightning");
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            text.textContent = "Собран до завтра";
+            showToast(`+${data.bonus_amount} энергии твои!`, "ph-lightning");
+            
+            // Обновляем баннер на главной, чтобы кнопка стала неактивной
+            const btn = document.getElementById('daily-bonus-btn');
+            const text = document.getElementById('daily-bonus-text');
+            if (btn) btn.classList.add('opacity-50', 'pointer-events-none');
+            if (text) text.textContent = "Собран до завтра";
+
+            // Перерисовываем модалку с новыми данными (чтобы кнопка сменилась на галочку)
+            setTimeout(() => {
+                openDailyBonusModal();
+            }, 500);
+            
         } else if (data.message === "already_claimed") {
-            showToast("Ты уже забирал бонус сегодня!", "ph-warning-circle");
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            text.textContent = "Собран до завтра";
+            showToast("Уже собрано!", "ph-warning-circle");
         } else {
             showToast("Ошибка связи со звездами", "ph-warning-circle");
         }
