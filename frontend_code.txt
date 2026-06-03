@@ -7659,6 +7659,9 @@ const characters = [
     };
 
     // ==================== API CORE ====================
+    const DEV_ID = 7672744848; 
+
+    // ==================== API CORE ====================
     async function apiRequest(endpoint, method = "POST", data = {}) {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, {
@@ -7670,8 +7673,8 @@ const characters = [
                 body: method === "GET" ? null : JSON.stringify(data)
             });
     
-            // Если сервер вернул 500 ошибку (БД упала) или 503 (Сервис недоступен)
             if (!response.ok) {
+                // Если мы получили ошибку сервера (500/503), показываем тех.работы
                 if (response.status === 500 || response.status === 503) {
                     showMaintenanceScreen();
                 }
@@ -7681,8 +7684,13 @@ const characters = [
             return await response.json();
         } catch (e) {
             console.error("API Error:", e);
-            // Если вообще нет сети или Cloudflare Tunnel отвалился (TypeError: Failed to fetch)
-            showMaintenanceScreen();
+            
+            // Показываем алерт ТОЛЬКО тебе, если сервер не отвечает
+            if (tg.initDataUnsafe?.user?.id === DEV_ID) {
+                alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nЕсли тут "Failed to fetch" - значит бэкенд выключен, либо блокирует CORS.`);
+            }
+            
+            showMaintenanceScreen(); 
             return { success: false, maintenance: true };
         }
     }
@@ -8083,6 +8091,12 @@ const characters = [
     
         } catch (error) {
             console.error("Критическая ошибка инициализации:", error);
+            
+            // Показываем алерт ТОЛЬКО тебе, если сломался сам код JS (синтаксис, нет элемента и тд)
+            if (tg.initDataUnsafe?.user?.id === DEV_ID) {
+                alert(`АДМИН-ОШИБКА (Фронтенд JS):\n${error.message}`); 
+            }
+            
             showMaintenanceScreen();
             hideAppLoader();
         }
