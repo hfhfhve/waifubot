@@ -8919,6 +8919,9 @@ const astroDescriptions = {
 
   </div> <!-- End App Container -->
 
+
+  <script src="data.js?v=777"></script>
+
   <!-- ==================== SCRIPTS ==================== -->
   <script>
         // ==================== STATE & CONFIG ====================
