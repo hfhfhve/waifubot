@@ -1765,7 +1765,7 @@
                                     </div>
                                     <div class="text-left">
                                         <div class="text-white font-mystic text-3xl font-bold leading-none tracking-wide">${item.amount}</div>
-                                        <div class="text-white/40 text-[10px] tracking-widest uppercase mt-1 font-semibold">${t('energy_unit')}</div>
+                                        <div class="text-white/40 text-[10px] tracking-widest uppercase mt-1 font-semibold" data-i18n="energy_unit">${t('energy_unit')}</div>
                                     </div>
                                 </div>
                                 <div class="shrink-0 bg-space-800 border border-white/10 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
@@ -2079,13 +2079,9 @@
                         const dateObj = new Date(data.created_at);
                         const createdAtEl = document.getElementById('profile-created-at');
                         if (createdAtEl) {
-                            // 1. Снимаем тег, чтобы движок перевода не стирал дату
                             createdAtEl.removeAttribute('data-i18n'); 
-                            
-                            // 2. Встроенная функция JS сама переведет месяц на нужный язык (activeLanguage)
+                            createdAtEl.dataset.rawDate = data.created_at; // <-- ДОБАВИТЬ ЭТО
                             const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long' });
-                            
-                            // 3. Склеиваем переведенную фразу и правильную дату
                             createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
                         }
                     }
@@ -2176,7 +2172,31 @@
                 
                 showMaintenanceScreen();
                 updateInterfaceTranslations();
+                updateDynamicDates();
                 hideAppLoader();
+            }
+        }
+
+        function updateDynamicDates() {
+            // 1. Главный экран (Например: Четверг, 4 июня)
+            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+            const headerDateEl = document.getElementById('current-date-display');
+            if (headerDateEl) {
+                headerDateEl.textContent = new Date().toLocaleDateString(activeLanguage, dateOptions);
+            }
+            
+            // 2. Дата гороскопа
+            const hDate = document.getElementById('horoscope-date');
+            if (hDate) {
+                hDate.textContent = new Date().toLocaleDateString(activeLanguage, { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+        
+            // 3. Профиль "С нами с..."
+            const createdAtEl = document.getElementById('profile-created-at');
+            if (createdAtEl && createdAtEl.dataset.rawDate) {
+                const dateObj = new Date(createdAtEl.dataset.rawDate);
+                const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long' });
+                createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
             }
         }
     
@@ -2927,7 +2947,8 @@
             updateLanguageDisplay(code);
             updateInterfaceTranslations();
             
-            // ДОБАВИТЬ ВОТ ЭТУ СТРОКУ (Она мгновенно переведет Овен на Aries)
+            updateDynamicDates(); // <-- ДОБАВИТЬ ВЫЗОВ ЗДЕСЬ
+            
             updateZodiacUI(window.userBirthDate); 
             
             showToast(t('toast_lang_changed'), 'ph-globe');
