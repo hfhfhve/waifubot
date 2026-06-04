@@ -1675,6 +1675,16 @@
                     <span>${lang.name}</span>
                 `;
             }
+            
+            // --- ДОБАВЛЯЕМ ВОТ ЭТОТ БЛОК ---
+            // Синхронизируем галочки в модальном окне выбора языка при загрузке приложения
+            document.querySelectorAll('.language-check').forEach(check => {
+                if (check.dataset.lang === code) {
+                    check.classList.remove('hidden'); // Показываем галочку у текущего языка
+                } else {
+                    check.classList.add('hidden');    // Прячем у всех остальных
+                }
+            });
         }
     
         // Инициализация Telegram WebApp
