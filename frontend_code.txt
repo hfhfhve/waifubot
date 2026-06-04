@@ -8742,7 +8742,7 @@ const characters = [
         const config = spreadConfig[type];
         if (!config) return;
     
-        // Записываем конфигурацию текущего расклада в стейт
+        // Записываем конфигурацию текущего расклада
         currentSpread = { 
             type: type, 
             requiredCards: config.req, 
@@ -8750,7 +8750,7 @@ const characters = [
             price: config.price 
         };
     
-        // Обновляем текстовые маркеры в интерфейсе формы
+        // Обновляем текстовые маркеры в интерфейсе
         document.getElementById('table-spread-name').textContent = config.name;
         document.getElementById('table-spread-subtitle').textContent = config.subtitle;
         document.getElementById('table-cards-count-label').textContent = `${config.req} ${declension(config.req, ['карта', 'карты', 'карт'])}`;
@@ -8760,19 +8760,26 @@ const characters = [
         document.getElementById('tarot-user-question').value = '';
         document.getElementById('question-char-count').textContent = '0 / 500';
 
-        // Возвращаем дефолтное состояние отображения формы
+        // === ИСПРАВЛЕНИЕ ЗДЕСЬ === 
+        // Жестко показываем только форму ввода и скрываем всё остальное
         document.getElementById('tarot-table-input-state').classList.remove('hidden');
         document.getElementById('tarot-table-shuffling-state').classList.add('hidden');
+        
+        const resultState = document.getElementById('tarot-table-result-state');
+        if (resultState) {
+            resultState.classList.add('hidden');
+        }
+
+        // Заодно очищаем старые карты и текст, чтобы они не мелькали
+        const cardsDisplay = document.getElementById('result-cards-display');
+        if (cardsDisplay) cardsDisplay.innerHTML = '';
+        
+        const textContainer = document.getElementById('result-ai-text');
+        if (textContainer) textContainer.innerHTML = '';
+        // =========================
     
         navigateTo('tarot-table');
     }
-
-    // Слушатель счетчика символов для textarea (запусти его один раз в initApp или DOMContentLoaded)
-    document.getElementById('tarot-user-question')?.addEventListener('input', function() {
-        const len = this.value.length;
-        if (len > 500) this.value = this.value.substring(0, 500);
-        document.getElementById('question-char-count').textContent = `${this.value.length} / 500`;
-    });
 
     async function startAutomatedRitual() {
         const questionText = document.getElementById('tarot-user-question').value.trim();
