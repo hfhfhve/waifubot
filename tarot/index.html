@@ -2075,9 +2075,17 @@
                     
                     if (data.created_at) {
                         const dateObj = new Date(data.created_at);
-                        const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
                         const createdAtEl = document.getElementById('profile-created-at');
-                        if (createdAtEl) createdAtEl.textContent = `${t('prof_with_us')} ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
+                        if (createdAtEl) {
+                            // 1. Снимаем тег, чтобы движок перевода не стирал дату
+                            createdAtEl.removeAttribute('data-i18n'); 
+                            
+                            // 2. Встроенная функция JS сама переведет месяц на нужный язык (activeLanguage)
+                            const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long' });
+                            
+                            // 3. Склеиваем переведенную фразу и правильную дату
+                            createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
+                        }
                     }
                     if (data.language_code) {
                         let lang = data.language_code.toLowerCase().trim().substring(0, 2);
