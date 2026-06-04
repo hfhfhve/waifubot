@@ -8209,15 +8209,19 @@ const astroDescriptions = {
             </button>
         </div>
 
-        <!-- 2. СКРОЛЛ-КОНТЕЙНЕР (Крутится только текст МЕЖДУ шапкой и полем ввода) -->
+        <!-- 2. СКРОЛЛ-КОНТЕЙНЕР -->
         <div id="chat-scroll-wrapper" class="absolute top-[76px] bottom-0 left-0 right-0 overflow-y-auto hide-scrollbar flex flex-col pb-[160px] scroll-smooth">
             
-            <div id="messages-container" class="px-4 pt-6 space-y-5 flex flex-col justify-end min-h-full">
+            <!-- ВОТ ОНА: Распорка. Толкает сообщения вниз, когда их мало. Без неё ломается скролл вверх! -->
+            <div class="flex-1 shrink-0"></div>
+
+            <!-- УБРАЛИ justify-end, оставили только flex flex-col -->
+            <div id="messages-container" class="px-4 pt-6 space-y-5 flex flex-col">
                 <!-- Сообщения вставляются сюда -->
             </div>
             
             <!-- Индикатор печати -->
-            <div id="typing-indicator" class="hidden px-4 pt-4 w-full">
+            <div id="typing-indicator" class="hidden px-4 pt-4 w-full shrink-0">
                 <div class="glass bg-space-800/80 inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl rounded-tl-sm shadow-lg border border-neon-indigo/30 backdrop-blur-md">
                     <div class="typing-dot w-1.5 h-1.5 bg-neon-indigo rounded-full animate-bounce"></div>
                     <div class="typing-dot w-1.5 h-1.5 bg-neon-purple rounded-full animate-bounce [animation-delay:0.2s]"></div>
