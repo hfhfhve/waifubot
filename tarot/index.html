@@ -2532,7 +2532,12 @@
             else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) { sign = "Водолей"; element = "Воздух"; planet = "Уран"; }
             else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) { sign = "Рыбы"; element = "Вода"; planet = "Нептун"; }
         
-            document.getElementById('profile-zodiac').textContent = sign;
+            const zodiacEl = document.getElementById('profile-zodiac');
+            if (zodiacEl) {
+                zodiacEl.removeAttribute('data-i18n'); // <-- ВОТ ГЛАВНЫЙ ФИКС!
+                zodiacEl.textContent = sign;
+            }
+            
             document.getElementById('profile-element').textContent = element;
             document.getElementById('profile-planet').textContent = planet;
         }
@@ -2730,7 +2735,11 @@
                 showToast(t('toast_success'), "ph-check-circle");
                 
                 // Обновляем профиль
-                document.getElementById('profile-zodiac').textContent = data.chart.sun;
+                const zodiacEl = document.getElementById('profile-zodiac');
+                if (zodiacEl) {
+                    zodiacEl.removeAttribute('data-i18n');
+                    zodiacEl.textContent = data.chart.sun;
+                }
                 document.getElementById('profile-element').textContent = data.chart.element;
                 document.getElementById('profile-planet').textContent = data.chart.planet;
                 
