@@ -1553,34 +1553,43 @@
     
         // === ДВИЖОК ЛОКАЛИЗАЦИИ ===
         function t(key) {
-            // Берем текущий язык или фоллбек на русский
             const langData = translations[activeLanguage] || translations['ru'];
-            return langData[key] || key; // Если ключа нет, выведет сам ключ
+            return langData[key] || key;
         }
     
         function updateInterfaceTranslations() {
-            // Находим все элементы с атрибутом data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (key) {
-                    // Если это поле ввода, меняем placeholder
                     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                         el.placeholder = t(key);
                     } else {
-                        // Иначе меняем внутренний HTML (чтобы работали теги <br>, <b> и т.д.)
                         el.innerHTML = t(key);
                     }
                 }
             });
         }
         
+        // 👇 ВОТ СЮДА НУЖНО ВСТАВИТЬ НАШ НОВЫЙ СЛОВАРЬ И ФУНКЦИЮ 👇
         const langMap = {
-            'ru': '🇷🇺 Русский',
-            'en': '🇬🇧 English',
-            'es': '🇪🇸 Español',
-            'fr': '🇫🇷 Français',
-            'de': '🇩🇪 Deutsch'
+            'ru': { name: 'Русский', flag: 'ru' },
+            'en': { name: 'English', flag: 'gb' },
+            'es': { name: 'Español', flag: 'es' },
+            'fr': { name: 'Français', flag: 'fr' },
+            'de': { name: 'Deutsch', flag: 'de' }
         };
+
+        // ВОТ ЭТА ФУНКЦИЯ БЫЛА УТЕРЯНА:
+        function updateLanguageDisplay(code) {
+            const lang = langMap[code] || langMap['ru'];
+            const displayEl = document.getElementById('current-lang-display');
+            if (displayEl) {
+                displayEl.innerHTML = `
+                    <img src="https://flagcdn.com/w40/${lang.flag}.png" class="w-4 rounded-sm shadow-sm" alt="${lang.flag}">
+                    <span>${lang.name}</span>
+                `;
+            }
+        }
     
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
