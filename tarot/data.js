@@ -750,3 +750,212 @@ const translations = {
         toast_lang_changed: "Sprache geändert ✓"
     }
 };
+
+
+
+
+
+// === СЛОВАРЬ АСТРОЛОГИЧЕСКИХ ТЕРМИНОВ ===
+const astroDict = {
+    'ru': {
+        signs: ["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"],
+        elements: ["Огонь", "Земля", "Воздух", "Вода"],
+        planets: ["Марс", "Венера", "Меркурий", "Луна", "Солнце", "Плутон", "Юпитер", "Сатурн", "Уран", "Нептун"]
+    },
+    'en': {
+        signs: ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"],
+        elements: ["Fire", "Earth", "Air", "Water"],
+        planets: ["Mars", "Venus", "Mercury", "Moon", "Sun", "Pluto", "Jupiter", "Saturn", "Uranus", "Neptune"]
+    },
+    'es': {
+        signs: ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo", "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"],
+        elements: ["Fuego", "Tierra", "Aire", "Agua"],
+        planets: ["Marte", "Venus", "Mercurio", "Luna", "Sol", "Plutón", "Júpiter", "Saturno", "Urano", "Neptuno"]
+    },
+    'fr': {
+        signs: ["Bélier", "Taureau", "Gémeaux", "Cancer", "Lion", "Vierge", "Balance", "Scorpion", "Sagittaire", "Capricorne", "Verseau", "Poissons"],
+        elements: ["Feu", "Terre", "Air", "Eau"],
+        planets: ["Mars", "Vénus", "Mercure", "Lune", "Soleil", "Pluton", "Jupiter", "Saturne", "Uranus", "Neptune"]
+    },
+    'de': {
+        signs: ["Widder", "Stier", "Zwillinge", "Krebs", "Löwe", "Jungfrau", "Waage", "Skorpion", "Schütze", "Steinbock", "Wassermann", "Fische"],
+        elements: ["Feuer", "Erde", "Luft", "Wasser"],
+        planets: ["Mars", "Venus", "Merkur", "Mond", "Sonne", "Pluto", "Jupiter", "Saturn", "Uranus", "Neptun"]
+    }
+};
+
+const zodiacEmojis = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+
+// === БАЗА ЗНАНИЙ ДЛЯ МОДАЛОК (МГНОВЕННАЯ ГЕНЕРАЦИЯ) ===
+const astroDescriptions = {
+    'ru': {
+        'sign': [
+            "<b>Овен</b> — первооткрыватель и лидер. Вы обладаете неукротимой энергией, бесстрашием и страстью. Ваш кармический путь — вести за собой, не боясь преград.",
+            "<b>Телец</b> — символ надежности. Вы цените комфорт, красоту и стабильность. Ваша суперсила — упорство, способное воплотить любые мечты в реальность.",
+            "<b>Близнецы</b> — вечные искатели. Вы гибки, умны и невероятно общительны. Ваша миссия — передавать информацию и связывать людей друг с другом.",
+            "<b>Рак</b> — хранитель эмоций. У вас глубочайшая эмпатия и сильная интуиция. Ваша сила в умении заботиться, исцелять души и создавать уют.",
+            "<b>Лев</b> — яркая звезда. Вы рождены, чтобы сиять, творить и дарить тепло. В вас заложена мощная творческая энергия и врожденное благородство.",
+            "<b>Дева</b> — мастер порядка. Вы обладаете аналитическим умом и вниманием к деталям. Ваша задача — совершенствовать этот мир и приносить реальную пользу.",
+            "<b>Весы</b> — миротворцы. Вы стремитесь к балансу, эстетике и гармонии в отношениях. Ваша сила — в дипломатии и умении видеть красоту во всем.",
+            "<b>Скорпион</b> — алхимик душ. Вы обладаете магнетизмом и способностью к глубокой трансформации. Вы не боитесь кризисов, ведь они делают вас сильнее.",
+            "<b>Стрелец</b> — философ и путешественник. Вы полны оптимизма и жажды познания. Ваш путь — расширять горизонты и вдохновлять других своими идеями.",
+            "<b>Козерог</b> — стратег. Вы невероятно целеустремленны, дисциплинированны и выносливы. Ваша карма — достигать вершин, которые другим не под силу.",
+            "<b>Водолей</b> — бунтарь и новатор. Вы мыслите категориями будущего и свободы. Ваша миссия — ломать старые рамки и приносить в мир гениальные идеи.",
+            "<b>Рыбы</b> — мистики. У вас тончайшая связь с космосом и миром снов. Вы способны чувствовать то, что скрыто от глаз, и исцелять через искусство."
+        ],
+        'element': [
+            "<b>Огонь</b> — это искра жизни. Твоя стихия наделяет тебя энтузиазмом, харизмой и способностью зажигать сердца других. Ты действуешь быстро и по зову страсти.",
+            "<b>Земля</b> — это фундамент. Твоя стихия дает тебе практичность, устойчивость и умение материализовать свои планы. На тебя всегда можно опереться.",
+            "<b>Воздух</b> — это интеллект. Твоя стихия связана с идеями, общением и свободой мыслей. Ты легко адаптируешься и всегда находишь новые решения.",
+            "<b>Вода</b> — это глубина. Твоя стихия отвечает за интуицию, эмоции и подсознание. Ты чувствуешь мир на уровне вибраций и скрытых смыслов."
+        ],
+        'planet': [
+            "<b>Марс</b> — планета воинов. Она отвечает за твою пробивную силу, амбиции и умение постоять за себя в любой ситуации.",
+            "<b>Венера</b> — планета любви. Она наделяет тебя магнетизмом, чувством прекрасного и талантом выстраивать гармоничные отношения.",
+            "<b>Меркурий</b> — планета интеллекта. Твоя суперсила — быстрый ум, логика, красноречие и способность легко усваивать знания.",
+            "<b>Луна</b> — светило подсознания. Она делает тебя глубоко чувствующим человеком, дарит сильную интуицию и связь с предками.",
+            "<b>Солнце</b> — центр системы. Оно дает тебе неиссякаемый источник жизненной энергии, харизму и желание светить другим.",
+            "<b>Плутон</b> — планета трансформации. Она наделяет тебя скрытой мощью, умением управлять толпой и возрождаться из пепла.",
+            "<b>Юпитер</b> — планета большого счастья. Она приносит тебе удачу, стремление к развитию, авторитет и широту взглядов.",
+            "<b>Сатурн</b> — планета кармы. Она учит тебя дисциплине, дает стальной стержень внутри и помогает добиваться целей упорным трудом.",
+            "<b>Уран</b> — планета будущего. Она дарит тебе нестандартное мышление, тягу к свободе, бунтарство и гениальные озарения.",
+            "<b>Нептун</b> — планета иллюзий. Она дает тебе мощные экстрасенсорные способности, талант к творчеству и связь с тонкими мирами."
+        ]
+    },
+    'en': {
+        'sign': [
+            "<b>Aries</b> — the pioneer and leader. You possess indomitable energy, fearlessness, and passion. Your karmic path is to lead, unafraid of obstacles.",
+            "<b>Taurus</b> — the symbol of reliability. You value comfort, beauty, and stability. Your superpower is persistence, capable of turning any dream into reality.",
+            "<b>Gemini</b> — eternal seekers. You are flexible, smart, and incredibly sociable. Your mission is to transmit information and connect people with each other.",
+            "<b>Cancer</b> — the guardian of emotions. You have profound empathy and strong intuition. Your strength lies in the ability to care, heal souls, and create comfort.",
+            "<b>Leo</b> — a bright star. You were born to shine, create, and give warmth. You hold a powerful creative energy and innate nobility.",
+            "<b>Virgo</b> — the master of order. You possess an analytical mind and attention to detail. Your task is to perfect this world and bring real value.",
+            "<b>Libra</b> — the peacemakers. You strive for balance, aesthetics, and harmony in relationships. Your strength is in diplomacy and the ability to see beauty in everything.",
+            "<b>Scorpio</b> — the alchemist of souls. You possess magnetism and the capacity for deep transformation. You don't fear crises, because they make you stronger.",
+            "<b>Sagittarius</b> — the philosopher and traveler. You are full of optimism and a thirst for knowledge. Your path is to expand horizons and inspire others with your ideas.",
+            "<b>Capricorn</b> — the strategist. You are incredibly purposeful, disciplined, and resilient. Your karma is to reach heights that others cannot.",
+            "<b>Aquarius</b> — the rebel and innovator. You think in terms of the future and freedom. Your mission is to break old boundaries and bring brilliant ideas to the world.",
+            "<b>Pisces</b> — the mystics. You have a subtle connection with the cosmos and the world of dreams. You can feel what is hidden from the eyes and heal through art."
+        ],
+        'element': [
+            "<b>Fire</b> — the spark of life. Your element endows you with enthusiasm, charisma, and the ability to ignite the hearts of others. You act quickly and follow your passion.",
+            "<b>Earth</b> — the foundation. Your element gives you practicality, stability, and the ability to materialize your plans. You are someone others can always rely on.",
+            "<b>Air</b> — the intellect. Your element is associated with ideas, communication, and freedom of thought. You adapt easily and always find new solutions.",
+            "<b>Water</b> — the depth. Your element governs intuition, emotions, and the subconscious. You feel the world on the level of vibrations and hidden meanings."
+        ],
+        'planet': [
+            "<b>Mars</b> — the planet of warriors. It governs your breakthrough power, ambitions, and the ability to stand up for yourself in any situation.",
+            "<b>Venus</b> — the planet of love. It endows you with magnetism, a sense of beauty, and the talent to build harmonious relationships.",
+            "<b>Mercury</b> — the planet of intellect. Your superpower is a quick mind, logic, eloquence, and the ability to easily absorb knowledge.",
+            "<b>Moon</b> — the luminary of the subconscious. It makes you a deeply feeling person, grants strong intuition, and a connection with ancestors.",
+            "<b>Sun</b> — the center of the system. It gives you an inexhaustible source of vital energy, charisma, and the desire to shine for others.",
+            "<b>Pluto</b> — the planet of transformation. It endows you with hidden power, the ability to control crowds, and to rise from the ashes.",
+            "<b>Jupiter</b> — the planet of great happiness. It brings you luck, a drive for development, authority, and broad-mindedness.",
+            "<b>Saturn</b> — the planet of karma. It teaches you discipline, gives you an inner core of steel, and helps you achieve your goals through hard work.",
+            "<b>Uranus</b> — the planet of the future. It grants you unconventional thinking, a craving for freedom, rebelliousness, and brilliant insights.",
+            "<b>Neptune</b> — the planet of illusions. It gives you powerful extrasensory abilities, a talent for creativity, and a connection to subtle worlds."
+        ]
+    },
+    'es': {
+        'sign': [
+            "<b>Aries</b> — el pionero y líder. Posees una energía indomable, valentía y pasión. Tu camino kármico es liderar sin temor a los obstáculos.",
+            "<b>Tauro</b> — el símbolo de la fiabilidad. Valoras el confort, la belleza y la estabilidad. Tu superpoder es la perseverancia, capaz de hacer realidad cualquier sueño.",
+            "<b>Géminis</b> — los eternos buscadores. Eres flexible, inteligente e increíblemente sociable. Tu misión es transmitir información y conectar a las personas.",
+            "<b>Cáncer</b> — el guardián de las emociones. Tienes una profunda empatía y una fuerte intuición. Tu fuerza radica en la capacidad de cuidar, sanar almas y crear confort.",
+            "<b>Leo</b> — una estrella brillante. Naciste para brillar, crear y dar calor. Llevas una poderosa energía creativa y una nobleza innata.",
+            "<b>Virgo</b> — el maestro del orden. Posees una mente analítica y atención al detalle. Tu tarea es perfeccionar este mundo y aportar un valor real.",
+            "<b>Libra</b> — los pacificadores. Buscas el equilibrio, la estética y la armonía en las relaciones. Tu fuerza está en la diplomacia y en la capacidad de ver la belleza en todo.",
+            "<b>Escorpio</b> — el alquimista de las almas. Posees magnetismo y capacidad para una profunda transformación. No temes a las crisis, porque te hacen más fuerte.",
+            "<b>Sagitario</b> — el filósofo y viajero. Estás lleno de optimismo y sed de conocimiento. Tu camino es expandir horizontes e inspirar a otros con tus ideas.",
+            "<b>Capricornio</b> — el estratega. Eres increíblemente decidido, disciplinado y resistente. Tu karma es alcanzar cimas que otros no pueden.",
+            "<b>Acuario</b> — el rebelde e innovador. Piensas en términos de futuro y libertad. Tu misión es romper los viejos límites y traer ideas brillantes al mundo.",
+            "<b>Piscis</b> — los místicos. Tienes una sutil conexión con el cosmos y el mundo de los sueños. Puedes sentir lo que está oculto a los ojos y sanar a través del arte."
+        ],
+        'element': [
+            "<b>Fuego</b> — la chispa de la vida. Tu elemento te dota de entusiasmo, carisma y la capacidad de encender los corazones de los demás. Actúas rápido y sigues tu pasión.",
+            "<b>Tierra</b> — los cimientos. Tu elemento te da sentido práctico, estabilidad y la capacidad de materializar tus planes. Eres alguien en quien los demás siempre pueden confiar.",
+            "<b>Aire</b> — el intelecto. Tu elemento se asocia a las ideas, la comunicación y la libertad de pensamiento. Te adaptas fácilmente y siempre encuentras nuevas soluciones.",
+            "<b>Agua</b> — la profundidad. Tu elemento rige la intuición, las emociones y el subconsciente. Sientes el mundo a nivel de vibraciones y significados ocultos."
+        ],
+        'planet': [
+            "<b>Marte</b> — el planeta de los guerreros. Rige tu poder de superación, tus ambiciones y tu capacidad para defenderte en cualquier situación.",
+            "<b>Venus</b> — el planeta del amor. Te dota de magnetismo, sentido de la belleza y talento para construir relaciones armoniosas.",
+            "<b>Mercurio</b> — el planeta del intelecto. Tu superpoder es una mente rápida, la lógica, la elocuencia y la capacidad de absorber conocimientos fácilmente.",
+            "<b>Luna</b> — el astro del subconsciente. Te hace una persona de sentimientos profundos, te otorga una fuerte intuición y conexión con los ancestros.",
+            "<b>Sol</b> — el centro del sistema. Te da una fuente inagotable de energía vital, carisma y el deseo de brillar para los demás.",
+            "<b>Plutón</b> — el planeta de la transformación. Te dota de un poder oculto, la capacidad de controlar multitudes y resurgir de las cenizas.",
+            "<b>Júpiter</b> — el planeta de la gran felicidad. Te trae suerte, un impulso de desarrollo, autoridad y amplitud de miras.",
+            "<b>Saturno</b> — el planeta del karma. Te enseña disciplina, te da un núcleo interior de acero y te ayuda a alcanzar tus metas con trabajo duro.",
+            "<b>Urano</b> — el planeta del futuro. Te otorga un pensamiento no convencional, ansias de libertad, rebeldía y percepciones brillantes.",
+            "<b>Neptuno</b> — el planeta de las ilusiones. Te da poderosas habilidades extrasensoriales, talento para la creatividad y una conexión con los mundos sutiles."
+        ]
+    },
+    'fr': {
+        'sign': [
+            "<b>Bélier</b> — le pionnier et le leader. Tu possèdes une énergie indomptable, de l'intrépidité et de la passion. Ton chemin karmique est de diriger, sans craindre les obstacles.",
+            "<b>Taureau</b> — le symbole de la fiabilité. Tu apprécies le confort, la beauté et la stabilité. Ton superpouvoir est la persévérance, capable de transformer n'importe quel rêve en réalité.",
+            "<b>Gémeaux</b> — les éternels chercheurs. Tu es flexible, intelligent et incroyablement sociable. Ta mission est de transmettre l'information et de connecter les gens entre eux.",
+            "<b>Cancer</b> — le gardien des émotions. Tu as une empathie profonde et une forte intuition. Ta force réside dans la capacité à prendre soin, à guérir les âmes et à créer du confort.",
+            "<b>Lion</b> — une étoile brillante. Tu es né pour briller, créer et donner de la chaleur. Tu possèdes une puissante énergie créative et une noblesse innée.",
+            "<b>Vierge</b> — le maître de l'ordre. Tu possèdes un esprit analytique et le sens du détail. Ta tâche est de perfectionner ce monde et d'apporter une valeur réelle.",
+            "<b>Balance</b> — les artisans de la paix. Tu recherches l'équilibre, l'esthétique et l'harmonie dans les relations. Ta force réside dans la diplomatie et la capacité à voir la beauté en tout.",
+            "<b>Scorpion</b> — l'alchimiste des âmes. Tu possèdes du magnétisme et la capacité d'une profonde transformation. Tu ne crains pas les crises, car elles te rendent plus fort.",
+            "<b>Sagittaire</b> — le philosophe et voyageur. Tu es plein d'optimisme et de soif de connaissances. Ton chemin est d'élargir les horizons et d'inspirer les autres avec tes idées.",
+            "<b>Capricorne</b> — le stratège. Tu es incroyablement déterminé, discipliné et résistant. Ton karma est d'atteindre des sommets que les autres ne peuvent pas.",
+            "<b>Verseau</b> — le rebelle et l'innovateur. Tu penses en termes d'avenir et de liberté. Ta mission est de briser les anciennes limites et d'apporter des idées brillantes au monde.",
+            "<b>Poissons</b> — les mystiques. Tu as une connexion subtile avec le cosmos et le monde des rêves. Tu peux ressentir ce qui est caché aux yeux et guérir par l'art."
+        ],
+        'element': [
+            "<b>Feu</b> — l'étincelle de la vie. Ton élément te dota d'enthousiasme, de charisme et de la capacité d'enflammer le cœur des autres. Tu agis rapidement et suis ta passion.",
+            "<b>Terre</b> — les fondations. Ton élément te donne un sens pratique, de la stabilité et la capacité de matérialiser tes projets. Tu es quelqu'un sur qui les autres peuvent toujours compter.",
+            "<b>Air</b> — l'intellect. Ton élément est associé aux idées, à la communication et à la liberté de pensée. Tu t'adaptes facilement et trouves toujours de nouvelles solutions.",
+            "<b>Eau</b> — la profondeur. Ton élément régit l'intuition, les émotions et le subconscient. Tu ressens le monde au niveau des vibrations et des significations cachées."
+        ],
+        'planet': [
+            "<b>Mars</b> — la planète des guerriers. Elle régit ta force de percée, tes ambitions et ta capacité à te défendre dans n'importe quelle situation.",
+            "<b>Vénus</b> — la planète de l'amour. Elle te dote de magnétisme, d'un sens de la beauté et du talent pour construire des relations harmonieuses.",
+            "<b>Mercure</b> — la planète de l'intellect. Ton superpouvoir est un esprit vif, la logique, l'éloquence et la capacité d'absorber facilement les connaissances.",
+            "<b>Lune</b> — l'astre du subconscient. Elle fait de toi une personne aux sentiments profonds, accorde une forte intuition et une connexion avec les ancêtres.",
+            "<b>Soleil</b> — le centre du système. Il te donne une source inépuisable d'énergie vitale, de charisme et le désir de briller pour les autres.",
+            "<b>Pluton</b> — la planète de la transformation. Elle te dote d'un pouvoir caché, de la capacité de contrôler les foules et de renaître de tes cendres.",
+            "<b>Jupiter</b> — la planète du grand bonheur. Elle t'apporte la chance, une volonté de développement, de l'autorité et une grande ouverture d'esprit.",
+            "<b>Saturne</b> — la planète du karma. Elle t'enseigne la discipline, te donne un noyau intérieur d'acier et t'aide à atteindre tes objectifs par un travail acharné.",
+            "<b>Uranus</b> — la planète du futur. Elle t'accorde une pensée non conventionnelle, une soif de liberté, une rébellion et des idées brillantes.",
+            "<b>Neptune</b> — la planète des illusions. Elle te donne de puissantes capacités extrasensorielles, un talent pour la créativité et une connexion aux mondes subtils."
+        ]
+    },
+    'de': {
+        'sign': [
+            "<b>Widder</b> — der Pionier und Führer. Du besitzt unbändige Energie, Furchtlosigkeit und Leidenschaft. Dein karmischer Weg ist es, voranzugehen, ohne Angst vor Hindernissen.",
+            "<b>Stier</b> — das Symbol für Zuverlässigkeit. Du schätzt Komfort, Schönheit und Stabilität. Deine Superkraft ist Beharrlichkeit, die in der Lage ist, jeden Traum in die Realität umzusetzen.",
+            "<b>Zwillinge</b> — die ewigen Sucher. Du bist flexibel, klug und unglaublich gesellig. Deine Mission ist es, Informationen zu vermitteln und Menschen miteinander zu verbinden.",
+            "<b>Krebs</b> — der Wächter der Emotionen. Du hast tiefe Empathie und eine starke Intuition. Deine Stärke liegt in der Fähigkeit, sich zu kümmern, Seelen zu heilen und Geborgenheit zu schaffen.",
+            "<b>Löwe</b> — ein heller Stern. Du wurdest geboren, um zu strahlen, zu erschaffen und Wärme zu geben. Du besitzt eine kraftvolle kreative Energie und angeborene Noblesse.",
+            "<b>Jungfrau</b> — der Meister der Ordnung. Du besitzt einen analytischen Verstand und Liebe zum Detail. Deine Aufgabe ist es, diese Welt zu perfektionieren und echten Wert zu schaffen.",
+            "<b>Waage</b> — die Friedensstifter. Du strebst nach Gleichgewicht, Ästhetik und Harmonie in Beziehungen. Deine Stärke liegt in der Diplomatie und der Fähigkeit, in allem Schönheit zu sehen.",
+            "<b>Skorpion</b> — der Alchemist der Seelen. Du besitzt Magnetismus und die Fähigkeit zu tiefer Transformation. Du fürchtest keine Krisen, denn sie machen dich stärker.",
+            "<b>Schütze</b> — der Philosoph und Reisende. Du bist voller Optimismus und Wissensdurst. Dein Weg ist es, Horizonte zu erweitern und andere mit deinen Ideen zu inspirieren.",
+            "<b>Steinbock</b> — der Stratege. Du bist unglaublich zielstrebig, diszipliniert und widerstandsfähig. Dein Karma ist es, Höhen zu erreichen, die andere nicht schaffen.",
+            "<b>Wassermann</b> — der Rebell und Innovator. Du denkst in Kategorien der Zukunft und der Freiheit. Deine Mission ist es, alte Grenzen zu durchbrechen und der Welt brillante Ideen zu bringen.",
+            "<b>Fische</b> — die Mystiker. Du hast eine subtile Verbindung zum Kosmos und zur Welt der Träume. Du kannst fühlen, was den Augen verborgen ist, und durch Kunst heilen."
+        ],
+        'element': [
+            "<b>Feuer</b> — der Funke des Lebens. Dein Element verleiht dir Enthusiasmus, Charisma und die Fähigkeit, die Herzen anderer zu entzünden. Du handelst schnell und folgst deiner Leidenschaft.",
+            "<b>Erde</b> — das Fundament. Dein Element gibt dir Praktikabilität, Stabilität und die Fähigkeit, deine Pläne zu verwirklichen. Du bist jemand, auf den sich andere immer verlassen können.",
+            "<b>Luft</b> — der Intellekt. Dein Element ist mit Ideen, Kommunikation und Gedankenfreiheit verbunden. Du passt dich leicht an und findest immer neue Lösungen.",
+            "<b>Wasser</b> — die Tiefe. Dein Element regiert Intuition, Emotionen und das Unterbewusstsein. Du fühlst die Welt auf der Ebene von Vibrationen und verborgenen Bedeutungen."
+        ],
+        'planet': [
+            "<b>Mars</b> — der Planet der Krieger. Er regiert deine Durchschlagskraft, Ambitionen und die Fähigkeit, in jeder Situation für dich selbst einzustehen.",
+            "<b>Venus</b> — der Planet der Liebe. Er verleiht dir Magnetismus, einen Sinn für Schönheit und das Talent, harmonische Beziehungen aufzubauen.",
+            "<b>Merkur</b> — der Planet des Intellekts. Deine Superkraft ist ein schneller Verstand, Logik, Beredsamkeit und die Fähigkeit, Wissen leicht aufzunehmen.",
+            "<b>Mond</b> — das Gestirn des Unterbewusstseins. Er macht dich zu einem tief fühlenden Menschen, gewährt starke Intuition und eine Verbindung zu den Ahnen.",
+            "<b>Sonne</b> — das Zentrum des Systems. Sie gibt dir eine unerschöpfliche Quelle an Lebensenergie, Charisma und den Wunsch, für andere zu leuchten.",
+            "<b>Pluto</b> — der Planet der Transformation. Er verleiht dir verborgene Macht, die Fähigkeit, Menschenmengen zu kontrollieren, und wie ein Phönix aus der Asche aufzusteigen.",
+            "<b>Jupiter</b> — der Planet des großen Glücks. Er bringt dir Glück, einen Drang nach Entwicklung, Autorität und Aufgeschlossenheit.",
+            "<b>Saturn</b> — der Planet des Karmas. Er lehrt dich Disziplin, gibt dir einen inneren Kern aus Stahl und hilft dir, deine Ziele durch harte Arbeit zu erreichen.",
+            "<b>Uranus</b> — der Planet der Zukunft. Er gewährt dir unkonventionelles Denken, einen Drang nach Freiheit, Rebellentum und brillante Einsichten.",
+            "<b>Neptun</b> — der Planet der Illusionen. Er gibt dir mächtige übersinnliche Fähigkeiten, ein Talent für Kreativität und eine Verbindung zu feinstofflichen Welten."
+        ]
+    }
+};
