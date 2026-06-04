@@ -8087,7 +8087,11 @@ const translations = {
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-user"></i></div>
                         <span class="text-sm font-medium text-white/90" data-i18n="prof_name">Имя</span>
                     </div>
-                    <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
+                    <!-- Добавили блок с выводом имени -->
+                    <div class="flex items-center gap-2">
+                        <span id="settings-name-display" class="text-xs text-white/40 font-medium"></span>
+                        <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
+                    </div>
                 </button>
                 
                 <!-- Birth Data -->
@@ -9079,10 +9083,21 @@ const translations = {
                     if (data.birth_date) {
                         const displayEl = document.getElementById('profile-birthdate-display');
                         if (displayEl) {
+                            displayEl.removeAttribute('data-i18n'); // КЛЮЧЕВОЙ ФИКС! Защищает от перезаписи
                             const [y, m, d] = data.birth_date.split('-');
                             displayEl.textContent = `${d}.${m}.${y}`;
                         }
                         updateZodiacUI(data.birth_date);
+                    }
+                    
+                    // Заодно подтягиваем правильное имя из БД, а не из Телеграма
+                    if (data.first_name) {
+                        const nameEl = document.getElementById('profile-name');
+                        if (nameEl) nameEl.textContent = data.first_name;
+                        
+                        // Выводим имя в список настроек (чуть ниже покажу, куда вставить ID)
+                        const settingsNameEl = document.getElementById('settings-name-display');
+                        if (settingsNameEl) settingsNameEl.textContent = data.first_name;
                     }
                 }
                 
