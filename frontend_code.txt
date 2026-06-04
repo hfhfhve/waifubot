@@ -9072,9 +9072,24 @@ const translations = {
                         if (createdAtEl) createdAtEl.textContent = `${t('prof_with_us')} ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
                     }
                     if (data.language_code) {
-                          activeLanguage = data.language_code.toLowerCase().trim();
-                          const langDisplayEl = document.getElementById('current-lang-display');
-                          if (langDisplayEl) langDisplayEl.innerHTML = langMap[activeLanguage] || '🇷🇺 Русский';
+                        let lang = data.language_code.toLowerCase().trim().substring(0, 2);
+                        
+                        // Поддерживаемые языки
+                        const supported = ['ru', 'en', 'es', 'fr', 'de'];
+                        // Языки, которые мы принудительно перекидываем на русский
+                        const ru_fallbacks = ['uk', 'kk', 'be', 'uz', 'ky', 'tg']; // Украина, Казахстан, Беларусь, Узбекистан, Кыргызстан, Таджикистан
+                        
+                        if (ru_fallbacks.includes(lang)) {
+                            lang = 'ru'; // Переводим СНГ на русский
+                        } else if (!supported.includes(lang)) {
+                            lang = 'en'; // Все остальные неизвестные переводим на английский
+                        }
+                        
+                        activeLanguage = lang;
+                        updateLanguageDisplay(activeLanguage);
+                    } else {
+                        activeLanguage = 'en'; // Если вообще ничего нет, ставим английский
+                        updateLanguageDisplay('en');
                     }
                     if (data.daily_card) {
                         dailyCardDataCache = data.daily_card; 
@@ -9732,19 +9747,21 @@ const translations = {
           document.getElementById('overlay').classList.remove('active');
         }
     
-        function selectLanguage(code, nameStr) {
-          activeLanguage = code;
-          document.querySelectorAll('.language-check').forEach(check => { 
-              check.classList.toggle('hidden', check.dataset.lang !== code); 
-          });
-          document.getElementById('current-lang-display').innerHTML = langMap[code] || '🇷🇺 Русский';
-          
-          // Вызываем обновление интерфейса:
-          updateInterfaceTranslations();
-          
-          showToast(t('toast_lang_changed'), 'ph-globe');
-          setTimeout(closeAllModals, 300);
-          updateCustomMonthLanguage();
+        async function selectLanguage(code, nameStr) {
+            activeLanguage = code;
+            document.querySelectorAll('.language-check').forEach(check => { 
+                check.classList.toggle('hidden', check.dataset.lang !== code); 
+            });
+            
+            updateLanguageDisplay(code);
+            updateInterfaceTranslations();
+            
+            showToast(t('toast_lang_changed'), 'ph-globe');
+            setTimeout(closeAllModals, 300);
+            updateCustomMonthLanguage();
+        
+            // Отправляем выбранный язык на бэкенд, чтобы он не сбрасывался!
+            await apiRequest("/profile/update", "POST", { language_code: code });
         }
     
         function showToast(message, icon = 'ph-check-circle') {
