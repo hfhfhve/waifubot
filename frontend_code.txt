@@ -6656,6 +6656,39 @@ const characters = [
         max-width: 400px;
         z-index: 50;
     }
+
+    /* Анимации тасовки колоды */
+    .perspective-1000 { perspective: 1000px; }
+    
+    @keyframes shuffle1 {
+        0%, 100% { transform: translateX(0) rotate(0) scale(1); z-index: 1; opacity: 0.8; }
+        33% { transform: translateX(-45px) rotate(-10deg) scale(0.9); z-index: 3; opacity: 1; }
+        66% { transform: translateX(45px) rotate(10deg) scale(0.9); z-index: 2; opacity: 0.8; }
+    }
+    @keyframes shuffle2 {
+        0%, 100% { transform: translateX(-35px) rotate(-8deg) scale(0.95); z-index: 2; opacity: 1; }
+        33% { transform: translateX(35px) rotate(8deg) scale(0.9); z-index: 1; opacity: 0.8; }
+        66% { transform: translateX(0) rotate(0) scale(1); z-index: 3; opacity: 1; }
+    }
+    @keyframes shuffle3 {
+        0%, 100% { transform: translateX(35px) rotate(8deg) scale(0.9); z-index: 3; opacity: 1; }
+        33% { transform: translateX(0) rotate(0) scale(1); z-index: 2; opacity: 0.8; }
+        66% { transform: translateX(-35px) rotate(-8deg) scale(0.95); z-index: 1; opacity: 1; }
+    }
+    
+    .animate-shuffle-1 { animation: shuffle1 2s ease-in-out infinite; }
+    .animate-shuffle-2 { animation: shuffle2 2s ease-in-out infinite; }
+    .animate-shuffle-3 { animation: shuffle3 2s ease-in-out infinite; }
+
+    /* Нахлест карт в результате */
+    .result-card-item {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0 -5px; /* Нахлест друг на друга */
+    }
+    .result-card-item:hover {
+        transform: translateY(-10px) scale(1.05);
+        z-index: 10 !important;
+    }
     
     .glass-nav {
         background: rgba(10, 10, 26, 0.75);
@@ -6947,8 +6980,8 @@ const characters = [
                 <p id="table-spread-subtitle" class="text-white/40 text-xs tracking-wide">Классический расклад на ситуацию</p>
             </div>
 
-            <!-- Информационная плашка стоимости -->
-            <div class="glass bg-white/5 border border-white/5 rounded-2xl p-4 mb-5 flex items-center justify-between">
+            <!-- Информационная плашка -->
+            <div class="glass bg-white/5 border border-white/5 rounded-2xl p-4 mb-5 flex items-center justify-between shadow-md">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-neon-indigo/10 flex items-center justify-center text-neon-indigo text-lg">
                         <i class="ph-fill ph-cards"></i>
@@ -6972,84 +7005,48 @@ const characters = [
                 </div>
             </div>
 
-            <!-- Главная кнопка запуска -->
             <button id="btn-start-ritual" onclick="startAutomatedRitual()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl shadow-[0_10px_30px_rgba(99,102,241,0.35)] active:scale-[0.99] transition-all flex justify-center items-center gap-2 tracking-wide text-sm border border-white/10 shrink-0">
-                <i class="ph-fill ph-sparkle animate-pulse"></i> ПЕРЕТАСОВАТЬ КОЛОДУ
+                ВЫТЯНУТЬ КАРТЫ
             </button>
         </div>
 
-        <!-- СОСТОЯНИЕ 2: ШАФФЛ КОЛОДЫ -->
-        <div id="tarot-table-shuffling-state" class="hidden flex-1 flex-col items-center justify-center px-6 text-center z-10 relative animate-fade-in">
-            <div class="relative w-32 h-48 mb-8 flex items-center justify-center">
-                <div class="absolute inset-0 rounded-2xl bg-neon-purple/10 blur-2xl animate-pulse-slow"></div>
-                <div class="absolute w-44 h-44 border border-dashed border-neon-indigo/20 rounded-full animate-spin [animation-duration:8s]"></div>
-                <div class="absolute w-40 h-40 border border-neon-fuchsia/20 border-t-transparent border-b-transparent rounded-full animate-spin [animation-duration:4s] [animation-direction:reverse]"></div>
-                <div class="absolute w-24 h-36 rounded-xl bg-space-800 border border-white/10 shadow-2xl transform -rotate-6 translate-x-2 translate-y-1 opacity-40"></div>
-                <div class="absolute w-24 h-36 rounded-xl bg-space-800 border border-white/10 shadow-2xl transform rotate-3 -translate-x-1 -translate-y-1 opacity-70"></div>
-                <div class="absolute w-24 h-36 rounded-xl bg-gradient-to-br from-[#1c1c3a] to-[#0a0a1f] border-2 border-neon-fuchsia shadow-[0_0_25px_rgba(232,121,249,0.3)] flex items-center justify-center animate-float">
-                    <span class="text-neon-fuchsia text-xl drop-shadow-[0_0_8px_rgba(232,121,249,0.8)]">✦</span>
-                </div>
+        <!-- СОСТОЯНИЕ 2: АНИМАЦИЯ ТАСОВКИ (Как на твоем скрине) -->
+        <div id="tarot-table-shuffling-state" class="hidden flex-1 flex-col items-center justify-center px-6 text-center z-10 relative">
+            <div class="relative w-full h-48 mb-8 flex items-center justify-center perspective-1000">
+                <div class="absolute inset-0 rounded-full bg-neon-purple/20 blur-3xl animate-pulse-slow"></div>
+                
+                <!-- Анимация трех карт -->
+                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-1 z-[1]"></div>
+                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-2 z-[2]"></div>
+                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-3 z-[3]"></div>
             </div>
-            <h3 class="text-xl font-mystic text-white font-bold mb-2 animate-pulse">Тасую эфирную колоду...</h3>
-            <p class="text-xs text-white/50 max-w-xs leading-relaxed">Сонастраиваю карты с твоим вопросом.</p>
+            <h3 class="text-2xl font-mystic text-white font-bold mb-2 animate-pulse">Тасую колоду...</h3>
+            <p class="text-xs text-white/50 max-w-xs leading-relaxed">Это занимает 15–25 секунд.<br>Не закрывай экран — карты уже выстраиваются.</p>
         </div>
 
-        <!-- СОСТОЯНИЕ 3: РУЧНОЙ ВЫБОР КАРТ -->
-        <div id="tarot-table-picking-state" class="hidden flex-1 flex-col justify-between px-5 pt-6 pb-2 z-10 relative animate-fade-in">
-            <div class="text-center mb-4">
-                <h3 class="text-xl font-mystic text-white font-bold">Вытяни карты</h3>
-                <p id="picking-instruction" class="text-white/50 text-xs mt-1">Осталось выбрать: <span id="cards-left-count" class="text-neon-fuchsia font-bold">3</span></p>
-            </div>
+        <!-- СОСТОЯНИЕ 3: ЭКРАН РЕЗУЛЬТАТА (Как на твоем скрине) -->
+        <div id="tarot-table-result-state" class="hidden flex-1 flex-col z-10 relative overflow-y-auto hide-scrollbar px-5 pt-2 pb-24">
             
-            <!-- Скроллируемая лента колоды -->
-            <div class="w-full relative mb-8">
-                <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-space-900 to-transparent z-10 pointer-events-none"></div>
-                <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-space-900 to-transparent z-10 pointer-events-none"></div>
-                <div id="horizontal-deck-container" class="flex gap-2 overflow-x-auto hide-scrollbar py-6 px-4 snap-x snap-mandatory">
-                    <!-- JS генерирует сюда карты -->
-                </div>
+            <!-- Вопрос юзера -->
+            <div class="glass bg-space-800/80 rounded-2xl p-4 border border-white/10 mb-6 relative overflow-hidden">
+                <p class="text-neon-amber text-[9px] uppercase tracking-widest font-bold mb-1">Твой вопрос</p>
+                <p id="result-user-question" class="text-white text-sm italic font-light leading-relaxed">...</p>
             </div>
 
-            <!-- Слоты для выбранных карт -->
-            <div class="glass bg-space-800/50 rounded-3xl p-4 border border-white/5 mb-6">
-                <div id="picked-slots-container" class="flex justify-center gap-3">
-                    <!-- JS генерирует сюда слоты -->
-                </div>
+            <!-- Изображения выпавших карт -->
+            <div id="result-cards-display" class="flex justify-center flex-wrap gap-[-10px] mb-8 relative">
+                <!-- Сюда вставятся картинки через JS -->
             </div>
 
-            <button id="btn-analyze-spread" onclick="analyzePickedCards()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl shadow-[0_10px_30px_rgba(99,102,241,0.35)] active:scale-[0.99] transition-all flex justify-center items-center gap-2 tracking-wide text-sm border border-white/10 opacity-0 pointer-events-none translate-y-4">
-                <i class="ph-fill ph-magic-wand"></i> РАСШИФРОВАТЬ ПОСЛАНИЕ
-            </button>
-        </div>
-
-        <!-- СОСТОЯНИЕ 4: РЕЗУЛЬТАТ РАСКЛАДА -->
-        <div id="tarot-table-result-state" class="hidden flex-1 flex-col z-10 relative overflow-y-auto hide-scrollbar px-5 pt-4 pb-24">
-            
-            <!-- Плашка с вопросом юзера -->
-            <div class="glass bg-space-800/80 rounded-[20px] p-4 border border-white/10 mb-6 relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-indigo/20 blur-xl rounded-full"></div>
-                <p class="text-neon-indigo text-[9px] uppercase tracking-widest font-bold mb-1 relative z-10">Твой вопрос</p>
-                <p id="result-user-question" class="text-white text-sm italic font-light relative z-10 leading-relaxed">...</p>
-            </div>
-
-            <!-- Показ выпавших карт -->
-            <div id="result-cards-display" class="flex justify-center flex-wrap gap-3 mb-8">
-                <!-- Сюда вставляются картинки карт -->
-            </div>
-
-            <!-- Текст от нейросети -->
-            <div class="w-full">
-                <h3 class="text-2xl font-mystic text-white font-bold mb-4 text-center">Расшифровка Звезд</h3>
-                <div id="result-ai-text" class="text-white/85 text-sm leading-relaxed space-y-4 font-light content-daily-markdown pb-8">
-                    <div class="flex flex-col items-center justify-center py-10 opacity-50">
-                        <i class="ph-fill ph-spinner animate-spin text-3xl mb-3"></i>
-                        <span class="text-xs">Оракул читает нити судьбы...</span>
-                    </div>
+            <!-- Расшифровка ИИ -->
+            <div class="w-full glass bg-space-900/80 rounded-3xl p-5 border border-white/5 mb-6">
+                <div id="result-ai-text" class="text-white/85 text-sm leading-relaxed space-y-4 font-light content-daily-markdown">
+                    <!-- Сюда вставится текст или лоадер -->
                 </div>
             </div>
 
             <button onclick="navigateTo('home')" class="w-full bg-space-800 text-white font-bold py-4 rounded-2xl active:scale-[0.99] transition-all flex justify-center items-center text-sm border border-white/10">
-                ВЕРНУТЬСЯ НА ГЛАВНУЮ
+                ЗАВЕРШИТЬ РИТУАЛ
             </button>
         </div>
     </div>
@@ -8779,10 +8776,12 @@ const characters = [
 
     async function startAutomatedRitual() {
         const questionText = document.getElementById('tarot-user-question').value.trim();
+        
         if (!questionText) {
             return showToast("Сформулируй свой вопрос", "ph-warning-circle");
         }
 
+        // Проверяем баланс
         const numericPrice = currentSpread.price === 'Бесплатно' ? 0 : parseInt(currentSpread.price);
         if (userBalance.energy < numericPrice) {
             showToast("Недостаточно энергии!", "ph-lightning text-neon-amber");
@@ -8790,24 +8789,82 @@ const characters = [
             return;
         }
 
-        // Сохраняем вопрос
-        currentSpread.question = questionText;
-        currentSpread.pickedCards = [];
-        currentSpread.drawnVisualIndices = [];
-
-        // Переход 1: Показываем тасовку
-        document.getElementById('tarot-table-input-state').classList.add('hidden');
-        document.getElementById('tarot-table-shuffling-state').classList.remove('hidden');
-        
         if (window.Telegram?.WebApp?.HapticFeedback) {
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        // Имитация времени тасовки (2 секунды), затем переход к выбору
-        setTimeout(() => {
-            document.getElementById('tarot-table-shuffling-state').classList.add('hidden');
-            setupPickingState();
-        }, 2000);
+        // Автоматически генерируем карты
+        const uniqueCards = [];
+        while (uniqueCards.length < currentSpread.requiredCards) {
+            const randomCardId = Math.floor(Math.random() * 78) + 1;
+            if (!uniqueCards.includes(randomCardId)) {
+                uniqueCards.push(randomCardId);
+            }
+        }
+        
+        currentSpread.pickedCards = uniqueCards;
+        currentSpread.question = questionText;
+
+        // Прячем форму, показываем тасовку
+        document.getElementById('tarot-table-input-state').classList.add('hidden');
+        document.getElementById('tarot-table-result-state').classList.add('hidden');
+        document.getElementById('tarot-table-shuffling-state').classList.remove('hidden');
+
+        // Сразу запускаем анализ (чтобы не терять время, пока идет анимация)
+        await executeSpreadAnalysis();
+    }
+
+    async function executeSpreadAnalysis() {
+        // Подготавливаем экран результата
+        document.getElementById('result-user-question').textContent = `«${currentSpread.question}»`;
+        
+        // Рендерим лица карт (с красивым нахлестом)
+        const cardsDisplay = document.getElementById('result-cards-display');
+        cardsDisplay.innerHTML = '';
+        currentSpread.pickedCards.forEach((cardId, index) => {
+            const imgUrl = `https://tarot.waifubot.website/static/cards/${cardId}.webp`;
+            cardsDisplay.innerHTML += `
+                <div class="relative result-card-item" style="z-index: ${index}">
+                    <img src="${imgUrl}" class="w-[85px] sm:w-[100px] rounded-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.8)] border border-white/10" alt="Карта ${cardId}">
+                </div>
+            `;
+        });
+
+        // Задаем минимальное время тасовки (3 секунды), чтобы юзер увидел красивую анимацию
+        const minimumShuffleTime = new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Делаем реальный запрос к бэкенду
+        const apiCall = apiRequest("/tarot/spread", "POST", { 
+            spread_type: currentSpread.type, 
+            cards: currentSpread.pickedCards,
+            question: currentSpread.question
+        });
+
+        // Ждем, пока пройдут и 3 секунды анимации, и придет ответ от сервера
+        const [_, data] = await Promise.all([minimumShuffleTime, apiCall]);
+
+        // Прячем тасовку, показываем результат
+        document.getElementById('tarot-table-shuffling-state').classList.add('hidden');
+        document.getElementById('tarot-table-result-state').classList.remove('hidden');
+
+        const textContainer = document.getElementById('result-ai-text');
+
+        // Выводим результат
+        if (data.success) {
+            textContainer.innerHTML = DOMPurify.sanitize(data.interpretation);
+            userBalance.energy = data.energy;
+            updateBalanceUI();
+            
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+        } else {
+            if (data.message === "no_energy") {
+                textContainer.innerHTML = '<p class="text-neon-amber text-center font-bold mb-2">Не хватило энергии!</p><p class="text-white/60 text-center text-xs">Пополни баланс звездной пыли в магазине.</p>';
+            } else {
+                textContainer.innerHTML = '<p class="text-red-400 text-center">Связь с астралом прервана. Попробуй позже.</p>';
+            }
+        }
     }
 
     function setupPickingState() {
