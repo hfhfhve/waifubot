@@ -985,23 +985,24 @@
 
                 <div class="grid grid-cols-3 gap-3 relative z-10">
                     <!-- Знак Зодиака -->
-                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center">
-                        <i class="ph-fill ph-stars text-neon-amber text-lg mb-1 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]"></i>
+                    <button onclick="openProfileAstroInfo('sign')" class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 active:scale-95 transition-all group">
+                        <!-- Сюда скрипт вставит эмодзи знака зодиака -->
+                        <span id="profile-zodiac-icon" class="text-xl mb-1 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] group-hover:scale-110 transition-transform">✨</span>
                         <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5" data-i18n="prof_sign">ЗНАК</span>
-                        <span id="profile-zodiac" class="text-xs font-bold text-white" data-i18n="prof_unknown">Неизвестно</span>
-                    </div>
+                        <span id="profile-zodiac" class="text-xs font-bold text-white">Неизвестно</span>
+                    </button>
                     <!-- Стихия -->
-                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-90">
-                        <i class="ph-fill ph-sparkle text-neon-cyan text-lg mb-1"></i>
+                    <button onclick="openProfileAstroInfo('element')" class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 active:scale-95 transition-all group">
+                        <i class="ph-fill ph-sparkle text-neon-cyan text-lg mb-1 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] group-hover:scale-110 transition-transform"></i>
                         <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5" data-i18n="prof_element">СТИХИЯ</span>
                         <span id="profile-element" class="text-xs font-bold text-white">—</span>
-                    </div>
+                    </button>
                     <!-- Планета -->
-                    <div class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center opacity-90">
-                        <i class="ph-fill ph-planet text-neon-fuchsia text-lg mb-1"></i>
+                    <button onclick="openProfileAstroInfo('planet')" class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 active:scale-95 transition-all group">
+                        <i class="ph-fill ph-planet text-neon-fuchsia text-lg mb-1 drop-shadow-[0_0_8px_rgba(232,121,249,0.5)] group-hover:scale-110 transition-transform"></i>
                         <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5" data-i18n="prof_planet">ПЛАНЕТА</span>
                         <span id="profile-planet" class="text-xs font-bold text-white">—</span>
-                    </div>
+                    </button>
                 </div>
             </div>
 
@@ -2493,6 +2494,57 @@
             statsContainer.classList.remove('opacity-0');
             statsContainer.classList.add('opacity-100');
         }
+
+        function openProfileAstroInfo(type) {
+            // Проверяем, есть ли данные
+            if (!window.userAstroIndices) {
+                return showToast(t('toast_error') || "Сначала добавь дату рождения", "ph-warning");
+            }
+    
+            const { sIdx, eIdx, pIdx } = window.userAstroIndices;
+            
+            // Берем словари (фоллбек на русский для текстов, если перевода еще нет)
+            const localDict = astroDict[activeLanguage] || astroDict['en'];
+            const textDict = astroDescriptions[activeLanguage] || astroDescriptions['ru'];
+    
+            let title = "", subtitle = "", textHtml = "", iconHTML = "", colorClass = "";
+    
+            if (type === 'sign') {
+                title = localDict.signs[sIdx];
+                subtitle = t('prof_sign');
+                textHtml = textDict['sign'][sIdx] || astroDescriptions['ru']['sign'][sIdx];
+                iconHTML = `<span class="text-4xl drop-shadow-md">${zodiacEmojis[sIdx]}</span>`;
+                colorClass = "neon-amber";
+            } else if (type === 'element') {
+                title = localDict.elements[eIdx];
+                subtitle = t('prof_element');
+                textHtml = textDict['element'][eIdx] || astroDescriptions['ru']['element'][eIdx];
+                iconHTML = `<i class="ph-fill ph-sparkle text-3xl text-neon-cyan drop-shadow-md"></i>`;
+                colorClass = "neon-cyan";
+            } else if (type === 'planet') {
+                title = localDict.planets[pIdx];
+                subtitle = t('prof_planet');
+                textHtml = textDict['planet'][pIdx] || astroDescriptions['ru']['planet'][pIdx];
+                iconHTML = `<i class="ph-fill ph-planet text-3xl text-neon-fuchsia drop-shadow-md"></i>`;
+                colorClass = "neon-fuchsia";
+            }
+    
+            // Подготавливаем модалку
+            document.getElementById('planet-modal-title').textContent = title;
+            document.getElementById('planet-modal-type').textContent = subtitle;
+            
+            document.getElementById('planet-modal-icon-bg').className = `w-16 h-16 rounded-full bg-space-800 border border-${colorClass}/30 flex items-center justify-center shadow-[0_0_20px_var(--tw-shadow-color)] shadow-${colorClass}/20 shrink-0 transition-colors`;
+            document.getElementById('planet-modal-icon').outerHTML = iconHTML; 
+            document.getElementById('planet-modal-icon-bg').firstElementChild.id = "planet-modal-icon"; 
+            
+            document.getElementById('planet-modal-glow').className = `absolute -top-10 -right-10 w-40 h-40 bg-${colorClass}/20 rounded-full blur-3xl pointer-events-none transition-colors`;
+            
+            // МГНОВЕННО вставляем текст из нашего data.js
+            document.getElementById('planet-modal-text').innerHTML = `<p class="leading-relaxed">${textHtml}</p>`;
+            
+            // Открываем модалку
+            openModal('planet-info');
+        }
     
         function updateHomeWidget(cardData) {
             document.getElementById('home-daily-icon').classList.add('hidden');
@@ -2520,34 +2572,43 @@
         }
     
         function updateZodiacUI(dateString) {
-            if (!dateString) return;
-            const date = new Date(dateString);
+            // Сохраняем дату глобально, чтобы при смене языка можно было пересчитать
+            if (dateString) window.userBirthDate = dateString;
+            if (!window.userBirthDate) return;
+            
+            const date = new Date(window.userBirthDate);
             const day = date.getDate();
             const month = date.getMonth() + 1;
-        
-            let sign = t('prof_unknown'); let element = "—"; let planet = "—";
-        
-            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) { sign = "Овен"; element = "Огонь"; planet = "Марс"; }
-            else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) { sign = "Телец"; element = "Земля"; planet = "Венера"; }
-            else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) { sign = "Близнецы"; element = "Воздух"; planet = "Меркурий"; }
-            else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) { sign = "Рак"; element = "Вода"; planet = "Луна"; }
-            else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) { sign = "Лев"; element = "Огонь"; planet = "Солнце"; }
-            else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) { sign = "Дева"; element = "Земля"; planet = "Меркурий"; }
-            else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) { sign = "Весы"; element = "Воздух"; planet = "Венера"; }
-            else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) { sign = "Скорпион"; element = "Вода"; planet = "Плутон"; }
-            else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) { sign = "Стрелец"; element = "Огонь"; planet = "Юпитер"; }
-            else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) { sign = "Козерог"; element = "Земля"; planet = "Сатурн"; }
-            else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) { sign = "Водолей"; element = "Воздух"; planet = "Уран"; }
-            else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) { sign = "Рыбы"; element = "Вода"; planet = "Нептун"; }
-        
-            const zodiacEl = document.getElementById('profile-zodiac');
-            if (zodiacEl) {
-                zodiacEl.removeAttribute('data-i18n'); // <-- ВОТ ГЛАВНЫЙ ФИКС!
-                zodiacEl.textContent = sign;
-            }
-            
-            document.getElementById('profile-element').textContent = element;
-            document.getElementById('profile-planet').textContent = planet;
+    
+            let sIdx = 0, eIdx = 0, pIdx = 0;
+    
+            // Определяем индексы (Знак, Стихия, Планета)
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19))      { sIdx = 0; eIdx = 0; pIdx = 0; } // Овен
+            else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) { sIdx = 1; eIdx = 1; pIdx = 1; } // Телец
+            else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) { sIdx = 2; eIdx = 2; pIdx = 2; } // Близнецы
+            else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) { sIdx = 3; eIdx = 3; pIdx = 3; } // Рак
+            else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) { sIdx = 4; eIdx = 0; pIdx = 4; } // Лев
+            else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) { sIdx = 5; eIdx = 1; pIdx = 2; } // Дева
+            else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)){ sIdx = 6; eIdx = 2; pIdx = 1; } // Весы
+            else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)){ sIdx = 7; eIdx = 3; pIdx = 5; } // Скорпион
+            else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)){ sIdx = 8; eIdx = 0; pIdx = 6; } // Стрелец
+            else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)){ sIdx = 9; eIdx = 1; pIdx = 7; } // Козерог
+            else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) { sIdx = 10; eIdx = 2; pIdx = 8; } // Водолей
+            else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) { sIdx = 11; eIdx = 3; pIdx = 9; } // Рыбы
+    
+            // Сохраняем индексы, чтобы использовать их при нажатии
+            window.userAstroIndices = { sIdx, eIdx, pIdx };
+    
+            // Берем нужный язык (если языка нет в словаре, ставим английский)
+            const dict = astroDict[activeLanguage] || astroDict['en'];
+    
+            document.getElementById('profile-zodiac').textContent = dict.signs[sIdx];
+            document.getElementById('profile-element').textContent = dict.elements[eIdx];
+            document.getElementById('profile-planet').textContent = dict.planets[pIdx];
+    
+            // Вставляем красивый астрологический эмодзи ♈ ♉ ♊ ...
+            const iconEl = document.getElementById('profile-zodiac-icon');
+            if (iconEl) iconEl.textContent = zodiacEmojis[sIdx];
         }
     
         async function saveProfileData() {
@@ -2865,11 +2926,13 @@
             updateLanguageDisplay(code);
             updateInterfaceTranslations();
             
+            // ДОБАВИТЬ ВОТ ЭТУ СТРОКУ (Она мгновенно переведет Овен на Aries)
+            updateZodiacUI(window.userBirthDate); 
+            
             showToast(t('toast_lang_changed'), 'ph-globe');
             setTimeout(closeAllModals, 300);
             updateCustomMonthLanguage();
         
-            // Отправляем выбранный язык на бэкенд, чтобы он не сбрасывался!
             await apiRequest("/profile/update", "POST", { language_code: code });
         }
     
