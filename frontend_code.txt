@@ -7130,6 +7130,11 @@ const translations = {
             'fade-in': 'fadeIn 0.2s ease-out',
             'stars': 'stars 100s linear infinite',
             'flip': 'flip 0.6s ease-in-out',
+            /* --- НОВЫЕ АНИМАЦИИ ДЛЯ ОРБИТ --- */
+            'spin-slow': 'spin 15s linear infinite',
+            'spin-reverse-slow': 'spinReverse 15s linear infinite',
+            'spin-slower': 'spin 25s linear infinite',
+            'spin-reverse-slower': 'spinReverse 25s linear infinite',
           },
           keyframes: {
             float: {
@@ -7151,6 +7156,11 @@ const translations = {
             stars: {
               '0%': { transform: 'translateY(0)' },
               '100%': { transform: 'translateY(-100%)' },
+            },
+            /* --- НОВЫЙ КЕЙФРЕЙМ ДЛЯ ОБРАТНОГО ВРАЩЕНИЯ ИКОНОК --- */
+            spinReverse: {
+              '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
+              '100%': { transform: 'translate(-50%, -50%) rotate(-360deg)' }
             }
           }
         }
@@ -7629,7 +7639,7 @@ const translations = {
                     <p class="text-white text-sm font-bold mb-0.5" data-i18n="tarot">Таро</p>
                     <p class="text-white/40 text-[10px] leading-tight" data-i18n="tarot_desc">Расклады и анализ</p>
                 </button>
-                <button onclick="openModal('astro')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-fuchsia/30 group">
+                <button onclick="openAstro()" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-fuchsia/30 group">
                     <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center mb-3 group-hover:bg-neon-fuchsia/20 transition-colors">
                         <i class="ph-fill ph-planet text-xl text-neon-fuchsia"></i>
                     </div>
@@ -7806,6 +7816,52 @@ const translations = {
 
             <button onclick="navigateTo('home')" class="w-full bg-space-800 text-white font-bold py-4 rounded-2xl active:scale-[0.99] transition-all flex justify-center items-center text-sm border border-white/10" data-i18n="btn_finish">
                 ЗАВЕРШИТЬ РИТУАЛ
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-astro" class="screen hidden flex-1 flex flex-col relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-space-800 via-space-900 to-black pb-24">
+        <div class="px-5 pt-8 w-full flex justify-between items-center z-20 shrink-0">
+            <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5">
+                <i class="ph-bold ph-caret-left text-xl"></i>
+            </button>
+            <span class="text-white/50 text-xs font-bold uppercase tracking-widest" data-i18n="astro_title">Космо-Паспорт</span>
+            <div class="w-10"></div>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center justify-center relative z-10">
+            <!-- Сама орбитальная система -->
+            <div class="relative w-[300px] h-[300px] flex items-center justify-center">
+                <!-- СОЛНЦЕ (Центр) -->
+                <div class="absolute w-20 h-20 rounded-full bg-gradient-to-br from-neon-amber to-orange-500 shadow-[0_0_40px_rgba(251,191,36,0.5)] flex items-center justify-center z-30 cursor-pointer active:scale-95 transition-transform" onclick="showPlanetInfo('sun')">
+                    <i class="ph-fill ph-sun text-4xl text-white drop-shadow-md"></i>
+                </div>
+                
+                <!-- ОРБИТА 1 (Луна) -->
+                <div class="absolute w-[200px] h-[200px] border border-white/10 rounded-full animate-spin-slow z-20 pointer-events-none">
+                    <div class="absolute top-0 left-1/2 w-10 h-10 rounded-full bg-space-800 border border-neon-cyan shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center animate-spin-reverse-slow cursor-pointer pointer-events-auto" onclick="showPlanetInfo('moon')">
+                        <i class="ph-fill ph-moon text-neon-cyan text-lg"></i>
+                    </div>
+                </div>
+                
+                <!-- ОРБИТА 2 (Планета-Управитель) -->
+                <div class="absolute w-[300px] h-[300px] border border-white/10 rounded-full animate-spin-slower z-10 pointer-events-none">
+                    <div class="absolute top-1/2 left-0 w-12 h-12 rounded-full bg-space-800 border border-neon-fuchsia shadow-[0_0_15px_rgba(232,121,249,0.4)] flex items-center justify-center animate-spin-reverse-slower cursor-pointer pointer-events-auto" onclick="showPlanetInfo('planet')">
+                        <i class="ph-fill ph-planet text-neon-fuchsia text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Кнопка обновления данных (Внизу экрана) -->
+        <div class="absolute bottom-24 inset-x-0 flex justify-center z-20">
+            <button onclick="openModal('astro-form')" class="glass bg-space-800/80 px-6 py-3 rounded-[20px] border border-white/10 flex items-center gap-3 active:scale-95 transition-transform shadow-lg">
+                <div class="text-left">
+                    <p id="astro-display-date" class="text-white font-bold text-sm leading-none">15.04.1995</p>
+                    <p id="astro-display-city" class="text-white/50 text-[10px] uppercase tracking-widest mt-1">Москва</p>
+                </div>
+                <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+                <i class="ph-fill ph-pencil-simple text-neon-fuchsia text-lg animate-pulse"></i>
             </button>
         </div>
     </div>
@@ -8521,8 +8577,36 @@ const translations = {
         </div>
     </div>
 
+    <div id="modal-planet-info" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[70]">
+        <div class="glass-strong rounded-t-[32px] pb-8 flex flex-col relative overflow-hidden">
+            <div id="planet-modal-glow" class="absolute -top-10 -right-10 w-40 h-40 bg-neon-amber/20 rounded-full blur-3xl pointer-events-none transition-colors"></div>
+            
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pt-2">
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="planet-modal-icon-bg" class="w-16 h-16 rounded-full bg-space-800 border border-neon-amber/30 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.2)] shrink-0 transition-colors">
+                        <i id="planet-modal-icon" class="ph-fill ph-sun text-3xl text-neon-amber drop-shadow-md transition-colors"></i>
+                    </div>
+                    <div>
+                        <p id="planet-modal-type" class="text-white/50 text-[10px] uppercase tracking-widest font-bold mb-1">Ядро личности</p>
+                        <h3 id="planet-modal-title" class="text-white font-mystic text-3xl font-bold leading-none">Солнце во Льве</h3>
+                    </div>
+                </div>
+                
+                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
+                
+                <div id="planet-modal-text" class="text-white/85 text-sm leading-relaxed font-light min-h-[80px]">
+                    <!-- Тут будет ИИ текст -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ASTRO / NATAL MODAL -->
-    <div id="modal-astro" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+    <div id="modal-astro-form" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] max-h-[85vh] overflow-hidden flex flex-col">
             <div class="flex justify-center pt-4 pb-3">
                 <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
@@ -9095,6 +9179,13 @@ const translations = {
                         }
                         
                         activeLanguage = lang;
+                          if (data.natal_chart_data && data.birth_city) {
+                            userAstroData = {
+                                chart: data.natal_chart_data,
+                                city: data.birth_city,
+                                date: data.birth_date
+                            };
+                        }
                         updateLanguageDisplay(activeLanguage);
                     } else {
                         activeLanguage = 'en'; // Если вообще ничего нет, ставим английский
@@ -9722,11 +9813,88 @@ const translations = {
             if (data.success) {
                 closeAllModals();
                 showToast(t('toast_success'), "ph-check-circle");
-                document.getElementById('profile-zodiac').textContent = data.sun_sign;
-                document.getElementById('profile-element').textContent = data.element;
-                document.getElementById('profile-planet').textContent = data.planet;
+                
+                // Обновляем профиль
+                document.getElementById('profile-zodiac').textContent = data.chart.sun;
+                document.getElementById('profile-element').textContent = data.chart.element;
+                document.getElementById('profile-planet').textContent = data.chart.planet;
+                
+                // Сохраняем и сразу показываем красоту!
+                userAstroData = { chart: data.chart, city: city, date: dateInput };
+                openAstro(); 
             } else {
                 showToast(t('toast_error'), "ph-warning");
+            }
+        }
+
+        function openAstro() {
+            if (userAstroData && userAstroData.chart) {
+                // Если данные есть — показываем крутые орбиты!
+                const [y, m, d] = userAstroData.date.split('-');
+                document.getElementById('astro-display-date').textContent = `${d}.${m}.${y}`;
+                document.getElementById('astro-display-city').textContent = userAstroData.city;
+                navigateTo('astro');
+            } else {
+                // Если данных нет — просим ввести
+                openModal('astro-form');
+            }
+        }
+    
+        async function showPlanetInfo(type) {
+            if (!userAstroData || !userAstroData.chart) return;
+            
+            const chart = userAstroData.chart;
+            let title = "", subtitle = "", promptQuery = "", iconClass = "", colorClass = "";
+            
+            if (type === 'sun') {
+                title = `Солнце в знаке ${chart.sun}`;
+                subtitle = "Ядро личности";
+                promptQuery = `Опиши мистическое значение: Солнце в знаке ${chart.sun}.`;
+                iconClass = "ph-sun"; colorClass = "neon-amber";
+            } else if (type === 'moon') {
+                title = `Луна в знаке ${chart.moon}`;
+                subtitle = "Сфера эмоций";
+                promptQuery = `Опиши мистическое значение: Луна в знаке ${chart.moon}.`;
+                iconClass = "ph-moon"; colorClass = "neon-cyan";
+            } else if (type === 'planet') {
+                title = `Управитель: ${chart.planet}`;
+                subtitle = `Стихия: ${chart.element}`;
+                promptQuery = `Опиши мистическое значение: Планета ${chart.planet}, стихия ${chart.element}.`;
+                iconClass = "ph-planet"; colorClass = "neon-fuchsia";
+            }
+    
+            // Обновляем визуал модалки
+            document.getElementById('planet-modal-title').textContent = title;
+            document.getElementById('planet-modal-type').textContent = subtitle;
+            
+            document.getElementById('planet-modal-icon-bg').className = `w-16 h-16 rounded-full bg-space-800 border border-${colorClass}/30 flex items-center justify-center shadow-[0_0_20px_var(--tw-shadow-color)] shadow-${colorClass}/20 shrink-0 transition-colors`;
+            document.getElementById('planet-modal-icon').className = `ph-fill ${iconClass} text-3xl text-${colorClass} drop-shadow-md transition-colors`;
+            document.getElementById('planet-modal-glow').className = `absolute -top-10 -right-10 w-40 h-40 bg-${colorClass}/20 rounded-full blur-3xl pointer-events-none transition-colors`;
+            
+            document.getElementById('planet-modal-text').innerHTML = `
+                <div class="flex items-center gap-3 text-neon-indigo animate-pulse">
+                    <i class="ph-fill ph-spinner animate-spin text-xl"></i>
+                    <span class="text-xs font-bold uppercase tracking-widest">Оракул читает звезды...</span>
+                </div>
+            `;
+            openModal('planet-info');
+    
+            // Кэшируем ответы, чтобы не тратить токены при повторных кликах
+            if (!window.planetCache) window.planetCache = {};
+            const cacheKey = title;
+    
+            if (window.planetCache[cacheKey]) {
+                document.getElementById('planet-modal-text').innerHTML = window.planetCache[cacheKey];
+                return;
+            }
+    
+            // Запрашиваем текст у нового бесплатного эндпоинта!
+            const res = await apiRequest("/profile/astro-interpret", "POST", { query: promptQuery });
+            if (res.success) {
+                window.planetCache[cacheKey] = res.text;
+                document.getElementById('planet-modal-text').innerHTML = res.text;
+            } else {
+                document.getElementById('planet-modal-text').innerHTML = res.text;
             }
         }
     
