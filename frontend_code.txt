@@ -8682,8 +8682,8 @@ const astroDescriptions = {
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center" data-i18n="birth_title">Твой день рождения</h3>
                 <div class="space-y-4">
-                    <div class="grid grid-cols-12 gap-2">
-                        <!-- День -->
+                    <!-- === МОБИЛЬНЫЙ ИНТЕРФЕЙС (СПИСКИ) === -->
+                    <div class="grid grid-cols-12 gap-2 mobile-date-ui">
                         <div class="relative col-span-3">
                             <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-day-list">
                                 <span id="label-edit-day" class="truncate">ДД</span>
@@ -8692,7 +8692,6 @@ const astroDescriptions = {
                             <div id="edit-day-list" class="absolute top-full left-0 w-full mt-1 bg-space-700 border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
                             <input type="hidden" id="edit-day">
                         </div>
-                        <!-- Месяц -->
                         <div class="relative col-span-5">
                             <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-month-list">
                                 <span id="label-edit-month" class="truncate" data-i18n="month">Месяц</span>
@@ -8701,7 +8700,6 @@ const astroDescriptions = {
                             <div id="edit-month-list" class="absolute top-full left-0 w-full mt-1 bg-space-700 border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
                             <input type="hidden" id="edit-month">
                         </div>
-                        <!-- Год -->
                         <div class="relative col-span-4">
                             <div class="w-full bg-space-800 border border-white/10 hover:border-neon-indigo/50 rounded-xl py-3 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="edit-year-list">
                                 <span id="label-edit-year" class="truncate" data-i18n="year">ГГГГ</span>
@@ -8711,6 +8709,20 @@ const astroDescriptions = {
                             <input type="hidden" id="edit-year">
                         </div>
                     </div>
+
+                    <!-- === ДЕСКТОПНЫЙ ИНТЕРФЕЙС (КЛАВИАТУРА) === -->
+                    <div class="flex items-center justify-center gap-2 desktop-date-ui hidden">
+                        <input type="text" id="edit-desk-day" maxlength="2" placeholder="ДД" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-indigo/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
+                        <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                        <input type="text" id="edit-desk-month" maxlength="2" placeholder="ММ" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-indigo/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
+                        <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                        <input type="text" id="edit-desk-year" maxlength="4" placeholder="ГГГГ" class="w-[100px] bg-space-800 border border-white/10 focus:border-neon-indigo/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
+                    </div>
+
+                    <!-- Явная кнопка сохранения -->
+                    <button onclick="saveBirthDateOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-xl mt-6 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide uppercase" data-i18n="save">
+                        Подтвердить
+                    </button>
                 </div>
             </div>
         </div>
@@ -8840,7 +8852,9 @@ const astroDescriptions = {
                 <form class="space-y-4" onsubmit="event.preventDefault(); submitAstroForm();">
                     <div class="relative z-50">
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="prof_birth">Дата рождения</label>
-                        <div class="grid grid-cols-12 gap-2">
+                        
+                        <!-- === МОБИЛЬНЫЙ ИНТЕРФЕЙС === -->
+                        <div class="grid grid-cols-12 gap-2 mobile-date-ui">
                             <div class="relative col-span-3">
                                 <div class="w-full bg-space-800 border border-white/10 hover:border-neon-fuchsia/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer transition-colors custom-select-btn" data-target="astro-day-list">
                                     <span id="label-astro-day" class="truncate">ДД</span>
@@ -8865,6 +8879,15 @@ const astroDescriptions = {
                                 <div id="astro-year-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50"></div>
                                 <input type="hidden" id="astro-year">
                             </div>
+                        </div>
+
+                        <!-- === ДЕСКТОПНЫЙ ИНТЕРФЕЙС === -->
+                        <div class="flex items-center justify-center gap-2 desktop-date-ui hidden">
+                            <input type="text" id="astro-desk-day" maxlength="2" placeholder="ДД" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-fuchsia/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
+                            <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                            <input type="text" id="astro-desk-month" maxlength="2" placeholder="ММ" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-fuchsia/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
+                            <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                            <input type="text" id="astro-desk-year" maxlength="4" placeholder="ГГГГ" class="w-[100px] bg-space-800 border border-white/10 focus:border-neon-fuchsia/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner placeholder-white/20">
                         </div>
                     </div>
 
@@ -9459,6 +9482,7 @@ const astroDescriptions = {
                 // Инициализируем селекты дат
                 initDateSelects();
                 initCustomDateSelects();
+                setupDesktopDateInputs();
         
                 // Загружаем магазин и календарь параллельно, дожидаясь их выполнения
                 await Promise.all([
@@ -9646,11 +9670,18 @@ const astroDescriptions = {
             }
     
         async function saveBirthDateOnly() {
-            const d = document.getElementById('edit-day').value;
-            const m = document.getElementById('edit-month').value;
-            const y = document.getElementById('edit-year').value;
+            const isDesktop = document.body.classList.contains('is-desktop');
             
-            if (!d || !m || !y) return showToast(t('toast_enter_date'), "ph-warning-circle");
+            // Если ПК берем из новых полей, если мобилка - из старых скрытых инпутов
+            let d = isDesktop ? document.getElementById('edit-desk-day').value : document.getElementById('edit-day').value;
+            let m = isDesktop ? document.getElementById('edit-desk-month').value : document.getElementById('edit-month').value;
+            let y = isDesktop ? document.getElementById('edit-desk-year').value : document.getElementById('edit-year').value;
+            
+            // Авто-добавление нуля (например, если ввел "5" вместо "05")
+            if (d && d.length === 1) d = '0' + d;
+            if (m && m.length === 1) m = '0' + m;
+
+            if (!d || !m || !y || y.length < 4) return showToast(t('toast_enter_date') || 'Введите дату полностью', "ph-warning-circle");
             
             const dateInput = `${y}-${m}-${d}`;
             const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
@@ -9664,6 +9695,55 @@ const astroDescriptions = {
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
             }
+        }
+
+        function setupDesktopDateInputs() {
+            // Проверяем, десктоп ли это
+            const isDesktop = ['tdesktop', 'web', 'macos'].includes(tg.platform);
+            if (isDesktop) {
+                document.body.classList.add('is-desktop');
+                // Скрываем списки, показываем поля ввода
+                document.querySelectorAll('.mobile-date-ui').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.desktop-date-ui').forEach(el => el.classList.remove('hidden'));
+            } else {
+                return; // На мобилках выходим
+            }
+
+            const bindInputs = (prefix) => {
+                const day = document.getElementById(prefix + '-desk-day');
+                const month = document.getElementById(prefix + '-desk-month');
+                const year = document.getElementById(prefix + '-desk-year');
+                
+                if (!day || !month || !year) return;
+
+                // Переход Дни -> Месяцы
+                day.addEventListener('input', () => {
+                    day.value = day.value.replace(/\D/g, ''); // Только цифры
+                    if (day.value.length === 2) month.focus();
+                });
+                
+                // Переход Месяцы -> Года
+                month.addEventListener('input', () => {
+                    month.value = month.value.replace(/\D/g, '');
+                    if (month.value.length === 2) year.focus();
+                });
+                
+                // Ввод года
+                year.addEventListener('input', () => {
+                    year.value = year.value.replace(/\D/g, '').substring(0, 4);
+                });
+
+                // Возврат назад при стирании (Backspace)
+                month.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && month.value === '') day.focus();
+                });
+                year.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && year.value === '') month.focus();
+                });
+            };
+
+            bindInputs('edit');
+            bindInputs('astro');
         }
     
         function showMaintenanceScreen() {
@@ -10113,16 +10193,22 @@ const astroDescriptions = {
         }
     
         async function submitAstroForm() {
-            const d = document.getElementById('astro-day').value;
-            const m = document.getElementById('astro-month').value;
-            const y = document.getElementById('astro-year').value;
+            const isDesktop = document.body.classList.contains('is-desktop');
+            
+            let d = isDesktop ? document.getElementById('astro-desk-day').value : document.getElementById('astro-day').value;
+            let m = isDesktop ? document.getElementById('astro-desk-month').value : document.getElementById('astro-month').value;
+            let y = isDesktop ? document.getElementById('astro-desk-year').value : document.getElementById('astro-year').value;
+            
+            if (d && d.length === 1) d = '0' + d;
+            if (m && m.length === 1) m = '0' + m;
+
             const time = document.getElementById('astro-time').value;
             const isUnknown = document.getElementById('astro-unknown-time').checked;
             const city = document.getElementById('astro-city').value.trim();
     
-            if (!d || !m || !y || !city) return showToast(t('toast_enter_city'), "ph-warning");
+            if (!d || !m || !y || y.length < 4 || !city) return showToast(t('toast_enter_city') || 'Заполните все данные', "ph-warning");
+            
             const dateInput = `${y}-${m}-${d}`;
-    
             showToast(t('toast_wait'), "ph-spinner animate-spin");
             
             const data = await apiRequest("/profile/astro", "POST", {
@@ -10136,7 +10222,6 @@ const astroDescriptions = {
                 closeAllModals();
                 showToast(t('toast_success'), "ph-check-circle");
                 
-                // Обновляем профиль
                 const zodiacEl = document.getElementById('profile-zodiac');
                 if (zodiacEl) {
                     zodiacEl.removeAttribute('data-i18n');
@@ -10145,14 +10230,13 @@ const astroDescriptions = {
                 document.getElementById('profile-element').textContent = data.chart.element;
                 document.getElementById('profile-planet').textContent = data.chart.planet;
                 
-                // Сохраняем и сразу показываем красоту!
                 userAstroData = { chart: data.chart, city: city, date: dateInput };
                 openAstro(); 
             } else {
                 showToast(t('toast_error'), "ph-warning");
             }
         }
-
+    
         function openAstro() {
             if (userAstroData && userAstroData.chart) {
                 // Если данные есть — показываем крутые орбиты!
