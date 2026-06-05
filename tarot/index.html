@@ -593,58 +593,13 @@
                 Выберите подходящий расклад. ИИ-Таролог поможет прочитать послание карт.
             </p>
 
-            <p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1" data-i18n="spreads_basic">БАЗОВЫЕ</p>
-            <div class="space-y-3 mb-6">
-                <button onclick="selectSpread('one-card')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-neon-indigo/10 flex items-center justify-center text-neon-indigo text-xl"><i class="ph-fill ph-copy"></i></div>
-                        <div class="text-left">
-                            <h3 class="text-white font-bold text-sm mb-0.5" data-i18n="s1_name">Карта дня / Да-Нет</h3>
-                            <p class="text-white/40 text-[10px]" data-i18n="s1_desc">Быстрый ответ на один вопрос</p>
-                        </div>
-                    </div>
-                    <span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md" data-i18n="free">Бесплатно</span>
-                </button>
-                
-                <button onclick="selectSpread('past-present')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-neon-cyan/10 flex items-center justify-center text-neon-cyan text-xl"><i class="ph-fill ph-clock-counter-clockwise"></i></div>
-                        <div class="text-left">
-                            <h3 class="text-white font-bold text-sm mb-0.5" data-i18n="s2_name">Прошлое · Настоящее · Будущее</h3>
-                            <p class="text-white/40 text-[10px]" data-i18n="s2_desc">Развитие ситуации (3 карты)</p>
-                        </div>
-                    </div>
-                    <span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md">1 <i class="ph-fill ph-lightning"></i></span>
-                </button>
-
-                <button onclick="selectSpread('feelings')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-neon-rose/10 flex items-center justify-center text-neon-rose text-xl"><i class="ph-fill ph-heart"></i></div>
-                        <div class="text-left">
-                            <h3 class="text-white font-bold text-sm mb-0.5" data-i18n="s3_name">На чувства человека</h3>
-                            <p class="text-white/40 text-[10px]" data-i18n="s3_desc">Что он думает и чувствует (3 карты)</p>
-                        </div>
-                    </div>
-                    <span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md">1 <i class="ph-fill ph-lightning"></i></span>
-                </button>
+            <!-- СЮДА JS БУДЕТ ЗАГРУЖАТЬ КНОПКИ ИЗ БАЗЫ ДАННЫХ -->
+            <div id="spreads-dynamic-container">
+                <div class="flex justify-center py-10 opacity-50">
+                    <i class="ph-fill ph-spinner animate-spin text-3xl text-neon-indigo"></i>
+                </div>
             </div>
-
-            <p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1" data-i18n="spreads_deep">ГЛУБИННЫЕ</p>
-            <div class="space-y-3">
-                <button onclick="selectSpread('celtic')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-neon-purple/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-neon-purple/10 blur-2xl rounded-full pointer-events-none"></div>
-                    <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-2" data-i18n="s4_name">Кельтский крест</h3>
-                    <p class="text-white/50 text-xs leading-relaxed mb-4" data-i18n="s4_desc">Самый подробный анализ ситуации из 10 карт. Причины, следствия и итог.</p>
-                    <span class="text-neon-amber text-xs font-bold bg-neon-amber/10 border border-neon-amber/20 px-3 py-1.5 rounded-lg inline-block">5 <i class="ph-fill ph-lightning"></i></span>
-                </button>
-
-                <button onclick="selectSpread('choice')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-neon-emerald/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-neon-emerald/10 blur-2xl rounded-full pointer-events-none"></div>
-                    <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-2" data-i18n="s5_name">Проблема выбора</h3>
-                    <p class="text-white/50 text-xs leading-relaxed mb-4" data-i18n="s5_desc">Сравнение двух вариантов развития событий. Поможет принять решение.</p>
-                    <span class="text-neon-amber text-xs font-bold bg-neon-amber/10 border border-neon-amber/20 px-3 py-1.5 rounded-lg inline-block">3 <i class="ph-fill ph-lightning"></i></span>
-                </button>
-            </div>
+            
         </div>
     </div>
 
@@ -1667,12 +1622,82 @@
         let userBalance = { energy: 0, streak: 0 };
         let currentSpread = { type: null, requiredCards: 0, pickedCards: [], drawnVisualIndices: [] };
         let dailyCardDataCache = null; 
+        let spreadTemplatesCache = [];
 
         function updateCharCount(inputId, counterId, maxLen) {
             const input = document.getElementById(inputId);
             const counter = document.getElementById(counterId);
             if (input && counter) {
                 counter.textContent = `${input.value.length} / ${maxLen}`;
+            }
+        }
+
+        async function loadSpreads() {
+            const container = document.getElementById('spreads-dynamic-container');
+            if (!container) return;
+
+            const data = await apiRequest("/spreads", "GET");
+            if (data.success && data.spreads.length > 0) {
+                spreadTemplatesCache = data.spreads;
+                
+                const basicSpreads = data.spreads.filter(s => s.category === 'basic');
+                const deepSpreads = data.spreads.filter(s => s.category === 'deep');
+
+                // Словарь иконок для дизайна
+                const iconMap = {
+                    'one-card': { icon: 'ph-copy', color: 'text-neon-indigo', bg: 'bg-neon-indigo/10' },
+                    'past-present': { icon: 'ph-clock-counter-clockwise', color: 'text-neon-cyan', bg: 'bg-neon-cyan/10' },
+                    'feelings': { icon: 'ph-heart', color: 'text-neon-rose', bg: 'bg-neon-rose/10' },
+                    'celtic': { icon: 'ph-crosshair', color: 'text-neon-purple', bg: 'bg-neon-purple/10' },
+                    'choice': { icon: 'ph-arrows-split', color: 'text-neon-emerald', bg: 'bg-neon-emerald/10' }
+                };
+
+                const renderCard = (s) => {
+                    const style = iconMap[s.id] || { icon: 'ph-cards', color: 'text-neon-amber', bg: 'bg-neon-amber/10' };
+                    
+                    // ФИКС ВЕРТИКАЛЬНОЙ ЦЕНЫ: ИСПОЛЬЗУЕМ inline-flex items-center
+                    const priceHtml = s.price === 0 
+                        ? `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md inline-flex items-center">${t('free')}</span>`
+                        : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
+
+                    if (s.category === 'deep') {
+                        return `
+                            <button onclick="selectSpread('${s.id}')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3">
+                                <div class="absolute -right-4 -top-4 w-20 h-20 ${style.bg} blur-2xl rounded-full pointer-events-none"></div>
+                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-2">${s.name}</h3>
+                                <p class="text-white/50 text-xs leading-relaxed mb-4">${s.description}</p>
+                                ${priceHtml}
+                            </button>
+                        `;
+                    } else {
+                        return `
+                            <button onclick="selectSpread('${s.id}')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full ${style.bg} flex items-center justify-center ${style.color} text-xl shrink-0"><i class="ph-fill ${style.icon}"></i></div>
+                                    <div class="text-left">
+                                        <h3 class="text-white font-bold text-sm mb-0.5">${s.name}</h3>
+                                        <p class="text-white/40 text-[10px] leading-tight">${s.description}</p>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 ml-2">
+                                    ${priceHtml}
+                                </div>
+                            </button>
+                        `;
+                    }
+                };
+
+                let html = '';
+                if (basicSpreads.length > 0) {
+                    html += `<p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">${t('spreads_basic')}</p>`;
+                    html += `<div>` + basicSpreads.map(renderCard).join('') + `</div>`;
+                }
+                if (deepSpreads.length > 0) {
+                    html += `<p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1 mt-6">${t('spreads_deep')}</p>`;
+                    html += `<div>` + deepSpreads.map(renderCard).join('') + `</div>`;
+                }
+
+                container.innerHTML = html;
             }
         }
     
@@ -2283,6 +2308,7 @@
                 await Promise.all([
                     loadShopItems(),
                     loadLunarCalendar(),
+                    loadSpreads(), // <--- ДОБАВИТЬ ЭТО!
                     updateBonusBannerState() 
                 ]);
     
@@ -2877,51 +2903,45 @@
         }
     
         function selectSpread(type) {
-            const spreadConfig = {
-                'one-card': { name: t('s1_name'), req: 1, price: t('free'), subtitle: t('s1_desc') },
-                'past-present': { name: t('s2_name'), req: 3, price: '1', subtitle: t('s2_desc') },
-                'feelings': { name: t('s3_name'), req: 3, price: '1', subtitle: t('s3_desc') },
-                'celtic': { name: t('s4_name'), req: 10, price: '5', subtitle: t('s4_desc') },
-                'choice': { name: t('s5_name'), req: 5, price: '3', subtitle: t('s5_desc') }
-            };
-            const config = spreadConfig[type];
+            // Берем данные прямо из БД-кэша!
+            const config = spreadTemplatesCache.find(s => s.id === type);
             if (!config) return;
         
-            // Записываем конфигурацию текущего расклада
             currentSpread = { 
                 type: type, 
-                requiredCards: config.req, 
+                requiredCards: config.cards_count, 
                 pickedCards: [], 
                 price: config.price 
             };
         
-            // Обновляем текстовые маркеры в интерфейсе
             document.getElementById('table-spread-name').textContent = config.name;
-            document.getElementById('table-spread-subtitle').textContent = config.subtitle;
-            document.getElementById('table-cards-count-label').textContent = `${config.req} ${t('cards_count')}`;
-            document.getElementById('table-price-label').innerHTML = `${config.price} ${config.price === t('free') ? '' : '<i class="ph-fill ph-lightning"></i>'}`;
+            document.getElementById('table-spread-subtitle').textContent = config.description;
+            // Учитываем правильное склонение или перевод "карт"
+            const cardsWord = t('cards_count') || 'карт';
+            document.getElementById('table-cards-count-label').textContent = `${config.cards_count} ${cardsWord}`;
             
-            // Сбрасываем textarea ввода
+            // Отрисовка цены на столе (с фиксом горизонтального выравнивания)
+            const priceLabel = document.getElementById('table-price-label');
+            if (config.price === 0) {
+                priceLabel.innerHTML = t('free');
+            } else {
+                priceLabel.innerHTML = `<span class="inline-flex items-center gap-1">${config.price} <i class="ph-fill ph-lightning"></i></span>`;
+            }
+            
             document.getElementById('tarot-user-question').value = '';
-            document.getElementById('question-char-count').textContent = '0 / 500';
+            document.getElementById('question-char-count').textContent = `0 / 500`;
     
-            // === ИСПРАВЛЕНИЕ ЗДЕСЬ === 
-            // Жестко показываем только форму ввода и скрываем всё остальное
             document.getElementById('tarot-table-input-state').classList.remove('hidden');
             document.getElementById('tarot-table-shuffling-state').classList.add('hidden');
             
             const resultState = document.getElementById('tarot-table-result-state');
-            if (resultState) {
-                resultState.classList.add('hidden');
-            }
+            if (resultState) resultState.classList.add('hidden');
     
-            // Заодно очищаем старые карты и текст, чтобы они не мелькали
             const cardsDisplay = document.getElementById('result-cards-display');
             if (cardsDisplay) cardsDisplay.innerHTML = '';
             
             const textContainer = document.getElementById('result-ai-text');
             if (textContainer) textContainer.innerHTML = '';
-            // =========================
         
             navigateTo('tarot-table');
         }
