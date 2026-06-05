@@ -8267,7 +8267,7 @@ const astroDescriptions = {
                         <!-- Сюда скрипт вставит эмодзи знака зодиака -->
                         <span id="profile-zodiac-icon" class="text-xl mb-1 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] group-hover:scale-110 transition-transform">✨</span>
                         <span class="text-[9px] text-white/40 uppercase font-bold tracking-widest mb-0.5" data-i18n="prof_sign">ЗНАК</span>
-                        <span id="profile-zodiac" class="text-xs font-bold text-white">Неизвестно</span>
+                        <span id="profile-zodiac" class="text-xs font-bold text-white">—</span>
                     </button>
                     <!-- Стихия -->
                     <button onclick="openProfileAstroInfo('element')" class="bg-black/40 border border-white/5 rounded-[16px] py-3 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 active:scale-95 transition-all group">
@@ -10077,9 +10077,19 @@ const astroDescriptions = {
         }
 
         function openProfileAstroInfo(type) {
-            // Проверяем, есть ли данные
+            // Проверяем, введена ли дата рождения
             if (!window.userAstroIndices) {
-                return showToast(t('toast_error') || "Сначала добавь дату рождения", "ph-warning");
+                // Встроенный словарь для ошибки на 5 языках
+                const missingDateT = {
+                    'ru': 'Сначала добавь дату рождения',
+                    'en': 'First, add your birth date',
+                    'es': 'Primero, añade tu fecha de nacimiento',
+                    'fr': 'Ajoutez d\'abord votre date de naissance',
+                    'de': 'Bitte füge zuerst dein Geburtsdatum hinzu'
+                };
+                
+                const msg = missingDateT[activeLanguage] || missingDateT['en'];
+                return showToast(msg, "ph-warning-circle");
             }
     
             const { sIdx, eIdx, pIdx } = window.userAstroIndices;
@@ -10144,8 +10154,15 @@ const astroDescriptions = {
     
             if (data.success) {
                 showToast(t('toast_success'), "ph-check-circle");
+                
+                // Обновляем главное имя
                 const nameEl = document.getElementById('profile-name');
                 if (nameEl) nameEl.textContent = nameInput;
+                
+                // ФИКС: Обновляем имя в списке настроек
+                const settingsNameEl = document.getElementById('settings-name-display');
+                if (settingsNameEl) settingsNameEl.textContent = nameInput;
+                
                 closeAllModals();
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
@@ -10205,12 +10222,24 @@ const astroDescriptions = {
     
             if (data.success) {
                 showToast(t('toast_success'), "ph-check-circle");
+                
+                // Обновляем имена везде, если юзер их ввел
+                if (nameInput) {
+                    const nameEl = document.getElementById('profile-name');
+                    if (nameEl) nameEl.textContent = nameInput;
+                    const settingsNameEl = document.getElementById('settings-name-display');
+                    if (settingsNameEl) settingsNameEl.textContent = nameInput;
+                }
+
+                // Обновляем дату
                 const displayEl = document.getElementById('profile-birthdate-display');
-                if (displayEl) {
+                if (displayEl && dateInput) {
                     const [y, m, d] = dateInput.split('-');
                     displayEl.textContent = `${d}.${m}.${y}`;
                 }
-                updateZodiacUI(dateInput); 
+                
+                if (dateInput) updateZodiacUI(dateInput); 
+                
                 closeAllModals();
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
