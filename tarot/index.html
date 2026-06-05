@@ -3024,6 +3024,18 @@
                 closeAllModals();
                 showToast(t('toast_success'), "ph-check-circle");
                 
+                // 🛠 ФИКС ФРАНКЕНШТЕЙНА: 
+                // 1. Обновляем текстовую дату в списке настроек профиля
+                const displayEl = document.getElementById('profile-birthdate-display');
+                if (displayEl) displayEl.textContent = `${d}.${m}.${y}`;
+                
+                // 2. Обновляем скрытые индексы для правильного открытия модалок
+                updateZodiacUI(dateInput);
+                
+                // 3. Сбрасываем кэш текстов, чтобы ИИ заново сгенерировал трактовку планет
+                window.planetCache = {};
+
+                // 4. Обновляем тексты на карточках (приоритет данным с бэкенда)
                 const zodiacEl = document.getElementById('profile-zodiac');
                 if (zodiacEl) {
                     zodiacEl.removeAttribute('data-i18n');
