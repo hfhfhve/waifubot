@@ -7327,7 +7327,7 @@ const astroDescriptions = {
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.min.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
-  <script src="data.js?v=4"></script>
+  <script src="data.js?v=6"></script>
   
   <script>
     tailwind.config = {
@@ -8785,7 +8785,7 @@ const astroDescriptions = {
                         <i class="ph-fill ph-users-three text-2xl text-neon-indigo"></i>
                     </div>
                     <h3 class="text-white font-bold text-xl mb-1" data-i18n="ref_friends">Твои друзья</h3>
-                    <p class="text-white/50 text-xs" data-i18n="ref_bonus">Зови друзей и получай +10 энергии за каждого</p>
+                    <p class="text-white/50 text-xs" data-i18n="ref_bonus">Зови друзей и получай +3 энергии за каждого</p>
                 </div>
 
                 <div class="glass bg-space-800 rounded-2xl p-3 mb-4 border border-white/5">
