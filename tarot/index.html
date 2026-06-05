@@ -799,7 +799,7 @@
                 <div class="flex items-center gap-4 mb-4">
                     <div class="w-16 h-16 rounded-full bg-gradient-to-br from-neon-amber/20 to-orange-500/20 border border-neon-amber/30 flex flex-col items-center justify-center shrink-0 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
                         <span id="lunar-day-number" class="text-white font-bold text-xl leading-none">18</span>
-                        <span class="text-neon-amber text-[8px] font-bold uppercase tracking-wider mt-0.5">лун. день</span>
+                        <span class="text-neon-amber text-[8px] font-bold uppercase tracking-wider mt-0.5" data-i18n="lunar_day_badge">лун. день</span>
                     </div>
                     <div>
                         <p class="text-neon-amber text-[10px] font-bold uppercase tracking-widest mb-1" id="lunar-phase-type">Убывающая луна</p>
@@ -3156,16 +3156,18 @@
             
             updateLanguageDisplay(code);
             updateInterfaceTranslations();
-            
-            updateDynamicDates(); // <-- ДОБАВИТЬ ВЫЗОВ ЗДЕСЬ
-            
+            updateDynamicDates();
             updateZodiacUI(window.userBirthDate); 
             
-            showToast(t('toast_lang_changed'), 'ph-globe');
+            showToast(t('toast_lang_changed') || 'Language changed', 'ph-globe');
             setTimeout(closeAllModals, 300);
             updateCustomMonthLanguage();
         
+            // 1. Сохраняем новый язык на бэкенд
             await apiRequest("/profile/update", "POST", { language_code: code });
+            
+            // 🛠 2. СРАЗУ перезапрашиваем календарь, чтобы он подгрузил нужный кусок JSON!
+            loadLunarCalendar();
         }
     
         let toastTimeout; // Глобальная переменная для хранения таймера
