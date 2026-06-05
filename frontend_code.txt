@@ -9681,14 +9681,14 @@ const astroDescriptions = {
             let m = isDesktop ? document.getElementById('edit-desk-month').value : document.getElementById('edit-month').value;
             let y = isDesktop ? document.getElementById('edit-desk-year').value : document.getElementById('edit-year').value;
             
-            if (!d || !m || !y || y.length < 4) return showToast('Введите дату полностью', "ph-warning-circle");
+            if (!d || !m || !y || y.length < 4) return showToast(t('toast_enter_date') || 'Введите дату', "ph-warning-circle");
 
             if (d.length === 1) d = '0' + d;
             if (m.length === 1) m = '0' + m;
 
-            // 🛡 ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
+            // 🛡 МУЛЬТИЯЗЫЧНАЯ ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
             if (!validateDateInput(y, m, d)) {
-                return showToast("Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
+                return showToast(t('toast_invalid_date') || "Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
             }
             
             const dateInput = `${y}-${m}-${d}`;
@@ -10228,14 +10228,14 @@ const astroDescriptions = {
             let m = isDesktop ? document.getElementById('astro-desk-month').value : document.getElementById('astro-month').value;
             let y = isDesktop ? document.getElementById('astro-desk-year').value : document.getElementById('astro-year').value;
             
-            if (!d || !m || !y || y.length < 4) return showToast('Заполните дату', "ph-warning-circle");
+            if (!d || !m || !y || y.length < 4) return showToast(t('toast_enter_date') || 'Введите дату', "ph-warning-circle");
 
             if (d.length === 1) d = '0' + d;
             if (m.length === 1) m = '0' + m;
 
-            // 🛡 ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
+            // 🛡 МУЛЬТИЯЗЫЧНАЯ ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
             if (!validateDateInput(y, m, d)) {
-                return showToast("Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
+                return showToast(t('toast_invalid_date') || "Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
             }
 
             const time = document.getElementById('astro-time').value;
@@ -10271,6 +10271,7 @@ const astroDescriptions = {
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
             }
+        }
     
         function openAstro() {
             if (userAstroData && userAstroData.chart) {
