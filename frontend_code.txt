@@ -9672,16 +9672,19 @@ const astroDescriptions = {
         async function saveBirthDateOnly() {
             const isDesktop = document.body.classList.contains('is-desktop');
             
-            // Если ПК берем из новых полей, если мобилка - из старых скрытых инпутов
             let d = isDesktop ? document.getElementById('edit-desk-day').value : document.getElementById('edit-day').value;
             let m = isDesktop ? document.getElementById('edit-desk-month').value : document.getElementById('edit-month').value;
             let y = isDesktop ? document.getElementById('edit-desk-year').value : document.getElementById('edit-year').value;
             
-            // Авто-добавление нуля (например, если ввел "5" вместо "05")
-            if (d && d.length === 1) d = '0' + d;
-            if (m && m.length === 1) m = '0' + m;
+            if (!d || !m || !y || y.length < 4) return showToast('Введите дату полностью', "ph-warning-circle");
 
-            if (!d || !m || !y || y.length < 4) return showToast(t('toast_enter_date') || 'Введите дату полностью', "ph-warning-circle");
+            if (d.length === 1) d = '0' + d;
+            if (m.length === 1) m = '0' + m;
+
+            // 🛡 ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
+            if (!validateDateInput(y, m, d)) {
+                return showToast("Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
+            }
             
             const dateInput = `${y}-${m}-${d}`;
             const data = await apiRequest("/profile/update", "POST", { birth_date: dateInput });
@@ -9695,6 +9698,27 @@ const astroDescriptions = {
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
             }
+        }
+
+        // ВАЛИДАТОР ДАТЫ (Проверяет существование месяцев, дней и високосных годов)
+        function validateDateInput(y, m, d) {
+            const year = parseInt(y, 10);
+            const month = parseInt(m, 10);
+            const day = parseInt(d, 10);
+            
+            if (isNaN(year) || isNaN(month) || isNaN(day)) return false;
+            
+            // Ограничение по году: от 1920 до текущего года
+            const currentYear = new Date().getFullYear();
+            if (year < 1920 || year > currentYear) return false;
+            
+            // Ограничение по месяцам (1-12) и дням (1-31)
+            if (month < 1 || month > 12) return false;
+            if (day < 1 || day > 31) return false;
+            
+            // Проверка на количество дней в конкретном месяце (чтобы не было 30 февраля)
+            const daysInMonth = new Date(year, month, 0).getDate();
+            return day <= daysInMonth;
         }
 
         function setupDesktopDateInputs() {
@@ -10199,14 +10223,21 @@ const astroDescriptions = {
             let m = isDesktop ? document.getElementById('astro-desk-month').value : document.getElementById('astro-month').value;
             let y = isDesktop ? document.getElementById('astro-desk-year').value : document.getElementById('astro-year').value;
             
-            if (d && d.length === 1) d = '0' + d;
-            if (m && m.length === 1) m = '0' + m;
+            if (!d || !m || !y || y.length < 4) return showToast('Заполните дату', "ph-warning-circle");
+
+            if (d.length === 1) d = '0' + d;
+            if (m.length === 1) m = '0' + m;
+
+            // 🛡 ПРОВЕРКА НА АДЕКВАТНОСТЬ ДАТЫ
+            if (!validateDateInput(y, m, d)) {
+                return showToast("Некорректная дата. Проверь числа!", "ph-warning-circle text-neon-amber");
+            }
 
             const time = document.getElementById('astro-time').value;
             const isUnknown = document.getElementById('astro-unknown-time').checked;
             const city = document.getElementById('astro-city').value.trim();
     
-            if (!d || !m || !y || y.length < 4 || !city) return showToast(t('toast_enter_city') || 'Заполните все данные', "ph-warning");
+            if (!city) return showToast(t('toast_enter_city') || 'Введите город', "ph-warning-circle");
             
             const dateInput = `${y}-${m}-${d}`;
             showToast(t('toast_wait'), "ph-spinner animate-spin");
@@ -10233,9 +10264,8 @@ const astroDescriptions = {
                 userAstroData = { chart: data.chart, city: city, date: dateInput };
                 openAstro(); 
             } else {
-                showToast(t('toast_error'), "ph-warning");
+                showToast(t('toast_error'), "ph-warning-circle");
             }
-        }
     
         function openAstro() {
             if (userAstroData && userAstroData.chart) {
