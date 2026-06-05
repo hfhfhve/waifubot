@@ -1640,26 +1640,44 @@
             if (data.success && data.spreads.length > 0) {
                 spreadTemplatesCache = data.spreads;
                 
+                // Фильтруем по категориям
                 const basicSpreads = data.spreads.filter(s => s.category === 'basic');
+                const loveSpreads = data.spreads.filter(s => s.category === 'love');
+                const careerSpreads = data.spreads.filter(s => s.category === 'career');
                 const deepSpreads = data.spreads.filter(s => s.category === 'deep');
 
-                // Словарь иконок для дизайна
+                // Словарики для новых категорий
+                const catTitles = {
+                    'basic': t('spreads_basic') || 'БАЗОВЫЕ',
+                    'love': { 'ru': 'ЛЮБОВЬ И ОТНОШЕНИЯ', 'en': 'LOVE & RELATIONSHIPS', 'es': 'AMOR Y RELACIONES', 'fr': 'AMOUR ET RELATIONS', 'de': 'LIEBE & BEZIEHUNGEN' }[activeLanguage] || 'LOVE & RELATIONSHIPS',
+                    'career': { 'ru': 'КАРЬЕРА И ФИНАНСЫ', 'en': 'CAREER & FINANCE', 'es': 'CARRERA Y FINANZAS', 'fr': 'CARRIÈRE ET FINANCES', 'de': 'KARRIERE & FINANZEN' }[activeLanguage] || 'CAREER & FINANCE',
+                    'deep': t('spreads_deep') || 'ГЛУБИННЫЕ'
+                };
+
+                // Словарь иконок для дизайна (добавлены новые)
                 const iconMap = {
                     'one-card': { icon: 'ph-copy', color: 'text-neon-indigo', bg: 'bg-neon-indigo/10' },
                     'past-present': { icon: 'ph-clock-counter-clockwise', color: 'text-neon-cyan', bg: 'bg-neon-cyan/10' },
                     'feelings': { icon: 'ph-heart', color: 'text-neon-rose', bg: 'bg-neon-rose/10' },
                     'celtic': { icon: 'ph-crosshair', color: 'text-neon-purple', bg: 'bg-neon-purple/10' },
-                    'choice': { icon: 'ph-arrows-split', color: 'text-neon-emerald', bg: 'bg-neon-emerald/10' }
+                    'choice': { icon: 'ph-arrows-split', color: 'text-neon-emerald', bg: 'bg-neon-emerald/10' },
+                    // Новые:
+                    'let_go': { icon: 'ph-feather', color: 'text-teal-400', bg: 'bg-teal-400/10' },
+                    'new_union': { icon: 'ph-sparkle', color: 'text-neon-rose', bg: 'bg-neon-rose/10' },
+                    'blind_spot': { icon: 'ph-eye-slash', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+                    'financial_flow': { icon: 'ph-coins', color: 'text-neon-amber', bg: 'bg-neon-amber/10' },
+                    'career_change': { icon: 'ph-briefcase', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+                    'shadow_work': { icon: 'ph-moon', color: 'text-indigo-400', bg: 'bg-indigo-400/10' }
                 };
 
                 const renderCard = (s) => {
                     const style = iconMap[s.id] || { icon: 'ph-cards', color: 'text-neon-amber', bg: 'bg-neon-amber/10' };
                     
-                    // ФИКС ВЕРТИКАЛЬНОЙ ЦЕНЫ: ИСПОЛЬЗУЕМ inline-flex items-center
                     const priceHtml = s.price === 0 
                         ? `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md inline-flex items-center">${t('free')}</span>`
                         : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
 
+                    // Глубинные расклады рисуем большими блоками
                     if (s.category === 'deep') {
                         return `
                             <button onclick="selectSpread('${s.id}')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3">
@@ -1670,6 +1688,7 @@
                             </button>
                         `;
                     } else {
+                        // Обычные расклады рисуем списками
                         return `
                             <button onclick="selectSpread('${s.id}')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3">
                                 <div class="flex items-center gap-4">
@@ -1688,14 +1707,20 @@
                 };
 
                 let html = '';
-                if (basicSpreads.length > 0) {
-                    html += `<p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">${t('spreads_basic')}</p>`;
-                    html += `<div>` + basicSpreads.map(renderCard).join('') + `</div>`;
-                }
-                if (deepSpreads.length > 0) {
-                    html += `<p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1 mt-6">${t('spreads_deep')}</p>`;
-                    html += `<div>` + deepSpreads.map(renderCard).join('') + `</div>`;
-                }
+                
+                const renderSection = (title, items) => {
+                    if (items.length === 0) return '';
+                    return `
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1 mt-5">${title}</p>
+                        <div>${items.map(renderCard).join('')}</div>
+                    `;
+                };
+
+                // Отрисовываем секции в правильном порядке
+                html += renderSection(catTitles['basic'], basicSpreads);
+                html += renderSection(catTitles['love'], loveSpreads);
+                html += renderSection(catTitles['career'], careerSpreads);
+                html += renderSection(catTitles['deep'], deepSpreads);
 
                 container.innerHTML = html;
             }
