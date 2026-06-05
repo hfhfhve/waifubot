@@ -1933,7 +1933,7 @@
                     document.getElementById('beauty-face').textContent = f.beauty.face_care || '—';
                 }
     
-                // 4. Персональный Гороскоп
+                // 4. Персональный Гороскоп и ЭМОДЗИ
                 const signName = document.getElementById('horoscope-sign-name');
                 if (signName) signName.textContent = data.zodiac || t('sign');
                 
@@ -1943,7 +1943,19 @@
                 const hDate = document.getElementById('horoscope-date');
                 if (hDate) {
                     const dOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                    hDate.textContent = new Date().toLocaleDateString('ru-RU', dOptions);
+                    hDate.textContent = new Date().toLocaleDateString(activeLanguage, dOptions);
+                }
+
+                // Вставляем правильный эмодзи вместо сломанного квадратика
+                const zodiacEmojiMap = {
+                    "Овен": "♈", "Телец": "♉", "Близнецы": "♊", "Рак": "♋",
+                    "Лев": "♌", "Дева": "♍", "Весы": "♎", "Скорпион": "♏",
+                    "Стрелец": "♐", "Козерог": "♑", "Водолей": "♒", "Рыбы": "♓"
+                };
+                
+                const hIcon = document.getElementById('horoscope-sign-icon');
+                if (hIcon) {
+                    hIcon.outerHTML = `<span id="horoscope-sign-icon" class="text-xl drop-shadow-md">${zodiacEmojiMap[data.zodiac] || '✨'}</span>`;
                 }
             }
         }
