@@ -2614,8 +2614,11 @@ const characters = [
                 loader.classList.add('opacity-0');
                 setTimeout(() => {
                     loader.classList.add('hidden');
-                    // Проверка 18+ отключена, пускаем всех
-                    window.isAgeVerified = true; 
+                    
+                    // 🔥 ФИКС: Если у пользователя в БД статус 18+ равен false, включаем плашку
+                    if (!window.isAgeVerified) {
+                        checkAgeVerification();
+                    }
                 }, 500);
             }
         }
@@ -5326,14 +5329,22 @@ const characters = [
         function confirmAge() {
             tg.HapticFeedback.impactOccurred('heavy');
             
-            // Отправляем запрос на наш сервер, чтобы записать в БД
+            // Отправляем запрос на наш сервер, чтобы записать в БД и НАЧИСЛИТЬ реферальные бонусы!
             fetch(WEBHOOK_VERIFY_AGE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: tg.initDataUnsafe?.user?.id, initData: tg.initData })
-            }).catch(err => console.error("Ошибка верификации:", err));
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.isAgeVerified = true; // Фиксируем успешное прохождение на фронте
+                    logger.info("Возраст подтвержден, реферальный бонус отправлен.");
+                }
+            })
+            .catch(err => console.error("Ошибка верификации:", err));
             
-            // Прячем окно
+            // Прячем окно с красивой анимацией
             const modal = document.getElementById('age-verification-modal');
             const content = document.getElementById('age-modal-content');
             
