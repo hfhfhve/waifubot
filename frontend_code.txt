@@ -9313,7 +9313,18 @@ const astroDescriptions = {
                 if (!loadMore) {
                     // Первая загрузка при входе во вкладку
                     if (msgs.length === 0) {
-                        const defaultWelcome = t('chat_welcome') || 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.';
+                        // 🛡 НАДЕЖНАЯ ЗАЩИТА ОТ БАГА "chat_welcome"
+                        let defaultWelcome = t('chat_welcome');
+                        if (defaultWelcome === 'chat_welcome' || !defaultWelcome) {
+                            const fallbackTexts = {
+                                'ru': 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.',
+                                'en': 'Greetings! I am the Universal Oracle. Ask your question, spread the cards, or describe your dream.',
+                                'es': '¡Saludos! Soy el Oráculo Universal. Haz tu pregunta, saca las cartas o describe tu sueño.',
+                                'fr': 'Salutations ! Je suis l\'Oracle Universel. Posez votre question, tirez les cartes ou décrivez votre rêve.',
+                                'de': 'Grüße! Ich bin das Universelle Orakel. Stelle deine Frage, lege die Karten oder beschreibe deinen Traum.'
+                            };
+                            defaultWelcome = fallbackTexts[activeLanguage] || fallbackTexts['ru'];
+                        }
                         chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
                     } else {
                         // Бэкенд отдает от новых к старым (DESC). Нам для отрисовки надо перевернуть.
