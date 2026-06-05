@@ -687,7 +687,7 @@
             <div class="flex-1 flex flex-col mb-6">
                 <label class="text-[10px] uppercase tracking-widest font-bold text-white/40 mb-2 ml-1 block" data-i18n="what_to_ask">Что ты хочешь спросить у звезд?</label>
                 <div class="flex-1 glass bg-space-900/60 rounded-[22px] p-4 border border-white/5 focus-within:border-neon-indigo/40 focus-within:shadow-[0_0_25px_rgba(99,102,241,0.15)] transition-all flex flex-col">
-                    <textarea id="tarot-user-question" class="w-full flex-1 bg-transparent text-white placeholder-white/20 outline-none resize-none text-sm leading-relaxed" data-i18n="ph_question" placeholder="Опиши ситуацию или задай вопрос..."></textarea>
+                    <textarea id="tarot-user-question" maxlength="500" oninput="updateCharCount('tarot-user-question', 'question-char-count', 500)" class="w-full flex-1 bg-transparent text-white placeholder-white/20 outline-none resize-none text-sm leading-relaxed hide-scrollbar" data-i18n="ph_question" placeholder="Опиши ситуацию или задай вопрос..."></textarea>
                     <div class="text-right text-[10px] text-white/20 font-semibold tracking-wider mt-2" id="question-char-count">0 / 500</div>
                 </div>
             </div>
@@ -892,7 +892,8 @@
             </p>
 
             <div class="glass bg-space-800 rounded-2xl p-4 mb-3 border border-white/5 focus-within:border-neon-indigo/50 transition-colors">
-                <textarea id="dream-input" rows="6" class="w-full bg-transparent text-white placeholder-white/30 outline-none resize-none text-sm" data-i18n="ph_dream" placeholder="Мне приснилось, что я стою на краю обрыва..."></textarea>
+                <textarea id="dream-input" rows="6" maxlength="1000" oninput="updateCharCount('dream-input', 'dream-char-count', 1000)" class="w-full bg-transparent text-white placeholder-white/30 outline-none resize-none text-sm hide-scrollbar" data-i18n="ph_dream" placeholder="Мне приснилось, что я стою на краю обрыва..."></textarea>
+                <div class="text-right text-[10px] text-white/30 font-semibold tracking-wider mt-2" id="dream-char-count">0 / 1000</div>
             </div>
             
             <button onclick="decodeDream()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white py-4 rounded-xl font-bold shadow-[0_5px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform flex justify-center items-center gap-2">
@@ -942,7 +943,7 @@
         <!-- 3. ПОЛЕ ВВОДА (ЖЕСТКО ПРИБИТО ВНИЗУ, НАД МЕНЮ) -->
         <div class="absolute bottom-[90px] left-0 right-0 px-4 pt-8 pb-2 z-50 bg-gradient-to-t from-[#02020a] via-[#02020a]/90 to-transparent pointer-events-none">
             <div class="flex items-center gap-2 pointer-events-auto glass bg-space-800/90 rounded-[24px] p-1.5 border border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto w-full max-w-[400px]">
-                <input id="message-input" type="text" data-i18n="ph_chat" placeholder="Спроси Оракула..." 
+                <input id="message-input" type="text" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000" 
                     class="flex-1 bg-transparent px-4 py-3 text-white text-sm placeholder-white/40 outline-none"
                     onkeypress="if(event.key==='Enter') sendMessage()">
                 <button onclick="sendMessage()" class="w-11 h-11 rounded-[18px] bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.4)] shrink-0 group">
@@ -1444,7 +1445,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="prof_name">Имя в приложении</label>
-                        <input type="text" id="edit-name" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-sm" data-i18n="ph_name" placeholder="Как к тебе обращаться?">
+                        <input type="text" id="edit-name" maxlength="30" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-sm" data-i18n="ph_name" placeholder="Как к тебе обращаться?">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="prof_birth">Дата рождения</label>
@@ -1502,7 +1503,7 @@
             <div class="p-6">
                 <h3 class="text-white font-bold text-2xl mb-5 text-center" data-i18n="name_title">Как к тебе обращаться?</h3>
                 <div class="space-y-4">
-                    <input type="text" id="edit-name-input" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" data-i18n="ph_name" placeholder="Твое имя...">
+                    <input type="text" id="edit-name-input" maxlength="30" class="w-full bg-space-800 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-neon-indigo/50 transition-colors text-lg text-center" data-i18n="ph_name" placeholder="Твое имя...">
                     
                     <button onclick="saveNameOnly()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple text-white font-bold py-4 rounded-2xl mt-2 shadow-[0_10px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform text-sm tracking-wide" data-i18n="btn_save_name">
                         СОХРАНИТЬ ИМЯ
@@ -1615,7 +1616,7 @@
                     </div>
                     <div class="relative z-30">
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="city">Город рождения</label>
-                        <input id="astro-city" type="text" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
+                        <input id="astro-city" type="text" maxlength="100" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-4 rounded-xl mt-6 shadow-[0_10px_20px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide relative z-30" data-i18n="btn_calc_chart">
                         РАССЧИТАТЬ КАРТУ
@@ -1666,6 +1667,14 @@
         let userBalance = { energy: 0, streak: 0 };
         let currentSpread = { type: null, requiredCards: 0, pickedCards: [], drawnVisualIndices: [] };
         let dailyCardDataCache = null; 
+
+        function updateCharCount(inputId, counterId, maxLen) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (input && counter) {
+                counter.textContent = `${input.value.length} / ${maxLen}`;
+            }
+        }
     
         // === ДВИЖОК ЛОКАЛИЗАЦИИ ===
         function t(key) {
