@@ -10544,25 +10544,122 @@ const astroDescriptions = {
             const container = document.getElementById('messages-container');
             const messages = chatMessages[currentChat] || [];
 
+            // Встроенный словарь переводов для кнопок-экшенов на 5 языках
+            const actionT = {
+                'DAILY_CARD': {
+                    'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte'
+                },
+                'TAROT_SPREADS': {
+                    'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen'
+                },
+                'ASTRO': {
+                    'ru': 'Космо-Паспорт', 'en': 'Astro-Passport', 'es': 'Astro-Pasaporte', 'fr': 'Astro-Passeport', 'de': 'Astro-Pass'
+                },
+                'CALENDAR': {
+                    'ru': 'Лунный календарь', 'en': 'Lunar Calendar', 'es': 'Calendario Lunar', 'fr': 'Calendrier Lunaire', 'de': 'Mondkalender'
+                },
+                'DREAMS': {
+                    'ru': 'Дневник снов', 'en': 'Dream Journal', 'es': 'Diario de Sueños', 'fr': 'Journal des Rêves', 'de': 'Traumtagebuch'
+                }
+            };
+
+            // Определяем текущий язык (с защитой, если activeLanguage почему-то не задан)
+            const lang = (typeof activeLanguage !== 'undefined' && actionT['DAILY_CARD'][activeLanguage]) ? activeLanguage : 'en';
+
+            // Настройка кнопок
+            const actionMap = {
+                'DAILY_CARD': { 
+                    label: actionT['DAILY_CARD'][lang], 
+                    icon: 'ph-moon', 
+                    color: 'from-neon-amber to-orange-500',
+                    action: 'openDailyCardModal()' 
+                },
+                'TAROT_SPREADS': { 
+                    label: actionT['TAROT_SPREADS'][lang], 
+                    icon: 'ph-cards', 
+                    color: 'from-neon-indigo to-neon-purple',
+                    action: "navigateTo('spreads')" 
+                },
+                'ASTRO': { 
+                    label: actionT['ASTRO'][lang], 
+                    icon: 'ph-planet', 
+                    color: 'from-neon-fuchsia to-neon-purple',
+                    action: 'openAstro()' 
+                },
+                'CALENDAR': { 
+                    label: actionT['CALENDAR'][lang], 
+                    icon: 'ph-calendar', 
+                    color: 'from-neon-cyan to-blue-500',
+                    action: "navigateTo('calendar')" 
+                },
+                'DREAMS': { 
+                    label: actionT['DREAMS'][lang], 
+                    icon: 'ph-moon-stars', 
+                    color: 'from-neon-indigo to-neon-cyan',
+                    action: "navigateTo('dream')" 
+                }
+            };
+
             let html = '';
             
-            // Если есть еще история, вставляем прозрачный блок лоадера сверху
             if (hasMoreHistory && initialChatLoaded) {
                 html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-2 opacity-0 transition-opacity duration-300">
                     <i class="ph-fill ph-spinner animate-spin text-xl text-neon-indigo"></i>
                 </div>`;
             }
 
-            html += messages.map(msg => `
-                <div class="flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
-                    <div class="${msg.type === 'user' 
-                        ? 'bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.25)]' 
-                        : 'glass bg-space-800/80 text-white/90 border border-white/5 shadow-md'} 
-                        max-w-[85%] px-4 py-3 rounded-[20px] ${msg.type === 'user' ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}">
-                        <p class="text-sm leading-relaxed font-light">${DOMPurify.sanitize(msg.text)}</p>
+            html += messages.map(msg => {
+                let displayHtml = DOMPurify.sanitize(msg.text);
+                let actionButtonHtml = '';
+
+                // ПАРСИМ ТЕГ НАВИГАЦИИ (Только для сообщений от ИИ)
+                if (msg.type === 'ai') {
+                    // Ищем тег вида [ACTION:ИМЯ_ЭКШЕНА]
+                    const actionMatch = displayHtml.match(/\[ACTION:([A-Z_]+)\]/);
+                    
+                    if (actionMatch) {
+                        const actionKey = actionMatch[1];
+                        // Вырезаем тег из текста, чтобы юзер его не видел
+                        displayHtml = displayHtml.replace(actionMatch[0], '').trim();
+                        
+                        // Если такой экшен есть в нашем словаре, создаем кнопку
+                        if (actionMap[actionKey]) {
+                            const btnConfig = actionMap[actionKey];
+                            actionButtonHtml = `
+                                <div class="mt-4 pt-3 border-t border-white/10">
+                                    <button onclick="${btnConfig.action}" class="w-full bg-gradient-to-r ${btnConfig.color} text-white text-xs font-bold py-3 px-4 rounded-xl active:scale-95 transition-transform flex items-center justify-between shadow-lg">
+                                        <div class="flex items-center gap-2">
+                                            <i class="ph-fill ${btnConfig.icon} text-lg"></i>
+                                            <span class="uppercase tracking-widest">${btnConfig.label}</span>
+                                        </div>
+                                        <i class="ph-bold ph-arrow-right text-sm"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+
+                // РЕНДЕР БАБЛА
+                return `
+                    <div class="flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
+                        <div class="${msg.type === 'user' 
+                            ? 'bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.25)]' 
+                            : 'glass bg-space-800/80 text-white/90 border border-white/5 shadow-md'} 
+                            max-w-[85%] px-4 py-3 rounded-[20px] ${msg.type === 'user' ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}">
+                            
+                            <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown">
+                                ${displayHtml}
+                            </div>
+                            
+                            <!-- Кнопка действия (если есть) -->
+                            ${actionButtonHtml}
+                            
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+            
             container.innerHTML = html;
         }
     
