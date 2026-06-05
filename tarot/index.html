@@ -3096,17 +3096,17 @@
             if (type === 'sun') {
                 title = `Солнце в знаке ${chart.sun}`;
                 subtitle = "Ядро личности";
-                promptQuery = `Опиши мистическое значение: Солнце в знаке ${chart.sun}.`;
+                promptQuery = `Describe the mystical meaning: Sun in ${chart.sun}.`; // Убрали русский хардкод
                 iconClass = "ph-sun"; colorClass = "neon-amber";
             } else if (type === 'moon') {
                 title = `Луна в знаке ${chart.moon}`;
                 subtitle = "Сфера эмоций";
-                promptQuery = `Опиши мистическое значение: Луна в знаке ${chart.moon}.`;
+                promptQuery = `Describe the mystical meaning: Moon in ${chart.moon}.`;
                 iconClass = "ph-moon"; colorClass = "neon-cyan";
             } else if (type === 'planet') {
                 title = `Управитель: ${chart.planet}`;
                 subtitle = `Стихия: ${chart.element}`;
-                promptQuery = `Опиши мистическое значение: Планета ${chart.planet}, стихия ${chart.element}.`;
+                promptQuery = `Describe the mystical meaning: Ruling Planet ${chart.planet}, Element ${chart.element}.`;
                 iconClass = "ph-planet"; colorClass = "neon-fuchsia";
             }
     
@@ -3127,16 +3127,17 @@
             openModal('planet-info');
     
             // Кэшируем ответы, чтобы не тратить токены при повторных кликах
-            if (!window.planetCache) window.planetCache = {};
-            const cacheKey = title;
-    
             if (window.planetCache[cacheKey]) {
                 document.getElementById('planet-modal-text').innerHTML = window.planetCache[cacheKey];
                 return;
             }
     
-            // Запрашиваем текст у нового бесплатного эндпоинта!
-            const res = await apiRequest("/profile/astro-interpret", "POST", { query: promptQuery });
+            // ФИКС: Передаем activeLanguage в бэкенд!
+            const res = await apiRequest("/profile/astro-interpret", "POST", { 
+                query: promptQuery, 
+                lang_code: activeLanguage 
+            });
+            
             if (res.success) {
                 window.planetCache[cacheKey] = res.text;
                 document.getElementById('planet-modal-text').innerHTML = res.text;
@@ -3173,6 +3174,11 @@
     
         async function selectLanguage(code, nameStr) {
             activeLanguage = code;
+            
+            // СБРАСЫВАЕМ КЭШ ПРИ СМЕНЕ ЯЗЫКА!
+            window.planetCache = {}; 
+            dailyCardDataCache = null;
+
             document.querySelectorAll('.language-check').forEach(check => { 
                 check.classList.toggle('hidden', check.dataset.lang !== code); 
             });
