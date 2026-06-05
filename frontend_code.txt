@@ -8212,7 +8212,7 @@ const astroDescriptions = {
                 <p class="text-white text-lg font-mystic font-bold truncate tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
                 <p class="text-white/40 text-[10px] uppercase tracking-widest font-bold" data-i18n="chat_online">На связи</p>
             </div>
-            <button onclick="restartChat()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Начать заново">
+            <button onclick="openModal('delete_chat')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Начать заново">
                 <i class="ph-bold ph-arrows-clockwise text-xl"></i>
             </button>
         </div>
@@ -10565,18 +10565,6 @@ const astroDescriptions = {
             }, 600);
         }
     
-        async function restartChat() {
-            closeAllModals();
-            const defaultWelcome = t('chat_welcome') || 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений.';
-            chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
-            renderMessages();
-            scrollToBottom();
-            showToast(t('toast_cleared') || 'Чат очищен', 'ph-arrows-clockwise');
-            
-            chatOffset = 0;
-            hasMoreHistory = false;
-            await apiRequest("/chat/clear", "POST", { persona: currentChat });
-        }
     
         function sendQuickReply(text) {
             document.getElementById('message-input').value = text;
@@ -10646,8 +10634,37 @@ const astroDescriptions = {
             }
         }
     
+        async function restartChat() {
+            closeAllModals();
+            
+            // Умная защита от бага с выводом "chat_welcome"
+            let defaultWelcome = t('chat_welcome');
+            if (defaultWelcome === 'chat_welcome') {
+                const fallbackTexts = {
+                    'ru': 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.',
+                    'en': 'Greetings! I am the Universal Oracle. Ask your question, spread the cards, or describe your dream.',
+                    'es': '¡Saludos! Soy el Oráculo Universal. Haz tu pregunta, saca las cartas o describe tu sueño.',
+                    'fr': 'Salutations ! Je suis l\'Oracle Universel. Posez votre question, tirez les cartes ou décrivez votre rêve.',
+                    'de': 'Grüße! Ich bin das Universelle Orakel. Stelle deine Frage, lege die Karten oder beschreibe deinen Traum.'
+                };
+                defaultWelcome = fallbackTexts[activeLanguage] || fallbackTexts['ru'];
+            }
+
+            // Очищаем фронт
+            chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
+            renderMessages();
+            scrollToBottom();
+            showToast(t('toast_cleared') || 'Чат удален', 'ph-trash');
+            
+            chatOffset = 0;
+            hasMoreHistory = false;
+            
+            // Удаляем из БД
+            await apiRequest("/chat/clear", "POST", { persona: currentChat });
+        }
+
+        // Подтверждение из модалки удаления
         async function confirmDeleteChat() {
-            // Можно использовать ту же логику, что и в restartChat
             await restartChat();
         }
     
