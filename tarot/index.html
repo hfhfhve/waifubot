@@ -2820,6 +2820,22 @@
             
             // Открываем модалку
             openModal('planet-info');
+    
+            // ФИКС ОШИБКИ: Объявляем ключ для кэша
+            if (!window.planetCache) window.planetCache = {};
+            const cacheKey = type; // ключ будет 'sun', 'moon' или 'planet'
+
+            // Кэшируем ответы, чтобы не тратить токены при повторных кликах
+            if (window.planetCache[cacheKey]) {
+                document.getElementById('planet-modal-text').innerHTML = window.planetCache[cacheKey];
+                return;
+            }
+    
+            // ФИКС: Передаем activeLanguage в бэкенд!
+            const res = await apiRequest("/profile/astro-interpret", "POST", { 
+                query: promptQuery, 
+                lang_code: activeLanguage 
+            });
         }
     
         function updateHomeWidget(cardData) {
