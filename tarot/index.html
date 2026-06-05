@@ -1726,9 +1726,13 @@
         const API_URL = "https://tarot.waifubot.website/api"; 
     
         // Хранилище сообщений
-        const chatMessages = {
-          oracle: [{ type: 'ai', text: 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.' }]
-        };
+        const chatMessages = { oracle: [] }; // Оставляем пустым, загрузим из базы
+        
+        // Новые переменные для истории чата
+        let chatOffset = 0;
+        let isFetchingHistory = false;
+        let hasMoreHistory = true;
+        let initialChatLoaded = false;
     
         // ==================== API CORE ====================
         const DEV_ID = 7672744848; 
@@ -1961,6 +1965,59 @@
             'fr': ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
             'de': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
         };
+
+        async function loadChatHistory(loadMore = false) {
+            if (isFetchingHistory || (!hasMoreHistory && loadMore)) return;
+            
+            isFetchingHistory = true;
+            const loader = document.getElementById('history-loader-placeholder');
+            if (loadMore && loader) loader.classList.replace('opacity-0', 'opacity-100');
+
+            const limit = 10;
+            const endpoint = `/chat/history?persona=${currentChat}&offset=${chatOffset}&limit=${limit}`;
+            
+            const data = await apiRequest(endpoint, "GET");
+            isFetchingHistory = false;
+
+            if (data.success) {
+                const msgs = data.messages;
+                hasMoreHistory = data.has_more;
+                
+                if (!loadMore) {
+                    // Первая загрузка при входе во вкладку
+                    if (msgs.length === 0) {
+                        const defaultWelcome = t('chat_welcome') || 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений. Задай свой вопрос, разложи карты на столе или опиши свой сон.';
+                        chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
+                    } else {
+                        // Бэкенд отдает от новых к старым (DESC). Нам для отрисовки надо перевернуть.
+                        chatMessages[currentChat] = msgs.reverse();
+                    }
+                    chatOffset += msgs.length;
+                    renderMessages();
+                    scrollToBottom();
+                    initialChatLoaded = true;
+                } else {
+                    // Подгрузка при скролле вверх
+                    if (msgs.length > 0) {
+                        const wrapper = document.getElementById('chat-scroll-wrapper');
+                        const oldScrollHeight = wrapper.scrollHeight; // Запоминаем высоту до подклейки
+                        
+                        const reversed = msgs.reverse();
+                        chatMessages[currentChat] = [...reversed, ...chatMessages[currentChat]];
+                        chatOffset += msgs.length;
+                        
+                        renderMessages();
+                        
+                        // Восстанавливаем позицию скролла, чтобы чат не дергался наверх
+                        const newScrollHeight = wrapper.scrollHeight;
+                        wrapper.scrollTop = newScrollHeight - oldScrollHeight;
+                    }
+                }
+            } else {
+                if (loadMore && loader) loader.classList.replace('opacity-100', 'opacity-0');
+            }
+        }
+
     
         function initCustomDateSelects() {
             const days = Array.from({length: 31}, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -2532,8 +2589,16 @@
     
             if (tab === 'chats') {
                 currentChat = 'oracle';
-                renderMessages();
-                setTimeout(scrollToBottom, 50);
+                if (!initialChatLoaded) {
+                    // Если зашли в первый раз - очищаем заглушку, рендерим пустоту и грузим историю с бэкенда
+                    chatMessages['oracle'] = [];
+                    renderMessages();
+                    loadChatHistory(false);
+                } else {
+                    // Если историю уже загружали ранее - просто рендерим и скроллим вниз
+                    renderMessages();
+                    setTimeout(scrollToBottom, 50);
+                }
             } else {
                 document.getElementById('app').scrollTop = 0;
             }
@@ -3136,9 +3201,18 @@
         // ==================== CHAT LOGIC ====================
         function renderMessages() {
             const container = document.getElementById('messages-container');
-            const messages = chatMessages['oracle'] || [];
-    
-            container.innerHTML = messages.map(msg => `
+            const messages = chatMessages[currentChat] || [];
+
+            let html = '';
+            
+            // Если есть еще история, вставляем прозрачный блок лоадера сверху
+            if (hasMoreHistory && initialChatLoaded) {
+                html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-2 opacity-0 transition-opacity duration-300">
+                    <i class="ph-fill ph-spinner animate-spin text-xl text-neon-indigo"></i>
+                </div>`;
+            }
+
+            html += messages.map(msg => `
                 <div class="flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
                     <div class="${msg.type === 'user' 
                         ? 'bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.25)]' 
@@ -3148,7 +3222,7 @@
                     </div>
                 </div>
             `).join('');
-            scrollToBottom();
+            container.innerHTML = html;
         }
     
         function checkScrollPosition() {
@@ -3192,10 +3266,17 @@
             }, 600);
         }
     
-        function restartChat() {
-            chatMessages['oracle'] = [{ type: 'ai', text: 'Здравствуй! Я Вселенский Оракул. Мой разум открыт для новых вопросов. Разложи карты, опиши сон или спроси о будущем.' }];
+        async function restartChat() {
+            closeAllModals();
+            const defaultWelcome = t('chat_welcome') || 'Здравствуй! Я Вселенский Оракул. Мой разум объединяет мудрость карт Таро, тайны Астрологии и скрытые смыслы сновидений.';
+            chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
             renderMessages();
-            showToast(t('toast_cleared'), 'ph-arrows-clockwise');
+            scrollToBottom();
+            showToast(t('toast_cleared') || 'Чат очищен', 'ph-arrows-clockwise');
+            
+            chatOffset = 0;
+            hasMoreHistory = false;
+            await apiRequest("/chat/clear", "POST", { persona: currentChat });
         }
     
         function sendQuickReply(text) {
@@ -3210,18 +3291,18 @@
     
             if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
             chatMessages[currentChat].push({ type: 'user', text });
+            chatOffset++; // <--- ВОТ ТУТ
             input.value = '';
             renderMessages();
-    
             document.getElementById('typing-indicator').classList.remove('hidden');
             scrollToBottom();
     
             const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
-    
             document.getElementById('typing-indicator').classList.add('hidden');
     
             if (data.success) {
                 chatMessages[currentChat].push({ type: 'ai', text: data.response });
+                chatOffset++; // <--- И ВОТ ТУТ
                 userBalance.energy = data.energy;
                 updateBalanceUI();
             } else {
@@ -3266,17 +3347,26 @@
             }
         }
     
-        function confirmDeleteChat() {
-          closeAllModals();
-          if (chatMessages['oracle']) {
-              chatMessages['oracle'] = [chatMessages['oracle'][0]];
-          }
-          renderMessages();
-          showToast(t('toast_cleared'), 'ph-trash');
+        async function confirmDeleteChat() {
+            // Можно использовать ту же логику, что и в restartChat
+            await restartChat();
         }
     
         // ==================== SYSTEM ====================
-        document.addEventListener('DOMContentLoaded', initApp);
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            
+            // Слушатель скролла для ленивой загрузки истории чата
+            const wrapper = document.getElementById('chat-scroll-wrapper');
+            if (wrapper) {
+                wrapper.addEventListener('scroll', () => {
+                    // Если долистали почти до верха (<= 20px) и есть еще история в базе
+                    if (wrapper.scrollTop <= 20 && hasMoreHistory && !isFetchingHistory && initialChatLoaded) {
+                        loadChatHistory(true);
+                    }
+                });
+            }
+        });
     
         document.addEventListener('touchmove', (e) => {
           if (e.target.closest('.bottom-sheet')) return;
