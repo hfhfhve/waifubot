@@ -2970,27 +2970,11 @@
             
             document.getElementById('planet-modal-glow').className = `absolute -top-10 -right-10 w-40 h-40 bg-${colorClass}/20 rounded-full blur-3xl pointer-events-none transition-colors`;
             
-            // МГНОВЕННО вставляем текст из нашего data.js
+            // МГНОВЕННО вставляем локальный текст из data.js (без ИИ)
             document.getElementById('planet-modal-text').innerHTML = `<p class="leading-relaxed">${textHtml}</p>`;
             
             // Открываем модалку
             openModal('planet-info');
-    
-            // ФИКС ОШИБКИ: Объявляем ключ для кэша
-            if (!window.planetCache) window.planetCache = {};
-            const cacheKey = type; // ключ будет 'sun', 'moon' или 'planet'
-
-            // Кэшируем ответы, чтобы не тратить токены при повторных кликах
-            if (window.planetCache[cacheKey]) {
-                document.getElementById('planet-modal-text').innerHTML = window.planetCache[cacheKey];
-                return;
-            }
-    
-            // ФИКС: Передаем activeLanguage в бэкенд!
-            const res = await apiRequest("/profile/astro-interpret", "POST", { 
-                query: promptQuery, 
-                lang_code: activeLanguage 
-            });
         }
     
         function updateHomeWidget(cardData) {
@@ -3325,7 +3309,7 @@
             if (type === 'sun') {
                 title = `Солнце в знаке ${chart.sun}`;
                 subtitle = "Ядро личности";
-                promptQuery = `Describe the mystical meaning: Sun in ${chart.sun}.`; // Убрали русский хардкод
+                promptQuery = `Describe the mystical meaning: Sun in ${chart.sun}.`;
                 iconClass = "ph-sun"; colorClass = "neon-amber";
             } else if (type === 'moon') {
                 title = `Луна в знаке ${chart.moon}`;
@@ -3355,13 +3339,16 @@
             `;
             openModal('planet-info');
     
+            // ФИКС: ОБЯЗАТЕЛЬНО объявляем cacheKey
+            if (!window.planetCache) window.planetCache = {};
+            const cacheKey = type;
+    
             // Кэшируем ответы, чтобы не тратить токены при повторных кликах
             if (window.planetCache[cacheKey]) {
                 document.getElementById('planet-modal-text').innerHTML = window.planetCache[cacheKey];
                 return;
             }
     
-            // ФИКС: Передаем activeLanguage в бэкенд!
             const res = await apiRequest("/profile/astro-interpret", "POST", { 
                 query: promptQuery, 
                 lang_code: activeLanguage 
@@ -3371,7 +3358,7 @@
                 window.planetCache[cacheKey] = res.text;
                 document.getElementById('planet-modal-text').innerHTML = res.text;
             } else {
-                document.getElementById('planet-modal-text').innerHTML = res.text;
+                document.getElementById('planet-modal-text').innerHTML = res.text || t('toast_error');
             }
         }
     
