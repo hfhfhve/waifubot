@@ -1321,7 +1321,7 @@ const characters = [
         fullDesc_pt: "Especialista em Terapia Cognitivo-Comportamental. Ajudo a lidar com ansiedade e estresse diário.",
         fullDesc_fr: "Spécialiste en Thérapie Cognitivo-Comportementale. J'aide à gérer l'anxiété et le stress quotidien.",
         fullDesc_tr: "Bilişsel Davranışçı Terapi Uzmanı. Anksiyete, panik atak ve günlük stresle başa çıkmanıza yardımcı oluyorum.",
-        image: 'https://api.waifubot.website/static/victoria_app.webp',
+        image: 'https://api.waifubot.website/static/elena_app.webp',
         online: true 
     },
     { 
@@ -1335,7 +1335,7 @@ const characters = [
         fullDesc_pt: "Especialista em motivação e carreira. Vou te ajudar a vencer a procrastinação e alcançar seus objetivos.",
         fullDesc_fr: "Expert en motivation et carrière. Je vous aiderai à vaincre la procrastination et à atteindre vos objectifs.",
         fullDesc_tr: "Motivasyon ve kariyer uzmanı. Ertelemeyi yenmenize, disiplin kurmanıza ve hedeflerinize ulaşmanıza yardımcı olacağım.",
-        image: 'https://api.waifubot.website/static/victoria_app.webp',
+        image: 'https://api.waifubot.website/static/mark_app.webp',
         online: true 
     },
     { 
@@ -1349,7 +1349,7 @@ const characters = [
         fullDesc_pt: "Especialista em relacionamentos e comunicação. Ajudo a superar crises e melhorar o diálogo com entes queridos.",
         fullDesc_fr: "Experte en relations et communication. J'aide à surmonter les crises et à améliorer le dialogue avec les proches.",
         fullDesc_tr: "İlişki ve iletişim uzmanı. Krizleri atlatmanıza, diyaloğu geliştirmenize ve kırgınlıkları işlemenize yardımcı oluyorum.",
-        image: 'https://api.waifubot.website/static/victoria_app.webp',
+        image: 'https://api.waifubot.website/static/sophia_app.webp',
         online: true 
     },
     { 
@@ -1363,7 +1363,7 @@ const characters = [
         fullDesc_pt: "Praticante de Mindfulness. Vou te ajudar a encontrar o equilíbrio interior e se recuperar do esgotamento.",
         fullDesc_fr: "Praticien de la pleine conscience. Je vous aiderai à trouver l'équilibre intérieur et à vous remettre de l'épuisement.",
         fullDesc_tr: "Farkındalık uygulayıcısı. İçsel dengeyi bulmanıza, tükenmişlikten kurtulmanıza ve rahatlamayı öğrenmenize yardımcı olacağım.",
-        image: 'https://api.waifubot.website/static/victoria_app.webp',
+        image: 'https://api.waifubot.website/static/david_app.webp',
         online: true 
     },
     { 
@@ -1377,7 +1377,7 @@ const characters = [
         fullDesc_pt: "Terapeuta Gestalt acolhedora. Ajudo a processar traumas de infância e melhorar a autoestima.",
         fullDesc_fr: "Thérapeute Gestalt douce. J'aide à traiter les traumatismes de l'enfance et à améliorer l'estime de soi.",
         fullDesc_tr: "Nazik bir Gestalt terapisti. Çocukluk travmalarını işlemenize, özgüveninizi artırmanıza ve kendinizi sevmeyi öğrenmenize yardımcı oluyorum.",
-        image: 'https://api.waifubot.website/static/victoria_app.webp',
+        image: 'https://api.waifubot.website/static/chloe_app.webp',
         online: true 
     }
 ];
