@@ -1322,43 +1322,92 @@
                 body: JSON.stringify({ 
                     chat_id: userId, 
                     initData: tg.initData,
-                    start_param: tg.initDataUnsafe?.start_param || null // <--- ДОБАВЬ ВОТ ЭТУ СТРОКУ
+                    start_param: tg.initDataUnsafe?.start_param || null
                 }),
                 signal: controller.signal 
             })
             .then(res => {
-                clearTimeout(timeoutId); // Если сервер ответил быстро - отменяем таймер
+                clearTimeout(timeoutId);
                 return res.json();
             })
             .then(data => {
-                // === ВОТ ЭТОТ БЛОК ДОБАВИТЬ ===
                 if (data.maintenance === true) {
-                    hideLoadingScreen(); // Прячем лоадер
+                    hideLoadingScreen();
                     const maintScreen = document.getElementById('maintenance-screen');
                     if (maintScreen) {
                         maintScreen.classList.remove('hidden');
                         maintScreen.classList.add('flex');
                     }
-                    return; // Прекращаем загрузку приложения
+                    return;
                 }
-                // ==============================
+                
                 const user = Array.isArray(data) ? data[0] : data;
         
                 if (user) {
-                    // --- 1. ОЧИСТКА ЯЗЫКА (ИСПРАВЛЕНО: поддержка всех языков) ---
+                    // === 👇 ЛОГИКА БЕЛОГО РЕЖИМА (SAFE MODE) 👇 ===
+                    window.isSafeMode = user.is_safe_mode === true;
+                    
+                    if (window.isSafeMode) {
+                        // 1. Принудительно ставим 18+, чтобы плашка не вылезла
+                        window.isAgeVerified = true;
+                        
+                        // 2. Скрываем вкладку "Сообщество"
+                        const btnCommunity = document.getElementById('btn-create-community');
+                        if (btnCommunity) btnCommunity.style.display = 'none';
+        
+                        // 3. Прячем кнопку "Сгенерировать фото" на шаге 4 (создание перса)
+                        const btnGeneratePreview = document.getElementById('btn-generate-preview');
+                        if (btnGeneratePreview) btnGeneratePreview.style.display = 'none';
+                        
+                        const previewPlaceholder = document.getElementById('preview-placeholder');
+                        if(previewPlaceholder) {
+                            previewPlaceholder.innerHTML = '<div class="text-gray-500 mt-10 flex flex-col items-center"><i class="fa-solid fa-user-shield text-3xl mb-2"></i><span class="text-xs font-bold uppercase tracking-widest text-center">Безопасный режим</span></div>';
+                        }
+        
+                        // 4. Перезаписываем переводы на "белые"
+                        const safeTranslations = {
+                            "ru": {
+                                "age_title": "Добро пожаловать!",
+                                "age_desc1": "Наш ИИ-помощник готов ответить на ваши вопросы.",
+                                "custom_cta_title": "СОЗДАЙ АССИСТЕНТА",
+                                "custom_cta_desc": "Настрой умного компаньона для общения, учебы или работы!",
+                                "tab_characters": "МОИ АССИСТЕНТЫ",
+                                "no_custom_chars_desc": "Создай своего личного помощника с нужным характером.",
+                                "btn_generate_photo": "БЕЗОПАСНЫЙ РЕЖИМ",
+                                "photo_btn": "📸 Фото",
+                                "voice_btn": "🎙 Голосовое"
+                            },
+                            "en": {
+                                "age_title": "Welcome!",
+                                "custom_cta_title": "CREATE ASSISTANT",
+                                "custom_cta_desc": "Set up a smart companion for chat, study, or work!",
+                                "tab_characters": "MY ASSISTANTS",
+                                "no_custom_chars_desc": "Create your personal assistant with a custom personality.",
+                                "btn_generate_photo": "SAFE MODE",
+                                "photo_btn": "📸 Photo",
+                                "voice_btn": "🎙 Voice"
+                            }
+                        };
+                        
+                        const lang = user.language_code || 'ru';
+                        const safeLang = safeTranslations[lang] || safeTranslations['en'];
+                        
+                        if (typeof translations !== 'undefined' && translations[lang]) {
+                            Object.assign(translations[lang], safeLang);
+                        }
+                    }
+                    // === 👆 КОНЕЦ ЛОГИКИ БЕЛОГО РЕЖИМА 👆 ===
+        
+                    // --- 1. ОЧИСТКА ЯЗЫКА ---
                     let serverLang = String(user.language_code || 'en')
-                        .replace(/::text/g, '') // Удаляем именно приписку ::text
-                        .replace(/['"]/g, '')   // Удаляем кавычки
+                        .replace(/::text/g, '')
+                        .replace(/['"]/g, '')
                         .trim()
                         .toLowerCase();
                     
-                    // Список языков, которые мы поддерживаем
                     const supportedLangs = ['ru', 'en', 'es', 'pt', 'id', 'tr'];
-                    
-                    // Если в базе лежит поддерживаемый язык — ставим его, иначе английский
                     let cleanLang = supportedLangs.includes(serverLang) ? serverLang : 'en';
                     
-                    // Сохраняем в память и применяем к интерфейсу
                     localStorage.setItem('app_lang', cleanLang);
                     setLanguage(cleanLang);
         
@@ -1369,7 +1418,10 @@
                         window.DAILY_REWARDS = [];
                     }
         
-                    window.isAgeVerified = user.is_age_verified;
+                    // Ставим статус 18+ из базы, только если мы НЕ в белом режиме
+                    if (!window.isSafeMode) {
+                        window.isAgeVerified = user.is_age_verified;
+                    }
                     
                     // Обновляем баланс
                     if(document.getElementById('balance-stars')) {
@@ -1378,9 +1430,8 @@
                     if(document.getElementById('balance-gems')) {
                         document.getElementById('balance-gems').innerText = user.gems || 0;
                     }
-
+        
                     if (user.is_anime_mode === true) {
-                        // Если сервер говорит, что у нас аниме-режим, переключаем UI БЕЗ отправки запроса обратно
                         currentStyle = 'anime';
                         const btnReal = document.getElementById('btn-style-real');
                         const btnAnime = document.getElementById('btn-style-anime');
@@ -1425,8 +1476,6 @@
                     }
         
                     window.dailyState = { streak: nextDay, canClaim: !isSameDay, hoursLeft: hoursLeft };
-
-                    // ОБНОВЛЯЕМ КАРТОЧКУ БОНУСА НА ГЛАВНОМ ЭКРАНЕ
                     updateBonusCardUI();
         
                     // --- 4. АДМИН-ПАНЕЛЬ ---
@@ -1434,16 +1483,16 @@
                         const adminNav = document.getElementById('nav-admin');
                         if (adminNav) adminNav.classList.remove('hidden');
                     }
-
+        
                     // --- 5. КАСТОМНЫЕ ПЕРСОНАЖИ ---
                     if (user.custom_characters) {
                         window.customCharactersList = user.custom_characters;
                     } else {
                         window.customCharactersList = [];
                     }
-                    renderCustomCharacters(true); // <--- ДОБАВИЛИ true, чтобы список сбрасывался и рисовался заново!
-
-                    // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ (С УЧЕТОМ СОРТИРОВКИ СЕРВЕРА И ФЛАГОВ) ---
+                    renderCustomCharacters(true);
+        
+                    // --- 6. ФИЛЬТР ПЕРСОНАЖЕЙ ---
                     if (user.active_characters && Array.isArray(user.active_characters) && user.active_characters.length > 0) {
                         window.activeCharactersList = user.active_characters.map(serverChar => {
                             const activeId = serverChar.id; 
@@ -1455,13 +1504,11 @@
                             return null;
                         }).filter(Boolean); 
                     } else {
-                        // ИСПРАВЛЕНИЕ: Если список пуст, оставляем его пустым. 
                         window.activeCharactersList = [];
                     }
-                            renderCharacters();
+                    renderCharacters();
         
-                    // === 👇 ВСТАВЛЯЕМ ЛОГИКУ ТАЙМЕРА LTO СЮДА 👇 ===
-                    // Прямо внутри if (user), чтобы у нас был доступ к переменной data
+                    // === ЛОГИКА ТАЙМЕРА LTO ===
                     if (data.lto_seconds_left && data.lto_seconds_left > 0) {
                         updateLtoBannerLanguage(currentLang);
                         const ltoBanner = document.getElementById('lto-banner');
@@ -1472,19 +1519,17 @@
                         setTimeout(() => {
                             const bannerHeight = ltoBanner.offsetHeight;
                             if (navbar) navbar.style.top = bannerHeight + 'px';
-                            document.body.style.paddingTop = bannerHeight + 'px'; // Сдвигаем всё тело сайта
+                            document.body.style.paddingTop = bannerHeight + 'px';
                         }, 10);
                         
                         let timeLeft = data.lto_seconds_left;
                         
-                        // Очищаем старый таймер, если он уже был запущен
                         if (window.ltoInterval) clearInterval(window.ltoInterval);
                         
-                        // Запускаем новый и сохраняем его ID в глобальную переменную
                         window.ltoInterval = setInterval(() => {
                             timeLeft--;
                             if (timeLeft <= 0) {
-                                clearInterval(window.ltoInterval); // Останавливаем
+                                clearInterval(window.ltoInterval);
                                 ltoBanner.classList.add('hidden');
                                 if (navbar) navbar.style.top = '0px';
                                 document.body.style.paddingTop = '0px';
@@ -1495,10 +1540,8 @@
                             }
                         }, 1000);
                     }
-                    // === 👆 КОНЕЦ ЛОГИКИ LTO 👆 ===
-        
-                } // <-- Закрывающая скобка if (user)
-            }) // <-- Закрывающая скобка .then
+                }
+            })
             .catch(err => {
                 console.error("КРИТИЧЕСКАЯ ОШИБКА БЭКЕНДА:", err);
                 showMaintenanceScreen();
@@ -1919,33 +1962,37 @@
                     </div>`;
                 return;
             }
-
+        
             // Собираем все карточки обычных персонажей в массив
             let cardsHtml = listToRender.map((char, index) => {
                 const name = char['name_' + currentLang] || char['name_en'];
                 let desc = char['desc_' + currentLang] || char['desc_en'];
+                
+                // Защита от undefined на случай ошибки в data.js
+                if (!desc) desc = "Ожидает подключения..."; 
                 desc = desc.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
                 const statusHtml = char.online ? `<div class="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a1a1a] shadow-[0_0_8px_#22c55e]"></div>` : '';
                 const delayClass = index % 2 === 0 ? 'delay-100' : 'delay-200';
-
+        
                 let charHasVoice = char.has_voice !== false;
-
+        
                 if (currentLang === 'en' && ['char:lina', 'char:adriana', 'char:mika'].includes(char.id)) {
                     charHasVoice = false;
                 }
                 
                 let tagsHtml = '<div class="flex gap-1.5 mt-2">';
                 if (char.has_image !== false) {
-                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_image || "ФОТО"}</span>`;
+                    tagsHtml += `<span class="px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang]?.tag_image || "ФОТО"}</span>`;
                 }
                 if (charHasVoice && ['ru', 'en'].includes(currentLang)) {
-                    tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang].tag_voice || "ГОЛОС"}</span>`;
+                    tagsHtml += `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-[9px] font-bold uppercase tracking-wider">${translations[currentLang]?.tag_voice || "ГОЛОС"}</span>`;
                 }
                 tagsHtml += '</div>';
-
+        
                 return `
                 <div onclick="openCharacterModal('${char.id}', 'base')" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#1a1a1a] active:scale-95 transition-transform duration-300 border border-white/5 shadow-lg group cursor-pointer animate-fade-up ${delayClass}">
-                    <img src="${char.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
+                    <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=Photo'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="${name}">
                     ${statusHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 w-full p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
@@ -1957,28 +2004,31 @@
                 </div>
                 `;
             });
-
+        
             // 👇 Вставляем КАРТОЧКУ-ПРИЗЫВ пятой по счету (индекс 4) 👇
             if (currentStyle === 'anime') {
+                // === ЛОГИКА БЕЛОГО РЕЖИМА ДЛЯ КНОПКИ КАТАЛОГА ===
+                const targetTab = window.isSafeMode ? "mine" : "community";
+                
                 const ctaHtml = `
-                <div onclick="showTab('create'); switchCreateSubTab('community');" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#151520] active:scale-95 transition-transform duration-300 border border-purple-500/40 shadow-[0_0_30px_rgba(147,51,234,0.2)] group cursor-pointer animate-fade-up">
+                <div onclick="showTab('create'); switchCreateSubTab('${targetTab}');" class="relative rounded-3xl overflow-hidden h-[280px] bg-[#151520] active:scale-95 transition-transform duration-300 border border-purple-500/40 shadow-[0_0_30px_rgba(147,51,234,0.2)] group cursor-pointer animate-fade-up">
                     
                     <!-- Анимированный неоновый фон -->
                     <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/30 via-purple-900/20 to-black z-0"></div>
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-pink-500/30 rounded-full blur-[40px] group-hover:bg-pink-500/50 group-hover:scale-150 transition-all duration-700"></div>
                     <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/30 rounded-full blur-[40px] group-hover:bg-blue-500/50 group-hover:scale-150 transition-all duration-700"></div>
-
+        
                     <!-- Контент карточки -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
                         <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white shadow-[0_0_20px_rgba(236,72,153,0.6)] mb-3 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
                         
-                        <h3 class="text-lg font-black text-white mb-2 tracking-wide drop-shadow-md">${translations[currentLang].custom_cta_title || "СОЗДАЙ СВОЮ"}</h3>
-                        <p class="text-[10px] text-gray-300 mb-4 opacity-90 leading-relaxed px-1">${translations[currentLang].custom_cta_desc || "Попробуй десятки персонажей от сообщества или сгенерируй свою идеальную вайфу!"}</p>
+                        <h3 class="text-lg font-black text-white mb-2 tracking-wide drop-shadow-md">${translations[currentLang]?.custom_cta_title || "СОЗДАЙ СВОЮ"}</h3>
+                        <p class="text-[10px] text-gray-300 mb-4 opacity-90 leading-relaxed px-1">${translations[currentLang]?.custom_cta_desc || "Попробуй десятки персонажей от сообщества или сгенерируй свою идеальную вайфу!"}</p>
                         
                         <div class="px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-[9px] font-black text-white uppercase tracking-wider backdrop-blur-md group-hover:bg-white/20 group-hover:border-white/40 transition-all shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center gap-1.5">
-                            ${translations[currentLang].custom_cta_btn || "ПЕРЕЙТИ В КАТАЛОГ"} <i class="fa-solid fa-arrow-right"></i>
+                            ${translations[currentLang]?.custom_cta_btn || "ПЕРЕЙТИ В КАТАЛОГ"} <i class="fa-solid fa-arrow-right"></i>
                         </div>
                     </div>
                     
@@ -1987,15 +2037,11 @@
                 </div>
                 `;
                 
-                // Метод splice вставит нашу карточку строго на 5-ю позицию (индекс 4).
-                // Если персонажей меньше 4, она просто аккуратно добавится в самый конец списка.
                 cardsHtml.splice(4, 0, ctaHtml);
             }
-
-            // Склеиваем массив обратно в строку и вставляем на страницу
+        
             container.innerHTML = cardsHtml.join('');
         }
-
         // Обрати внимание: мы добавили второй параметр 'source'
         function openCharacterModal(charId, source = 'base') {
             tg.HapticFeedback.impactOccurred('medium');
