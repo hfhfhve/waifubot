@@ -8532,27 +8532,38 @@ const astroDescriptions = {
                 </div>
     
                 <!-- Сетка Астральных Метрик ("Космический Резонанс") -->
-                <div id="daily-modal-stats" class="w-full grid grid-cols-4 gap-2 mb-5 opacity-0 transition-opacity duration-700">
-                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
-                        <i class="ph-fill ph-clock text-neon-cyan text-base mb-1"></i>
-                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider" data-i18n="card_time">Час Силы</p>
-                        <p id="stat-time" class="text-[11px] text-white font-black mt-0.5 whitespace-nowrap">--:--</p>
+                <div id="daily-modal-stats" class="w-full grid grid-cols-4 gap-1.5 sm:gap-2 mb-5 opacity-0 transition-opacity duration-700 relative z-20">
+                    
+                    <!-- Час Силы -->
+                    <div onclick="openStatInfo('time')" class="glass bg-space-800/40 rounded-2xl p-1.5 sm:p-2 text-center border border-white/5 backdrop-blur-md relative cursor-pointer active:scale-95 transition-transform group">
+                        <div class="absolute inset-0 rounded-2xl border border-neon-cyan/40 animate-[ping_3s_ease-in-out_infinite] opacity-20"></div>
+                        <i class="ph-fill ph-clock text-neon-cyan text-base sm:text-lg mb-1 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-[7px] text-white/40 uppercase font-bold tracking-wider leading-tight mb-0.5" data-i18n="card_time">Час Силы</p>
+                        <p id="stat-time" class="text-[9px] sm:text-[10px] text-white font-black leading-tight">--:--</p>
                     </div>
-                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
-                        <i class="ph-fill ph-fire text-neon-rose text-base mb-1" id="stat-element-icon"></i>
-                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider" data-i18n="prof_element">Стихия</p>
-                        <p id="stat-element" class="text-[11px] text-white font-black mt-0.5">---</p>
+                    
+                    <!-- Стихия -->
+                    <div onclick="openStatInfo('element')" class="glass bg-space-800/40 rounded-2xl p-1.5 sm:p-2 text-center border border-white/5 backdrop-blur-md relative cursor-pointer active:scale-95 transition-transform group">
+                        <div id="stat-element-ping" class="absolute inset-0 rounded-2xl border border-neon-rose/40 animate-[ping_3s_ease-in-out_infinite] opacity-20" style="animation-delay: 0.5s;"></div>
+                        <i class="ph-fill ph-fire text-neon-rose text-base sm:text-lg mb-1 group-hover:scale-110 transition-transform" id="stat-element-icon"></i>
+                        <p class="text-[7px] text-white/40 uppercase font-bold tracking-wider leading-tight mb-0.5" data-i18n="prof_element">Стихия</p>
+                        <p id="stat-element" class="text-[9px] sm:text-[10px] text-white font-black leading-tight">---</p>
                     </div>
-                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
-                        <i class="ph-fill ph-wave-sine text-neon-fuchsia text-base mb-1 animate-pulse"></i>
-                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider" data-i18n="card_vibe">Вибрация</p>
-                        <p id="stat-frequency" class="text-[11px] text-neon-fuchsia font-black mt-0.5">---</p>
+                    
+                    <!-- Вибрация -->
+                    <div onclick="openStatInfo('vibration')" class="glass bg-space-800/40 rounded-2xl p-1.5 sm:p-2 text-center border border-white/5 backdrop-blur-md relative cursor-pointer active:scale-95 transition-transform group">
+                        <div class="absolute inset-0 rounded-2xl border border-neon-fuchsia/40 animate-[ping_3s_ease-in-out_infinite] opacity-20" style="animation-delay: 1s;"></div>
+                        <i class="ph-fill ph-wave-sine text-neon-fuchsia text-base sm:text-lg mb-1 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-[7px] text-white/40 uppercase font-bold tracking-wider leading-tight mb-0.5" data-i18n="card_vibe">Вибрация</p>
+                        <p id="stat-frequency" class="text-[9px] sm:text-[10px] text-neon-fuchsia font-black leading-tight">---</p>
                     </div>
-                    <!-- Четвертый новый прикольный параметр: Индекс Синхронизации с Космосом -->
-                    <div class="glass bg-space-800/40 rounded-2xl p-2.5 text-center border border-white/5 backdrop-blur-md">
-                        <i class="ph-fill ph-lightning text-neon-amber text-base mb-1"></i>
-                        <p class="text-[8px] text-white/40 uppercase font-bold tracking-wider" data-i18n="card_sync">Сонастрой</p>
-                        <p id="stat-sync" class="text-[11px] text-neon-amber font-black mt-0.5">98%</p>
+                    
+                    <!-- Сонастрой -->
+                    <div onclick="openStatInfo('sync')" class="glass bg-space-800/40 rounded-2xl p-1.5 sm:p-2 text-center border border-white/5 backdrop-blur-md relative cursor-pointer active:scale-95 transition-transform group">
+                        <div class="absolute inset-0 rounded-2xl border border-neon-amber/40 animate-[ping_3s_ease-in-out_infinite] opacity-20" style="animation-delay: 1.5s;"></div>
+                        <i class="ph-fill ph-lightning text-neon-amber text-base sm:text-lg mb-1 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-[7px] text-white/40 uppercase font-bold tracking-wider leading-tight mb-0.5" data-i18n="card_sync">Сонастрой</p>
+                        <p id="stat-sync" class="text-[9px] sm:text-[10px] text-neon-amber font-black leading-tight">98%</p>
                     </div>
                 </div>
     
@@ -8572,6 +8583,28 @@ const astroDescriptions = {
             </div>
         </div>
     </div>
+
+    <div id="modal-stat-info" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[110]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col relative overflow-hidden">
+            <div id="stat-info-glow" class="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl pointer-events-none transition-colors"></div>
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="px-6 pt-2 pb-4 text-center relative z-10">
+                <div id="stat-info-icon-bg" class="w-16 h-16 rounded-full bg-space-800 border border-white/30 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(255,255,255,0.2)] shrink-0 transition-colors">
+                    <i id="stat-info-icon" class="ph-fill ph-info text-3xl text-white drop-shadow-md transition-colors"></i>
+                </div>
+                <h3 id="stat-info-title" class="text-white font-mystic text-2xl font-bold mb-3">Название</h3>
+                <p id="stat-info-desc" class="text-white/80 text-sm leading-relaxed font-light">
+                    Описание...
+                </p>
+                <button onclick="closeAllModals()" id="stat-info-btn" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-4 rounded-xl mt-8 active:scale-95 transition-all text-xs tracking-widest uppercase border border-white/10 shadow-md">
+                    Понятно
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- ==================== OVERLAY ==================== -->
     <div id="overlay" class="overlay fixed inset-0 bg-black/70 backdrop-blur-sm z-50" onclick="closeAllModals()"></div>
 
@@ -8939,6 +8972,64 @@ const astroDescriptions = {
         let dailyCardDataCache = null; 
         let spreadTemplatesCache = [];
         let userAstroData = null;
+
+        let currentElementData = null; // Храним текущую стихию для смены языка на лету
+        
+        // Словари для стихий (на 5 языках) + визуальные настройки
+        const elementsMap = {
+            0: { ru: "Огонь", en: "Fire", es: "Fuego", fr: "Feu", de: "Feuer", icon: "ph-fire", color: "text-neon-rose", border: "border-neon-rose/30", shadow: "shadow-[0_0_20px_rgba(251,113,133,0.3)]", glow: "bg-neon-rose/20" },
+            1: { ru: "Вода", en: "Water", es: "Agua", fr: "Eau", de: "Wasser", icon: "ph-drop", color: "text-blue-400", border: "border-blue-400/30", shadow: "shadow-[0_0_20px_rgba(96,165,250,0.3)]", glow: "bg-blue-400/20" },
+            2: { ru: "Воздух", en: "Air", es: "Aire", fr: "Air", de: "Luft", icon: "ph-wind", color: "text-neon-cyan", border: "border-neon-cyan/30", shadow: "shadow-[0_0_20px_rgba(34,211,238,0.3)]", glow: "bg-neon-cyan/20" },
+            3: { ru: "Земля", en: "Earth", es: "Tierra", fr: "Terre", de: "Erde", icon: "ph-plant", color: "text-neon-emerald", border: "border-neon-emerald/30", shadow: "shadow-[0_0_20px_rgba(52,211,153,0.3)]", glow: "bg-neon-emerald/20" }
+        };
+
+        // Тексты для всплывающих окон параметров
+        const statInfoMap = {
+            time: {
+                title: { ru: "Час Силы", en: "Hour of Power", es: "Hora de Poder", fr: "Heure de Pouvoir", de: "Stunde der Macht" },
+                desc: {
+                    ru: "Временной промежуток, когда энергетика карты резонирует с миром сильнее всего. Идеально для планирования важных дел или медитаций.",
+                    en: "The time frame when the card's energy resonates most strongly with the world. Ideal for planning important tasks or meditations.",
+                    es: "El período en el que la energía de la carta resuena más fuerte con el mundo. Ideal para planificar tareas importantes o meditaciones.",
+                    fr: "La période où l'énergie de la carte résonne le plus fort avec le monde. Idéal pour planifier des tâches importantes ou des méditations.",
+                    de: "Der Zeitraum, in dem die Energie der Karte am stärksten mit der Welt resoniert. Ideal für die Planung wichtiger Aufgaben oder Meditationen."
+                },
+                icon: "ph-clock", color: "text-neon-cyan", borderColor: "border-neon-cyan/40", shadow: "shadow-[0_0_20px_rgba(34,211,238,0.3)]", glowColor: "bg-neon-cyan/20"
+            },
+            element: {
+                title: { ru: "Стихия дня", en: "Daily Element", es: "Elemento del día", fr: "Élément du jour", de: "Tageselement" },
+                desc: {
+                    ru: "Фундамент твоей энергии сегодня. Огонь — страсть и действия, Вода — эмоции и интуиция, Воздух — интеллект и связи, Земля — материальность и труд.",
+                    en: "The foundation of your energy today. Fire - passion & action, Water - emotions & intuition, Air - intellect & connections, Earth - materiality & labor.",
+                    es: "La base de tu energía hoy. Fuego - pasión y acción, Agua - emociones e intuición, Aire - intelecto y conexiones, Tierra - materialidad y trabajo.",
+                    fr: "La base de votre énergie aujourd'hui. Feu - passion et action, Eau - émotions et intuition, Air - intellect et connexions, Terre - matérialité et travail.",
+                    de: "Die Grundlage deiner Energie heute. Feuer - Leidenschaft & Aktion, Wasser - Emotionen & Intuition, Luft - Intellekt & Verbindungen, Erde - Materialität & Arbeit."
+                }
+                // Иконка и цвет для стихии подставляются динамически
+            },
+            vibration: {
+                title: { ru: "Вибрация", en: "Vibration", es: "Vibración", fr: "Vibration", de: "Schwingung" },
+                desc: {
+                    ru: "Астральная звуковая частота дня. Настройся на нее (найди такую частоту на YouTube), чтобы поймать удачу за хвост и успокоить разум.",
+                    en: "The astral sound frequency of the day. Tune into it (e.g., find this frequency on YouTube) to catch luck and harmonize your mind.",
+                    es: "La frecuencia de sonido astral del día. Sintonízala (encuéntrala en YouTube) para atrapar la suerte y armonizar tu mente.",
+                    fr: "La fréquence sonore astrale du jour. Syntonisez-la (trouvez-la sur YouTube) pour attraper la chance et harmoniser votre esprit.",
+                    de: "Die astrale Klangfrequenz des Tages. Stimme dich darauf ein (z.B. auf YouTube), um das Glück zu fangen und deinen Geist zu harmonisieren."
+                },
+                icon: "ph-wave-sine", color: "text-neon-fuchsia", borderColor: "border-neon-fuchsia/40", shadow: "shadow-[0_0_20px_rgba(232,121,249,0.3)]", glowColor: "bg-neon-fuchsia/20"
+            },
+            sync: {
+                title: { ru: "Сонастрой", en: "Alignment", es: "Alineación", fr: "Alignement", de: "Ausrichtung" },
+                desc: {
+                    ru: "Процент совпадения энергии Вселенной с твоим личным биоритмом. Чем выше процент, тем легче даются сегодня любые дела.",
+                    en: "The percentage of alignment between the Universe's energy and your personal biorhythm. The higher it is, the easier tasks are today.",
+                    es: "El porcentaje de alineación entre la energía del Universo y tu biorritmo personal. Cuanto mayor sea, más fáciles serán las tareas hoy.",
+                    fr: "Le pourcentage d'alignement entre l'énergie de l'Univers et votre biorythme personnel. Plus il est élevé, plus les tâches sont faciles aujourd'hui.",
+                    de: "Der Prozentsatz der Ausrichtung zwischen der Energie des Universums und deinem persönlichen Biorhythmus. Je höher, desto leichter fallen Aufgaben heute."
+                },
+                icon: "ph-lightning", color: "text-neon-amber", borderColor: "border-neon-amber/40", shadow: "shadow-[0_0_20px_rgba(251,191,36,0.3)]", glowColor: "bg-neon-amber/20"
+            }
+        };
 
         function updateCharCount(inputId, counterId, maxLen) {
             const input = document.getElementById(inputId);
@@ -10005,16 +10096,17 @@ const astroDescriptions = {
     
         // ==================== DAILY CARD LOGIC ====================
         function generateCardStats(cardId) {
-            const elements = [
-                { name: "Огонь", icon: "ph-fire", color: "text-neon-rose" },
-                { name: "Вода", icon: "ph-drop", color: "text-blue-400" },
-                { name: "Воздух", icon: "ph-wind", color: "text-neon-cyan" },
-                { name: "Земля", icon: "ph-plant", color: "text-neon-emerald" }
-            ];
-            const el = elements[cardId % 4]; 
+            // Сохраняем текущую стихию глобально
+            const elIdx = cardId % 4; 
+            currentElementData = elementsMap[elIdx]; 
+
             const startHour = 8 + (cardId % 10); 
             const endHour = startHour + 2;
-            return { element: el, time: `${startHour}:00 – ${endHour}:30` };
+            
+            // Жестко вставляем перенос строки <br>, чтобы время НИКОГДА не ломало рамку в ширину
+            return {
+                time: `${startHour}:00 -<br>${endHour}:30`
+            };
         }
     
         function openDailyCardModal() {
@@ -10078,28 +10170,65 @@ const astroDescriptions = {
             document.getElementById('modal-daily-text').innerHTML = DOMPurify.sanitize(cardData.interpretation);
     
             document.getElementById('modal-card-img').src = cardData.image;
-            
-            // Добавляем класс flipped для 3D переворота
             document.getElementById('daily-modal-card-3d').classList.add('group', 'flipped');
     
             const stats = generateCardStats(cardData.id);
-            document.getElementById('stat-time').textContent = stats.time;
-            document.getElementById('stat-element').textContent = stats.element.name;
+            // Используем innerHTML из-за тега <br>
+            document.getElementById('stat-time').innerHTML = stats.time;
             
-            // Заполняем твои новые параметры: Вибрация и Сонастрой
+            // Название стихии СРАЗУ на нужном языке
+            document.getElementById('stat-element').textContent = currentElementData[activeLanguage];
+            
             const frequencies = ["432 Hz", "528 Hz", "639 Hz", "741 Hz", "852 Hz"];
             const syncs = ["92%", "95%", "98%", "99%", "100%"];
-            
             document.getElementById('stat-frequency').textContent = frequencies[cardData.id % frequencies.length];
             document.getElementById('stat-sync').textContent = syncs[cardData.id % syncs.length];
             
+            // Динамический цвет и иконка для стихии
             const elIcon = document.getElementById('stat-element-icon');
-            elIcon.className = `ph-fill ${stats.element.icon} ${stats.element.color} text-base mb-1`;
-        
-            // Плавно показываем блок со статами
+            elIcon.className = `ph-fill ${currentElementData.icon} ${currentElementData.color} text-base sm:text-lg mb-1 group-hover:scale-110 transition-transform`;
+            
+            const elPing = document.getElementById('stat-element-ping');
+            elPing.className = `absolute inset-0 rounded-2xl border ${currentElementData.border} animate-[ping_3s_ease-in-out_infinite] opacity-20`;
+
+            // Синхронизируем цвета стихии со словарем для модалки инфо
+            statInfoMap.element.icon = currentElementData.icon;
+            statInfoMap.element.color = currentElementData.color;
+            statInfoMap.element.borderColor = currentElementData.border;
+            statInfoMap.element.shadow = currentElementData.shadow;
+            statInfoMap.element.glowColor = currentElementData.glow;
+    
             const statsContainer = document.getElementById('daily-modal-stats');
             statsContainer.classList.remove('opacity-0');
             statsContainer.classList.add('opacity-100');
+        }
+
+        function openStatInfo(type) {
+            const data = statInfoMap[type];
+            const lang = activeLanguage;
+
+            document.getElementById('stat-info-title').textContent = data.title[lang] || data.title['en'];
+            document.getElementById('stat-info-desc').textContent = data.desc[lang] || data.desc['en'];
+            
+            // Перевод кнопки "Понятно"
+            const btnNames = { ru: "Понятно", en: "Got it", es: "Entendido", fr: "Compris", de: "Verstanden" };
+            document.getElementById('stat-info-btn').textContent = btnNames[lang] || btnNames['en'];
+
+            const iconEl = document.getElementById('stat-info-icon');
+            const bgEl = document.getElementById('stat-info-icon-bg');
+            const glowEl = document.getElementById('stat-info-glow');
+
+            iconEl.className = `ph-fill ${data.icon} text-3xl ${data.color} drop-shadow-md transition-colors`;
+            bgEl.className = `w-16 h-16 rounded-full bg-space-800 border ${data.borderColor} flex items-center justify-center mx-auto mb-4 ${data.shadow} shrink-0 transition-colors`;
+            glowEl.className = `absolute -top-10 -right-10 w-40 h-40 ${data.glowColor} rounded-full blur-3xl pointer-events-none transition-colors`;
+
+            // ВАЖНО: Поднимаем затемнение выше карты дня (z-index 100)
+            const overlay = document.getElementById('overlay');
+            overlay.style.zIndex = "105";
+            overlay.classList.add('active');
+
+            const modal = document.getElementById('modal-stat-info');
+            modal.classList.add('active');
         }
 
         async function openProfileAstroInfo(type) {
@@ -10584,7 +10713,10 @@ const astroDescriptions = {
     
         function closeAllModals() {
           document.querySelectorAll('.bottom-sheet').forEach(sheet => { sheet.classList.remove('active'); });
-          document.getElementById('overlay').classList.remove('active');
+          const overlay = document.getElementById('overlay');
+          overlay.classList.remove('active');
+          // Возвращаем обычный z-index после того как оверлей погаснет
+          setTimeout(() => { overlay.style.zIndex = "50"; }, 300);
         }
     
         async function selectLanguage(code, nameStr) {
@@ -10602,6 +10734,11 @@ const astroDescriptions = {
             updateInterfaceTranslations();
             updateDynamicDates();
             updateZodiacUI(window.userBirthDate); 
+
+            if (dailyCardDataCache && currentElementData) {
+                const elNode = document.getElementById('stat-element');
+                if (elNode) elNode.textContent = currentElementData[code] || currentElementData['en'];
+            }
             
             showToast(t('toast_lang_changed') || 'Language changed', 'ph-globe');
             setTimeout(closeAllModals, 300);
