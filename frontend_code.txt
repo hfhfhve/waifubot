@@ -2139,9 +2139,9 @@ const characters = [
                 </div>
             </button>
 
-            <div class="h-[1px] bg-white/5 mx-4"></div>
+            <div id="profile-rules-divider" class="h-[1px] bg-white/5 mx-4"></div>
 
-            <button onclick="tg.openLink('https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09')" class="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors group">
+            <button id="profile-rules-btn" onclick="tg.openLink('https://telegra.ph/Midnight-AI---Terms-of-Service--Privacy-Policy-04-09')" class="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors group">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-gray-500 group-hover:text-white transition-colors">
                         <i class="fa-solid fa-file-contract text-sm"></i>
@@ -2394,7 +2394,7 @@ const characters = [
                 <h3 class="text-2xl font-black text-white leading-tight" data-i18n="ref_modal_title">Твои друзья</h3>
                 <p class="text-xs text-gray-400 mt-1" data-i18n="ref_modal_desc">Зови друзей и получай награды</p>
                 
-                <p class="text-[10px] text-pink-500/90 mt-2 font-medium" data-i18n="invite_condition">* Бонус придет после того, как друг подтвердит 18+ в приложении</p>
+                <p id="ref-18-disclaimer" class="text-[10px] text-pink-500/90 mt-2 font-medium" data-i18n="invite_condition">* Бонус придет после того, как друг подтвердит 18+ в приложении</p>
             </div>
 
             <div class="flex gap-3 mb-6 shrink-0">
@@ -2665,46 +2665,51 @@ const characters = [
                 if (user) {
                     // === 👇 ЛОГИКА БЕЛОГО РЕЖИМА (SAFE MODE) 👇 ===
                     window.isSafeMode = user.is_safe_mode === true;
-                    
+
                     if (window.isSafeMode) {
                         // 1. Принудительно ставим 18+, чтобы плашка не вылезла
                         window.isAgeVerified = true;
                         
-                        // 2. Скрываем вкладку "Сообщество"
-                        const btnCommunity = document.getElementById('btn-create-community');
-                        if (btnCommunity) btnCommunity.style.display = 'none';
-        
-                        // 3. Прячем кнопку "Сгенерировать фото" на шаге 4 (создание перса)
-                        const btnGeneratePreview = document.getElementById('btn-generate-preview');
-                        if (btnGeneratePreview) btnGeneratePreview.style.display = 'none';
+                        // 2. Скрываем кнопку "СОЗДАТЬ" в нижнем меню
+                        const navCreate = document.getElementById('nav-create');
+                        if (navCreate) navCreate.style.display = 'none';
                         
-                        const previewPlaceholder = document.getElementById('preview-placeholder');
-                        if(previewPlaceholder) {
-                            previewPlaceholder.innerHTML = '<div class="text-gray-500 mt-10 flex flex-col items-center"><i class="fa-solid fa-user-shield text-3xl mb-2"></i><span class="text-xs font-bold uppercase tracking-widest text-center">Безопасный режим</span></div>';
+                        const fabCreate = document.getElementById('fab-create');
+                        if (fabCreate) fabCreate.style.display = 'none';
+                    
+                        // 3. Убираем "Аниме" и меняем "Реализм" на "Психологи"
+                        const btnAnime = document.getElementById('btn-style-anime');
+                        if (btnAnime) btnAnime.style.display = 'none';
+                        
+                        const btnReal = document.getElementById('btn-style-real');
+                        if (btnReal) {
+                            btnReal.innerHTML = '<i class="fa-solid fa-brain mr-2"></i><span>Специалисты</span>';
+                            // Делаем кнопку некликабельной (pointer-events-none) и меняем цвет на синий
+                            btnReal.className = 'flex-1 py-2 text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md z-10 relative flex items-center justify-center pointer-events-none';
                         }
-        
-                        // 4. Перезаписываем переводы на "белые"
+                    
+                        // 4. Убираем упоминание 18+ в реферальном окне
+                        const refDisclaimer = document.getElementById('ref-18-disclaimer');
+                        if (refDisclaimer) refDisclaimer.style.display = 'none';
+                    
+                        // 5. Убираем кнопку "Правила и 18+" в профиле
+                        const profileRulesBtn = document.getElementById('profile-rules-btn');
+                        const profileRulesDiv = document.getElementById('profile-rules-divider');
+                        if (profileRulesBtn) profileRulesBtn.style.display = 'none';
+                        if (profileRulesDiv) profileRulesDiv.style.display = 'none';
+                    
+                        // 6. Перезаписываем переводы на "белые"
                         const safeTranslations = {
                             "ru": {
                                 "age_title": "Добро пожаловать!",
                                 "age_desc1": "Наш ИИ-помощник готов ответить на ваши вопросы.",
-                                "custom_cta_title": "СОЗДАЙ АССИСТЕНТА",
-                                "custom_cta_desc": "Настрой умного компаньона для общения, учебы или работы!",
-                                "tab_characters": "МОИ АССИСТЕНТЫ",
-                                "no_custom_chars_desc": "Создай своего личного помощника с нужным характером.",
-                                "btn_generate_photo": "БЕЗОПАСНЫЙ РЕЖИМ",
-                                "photo_btn": "📸 Фото",
-                                "voice_btn": "🎙 Голосовое"
+                                "photo_btn": "📸 Получить анализ (1 Гем)",
+                                "voice_btn": "🎙 Голосовое сообщение (1 Гем)"
                             },
                             "en": {
                                 "age_title": "Welcome!",
-                                "custom_cta_title": "CREATE ASSISTANT",
-                                "custom_cta_desc": "Set up a smart companion for chat, study, or work!",
-                                "tab_characters": "MY ASSISTANTS",
-                                "no_custom_chars_desc": "Create your personal assistant with a custom personality.",
-                                "btn_generate_photo": "SAFE MODE",
-                                "photo_btn": "📸 Photo",
-                                "voice_btn": "🎙 Voice"
+                                "photo_btn": "📸 Get analysis (1 Gem)",
+                                "voice_btn": "🎙 Voice message (1 Gem)"
                             }
                         };
                         
