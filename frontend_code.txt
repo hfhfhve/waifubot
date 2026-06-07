@@ -9040,7 +9040,32 @@ const astroDescriptions = {
                     </div>
                     <div class="relative z-30">
                         <label class="text-xs font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="city">Город рождения</label>
-                        <input id="astro-city" type="text" maxlength="100" required placeholder="Например: Москва" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" />
+                        
+                        <!-- Показываем текущий выбранный город -->
+                        <div class="bg-space-900/50 border border-white/5 rounded-xl p-3 mb-3 flex items-center justify-between shadow-inner">
+                            <div class="flex-1 overflow-hidden pr-3">
+                                <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-0.5" data-i18n="current_city">СЕЙЧАС ВЫБРАН:</span>
+                                <span id="current-astro-city" class="text-white text-sm font-bold truncate block">Не указан</span>
+                            </div>
+                            <i class="ph-fill ph-map-pin text-neon-fuchsia text-xl shrink-0"></i>
+                        </div>
+                    
+                        <!-- Поле поиска и кнопка Найти -->
+                        <div class="flex gap-2 mb-2">
+                            <div class="relative flex-1">
+                                <input id="astro-city-search" type="text" placeholder="Введите название..." class="w-full bg-space-800 border border-white/10 rounded-xl p-3 pl-10 text-white outline-none focus:border-neon-fuchsia/50 transition-colors text-sm" onkeypress="if(event.key==='Enter') { event.preventDefault(); searchCity(); }" />
+                                <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"></i>
+                            </div>
+                            <button type="button" onclick="searchCity()" class="bg-white/10 hover:bg-white/20 text-white font-bold px-4 rounded-xl transition-colors text-sm active:scale-95 border border-white/5">
+                                Найти
+                            </button>
+                        </div>
+                        
+                        <!-- Контейнер для вывода результатов (выпадающий список) -->
+                        <div id="city-search-results" class="flex flex-col gap-2 max-h-[180px] overflow-y-auto hide-scrollbar"></div>
+                    
+                        <!-- Скрытый инпут! Именно его значение улетит на бэкенд -->
+                        <input type="hidden" id="astro-city" required />
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-4 rounded-xl mt-6 shadow-[0_10px_20px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide relative z-30" data-i18n="btn_calc_chart">
                         РАССЧИТАТЬ КАРТУ
@@ -9849,6 +9874,13 @@ const astroDescriptions = {
                         }
                         updateZodiacUI(data.birth_date);
                     }
+
+                    if (data.birth_city) {
+                        const currentCityEl = document.getElementById('current-astro-city');
+                        const hiddenCityEl = document.getElementById('astro-city');
+                        if (currentCityEl) currentCityEl.textContent = data.birth_city;
+                        if (hiddenCityEl) hiddenCityEl.value = data.birth_city;
+                    }
                     
                     // Заодно подтягиваем правильное имя из БД, а не из Телеграма
                     if (data.first_name) {
@@ -10442,6 +10474,67 @@ const astroDescriptions = {
             thumbImg.classList.remove('hidden');
             document.getElementById('home-daily-title').textContent = cardData.name;
             document.getElementById('home-daily-subtitle').textContent = t('card_day_desc');
+        }
+
+        async function searchCity() {
+            const query = document.getElementById('astro-city-search').value.trim();
+            if (!query) return showToast(t('toast_enter_city') || 'Введите город для поиска', 'ph-warning-circle');
+        
+            const resultsContainer = document.getElementById('city-search-results');
+            // Показываем неоновый лоадер
+            resultsContainer.innerHTML = `<div class="text-center py-4"><i class="ph-fill ph-spinner animate-spin text-neon-fuchsia text-2xl"></i></div>`;
+        
+            try {
+                // Запрос к OpenStreetMap. Передаем язык юзера, чтобы ответы были локализованы
+                const lang = activeLanguage || 'ru';
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=${lang}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+        
+                resultsContainer.innerHTML = '';
+        
+                if (data.length === 0) {
+                    resultsContainer.innerHTML = `<div class="text-center text-white/50 text-xs py-3 border border-white/5 bg-space-800/50 rounded-xl">Ничего не найдено. Попробуйте уточнить запрос.</div>`;
+                    return;
+                }
+        
+                // Рисуем карточки городов
+                data.forEach(place => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left bg-space-800 border border-white/5 hover:border-neon-fuchsia/40 rounded-xl p-3 active:scale-[0.98] transition-all';
+                    
+                    // Разделяем длинное название (чтобы выделить сам город жирным, а область сделать мелкой)
+                    const parts = place.display_name.split(', ');
+                    const mainName = parts[0];
+                    const details = parts.slice(1).join(', ');
+        
+                    btn.innerHTML = `
+                        <p class="text-white font-bold text-sm leading-none mb-1">${mainName}</p>
+                        <p class="text-white/40 text-[10px] leading-snug">${details}</p>
+                    `;
+                    
+                    // При клике сохраняем полное название
+                    btn.onclick = () => selectCity(place.display_name);
+                    resultsContainer.appendChild(btn);
+                });
+            } catch (e) {
+                resultsContainer.innerHTML = `<div class="text-center text-red-400 text-xs py-3">Ошибка сети. Попробуйте позже.</div>`;
+            }
+        }
+        
+        function selectCity(fullName) {
+            // 1. Отображаем в UI
+            document.getElementById('current-astro-city').textContent = fullName;
+            // 2. Кладем в скрытый инпут (твой существующий код отправки возьмет город отсюда)
+            document.getElementById('astro-city').value = fullName; 
+            
+            // 3. Очищаем поиск, чтобы не мешался
+            document.getElementById('city-search-results').innerHTML = '';
+            document.getElementById('astro-city-search').value = '';
+            
+            showToast('Город выбран!', 'ph-map-pin text-neon-fuchsia');
         }
     
         async function saveNameOnly() {
