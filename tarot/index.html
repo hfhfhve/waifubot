@@ -2135,13 +2135,13 @@
             isFetchingHistory = true;
             const loader = document.getElementById('history-loader-placeholder');
             if (loadMore && loader) loader.classList.replace('opacity-0', 'opacity-100');
-
+        
             const limit = 10;
             const endpoint = `/chat/history?persona=${currentChat}&offset=${chatOffset}&limit=${limit}`;
             
             const data = await apiRequest(endpoint, "GET");
             isFetchingHistory = false;
-
+        
             if (data.success) {
                 const msgs = data.messages;
                 hasMoreHistory = data.has_more;
@@ -2163,13 +2163,27 @@
                         }
                         chatMessages[currentChat] = [{ type: 'ai', text: defaultWelcome }];
                     } else {
-                        // Бэкенд отдает от новых к старым (DESC). Нам для отрисовки надо перевернуть.
+                        // Бэкенд отдает от новых к старым. Нам для отрисовки надо перевернуть.
                         chatMessages[currentChat] = msgs.reverse();
                     }
                     chatOffset += msgs.length;
                     renderMessages();
-                    scrollToBottom();
-                    initialChatLoaded = true;
+                    
+                    // 1. Мгновенно перебрасываем вниз без плавной анимации
+                    const wrapper = document.getElementById('chat-scroll-wrapper');
+                    if (wrapper) {
+                        wrapper.classList.remove('scroll-smooth');
+                        wrapper.scrollTop = wrapper.scrollHeight;
+                        
+                        // Возвращаем плавность обратно для новых сообщений
+                        setTimeout(() => wrapper.classList.add('scroll-smooth'), 100);
+                    }
+                    
+                    // 2. ВАЖНО: Разрешаем подгрузку старых сообщений только когда точно спустились вниз
+                    setTimeout(() => {
+                        initialChatLoaded = true;
+                    }, 300);
+                    
                 } else {
                     // Подгрузка при скролле вверх
                     if (msgs.length > 0) {
@@ -2186,12 +2200,15 @@
                         const newScrollHeight = wrapper.scrollHeight;
                         wrapper.scrollTop = newScrollHeight - oldScrollHeight;
                     }
+                    
+                    // Прячем лоадер после успешной подгрузки
+                    if (loader) loader.classList.replace('opacity-100', 'opacity-0');
                 }
             } else {
+                // Если ошибка API, прячем лоадер, чтобы не висел бесконечно
                 if (loadMore && loader) loader.classList.replace('opacity-100', 'opacity-0');
             }
         }
-
     
         function initCustomDateSelects() {
             const days = Array.from({length: 31}, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -2770,9 +2787,14 @@
                     renderMessages();
                     loadChatHistory(false);
                 } else {
-                    // Если историю уже загружали ранее - просто рендерим и скроллим вниз
+                    // Если историю уже загружали ранее - просто рендерим и мгновенно прыгаем вниз
                     renderMessages();
-                    setTimeout(scrollToBottom, 50);
+                    const wrapper = document.getElementById('chat-scroll-wrapper');
+                    if (wrapper) {
+                        wrapper.classList.remove('scroll-smooth');
+                        wrapper.scrollTop = wrapper.scrollHeight;
+                        setTimeout(() => wrapper.classList.add('scroll-smooth'), 100);
+                    }
                 }
             } else {
                 document.getElementById('app').scrollTop = 0;
