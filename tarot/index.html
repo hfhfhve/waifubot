@@ -4220,12 +4220,6 @@
             chatOffset++; // <--- ВОТ ТУТ
             input.value = '';
             renderMessages();
-            document.getElementById('typing-indicator').classList.remove('hidden');
-            scrollToBottom();
-    
-            const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
-            document.getElementById('typing-indicator').classList.add('hidden');
-
             const typingStatuses = {
                 'ru': ['Оракул настраивается...', 'Читаю звёзды...', 'Шепот Вселенной...', 'Расшифровываю послание...'],
                 'en': ['Oracle is tuning in...', 'Reading the stars...', 'Universe is whispering...', 'Decoding the message...'],
@@ -4233,11 +4227,17 @@
                 'fr': ["L'Oracle s'accorde...", 'Lecture des étoiles...', "L'univers murmure...", 'Décodage du message...'],
                 'de': ['Orakel stimmt ab...', 'Sterne werden gelesen...', 'Universum flüstert...', 'Nachricht wird entschlüsselt...']
             };
-            // В функции sendMessage() перед показом индикатора:
             const statuses = (typingStatuses[activeLanguage] || typingStatuses['en']);
             const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
             const typingText = document.querySelector('#typing-indicator span');
             if (typingText) typingText.textContent = randomStatus;
+            // 2. ПОТОМ показываем индикатор
+            document.getElementById('typing-indicator').classList.remove('hidden');
+            scrollToBottom();
+            // 3. Запрос
+            const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
+            // 4. Скрываем
+            document.getElementById('typing-indicator').classList.add('hidden');
     
             if (data.success) {
                 chatMessages[currentChat].push({ type: 'ai', text: data.response });
