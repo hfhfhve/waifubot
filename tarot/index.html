@@ -196,6 +196,42 @@
         align-items: center;
         justify-content: center;
     }
+
+    #message-input {
+        transition: height 0.1s ease;
+    }
+    /* Quick-промпты */
+    .quick-prompt-btn {
+        flex-shrink: 0;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.7);
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .quick-prompt-btn:hover, .quick-prompt-btn:active {
+        background: rgba(168,85,247,0.15);
+        border-color: rgba(168,85,247,0.4);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+    /* Копирование сообщения */
+    .copy-btn-msg {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    .ai-msg-wrapper:hover .copy-btn-msg,
+    .ai-msg-wrapper:active .copy-btn-msg {
+        opacity: 1;
+    }
+    /* Энергетический бар чата */
+    #chat-energy-bar {
+        box-shadow: 0 0 8px rgba(168,85,247,0.4);
+    }
     
     .deck-card-item::after {
         content: '✦';
@@ -546,6 +582,21 @@
             </button>
         </div>
 
+        <div class="px-5 mb-8">
+            <div id="daily-tip-card" class="glass bg-gradient-to-r from-neon-indigo/10 to-neon-purple/5 rounded-[20px] p-4 border border-neon-indigo/20 relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-indigo/20 blur-2xl rounded-full"></div>
+                <div class="flex items-start gap-3 relative z-10">
+                    <div class="w-9 h-9 rounded-full bg-neon-indigo/15 flex items-center justify-center shrink-0 border border-neon-indigo/30">
+                        <i class="ph-fill ph-lightbulb text-neon-indigo text-base"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-neon-indigo/70 text-[9px] uppercase tracking-widest font-bold mb-1" data-i18n="tip_title">Совет дня</p>
+                        <p id="daily-tip-text" class="text-white/80 text-xs leading-relaxed font-light">Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Возможности (Сетка 2x2) -->
         <div class="px-5">
             <p class="text-xs uppercase tracking-widest font-bold text-white/50 mb-3 ml-1" data-i18n="opportunities">ВОЗМОЖНОСТИ</p>
@@ -693,49 +744,147 @@
         </div>
     </div>
 
-    <div id="screen-astro" class="screen hidden flex-1 flex flex-col relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-space-800 via-space-900 to-black pb-24">
-        <div class="px-5 pt-8 w-full flex justify-between items-center z-20 shrink-0">
-            <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5">
-                <i class="ph-bold ph-caret-left text-xl"></i>
-            </button>
-            <span class="text-white/50 text-xs font-bold uppercase tracking-widest" data-i18n="astro_title">Космо-Паспорт</span>
-            <div class="w-10"></div>
-        </div>
+    <div id="screen-astro" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar relative">
+        <!-- Фоновое свечение -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-96 bg-[radial-gradient(ellipse_at_top,_rgba(232,121,249,0.15),_transparent_70%)] pointer-events-none"></div>
+        <div class="absolute inset-0 stars-bg opacity-40 pointer-events-none"></div>
         
-        <div class="flex-1 flex flex-col items-center justify-center relative z-10">
-            <!-- Сама орбитальная система -->
-            <div class="relative w-[300px] h-[300px] flex items-center justify-center">
-                <!-- СОЛНЦЕ (Центр) -->
-                <div class="absolute w-20 h-20 rounded-full bg-gradient-to-br from-neon-amber to-orange-500 shadow-[0_0_40px_rgba(251,191,36,0.5)] flex items-center justify-center z-30 cursor-pointer active:scale-95 transition-transform" onclick="showPlanetInfo('sun')">
-                    <i class="ph-fill ph-sun text-4xl text-white drop-shadow-md"></i>
-                </div>
-                
-                <!-- ОРБИТА 1 (Луна) -->
-                <div class="absolute w-[200px] h-[200px] border border-white/10 rounded-full animate-spin-slow z-20 pointer-events-none">
-                    <div class="absolute top-0 left-1/2 w-10 h-10 rounded-full bg-space-800 border border-neon-cyan shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center animate-spin-reverse-slow cursor-pointer pointer-events-auto" onclick="showPlanetInfo('moon')">
-                        <i class="ph-fill ph-moon text-neon-cyan text-lg"></i>
-                    </div>
-                </div>
-                
-                <!-- ОРБИТА 2 (Планета-Управитель) -->
-                <div class="absolute w-[300px] h-[300px] border border-white/10 rounded-full animate-spin-slower z-10 pointer-events-none">
-                    <div class="absolute top-1/2 left-0 w-12 h-12 rounded-full bg-space-800 border border-neon-fuchsia shadow-[0_0_15px_rgba(232,121,249,0.4)] flex items-center justify-center animate-spin-reverse-slower cursor-pointer pointer-events-auto" onclick="showPlanetInfo('planet')">
-                        <i class="ph-fill ph-planet text-neon-fuchsia text-xl"></i>
-                    </div>
+        <div class="relative z-10 px-5 pt-8">
+            <!-- Шапка -->
+            <div class="flex items-center gap-3 mb-8">
+                <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5">
+                    <i class="ph-bold ph-caret-left text-xl"></i>
+                </button>
+                <div class="flex-1">
+                    <h1 class="text-2xl font-mystic text-white font-bold leading-none" data-i18n="astro_title">Космо-Паспорт</h1>
+                    <p class="text-white/40 text-[10px] uppercase tracking-widest mt-1">Natal Chart Reading</p>
                 </div>
             </div>
-        </div>
-        
-        <!-- Кнопка обновления данных (Внизу экрана) -->
-        <div class="absolute bottom-24 inset-x-0 flex justify-center z-20">
-            <button onclick="openModal('astro-form')" class="glass bg-space-800/80 px-6 py-3 rounded-[20px] border border-white/10 flex items-center gap-3 active:scale-95 transition-transform shadow-lg">
-                <div class="text-left">
-                    <p id="astro-display-date" class="text-white font-bold text-sm leading-none">15.04.1995</p>
-                    <p id="astro-display-city" class="text-white/50 text-[10px] uppercase tracking-widest mt-1">Москва</p>
+            <!-- Если данных нет -->
+            <div id="astro-empty-state" class="hidden flex-col items-center justify-center py-16 text-center">
+                <div class="relative w-32 h-32 mb-8">
+                    <div class="absolute inset-0 rounded-full bg-neon-fuchsia/10 blur-2xl animate-pulse-slow"></div>
+                    <div class="absolute inset-0 border-2 border-dashed border-neon-fuchsia/30 rounded-full animate-spin-slow"></div>
+                    <div class="absolute inset-4 border border-neon-indigo/20 rounded-full animate-spin-reverse-slow"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="ph-fill ph-planet text-5xl text-neon-fuchsia drop-shadow-[0_0_20px_rgba(232,121,249,0.5)] animate-pulse"></i>
+                    </div>
                 </div>
-                <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
-                <i class="ph-fill ph-pencil-simple text-neon-fuchsia text-lg animate-pulse"></i>
-            </button>
+                <h2 class="text-xl font-mystic text-white font-bold mb-2" data-i18n="astro_empty_title">Раскрой тайны рождения</h2>
+                <p class="text-white/50 text-sm max-w-xs leading-relaxed mb-6" data-i18n="astro_empty_desc">Укажи дату, время и место рождения, чтобы ИИ построил твою натальную карту и раскрыл космические аспекты личности.</p>
+                <button onclick="openModal('astro-form')" class="bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white font-bold py-3.5 px-8 rounded-2xl shadow-[0_10px_30px_rgba(232,121,249,0.3)] active:scale-95 transition-transform text-sm tracking-wide uppercase border border-white/10" data-i18n="astro_empty_btn">
+                    Создать паспорт
+                </button>
+            </div>
+            <!-- Если данные есть -->
+            <div id="astro-data-state" class="hidden">
+                
+                <!-- ГЛАВНЫЙ БЛОК: Кольцо Зодиака + Центр -->
+                <div class="relative w-full aspect-square max-w-[320px] mx-auto mb-8">
+                    <!-- Внешнее кольцо с сиянием -->
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-neon-indigo/10 via-transparent to-neon-fuchsia/10 blur-xl"></div>
+                    
+                    <!-- SVG-кольцо зодиака -->
+                    <svg viewBox="0 0 200 200" class="absolute inset-0 w-full h-full">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6"/>
+                                <stop offset="50%" stop-color="#a855f7" stop-opacity="0.8"/>
+                                <stop offset="100%" stop-color="#e879f9" stop-opacity="0.6"/>
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="2" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Внешний круг -->
+                        <circle cx="100" cy="100" r="95" fill="none" stroke="url(#ringGradient)" stroke-width="0.5" opacity="0.5"/>
+                        <circle cx="100" cy="100" r="88" fill="none" stroke="url(#ringGradient)" stroke-width="0.3" opacity="0.3"/>
+                        
+                        <!-- Деления (12 секторов) -->
+                        <g id="zodiac-sectors"></g>
+                        
+                        <!-- Знаки зодиака по кругу -->
+                        <g id="zodiac-symbols" filter="url(#glow)"></g>
+                    </svg>
+                    
+                    <!-- Центральный блок -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-neon-amber/20 to-orange-500/10 border border-neon-amber/40 flex items-center justify-center mx-auto mb-3 shadow-[0_0_30px_rgba(251,191,36,0.2)] backdrop-blur-md">
+                                <span id="astro-center-symbol" class="text-5xl drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]">♈</span>
+                            </div>
+                            <p id="astro-center-sign" class="text-white font-mystic text-xl font-bold">Овен</p>
+                            <p id="astro-center-element" class="text-neon-amber/70 text-xs uppercase tracking-widest font-bold mt-1">Огонь</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- ТРИ КАРТЫ: Солнце, Луна, Управитель -->
+                <div class="space-y-3 mb-6">
+                    
+                    <!-- Карта Солнца -->
+                    <button onclick="showPlanetInfo('sun')" class="w-full glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex items-center gap-4 active:scale-[0.98] transition-transform border border-neon-amber/20 hover:border-neon-amber/40 group relative overflow-hidden">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-neon-amber/10 rounded-full blur-2xl group-hover:bg-neon-amber/20 transition-colors"></div>
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-amber to-orange-500 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.4)] relative z-10">
+                            <i class="ph-fill ph-sun text-white text-2xl drop-shadow-md"></i>
+                        </div>
+                        <div class="text-left flex-1 relative z-10">
+                            <p class="text-neon-amber/60 text-[9px] uppercase tracking-widest font-bold mb-0.5" data-i18n="astro_sun">Солнце · Ядро</p>
+                            <p id="astro-card-sun" class="text-white font-mystic text-lg font-bold leading-none">—</p>
+                            <p class="text-white/40 text-[10px] mt-1" data-i18n="astro_sun_desc">Эссенция личности</p>
+                        </div>
+                        <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
+                    </button>
+                    <!-- Карта Луны -->
+                    <button onclick="showPlanetInfo('moon')" class="w-full glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex items-center gap-4 active:scale-[0.98] transition-transform border border-neon-cyan/20 hover:border-neon-cyan/40 group relative overflow-hidden">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-neon-cyan/10 rounded-full blur-2xl group-hover:bg-neon-cyan/20 transition-colors"></div>
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-cyan to-blue-500 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(34,211,238,0.4)] relative z-10">
+                            <i class="ph-fill ph-moon text-white text-2xl drop-shadow-md"></i>
+                        </div>
+                        <div class="text-left flex-1 relative z-10">
+                            <p class="text-neon-cyan/60 text-[9px] uppercase tracking-widest font-bold mb-0.5" data-i18n="astro_moon">Луна · Эмоции</p>
+                            <p id="astro-card-moon" class="text-white font-mystic text-lg font-bold leading-none">—</p>
+                            <p class="text-white/40 text-[10px] mt-1" data-i18n="astro_moon_desc">Внутренний мир</p>
+                        </div>
+                        <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
+                    </button>
+                    <!-- Карта Управителя -->
+                    <button onclick="showPlanetInfo('planet')" class="w-full glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex items-center gap-4 active:scale-[0.98] transition-transform border border-neon-fuchsia/20 hover:border-neon-fuchsia/40 group relative overflow-hidden">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-neon-fuchsia/10 rounded-full blur-2xl group-hover:bg-neon-fuchsia/20 transition-colors"></div>
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-fuchsia to-neon-purple flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(232,121,249,0.4)] relative z-10">
+                            <i class="ph-fill ph-planet text-white text-2xl drop-shadow-md"></i>
+                        </div>
+                        <div class="text-left flex-1 relative z-10">
+                            <p class="text-neon-fuchsia/60 text-[9px] uppercase tracking-widest font-bold mb-0.5" data-i18n="astro_ruler">Управитель</p>
+                            <p id="astro-card-ruler" class="text-white font-mystic text-lg font-bold leading-none">—</p>
+                            <p class="text-white/40 text-[10px] mt-1" data-i18n="astro_ruler_desc">Планета-покровитель</p>
+                        </div>
+                        <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
+                    </button>
+                </div>
+                <!-- Инфо-блок: Дата + Город -->
+                <div class="glass bg-space-800/60 rounded-[20px] p-4 mb-4 border border-white/5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40">
+                            <i class="ph-fill ph-calendar-blank text-lg"></i>
+                        </div>
+                        <div>
+                            <p id="astro-display-date" class="text-white font-bold text-sm leading-none">—</p>
+                            <p id="astro-display-city" class="text-white/40 text-[10px] uppercase tracking-widest mt-1">—</p>
+                        </div>
+                    </div>
+                    <button onclick="openModal('astro-form')" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold active:scale-95 transition-all border border-white/10 flex items-center gap-1">
+                        <i class="ph-fill ph-pencil-simple text-neon-fuchsia text-sm"></i>
+                        <span data-i18n="edit">Изменить</span>
+                    </button>
+                </div>
+                <!-- Кнопка обновления -->
+                <button onclick="openModal('astro-form')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 rounded-[20px] p-4 flex items-center justify-center gap-2 active:scale-95 transition-transform border border-white/5 hover:border-neon-fuchsia/30 text-white/60 hover:text-white text-sm">
+                    <i class="ph-fill ph-arrows-clockwise text-neon-fuchsia"></i>
+                    <span data-i18n="astro_recalc">Пересчитать карту</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -859,54 +1008,76 @@
 
     <div id="screen-chats" class="screen hidden absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-space-800 via-space-900 to-black z-20">
         
-        <!-- 1. ШАПКА (ЖЕСТКО ПРИБИТА К ВЕРХУ) -->
-        <div class="absolute top-0 left-0 right-0 h-[76px] glass px-5 flex items-center gap-4 border-b border-white/5 z-50">
-            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(99,102,241,0.3)] relative">
-                <i class="ph-fill ph-sparkle text-white text-xl"></i>
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-space-900"></div>
+        <!-- ШАПКА -->
+        <div class="absolute top-0 left-0 right-0 h-[72px] glass-strong px-4 flex items-center gap-3 border-b border-white/5 z-50">
+            <button onclick="navigateTo('home')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white active:scale-90 transition-all shrink-0">
+                <i class="ph-bold ph-caret-left text-lg"></i>
+            </button>
+            <div class="relative shrink-0">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-neon-indigo via-neon-purple to-neon-fuchsia flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30 rounded-full"></div>
+                    <i class="ph-fill ph-sparkle text-white text-lg relative z-10"></i>
+                </div>
+                <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-space-900 z-10">
+                    <div class="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-60"></div>
+                </div>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-white text-lg font-mystic font-bold truncate tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
-                <p class="text-white/40 text-[10px] uppercase tracking-widest font-bold" data-i18n="chat_online">На связи</p>
+                <p class="text-white text-base font-mystic font-bold truncate tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
+                <p class="text-green-400/80 text-[10px] font-medium flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                    <span data-i18n="chat_online">На связи</span>
+                </p>
             </div>
-            <button onclick="openModal('delete_chat')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Начать заново">
-                <i class="ph-bold ph-arrows-clockwise text-xl"></i>
+            <!-- Кнопка очистки -->
+            <button onclick="openModal('delete_chat')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-all active:scale-90 shrink-0" title="Очистить чат">
+                <i class="ph-bold ph-arrows-clockwise text-base"></i>
             </button>
         </div>
-
-        <!-- 2. СКРОЛЛ-КОНТЕЙНЕР -->
-        <div id="chat-scroll-wrapper" class="absolute top-[76px] bottom-0 left-0 right-0 overflow-y-auto hide-scrollbar flex flex-col pb-[160px] scroll-smooth">
-            
-            <!-- ВОТ ОНА: Распорка. Толкает сообщения вниз, когда их мало. Без неё ломается скролл вверх! -->
+        <!-- Мини-бар энергии над чатом -->
+        <div class="absolute top-[72px] left-0 right-0 h-1 bg-white/5 z-40">
+            <div id="chat-energy-bar" class="h-full bg-gradient-to-r from-neon-indigo to-neon-fuchsia transition-all duration-500" style="width: 100%"></div>
+        </div>
+        <!-- СКРОЛЛ-КОНТЕЙНЕР -->
+        <div id="chat-scroll-wrapper" class="absolute top-[73px] bottom-[100px] left-0 right-0 overflow-y-auto hide-scrollbar flex flex-col scroll-smooth">
             <div class="flex-1 shrink-0"></div>
-
-            <!-- УБРАЛИ justify-end, оставили только flex flex-col -->
-            <div id="messages-container" class="px-4 pt-6 space-y-5 flex flex-col">
-                <!-- Сообщения вставляются сюда -->
-            </div>
+            
+            <div id="messages-container" class="px-3 pt-4 space-y-3 flex flex-col"></div>
             
             <!-- Индикатор печати -->
-            <div id="typing-indicator" class="hidden px-4 pt-4 w-full shrink-0">
-                <div class="glass bg-space-800/80 inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl rounded-tl-sm shadow-lg border border-neon-indigo/30 backdrop-blur-md">
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-indigo rounded-full animate-bounce"></div>
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-purple rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-fuchsia rounded-full animate-bounce [animation-delay:0.4s]"></div>
+            <div id="typing-indicator" class="hidden px-3 pt-2 w-full shrink-0">
+                <div class="glass bg-space-800/90 inline-flex items-center gap-2 px-4 py-3 rounded-2xl rounded-bl-md shadow-lg border border-neon-indigo/30 backdrop-blur-md">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-neon-indigo rounded-full animate-bounce [animation-delay:0ms]"></div>
+                        <div class="w-2 h-2 bg-neon-purple rounded-full animate-bounce [animation-delay:150ms]"></div>
+                        <div class="w-2 h-2 bg-neon-fuchsia rounded-full animate-bounce [animation-delay:300ms]"></div>
+                    </div>
+                    <span class="text-white/40 text-xs font-light italic" data-i18n="chat_typing">Оракул настраивается...</span>
                 </div>
             </div>
         </div>
-
-        <!-- 3. ПОЛЕ ВВОДА (ЖЕСТКО ПРИБИТО ВНИЗУ, НАД МЕНЮ) -->
-        <div class="absolute bottom-[90px] left-0 right-0 px-4 pt-8 pb-2 z-50 bg-gradient-to-t from-[#02020a] via-[#02020a]/90 to-transparent pointer-events-none">
-            <div class="flex items-center gap-2 pointer-events-auto glass bg-space-800/90 rounded-[24px] p-1.5 border border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto w-full max-w-[400px]">
-                <input id="message-input" type="text" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000" 
-                    class="flex-1 bg-transparent px-4 py-3 text-white text-sm placeholder-white/40 outline-none"
-                    onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()" class="w-11 h-11 rounded-[18px] bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.4)] shrink-0 group">
-                    <i class="ph-fill ph-paper-plane-right text-white text-xl group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+        <!-- Кнопка скролла вниз -->
+        <button id="scroll-to-bottom-btn" class="absolute bottom-[110px] right-4 w-11 h-11 rounded-full glass-strong border border-white/10 flex items-center justify-center text-white/60 hover:text-white opacity-0 translate-y-4 pointer-events-none transition-all duration-300 z-40 shadow-xl" onclick="scrollToBottomSmooth()">
+            <i class="ph-bold ph-arrow-down text-lg"></i>
+        </button>
+        <!-- Quick-промпты при пустом чате -->
+        <div id="quick-prompts" class="absolute bottom-[100px] left-0 right-0 px-3 pb-2 z-30 transition-all duration-300">
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1" id="quick-prompts-list">
+                <!-- Заполняется через JS -->
+            </div>
+        </div>
+        <!-- ПОЛЕ ВВОДА -->
+        <div class="absolute bottom-0 left-0 right-0 px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] z-50 bg-gradient-to-t from-[#02020a] via-[#02020a]/95 to-transparent">
+            <div class="flex items-end gap-2 glass bg-space-800/90 rounded-[24px] p-1.5 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+                <textarea id="message-input" rows="1" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000"
+                    class="flex-1 bg-transparent px-3 py-2.5 text-white text-sm placeholder-white/40 outline-none resize-none hide-scrollbar max-h-[120px] leading-snug"
+                    oninput="autoResizeTextarea(this)"
+                    onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                <button onclick="sendMessage()" id="send-btn" class="w-10 h-10 rounded-[18px] bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-90 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.4)] shrink-0 mb-0.5 disabled:opacity-30 disabled:shadow-none" disabled>
+                    <i class="ph-fill ph-paper-plane-right text-white text-base"></i>
                 </button>
             </div>
         </div>
-
     </div>
     <!-- ==================== 7. SHOP SCREEN ==================== -->
     <div id="screen-shop" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar relative">
@@ -2050,6 +2221,53 @@
             updateSelect('edit-month');
             updateSelect('astro-month');
         }
+
+        async function loadDailyTip() {
+            const tips = {
+                'ru': [
+                    'Сегодня благоприятный день для новых начинаний. Не бойся сделать первый шаг.',
+                    'Прислушайся к интуиции — она подскажет верный путь.',
+                    'Время отпустить то, что тебя тяготит. Освободи место для нового.',
+                    'Обрати внимание на сны сегодня — они несут важное послание.',
+                    'Свяжись с человеком, о котором давно думаешь. Вселенная подсказывает.'
+                ],
+                'en': [
+                    'Today is favorable for new beginnings. Don\'t be afraid to take the first step.',
+                    'Listen to your intuition — it will show you the right path.',
+                    'Time to let go of what weighs you down. Make room for the new.',
+                    'Pay attention to your dreams today — they carry an important message.',
+                    'Reach out to someone you\'ve been thinking about. The universe is hinting.'
+                ],
+                'es': [
+                    'Hoy es favorable para nuevos comienzos. No temas dar el primer paso.',
+                    'Escucha tu intuición — te mostrará el camino correcto.',
+                    'Es hora de soltar lo que te pesa. Haz espacio para lo nuevo.',
+                    'Presta atención a tus sueños hoy — traen un mensaje importante.',
+                    'Comunícate con alguien en quien has estado pensando.'
+                ],
+                'fr': [
+                    'Aujourd\'hui est favorable aux nouveaux départs. N\'ayez pas peur de faire le premier pas.',
+                    'Écoutez votre intuition — elle vous montrera le bon chemin.',
+                    'Il est temps de lâcher ce qui vous pèse. Faites de la place pour le nouveau.',
+                    'Prêtez attention à vos rêves aujourd\'hui — ils portent un message important.',
+                    'Contactez quelqu\'un à qui vous pensez depuis longtemps.'
+                ],
+                'de': [
+                    'Heute ist ein günstiger Tag für Neuanfänge. Scheue dich nicht, den ersten Schritt zu machen.',
+                    'Höre auf deine Intuition — sie zeigt dir den richtigen Weg.',
+                    'Zeit, loszulassen, was dich belastet. Schaffe Platz für Neues.',
+                    'Achte heute auf deine Träume — sie tragen eine wichtige Botschaft.',
+                    'Kontaktiere jemanden, an den du schon lange denkst.'
+                ]
+            };
+            
+            const tipList = tips[activeLanguage] || tips['en'];
+            const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+            const tipIndex = dayOfYear % tipList.length;
+            
+            const tipEl = document.getElementById('daily-tip-text');
+            if (tipEl) tipEl.textContent = tipList[tipIndex];
+        }
     
         async function buyEnergy(itemId, priceStars) {
             showToast(t('toast_wait'), "ph-spinner animate-spin");
@@ -2145,6 +2363,13 @@
                 });
             }
         });
+
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('button, [onclick]');
+            if (target && window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }, true);
     
         const monthNamesMap = {
             'ru': ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
@@ -2379,6 +2604,17 @@
                     hideAppLoader();
                     return;
                 }
+
+                if (window.Telegram?.WebApp?.onEvent) {
+                    tg.onEvent('viewportChanged', async () => {
+                        // Лёгкое обновление баланса при возврате
+                        const data = await apiRequest('/get-user', 'POST', {});
+                        if (data.success) {
+                            userBalance.energy = data.energy;
+                            updateBalanceUI();
+                        }
+                    });
+                }
                 
                 if (data && data.success) {
                     userBalance.energy = data.energy;
@@ -2445,6 +2681,25 @@
                         if (currentCityEl) currentCityEl.textContent = data.birth_city;
                         if (hiddenCityEl) hiddenCityEl.value = data.birth_city;
                     }
+
+                    let touchStartX = 0, touchEndX = 0;
+                    const appContainer = document.getElementById('app');
+                    appContainer.addEventListener('touchstart', (e) => {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    appContainer.addEventListener('touchend', (e) => {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    function handleSwipe() {
+                        const threshold = 80;
+                        const diff = touchEndX - touchStartX;
+                        
+                        // Свайп вправо — назад
+                        if (diff > threshold && touchStartX < 40) {
+                            if (activeTab !== 'home') navigateTo('home');
+                        }
+                    }
                     
                     // Заодно подтягиваем правильное имя из БД, а не из Телеграма
                     if (data.first_name) {
@@ -2474,8 +2729,9 @@
                 await Promise.all([
                     loadShopItems(),
                     loadLunarCalendar(),
-                    loadSpreads(), // <--- ДОБАВИТЬ ЭТО!
-                    updateBonusBannerState() 
+                    loadSpreads(),
+                    updateBonusBannerState(),
+                    loadDailyTip()  // <--- ДОБАВИТЬ
                 ]);
     
                 // АКТИВИРУЕМ ЛОКАЛИЗАЦИЮ ИНТЕРФЕЙСА ПЕРЕД ПОКАЗОМ ЭКРАНА
@@ -2553,6 +2809,43 @@
                 }
             }
         }
+
+        let pullStartY = 0;
+        let pullCurrentY = 0;
+        let isPulling = false;
+        const pullThreshold = 100;
+        document.getElementById('screen-home').addEventListener('touchstart', (e) => {
+            if (document.getElementById('screen-home').scrollTop === 0) {
+                pullStartY = e.touches[0].clientY;
+                isPulling = true;
+            }
+        }, { passive: true });
+        document.getElementById('screen-home').addEventListener('touchmove', (e) => {
+            if (!isPulling) return;
+            pullCurrentY = e.touches[0].clientY;
+            const pullDistance = pullCurrentY - pullStartY;
+            
+            if (pullDistance > 0 && pullDistance < 150) {
+                // Можно добавить визуальную индикацию здесь
+            }
+        }, { passive: true });
+        document.getElementById('screen-home').addEventListener('touchend', async () => {
+            if (!isPulling) return;
+            isPulling = false;
+            
+            if (pullCurrentY - pullStartY > pullThreshold) {
+                showToast(t('toast_wait') || 'Обновление...', 'ph-spinner animate-spin');
+                
+                // Перезагружаем данные
+                await Promise.all([
+                    loadLunarCalendar(),
+                    updateBonusBannerState(),
+                    loadDailyTip()
+                ]);
+                
+                showToast(t('toast_success'), 'ph-check-circle text-green-400');
+            }
+        }, { passive: true });
     
         // ==================== DAILY BONUS LOGIC ====================
         async function openDailyBonusModal() {
@@ -2893,6 +3186,11 @@
                 setupOpenedCardUI(data.card);
                 updateHomeWidget(data.card);
                 showToast(t('toast_success'), 'ph-sparkle');
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                // Двойная вибрация = эффект "переворота карты"
+                tg.HapticFeedback.impactOccurred('medium');
+                setTimeout(() => tg.HapticFeedback.impactOccurred('heavy'), 200);
+            }
             } else {
                 showToast(t('toast_error'), 'ph-warning-circle');
                 document.getElementById('daily-reading-loader').classList.add('hidden');
@@ -3403,15 +3701,110 @@
         }
     
         function openAstro() {
+            const emptyState = document.getElementById('astro-empty-state');
+            const dataState = document.getElementById('astro-data-state');
+            
             if (userAstroData && userAstroData.chart) {
-                // Если данные есть — показываем крутые орбиты!
-                const [y, m, d] = userAstroData.date.split('-');
-                document.getElementById('astro-display-date').textContent = `${d}.${m}.${y}`;
-                document.getElementById('astro-display-city').textContent = userAstroData.city;
+                const chart = userAstroData.chart;
+                
+                // Показываем данные
+                emptyState.classList.add('hidden');
+                dataState.classList.remove('hidden');
+                
+                // Заполняем карты
+                document.getElementById('astro-card-sun').textContent = chart.sun;
+                document.getElementById('astro-card-moon').textContent = chart.moon;
+                document.getElementById('astro-card-ruler').textContent = chart.planet;
+                
+                // Центральный блок
+                const zodiacEmojisArr = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+                const signsRu = ["Овен","Телец","Близнецы","Рак","Лев","Дева","Весы","Скорпион","Стрелец","Козерог","Водолей","Рыбы"];
+                const signsEn = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+                const signsAll = { ru: signsRu, en: signsEn, es: signsEn, fr: signsEn, de: signsEn };
+                const signsList = (signsAll[activeLanguage] || signsEn);
+                
+                const signIdx = signsRu.indexOf(chart.sun);
+                const emoji = signIdx >= 0 ? zodiacEmojisArr[signIdx] : '✨';
+                
+                document.getElementById('astro-center-symbol').textContent = emoji;
+                document.getElementById('astro-center-sign').textContent = chart.sun;
+                document.getElementById('astro-center-element').textContent = chart.element;
+                
+                // Рисуем SVG-кольцо
+                drawZodiacRing(signIdx);
+                
+                // Дата и город
+                if (userAstroData.date) {
+                    const [y, m, d] = userAstroData.date.split('-');
+                    document.getElementById('astro-display-date').textContent = `${d}.${m}.${y}`;
+                }
+                document.getElementById('astro-display-city').textContent = userAstroData.city || '—';
+                
                 navigateTo('astro');
             } else {
-                // Если данных нет — просим ввести
-                openModal('astro-form');
+                emptyState.classList.remove('hidden');
+                dataState.classList.add('hidden');
+                navigateTo('astro');
+            }
+        }
+        // Рисование SVG-кольца зодиака
+        function drawZodiacRing(highlightIdx) {
+            const symbols = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+            const sectorsGroup = document.getElementById('zodiac-sectors');
+            const symbolsGroup = document.getElementById('zodiac-symbols');
+            if (!sectorsGroup || !symbolsGroup) return;
+            
+            sectorsGroup.innerHTML = '';
+            symbolsGroup.innerHTML = '';
+            
+            const cx = 100, cy = 100, r = 78;
+            
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30 - 90) * Math.PI / 180;
+                const angleNext = ((i + 1) * 30 - 90) * Math.PI / 180;
+                
+                // Линии-деления
+                const x1 = cx + r * Math.cos(angle);
+                const y1 = cy + r * Math.sin(angle);
+                const x2 = cx + (r + 10) * Math.cos(angle);
+                const y2 = cy + (r + 10) * Math.sin(angle);
+                
+                sectorsGroup.innerHTML += `
+                    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
+                        stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                `;
+                
+                // Символы зодиака
+                const midAngle = ((i * 30 + 15) - 90) * Math.PI / 180;
+                const symR = 70;
+                const sx = cx + symR * Math.cos(midAngle);
+                const sy = cy + symR * Math.sin(midAngle);
+                
+                const isHighlight = i === highlightIdx;
+                const fill = isHighlight ? '#fbbf24' : 'rgba(255,255,255,0.4)';
+                const fontSize = isHighlight ? '10' : '7';
+                
+                symbolsGroup.innerHTML += `
+                    <text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central"
+                        fill="${fill}" font-size="${fontSize}" font-weight="${isHighlight ? 'bold' : 'normal'}">
+                        ${symbols[i]}
+                    </text>
+                `;
+                
+                // Подсветка активного сектора
+                if (isHighlight) {
+                    const arcStart = (i * 30 - 90) * Math.PI / 180;
+                    const arcEnd = ((i + 1) * 30 - 90) * Math.PI / 180;
+                    const x1a = cx + r * Math.cos(arcStart);
+                    const y1a = cy + r * Math.sin(arcStart);
+                    const x2a = cx + r * Math.cos(arcEnd);
+                    const y2a = cy + r * Math.sin(arcEnd);
+                    
+                    sectorsGroup.innerHTML += `
+                        <path d="M ${cx} ${cy} L ${x1a} ${y1a} A ${r} ${r} 0 0 1 ${x2a} ${y2a} Z"
+                            fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.3)" stroke-width="0.5"/>
+                    `;
+                }
             }
         }
     
@@ -3587,116 +3980,135 @@
         function renderMessages() {
             const container = document.getElementById('messages-container');
             const messages = chatMessages[currentChat] || [];
-
-            // Встроенный словарь переводов для ВСЕХ 10 кнопок-экшенов на 5 языках
-            const actionT = {
-                'DAILY_CARD': {
-                    'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte'
-                },
-                'TAROT_SPREADS': {
-                    'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen'
-                },
-                'ASTRO': {
-                    'ru': 'Космо-Паспорт', 'en': 'Astro-Passport', 'es': 'Astro-Pasaporte', 'fr': 'Astro-Passeport', 'de': 'Astro-Pass'
-                },
-                'CALENDAR': {
-                    'ru': 'Лунный календарь', 'en': 'Lunar Calendar', 'es': 'Calendario Lunar', 'fr': 'Calendrier Lunaire', 'de': 'Mondkalender'
-                },
-                'DREAMS': {
-                    'ru': 'Дневник снов', 'en': 'Dream Journal', 'es': 'Diario de Sueños', 'fr': 'Journal des Rêves', 'de': 'Traumtagebuch'
-                },
-                'SUPPORT': {
-                    'ru': 'Служба поддержки', 'en': 'Support Team', 'es': 'Soporte', 'fr': 'Service Client', 'de': 'Support-Team'
-                },
-                'REFERRAL': {
-                    'ru': 'Пригласить друга', 'en': 'Invite a Friend', 'es': 'Invitar a un Amigo', 'fr': 'Inviter un Ami', 'de': 'Freund einladen'
-                },
-                'LANGUAGE': {
-                    'ru': 'Сменить язык', 'en': 'Change Language', 'es': 'Cambiar Idioma', 'fr': 'Changer de Langue', 'de': 'Sprache ändern'
-                },
-                'SHOP': {
-                    'ru': 'Магазин энергии', 'en': 'Energy Shop', 'es': 'Tienda de Energía', 'fr': 'Boutique d\'Énergie', 'de': 'Energie-Shop'
-                },
-                'PROFILE': {
-                    'ru': 'Профиль / Настройки', 'en': 'Profile / Settings', 'es': 'Perfil / Ajustes', 'fr': 'Profil / Paramètres', 'de': 'Profil / Einstellungen'
-                }
+            const quickPromptsEl = document.getElementById('quick-prompts');
+            // Quick-промпты на 5 языках
+            const quickPromptsMap = {
+                'ru': [
+                    { icon: 'ph-sparkle', text: 'Что значит мой сон?' },
+                    { icon: 'ph-heart', text: 'Что ждёт в отношениях?' },
+                    { icon: 'ph-coins', text: 'Финансовый прогноз' },
+                    { icon: 'ph-moon-stars', text: 'Совет на сегодня' }
+                ],
+                'en': [
+                    { icon: 'ph-sparkle', text: 'What does my dream mean?' },
+                    { icon: 'ph-heart', text: 'Relationship forecast?' },
+                    { icon: 'ph-coins', text: 'Financial outlook' },
+                    { icon: 'ph-moon-stars', text: 'Advice for today' }
+                ],
+                'es': [
+                    { icon: 'ph-sparkle', text: '¿Qué significa mi sueño?' },
+                    { icon: 'ph-heart', text: '¿Qué pasa en el amor?' },
+                    { icon: 'ph-coins', text: 'Pronóstico financiero' },
+                    { icon: 'ph-moon-stars', text: 'Consejo para hoy' }
+                ],
+                'fr': [
+                    { icon: 'ph-sparkle', text: 'Que signifie mon rêve ?' },
+                    { icon: 'ph-heart', text: 'Prévisions amoureuses ?' },
+                    { icon: 'ph-coins', text: 'Prévisions financières' },
+                    { icon: 'ph-moon-stars', text: 'Conseil du jour' }
+                ],
+                'de': [
+                    { icon: 'ph-sparkle', text: 'Was bedeutet mein Traum?' },
+                    { icon: 'ph-heart', text: 'Liebesvorhersage?' },
+                    { icon: 'ph-coins', text: 'Finanzielle Aussichten' },
+                    { icon: 'ph-moon-stars', text: 'Tipp für heute' }
+                ]
             };
-
-            // Определяем текущий язык (с защитой)
+            // Показываем/прячем quick-промпты
+            const promptsList = document.getElementById('quick-prompts-list');
+            if (messages.length <= 1 && quickPromptsEl && promptsList) {
+                quickPromptsEl.classList.remove('opacity-0', 'pointer-events-none');
+                quickPromptsEl.style.transform = 'translateY(0)';
+                const prompts = quickPromptsMap[activeLanguage] || quickPromptsMap['en'];
+                promptsList.innerHTML = prompts.map(p =>
+                    `<button class="quick-prompt-btn" onclick="sendQuickReply('${p.text.replace(/'/g, "\\'")}')">
+                        <i class="ph-fill ${p.icon} text-xs mr-1 text-neon-fuchsia"></i>${p.text}
+                    </button>`
+                ).join('');
+            } else if (quickPromptsEl) {
+                quickPromptsEl.style.transform = 'translateY(20px)';
+                quickPromptsEl.classList.add('opacity-0', 'pointer-events-none');
+            }
+            const actionT = {
+                'DAILY_CARD': { 'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte' },
+                'TAROT_SPREADS': { 'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen' },
+                'ASTRO': { 'ru': 'Космо-Паспорт', 'en': 'Astro-Passport', 'es': 'Astro-Pasaporte', 'fr': 'Astro-Passeport', 'de': 'Astro-Pass' },
+                'CALENDAR': { 'ru': 'Лунный календарь', 'en': 'Lunar Calendar', 'es': 'Calendario Lunar', 'fr': 'Calendrier Lunaire', 'de': 'Mondkalender' },
+                'DREAMS': { 'ru': 'Дневник снов', 'en': 'Dream Journal', 'es': 'Diario de Sueños', 'fr': 'Journal des Rêves', 'de': 'Traumtagebuch' },
+                'SUPPORT': { 'ru': 'Служба поддержки', 'en': 'Support Team', 'es': 'Soporte', 'fr': 'Service Client', 'de': 'Support-Team' },
+                'REFERRAL': { 'ru': 'Пригласить друга', 'en': 'Invite a Friend', 'es': 'Invitar a un Amigo', 'fr': 'Inviter un Ami', 'de': 'Freund einladen' },
+                'LANGUAGE': { 'ru': 'Сменить язык', 'en': 'Change Language', 'es': 'Cambiar Idioma', 'fr': 'Changer de Langue', 'de': 'Sprache ändern' },
+                'SHOP': { 'ru': 'Магазин энергии', 'en': 'Energy Shop', 'es': 'Tienda de Energía', 'fr': 'Boutique d\'Énergie', 'de': 'Energie-Shop' },
+                'PROFILE': { 'ru': 'Профиль / Настройки', 'en': 'Profile / Settings', 'es': 'Perfil / Ajustes', 'fr': 'Profil / Paramètres', 'de': 'Profil / Einstellungen' }
+            };
             const lang = (typeof activeLanguage !== 'undefined' && actionT['DAILY_CARD'][activeLanguage]) ? activeLanguage : 'en';
-
-            // Настройка маршрутизации и визуала кнопок
             const actionMap = {
                 'DAILY_CARD': { label: actionT['DAILY_CARD'][lang], icon: 'ph-moon', color: 'from-neon-amber to-orange-500', action: 'openDailyCardModal()' },
                 'TAROT_SPREADS': { label: actionT['TAROT_SPREADS'][lang], icon: 'ph-cards', color: 'from-neon-indigo to-neon-purple', action: "navigateTo('spreads')" },
                 'ASTRO': { label: actionT['ASTRO'][lang], icon: 'ph-planet', color: 'from-neon-fuchsia to-neon-purple', action: 'openAstro()' },
                 'CALENDAR': { label: actionT['CALENDAR'][lang], icon: 'ph-calendar', color: 'from-neon-cyan to-blue-500', action: "navigateTo('calendar')" },
                 'DREAMS': { label: actionT['DREAMS'][lang], icon: 'ph-moon-stars', color: 'from-neon-indigo to-neon-cyan', action: "navigateTo('dream')" },
-                // НОВЫЕ КНОПКИ:
                 'SUPPORT': { label: actionT['SUPPORT'][lang], icon: 'ph-headset', color: 'from-red-500 to-neon-rose', action: "tg.openTelegramLink('https://t.me/neurotarot_supportbot')" },
                 'REFERRAL': { label: actionT['REFERRAL'][lang], icon: 'ph-users-three', color: 'from-neon-indigo to-blue-600', action: "openModal('referral')" },
                 'LANGUAGE': { label: actionT['LANGUAGE'][lang], icon: 'ph-globe', color: 'from-teal-400 to-neon-cyan', action: "openModal('language')" },
                 'SHOP': { label: actionT['SHOP'][lang], icon: 'ph-shopping-bag', color: 'from-orange-400 to-neon-amber', action: "navigateTo('shop')" },
                 'PROFILE': { label: actionT['PROFILE'][lang], icon: 'ph-user-circle', color: 'from-neon-purple to-neon-fuchsia', action: "navigateTo('profile')" }
             };
-
             let html = '';
-            
             if (hasMoreHistory && initialChatLoaded) {
                 html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-2 opacity-0 transition-opacity duration-300">
                     <i class="ph-fill ph-spinner animate-spin text-xl text-neon-indigo"></i>
                 </div>`;
             }
-
-            html += messages.map(msg => {
+            html += messages.map((msg, idx) => {
                 let displayHtml = DOMPurify.sanitize(msg.text);
                 let actionButtonHtml = '';
-
-                // ПАРСИМ ТЕГ НАВИГАЦИИ
                 if (msg.type === 'ai') {
                     const actionMatch = displayHtml.match(/\[ACTION:([A-Z_]+)\]/);
-                    
                     if (actionMatch) {
                         const actionKey = actionMatch[1];
                         displayHtml = displayHtml.replace(actionMatch[0], '').trim();
-                        
                         if (actionMap[actionKey]) {
                             const btnConfig = actionMap[actionKey];
                             actionButtonHtml = `
-                                <div class="mt-4 pt-3 border-t border-white/10">
-                                    <button onclick="${btnConfig.action}" class="w-full bg-gradient-to-r ${btnConfig.color} text-white text-xs font-bold py-3 px-4 rounded-xl active:scale-95 transition-transform flex items-center justify-between shadow-lg">
+                                <div class="mt-3 pt-3 border-t border-white/10">
+                                    <button onclick="${btnConfig.action}" class="w-full bg-gradient-to-r ${btnConfig.color} text-white text-xs font-bold py-2.5 px-4 rounded-xl active:scale-95 transition-transform flex items-center justify-between shadow-lg">
                                         <div class="flex items-center gap-2">
-                                            <i class="ph-fill ${btnConfig.icon} text-lg drop-shadow-md"></i>
+                                            <i class="ph-fill ${btnConfig.icon} text-base drop-shadow-md"></i>
                                             <span class="uppercase tracking-widest">${btnConfig.label}</span>
                                         </div>
                                         <i class="ph-bold ph-arrow-right text-sm"></i>
                                     </button>
-                                </div>
-                            `;
+                                </div>`;
                         }
                     }
                 }
-
-                // РЕНДЕР БАБЛА
-                return `
-                    <div class="flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
-                        <div class="${msg.type === 'user' 
-                            ? 'bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.25)]' 
-                            : 'glass bg-space-800/80 text-white/90 border border-white/5 shadow-md'} 
-                            max-w-[85%] px-4 py-3 rounded-[20px] ${msg.type === 'user' ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}">
-                            
-                            <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown">
+                if (msg.type === 'user') {
+                    return `
+                        <div class="flex justify-end animate-fade-in">
+                            <div class="max-w-[80%] px-4 py-2.5 rounded-[20px] rounded-br-md bg-gradient-to-br from-neon-indigo to-neon-purple text-white text-sm leading-relaxed font-light shadow-[0_4px_15px_rgba(99,102,241,0.25)]">
                                 ${displayHtml}
                             </div>
-                            
-                            ${actionButtonHtml}
-                            
-                        </div>
-                    </div>
-                `;
+                        </div>`;
+                } else {
+                    return `
+                        <div class="flex justify-start animate-fade-in ai-msg-wrapper">
+                            <div class="max-w-[88%]">
+                                <div class="glass bg-space-800/80 text-white/90 border border-white/5 shadow-md px-4 py-3 rounded-[20px] rounded-bl-md">
+                                    <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown">
+                                        ${displayHtml}
+                                    </div>
+                                    ${actionButtonHtml}
+                                </div>
+                                <button class="copy-btn-msg mt-1 ml-1 text-[10px] text-white/30 hover:text-white/60 transition-colors" onclick="copyMessage(this, ${idx})">
+                                    <i class="ph ph-copy text-xs"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                }
             }).join('');
-            
             container.innerHTML = html;
+            updateChatEnergyBar();
         }
     
         function checkScrollPosition() {
@@ -3739,6 +4151,58 @@
                 }
             }, 600);
         }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+            
+            // Активируем/деактивируем кнопку отправки
+            const sendBtn = document.getElementById('send-btn');
+            if (sendBtn) {
+                sendBtn.disabled = !el.value.trim();
+            }
+        }
+        // Копирование сообщения
+        function copyMessage(btn, msgIndex) {
+            const msg = chatMessages[currentChat]?.[msgIndex];
+            if (!msg) return;
+            
+            // Создаём временный элемент для извлечения текста
+            const temp = document.createElement('div');
+            temp.innerHTML = msg.text;
+            const plainText = temp.textContent || temp.innerText;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(plainText);
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = plainText;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            
+            showToast(t('toast_copied') || 'Скопировано', 'ph-check-circle text-green-400');
+        }
+        // Обновление энергобара
+        function updateChatEnergyBar() {
+            const bar = document.getElementById('chat-energy-bar');
+            if (!bar) return;
+            // Считаем процент от максимального (допустим максимум 50 энергии для визуала)
+            const maxEnergy = 50;
+            const pct = Math.min(100, (userBalance.energy / maxEnergy) * 100);
+            bar.style.width = pct + '%';
+            
+            // Меняем цвет при низком уровне
+            if (userBalance.energy <= 3) {
+                bar.className = 'h-full bg-gradient-to-r from-red-500 to-neon-rose transition-all duration-500';
+            } else if (userBalance.energy <= 10) {
+                bar.className = 'h-full bg-gradient-to-r from-neon-amber to-orange-500 transition-all duration-500';
+            } else {
+                bar.className = 'h-full bg-gradient-to-r from-neon-indigo to-neon-fuchsia transition-all duration-500';
+            }
+        }
     
     
         function sendQuickReply(text) {
@@ -3761,12 +4225,26 @@
     
             const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
             document.getElementById('typing-indicator').classList.add('hidden');
+
+            const typingStatuses = {
+                'ru': ['Оракул настраивается...', 'Читаю звёзды...', 'Шепот Вселенной...', 'Расшифровываю послание...'],
+                'en': ['Oracle is tuning in...', 'Reading the stars...', 'Universe is whispering...', 'Decoding the message...'],
+                'es': ['El Oráculo se sintoniza...', 'Leyendo las estrellas...', 'El universo susurra...', 'Descifrando el mensaje...'],
+                'fr': ["L'Oracle s'accorde...", 'Lecture des étoiles...', "L'univers murmure...", 'Décodage du message...'],
+                'de': ['Orakel stimmt ab...', 'Sterne werden gelesen...', 'Universum flüstert...', 'Nachricht wird entschlüsselt...']
+            };
+            // В функции sendMessage() перед показом индикатора:
+            const statuses = (typingStatuses[activeLanguage] || typingStatuses['en']);
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            const typingText = document.querySelector('#typing-indicator span');
+            if (typingText) typingText.textContent = randomStatus;
     
             if (data.success) {
                 chatMessages[currentChat].push({ type: 'ai', text: data.response });
                 chatOffset++; // <--- И ВОТ ТУТ
                 userBalance.energy = data.energy;
                 updateBalanceUI();
+                updateChatEnergyBar();
             } else {
                 if (data.message === "no_energy") {
                     showToast(t('toast_no_energy'), "ph-warning");
@@ -3851,9 +4329,21 @@
             const wrapper = document.getElementById('chat-scroll-wrapper');
             if (wrapper) {
                 wrapper.addEventListener('scroll', () => {
-                    // Если долистали почти до верха (<= 20px) и есть еще история в базе
+                    // Ленивая загрузка истории
                     if (wrapper.scrollTop <= 20 && hasMoreHistory && !isFetchingHistory && initialChatLoaded) {
                         loadChatHistory(true);
+                    }
+                    
+                    // Показываем/прячем кнопку "вниз"
+                    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+                    if (!scrollBtn) return;
+                    const distanceToBottom = wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight;
+                    if (distanceToBottom > 200) {
+                        scrollBtn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                        scrollBtn.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                    } else {
+                        scrollBtn.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                        scrollBtn.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
                     }
                 });
             }
