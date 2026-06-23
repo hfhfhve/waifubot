@@ -8129,49 +8129,82 @@ const astroDescriptions = {
         </div>
     </div>
 
-    <div id="screen-astro" class="screen hidden flex-1 flex flex-col relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-space-800 via-space-900 to-black pb-24">
-        <div class="px-5 pt-8 w-full flex justify-between items-center z-20 shrink-0">
-            <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5">
+    <div id="screen-astro" class="screen hidden flex-1 flex flex-col relative bg-space-900 pb-24 overflow-y-auto hide-scrollbar">
+        <!-- Красивый звездный фон -->
+        <div class="absolute top-0 inset-x-0 h-80 bg-[radial-gradient(ellipse_at_top,_rgba(232,121,249,0.15),_transparent_70%)] pointer-events-none z-0"></div>
+
+        <!-- Шапка -->
+        <div class="px-5 pt-8 w-full flex justify-between items-center z-20 shrink-0 mb-6">
+            <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5 shadow-sm">
                 <i class="ph-bold ph-caret-left text-xl"></i>
             </button>
             <span class="text-white/50 text-xs font-bold uppercase tracking-widest" data-i18n="astro_title">Космо-Паспорт</span>
-            <div class="w-10"></div>
+            <button onclick="openModal('astro-form')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-neon-fuchsia hover:bg-neon-fuchsia/10 active:scale-95 transition-all border border-white/5 shadow-sm" title="Редактировать данные">
+                <i class="ph-fill ph-pencil-simple text-lg"></i>
+            </button>
         </div>
-        
-        <div class="flex-1 flex flex-col items-center justify-center relative z-10">
-            <!-- Сама орбитальная система -->
-            <div class="relative w-[300px] h-[300px] flex items-center justify-center">
-                <!-- СОЛНЦЕ (Центр) -->
-                <div class="absolute w-20 h-20 rounded-full bg-gradient-to-br from-neon-amber to-orange-500 shadow-[0_0_40px_rgba(251,191,36,0.5)] flex items-center justify-center z-30 cursor-pointer active:scale-95 transition-transform" onclick="showPlanetInfo('sun')">
-                    <i class="ph-fill ph-sun text-4xl text-white drop-shadow-md"></i>
-                </div>
-                
-                <!-- ОРБИТА 1 (Луна) -->
-                <div class="absolute w-[200px] h-[200px] border border-white/10 rounded-full animate-spin-slow z-20 pointer-events-none">
-                    <div class="absolute top-0 left-1/2 w-10 h-10 rounded-full bg-space-800 border border-neon-cyan shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center justify-center animate-spin-reverse-slow cursor-pointer pointer-events-auto" onclick="showPlanetInfo('moon')">
-                        <i class="ph-fill ph-moon text-neon-cyan text-lg"></i>
-                    </div>
-                </div>
-                
-                <!-- ОРБИТА 2 (Планета-Управитель) -->
-                <div class="absolute w-[300px] h-[300px] border border-white/10 rounded-full animate-spin-slower z-10 pointer-events-none">
-                    <div class="absolute top-1/2 left-0 w-12 h-12 rounded-full bg-space-800 border border-neon-fuchsia shadow-[0_0_15px_rgba(232,121,249,0.4)] flex items-center justify-center animate-spin-reverse-slower cursor-pointer pointer-events-auto" onclick="showPlanetInfo('planet')">
-                        <i class="ph-fill ph-planet text-neon-fuchsia text-xl"></i>
-                    </div>
+
+        <div class="px-5 flex-1 relative z-10 flex flex-col space-y-4">
+            
+            <!-- Инфо профиля (Город, Дата) -->
+            <div class="text-center mb-4">
+                <h2 id="astro-display-date" class="text-3xl font-mystic text-white font-bold mb-1.5 tracking-wide drop-shadow-md">15.04.1995</h2>
+                <div class="inline-flex items-center justify-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-white/70 text-[10px] uppercase tracking-widest font-semibold shadow-inner">
+                    <i class="ph-fill ph-map-pin text-neon-fuchsia"></i>
+                    <span id="astro-display-city">Москва</span>
                 </div>
             </div>
-        </div>
-        
-        <!-- Кнопка обновления данных (Внизу экрана) -->
-        <div class="absolute bottom-24 inset-x-0 flex justify-center z-20">
-            <button onclick="openModal('astro-form')" class="glass bg-space-800/80 px-6 py-3 rounded-[20px] border border-white/10 flex items-center gap-3 active:scale-95 transition-transform shadow-lg">
-                <div class="text-left">
-                    <p id="astro-display-date" class="text-white font-bold text-sm leading-none">15.04.1995</p>
-                    <p id="astro-display-city" class="text-white/50 text-[10px] uppercase tracking-widest mt-1">Москва</p>
+
+            <!-- Главная карта (Солнечный знак / Ядро) -->
+            <button onclick="showPlanetInfo('sun')" class="w-full glass-strong bg-gradient-to-br from-space-800 to-space-700 border border-neon-amber/20 hover:border-neon-amber/50 rounded-[24px] p-5 flex items-center gap-4 active:scale-[0.98] transition-all group overflow-hidden relative shadow-[0_10px_30px_rgba(251,191,36,0.1)]">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-neon-amber/20 rounded-full blur-2xl group-hover:bg-neon-amber/30 transition-colors pointer-events-none"></div>
+                <div class="w-14 h-14 rounded-full bg-space-900 border border-neon-amber/30 flex items-center justify-center shrink-0 shadow-[inset_0_0_15px_rgba(251,191,36,0.1)] relative z-10">
+                    <i class="ph-fill ph-sun text-3xl text-neon-amber drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] group-hover:rotate-45 transition-transform duration-500"></i>
                 </div>
-                <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
-                <i class="ph-fill ph-pencil-simple text-neon-fuchsia text-lg animate-pulse"></i>
+                <div class="text-left flex-1 relative z-10">
+                    <p class="text-[10px] text-neon-amber font-bold uppercase tracking-widest mb-1" data-i18n="astro_sun_label">Солнце • Ядро личности</p>
+                    <h3 id="astro-card-sun" class="text-xl font-bold text-white leading-tight">Лев</h3>
+                </div>
+                <i class="ph-bold ph-caret-right text-white/30 relative z-10 group-hover:translate-x-1 transition-transform"></i>
             </button>
+
+            <!-- Вторая карта (Луна / Эмоции) -->
+            <button onclick="showPlanetInfo('moon')" class="w-full glass-strong bg-gradient-to-br from-space-800 to-space-700 border border-neon-cyan/20 hover:border-neon-cyan/50 rounded-[24px] p-5 flex items-center gap-4 active:scale-[0.98] transition-all group overflow-hidden relative shadow-[0_10px_30px_rgba(34,211,238,0.1)]">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-neon-cyan/10 rounded-full blur-2xl group-hover:bg-neon-cyan/20 transition-colors pointer-events-none"></div>
+                <div class="w-14 h-14 rounded-full bg-space-900 border border-neon-cyan/30 flex items-center justify-center shrink-0 shadow-[inset_0_0_15px_rgba(34,211,238,0.1)] relative z-10">
+                    <i class="ph-fill ph-moon text-3xl text-neon-cyan drop-shadow-[0_0_10px_rgba(34,211,238,0.6)] group-hover:-rotate-12 transition-transform duration-500"></i>
+                </div>
+                <div class="text-left flex-1 relative z-10">
+                    <p class="text-[10px] text-neon-cyan font-bold uppercase tracking-widest mb-1" data-i18n="astro_moon_label">Луна • Сфера эмоций</p>
+                    <h3 id="astro-card-moon" class="text-xl font-bold text-white leading-tight">Скорпион</h3>
+                </div>
+                <i class="ph-bold ph-caret-right text-white/30 relative z-10 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+
+            <!-- Грид 2x2 для Планеты и Стихии -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Управитель -->
+                <button onclick="showPlanetInfo('planet')" class="glass-strong bg-space-800 border border-neon-fuchsia/20 hover:border-neon-fuchsia/50 rounded-[24px] p-4 flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all group relative overflow-hidden shadow-sm">
+                    <div class="absolute top-0 inset-x-0 h-12 bg-neon-fuchsia/10 blur-xl pointer-events-none"></div>
+                    <div class="w-12 h-12 rounded-full bg-space-900 border border-neon-fuchsia/30 flex items-center justify-center mb-3 shrink-0 shadow-inner relative z-10 group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-planet text-2xl text-neon-fuchsia drop-shadow-[0_0_8px_rgba(232,121,249,0.5)]"></i>
+                    </div>
+                    <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-1" data-i18n="astro_planet_label">Планета</p>
+                    <h3 id="astro-card-planet" class="text-sm font-bold text-white">Венера</h3>
+                </button>
+                
+                <!-- Стихия -->
+                <button onclick="openProfileAstroInfo('element')" class="glass-strong bg-space-800 border border-white/5 hover:border-white/20 rounded-[24px] p-4 flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all group relative overflow-hidden shadow-sm" id="astro-card-element-btn">
+                    <div id="astro-card-element-glow" class="absolute top-0 inset-x-0 h-12 blur-xl pointer-events-none transition-colors"></div>
+                    <div id="astro-card-element-icon-wrapper" class="w-12 h-12 rounded-full bg-space-900 border border-white/10 flex items-center justify-center mb-3 shrink-0 shadow-inner relative z-10 group-hover:scale-110 transition-transform">
+                        <i id="astro-card-element-icon" class="ph-fill ph-sparkle text-2xl text-white/50 drop-shadow-md transition-colors"></i>
+                    </div>
+                    <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-1" data-i18n="astro_element_label">Стихия</p>
+                    <h3 id="astro-card-element" class="text-sm font-bold text-white">Земля</h3>
+                </button>
+            </div>
+            
+            <p class="text-center text-white/30 text-[10px] uppercase tracking-widest mt-5 px-4 leading-relaxed font-semibold" data-i18n="astro_hint">Нажми на карточку, чтобы Оракул расшифровал влияние аспекта на твою судьбу.</p>
         </div>
     </div>
 
@@ -8293,56 +8326,85 @@ const astroDescriptions = {
         </div>
     </div>
 
-    <div id="screen-chats" class="screen hidden absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-space-800 via-space-900 to-black z-20">
-        
-        <!-- 1. ШАПКА (ЖЕСТКО ПРИБИТА К ВЕРХУ) -->
-        <div class="absolute top-0 left-0 right-0 h-[76px] glass px-5 flex items-center gap-4 border-b border-white/5 z-50">
-            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(99,102,241,0.3)] relative">
-                <i class="ph-fill ph-sparkle text-white text-xl"></i>
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-space-900"></div>
+    <div id="screen-chats" class="screen hidden absolute inset-0 bg-space-900 z-20 flex flex-col">
+        <!-- Астральный фон чата -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neon-purple/10 via-space-900 to-black pointer-events-none"></div>
+
+        <!-- 1. ШАПКА ЧАТА (Glassmorphism) -->
+        <div class="h-[76px] glass-strong px-5 flex items-center justify-between border-b border-white/5 z-50 shrink-0">
+            <div class="flex items-center gap-3">
+                <!-- Аватарка Оракула с пульсирующим статусом -->
+                <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple p-[1px] shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                    <div class="w-full h-full bg-space-900 rounded-full flex items-center justify-center">
+                        <i class="ph-fill ph-sparkle text-white text-xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-space-900 animate-pulse"></div>
+                </div>
+                <div>
+                    <p class="text-white text-lg font-mystic font-bold tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
+                    <p class="text-neon-cyan text-[10px] uppercase tracking-widest font-bold" data-i18n="chat_online">На связи</p>
+                </div>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-white text-lg font-mystic font-bold truncate tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
-                <p class="text-white/40 text-[10px] uppercase tracking-widest font-bold" data-i18n="chat_online">На связи</p>
-            </div>
-            <button onclick="openModal('delete_chat')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Начать заново">
-                <i class="ph-bold ph-arrows-clockwise text-xl"></i>
+            <button onclick="openModal('delete_chat')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Очистить историю">
+                <i class="ph-bold ph-trash text-lg"></i>
             </button>
         </div>
 
-        <!-- 2. СКРОЛЛ-КОНТЕЙНЕР -->
-        <div id="chat-scroll-wrapper" class="absolute top-[76px] bottom-0 left-0 right-0 overflow-y-auto hide-scrollbar flex flex-col pb-[160px] scroll-smooth">
+        <!-- 2. ЗОНА СООБЩЕНИЙ -->
+        <div id="chat-scroll-wrapper" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col px-4 pt-6 pb-2 scroll-smooth z-10 relative">
+            <div class="flex-1 shrink-0"></div> <!-- Распорка для прижатия к низу -->
             
-            <!-- ВОТ ОНА: Распорка. Толкает сообщения вниз, когда их мало. Без неё ломается скролл вверх! -->
-            <div class="flex-1 shrink-0"></div>
-
-            <!-- УБРАЛИ justify-end, оставили только flex flex-col -->
-            <div id="messages-container" class="px-4 pt-6 space-y-5 flex flex-col">
+            <div id="messages-container" class="space-y-4 flex flex-col justify-end">
                 <!-- Сообщения вставляются сюда -->
             </div>
             
-            <!-- Индикатор печати -->
-            <div id="typing-indicator" class="hidden px-4 pt-4 w-full shrink-0">
-                <div class="glass bg-space-800/80 inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl rounded-tl-sm shadow-lg border border-neon-indigo/30 backdrop-blur-md">
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-indigo rounded-full animate-bounce"></div>
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-purple rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div class="typing-dot w-1.5 h-1.5 bg-neon-fuchsia rounded-full animate-bounce [animation-delay:0.4s]"></div>
+            <!-- Индикатор печати ИИ -->
+            <div id="typing-indicator" class="hidden mt-4 mb-2 flex items-end gap-2 w-full shrink-0">
+                <div class="w-8 h-8 rounded-full bg-space-800 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative">
+                    <div class="absolute inset-0 bg-neon-indigo/20 rounded-full"></div>
+                    <i class="ph-fill ph-sparkle text-white/50 text-xs relative z-10"></i>
+                </div>
+                <div class="glass bg-space-800/80 px-4 py-3 rounded-2xl rounded-bl-sm shadow-md border border-neon-indigo/30 backdrop-blur-md flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 bg-neon-indigo rounded-full animate-bounce"></div>
+                    <div class="w-1.5 h-1.5 bg-neon-purple rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div class="w-1.5 h-1.5 bg-neon-fuchsia rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. ПОЛЕ ВВОДА (ЖЕСТКО ПРИБИТО ВНИЗУ, НАД МЕНЮ) -->
-        <div class="absolute bottom-[90px] left-0 right-0 px-4 pt-8 pb-2 z-50 bg-gradient-to-t from-[#02020a] via-[#02020a]/90 to-transparent pointer-events-none">
-            <div class="flex items-center gap-2 pointer-events-auto glass bg-space-800/90 rounded-[24px] p-1.5 border border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto w-full max-w-[400px]">
-                <input id="message-input" type="text" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000" 
-                    class="flex-1 bg-transparent px-4 py-3 text-white text-sm placeholder-white/40 outline-none"
-                    onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()" class="w-11 h-11 rounded-[18px] bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.4)] shrink-0 group">
-                    <i class="ph-fill ph-paper-plane-right text-white text-xl group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+        <!-- 3. ЗОНА ВВОДА И БЫСТРЫХ ДЕЙСТВИЙ -->
+        <div class="shrink-0 z-50 bg-gradient-to-t from-space-900 via-space-900/95 to-transparent pt-4 pb-[100px] px-4 relative">
+            
+            <!-- Быстрые действия (Скроллятся по горизонтали) -->
+            <div id="chat-quick-actions" class="flex overflow-x-auto hide-scrollbar gap-2 mb-3 pb-1 w-full">
+                <button onclick="sendQuickAction('card')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="ph-fill ph-moon text-neon-amber"></i> <span id="chip-card">Карта дня</span>
+                </button>
+                <button onclick="sendQuickAction('spread')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="ph-fill ph-cards text-neon-indigo"></i> <span id="chip-spread">Расклад Таро</span>
+                </button>
+                <button onclick="sendQuickAction('dream')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="ph-fill ph-moon-stars text-neon-cyan"></i> <span id="chip-dream">Сонник</span>
+                </button>
+                <button onclick="sendQuickAction('astro')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="ph-fill ph-planet text-neon-fuchsia"></i> <span id="chip-astro">Астрология</span>
+                </button>
+            </div>
+
+            <!-- Современное динамическое поле ввода -->
+            <div class="flex items-end gap-2 w-full max-w-[500px] mx-auto relative">
+                <div class="flex-1 glass bg-space-800 border border-white/10 rounded-3xl min-h-[52px] flex items-center px-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus-within:border-neon-indigo/50 focus-within:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all">
+                    <!-- Textarea с авто-высотой -->
+                    <textarea id="message-input" rows="1" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000" 
+                        class="w-full bg-transparent text-white text-sm placeholder-white/40 outline-none resize-none hide-scrollbar max-h-[120px] py-3.5"
+                        oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px';"
+                        onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                </div>
+                <button onclick="sendMessage()" class="w-[52px] h-[52px] shrink-0 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_5px_15px_rgba(99,102,241,0.4)] group">
+                    <i class="ph-fill ph-arrow-up text-white text-xl group-hover:-translate-y-0.5 transition-transform"></i>
                 </button>
             </div>
         </div>
-
     </div>
     <!-- ==================== 7. SHOP SCREEN ==================== -->
     <div id="screen-shop" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar relative">
@@ -9931,6 +9993,7 @@ const astroDescriptions = {
                 showMaintenanceScreen();
                 updateInterfaceTranslations();
                 updateDynamicDates();
+                updateChatChips();
                 hideAppLoader();
             }
         }
@@ -10840,13 +10903,44 @@ const astroDescriptions = {
     
         function openAstro() {
             if (userAstroData && userAstroData.chart) {
-                // Если данные есть — показываем крутые орбиты!
+                // Заполняем Шапку (Дата и Город)
                 const [y, m, d] = userAstroData.date.split('-');
                 document.getElementById('astro-display-date').textContent = `${d}.${m}.${y}`;
                 document.getElementById('astro-display-city').textContent = userAstroData.city;
+                
+                // Заполняем Карточки (Знак, Луна, Планета, Стихия)
+                const chart = userAstroData.chart;
+                document.getElementById('astro-card-sun').textContent = chart.sun;
+                document.getElementById('astro-card-moon').textContent = chart.moon;
+                document.getElementById('astro-card-planet').textContent = chart.planet;
+                document.getElementById('astro-card-element').textContent = chart.element;
+                
+                // Динамическая окраска Стихии под стать профилю!
+                if (window.userAstroIndices) {
+                    const elData = elementsMap[window.userAstroIndices.eIdx];
+                    if (elData) {
+                        // Обновляем иконку
+                        const elIcon = document.getElementById('astro-card-element-icon');
+                        if (elIcon) elIcon.className = `ph-fill ${elData.icon} text-2xl ${elData.color} drop-shadow-[0_0_8px_var(--tw-shadow-color)] shadow-${elData.color.replace('text-', '')}/50 transition-colors`;
+                        
+                        // Обновляем кружок вокруг иконки
+                        const elWrapper = document.getElementById('astro-card-element-icon-wrapper');
+                        if (elWrapper) elWrapper.className = `w-12 h-12 rounded-full bg-space-900 border flex items-center justify-center mb-3 shrink-0 shadow-inner relative z-10 group-hover:scale-110 transition-all ${elData.border}`;
+                        
+                        // Обновляем рамку самой карточки
+                        const elBtn = document.getElementById('astro-card-element-btn');
+                        if (elBtn) {
+                            elBtn.className = `glass-strong bg-space-800 border ${elData.border} hover:border-${elData.color.replace('text-', '')}/50 rounded-[24px] p-4 flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all group relative overflow-hidden shadow-sm`;
+                        }
+
+                        // Обновляем верхнее свечение внутри карточки
+                        const elGlow = document.getElementById('astro-card-element-glow');
+                        if (elGlow) elGlow.className = `absolute top-0 inset-x-0 h-12 blur-xl pointer-events-none transition-colors ${elData.glow}`;
+                    }
+                }
+                
                 navigateTo('astro');
             } else {
-                // Если данных нет — просим ввести
                 openModal('astro-form');
             }
         }
@@ -10956,6 +11050,7 @@ const astroDescriptions = {
             updateLanguageDisplay(code);
             updateInterfaceTranslations();
             updateDynamicDates();
+            updateChatChips();
             updateZodiacUI(window.userBirthDate); 
 
             if (dailyCardDataCache && currentElementData) {
@@ -11024,63 +11119,41 @@ const astroDescriptions = {
             const container = document.getElementById('messages-container');
             const messages = chatMessages[currentChat] || [];
 
-            // Встроенный словарь переводов для ВСЕХ 10 кнопок-экшенов на 5 языках
             const actionT = {
-                'DAILY_CARD': {
-                    'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte'
-                },
-                'TAROT_SPREADS': {
-                    'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen'
-                },
-                'ASTRO': {
-                    'ru': 'Космо-Паспорт', 'en': 'Astro-Passport', 'es': 'Astro-Pasaporte', 'fr': 'Astro-Passeport', 'de': 'Astro-Pass'
-                },
-                'CALENDAR': {
-                    'ru': 'Лунный календарь', 'en': 'Lunar Calendar', 'es': 'Calendario Lunar', 'fr': 'Calendrier Lunaire', 'de': 'Mondkalender'
-                },
-                'DREAMS': {
-                    'ru': 'Дневник снов', 'en': 'Dream Journal', 'es': 'Diario de Sueños', 'fr': 'Journal des Rêves', 'de': 'Traumtagebuch'
-                },
-                'SUPPORT': {
-                    'ru': 'Служба поддержки', 'en': 'Support Team', 'es': 'Soporte', 'fr': 'Service Client', 'de': 'Support-Team'
-                },
-                'REFERRAL': {
-                    'ru': 'Пригласить друга', 'en': 'Invite a Friend', 'es': 'Invitar a un Amigo', 'fr': 'Inviter un Ami', 'de': 'Freund einladen'
-                },
-                'LANGUAGE': {
-                    'ru': 'Сменить язык', 'en': 'Change Language', 'es': 'Cambiar Idioma', 'fr': 'Changer de Langue', 'de': 'Sprache ändern'
-                },
-                'SHOP': {
-                    'ru': 'Магазин энергии', 'en': 'Energy Shop', 'es': 'Tienda de Energía', 'fr': 'Boutique d\'Énergie', 'de': 'Energie-Shop'
-                },
-                'PROFILE': {
-                    'ru': 'Профиль / Настройки', 'en': 'Profile / Settings', 'es': 'Perfil / Ajustes', 'fr': 'Profil / Paramètres', 'de': 'Profil / Einstellungen'
-                }
+                'DAILY_CARD': { 'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte' },
+                'TAROT_SPREADS': { 'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen' },
+                'ASTRO': { 'ru': 'Космо-Паспорт', 'en': 'Astro-Passport', 'es': 'Astro-Pasaporte', 'fr': 'Astro-Passeport', 'de': 'Astro-Pass' },
+                'CALENDAR': { 'ru': 'Лунный календарь', 'en': 'Lunar Calendar', 'es': 'Calendario Lunar', 'fr': 'Calendrier Lunaire', 'de': 'Mondkalender' },
+                'DREAMS': { 'ru': 'Дневник снов', 'en': 'Dream Journal', 'es': 'Diario de Sueños', 'fr': 'Journal des Rêves', 'de': 'Traumtagebuch' },
+                'SUPPORT': { 'ru': 'Поддержка', 'en': 'Support', 'es': 'Soporte', 'fr': 'Support', 'de': 'Support' },
+                'REFERRAL': { 'ru': 'Пригласить друга', 'en': 'Invite Friend', 'es': 'Invitar Amigo', 'fr': 'Inviter un Ami', 'de': 'Freund einladen' },
+                'LANGUAGE': { 'ru': 'Язык', 'en': 'Language', 'es': 'Idioma', 'fr': 'Langue', 'de': 'Sprache' },
+                'SHOP': { 'ru': 'Магазин энергии', 'en': 'Energy Shop', 'es': 'Tienda de Energía', 'fr': 'Boutique d\'Énergie', 'de': 'Energie-Shop' },
+                'PROFILE': { 'ru': 'Профиль', 'en': 'Profile', 'es': 'Perfil', 'fr': 'Profil', 'de': 'Profil' }
             };
 
-            // Определяем текущий язык (с защитой)
             const lang = (typeof activeLanguage !== 'undefined' && actionT['DAILY_CARD'][activeLanguage]) ? activeLanguage : 'en';
 
-            // Настройка маршрутизации и визуала кнопок
             const actionMap = {
-                'DAILY_CARD': { label: actionT['DAILY_CARD'][lang], icon: 'ph-moon', color: 'from-neon-amber to-orange-500', action: 'openDailyCardModal()' },
-                'TAROT_SPREADS': { label: actionT['TAROT_SPREADS'][lang], icon: 'ph-cards', color: 'from-neon-indigo to-neon-purple', action: "navigateTo('spreads')" },
-                'ASTRO': { label: actionT['ASTRO'][lang], icon: 'ph-planet', color: 'from-neon-fuchsia to-neon-purple', action: 'openAstro()' },
-                'CALENDAR': { label: actionT['CALENDAR'][lang], icon: 'ph-calendar', color: 'from-neon-cyan to-blue-500', action: "navigateTo('calendar')" },
-                'DREAMS': { label: actionT['DREAMS'][lang], icon: 'ph-moon-stars', color: 'from-neon-indigo to-neon-cyan', action: "navigateTo('dream')" },
-                // НОВЫЕ КНОПКИ:
-                'SUPPORT': { label: actionT['SUPPORT'][lang], icon: 'ph-headset', color: 'from-red-500 to-neon-rose', action: "tg.openTelegramLink('https://t.me/neurotarot_supportbot')" },
-                'REFERRAL': { label: actionT['REFERRAL'][lang], icon: 'ph-users-three', color: 'from-neon-indigo to-blue-600', action: "openModal('referral')" },
-                'LANGUAGE': { label: actionT['LANGUAGE'][lang], icon: 'ph-globe', color: 'from-teal-400 to-neon-cyan', action: "openModal('language')" },
-                'SHOP': { label: actionT['SHOP'][lang], icon: 'ph-shopping-bag', color: 'from-orange-400 to-neon-amber', action: "navigateTo('shop')" },
-                'PROFILE': { label: actionT['PROFILE'][lang], icon: 'ph-user-circle', color: 'from-neon-purple to-neon-fuchsia', action: "navigateTo('profile')" }
+                'DAILY_CARD': { label: actionT['DAILY_CARD'][lang], icon: 'ph-moon', color: 'text-neon-amber', action: 'openDailyCardModal()' },
+                'TAROT_SPREADS': { label: actionT['TAROT_SPREADS'][lang], icon: 'ph-cards', color: 'text-neon-indigo', action: "navigateTo('spreads')" },
+                'ASTRO': { label: actionT['ASTRO'][lang], icon: 'ph-planet', color: 'text-neon-fuchsia', action: 'openAstro()' },
+                'CALENDAR': { label: actionT['CALENDAR'][lang], icon: 'ph-calendar', color: 'text-neon-cyan', action: "navigateTo('calendar')" },
+                'DREAMS': { label: actionT['DREAMS'][lang], icon: 'ph-moon-stars', color: 'text-neon-indigo', action: "navigateTo('dream')" },
+                'SUPPORT': { label: actionT['SUPPORT'][lang], icon: 'ph-headset', color: 'text-red-400', action: "tg.openTelegramLink('https://t.me/neurotarot_supportbot')" },
+                'REFERRAL': { label: actionT['REFERRAL'][lang], icon: 'ph-users-three', color: 'text-blue-400', action: "openModal('referral')" },
+                'LANGUAGE': { label: actionT['LANGUAGE'][lang], icon: 'ph-globe', color: 'text-teal-400', action: "openModal('language')" },
+                'SHOP': { label: actionT['SHOP'][lang], icon: 'ph-lightning', color: 'text-orange-400', action: "navigateTo('shop')" },
+                'PROFILE': { label: actionT['PROFILE'][lang], icon: 'ph-user-circle', color: 'text-neon-purple', action: "navigateTo('profile')" }
             };
 
             let html = '';
             
             if (hasMoreHistory && initialChatLoaded) {
-                html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-2 opacity-0 transition-opacity duration-300">
-                    <i class="ph-fill ph-spinner animate-spin text-xl text-neon-indigo"></i>
+                html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-4 opacity-0 transition-opacity duration-300">
+                    <div class="bg-space-800/80 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm">
+                        <i class="ph-fill ph-spinner animate-spin text-sm text-neon-indigo"></i>
+                    </div>
                 </div>`;
             }
 
@@ -11088,10 +11161,8 @@ const astroDescriptions = {
                 let displayHtml = DOMPurify.sanitize(msg.text);
                 let actionButtonHtml = '';
 
-                // ПАРСИМ ТЕГ НАВИГАЦИИ
                 if (msg.type === 'ai') {
                     const actionMatch = displayHtml.match(/\[ACTION:([A-Z_]+)\]/);
-                    
                     if (actionMatch) {
                         const actionKey = actionMatch[1];
                         displayHtml = displayHtml.replace(actionMatch[0], '').trim();
@@ -11099,13 +11170,13 @@ const astroDescriptions = {
                         if (actionMap[actionKey]) {
                             const btnConfig = actionMap[actionKey];
                             actionButtonHtml = `
-                                <div class="mt-4 pt-3 border-t border-white/10">
-                                    <button onclick="${btnConfig.action}" class="w-full bg-gradient-to-r ${btnConfig.color} text-white text-xs font-bold py-3 px-4 rounded-xl active:scale-95 transition-transform flex items-center justify-between shadow-lg">
+                                <div class="mt-3 pt-3 border-t border-white/10">
+                                    <button onclick="${btnConfig.action}" class="w-full bg-space-800 hover:bg-space-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl border border-white/5 active:scale-95 transition-transform flex items-center justify-between">
                                         <div class="flex items-center gap-2">
-                                            <i class="ph-fill ${btnConfig.icon} text-lg drop-shadow-md"></i>
+                                            <i class="ph-fill ${btnConfig.icon} ${btnConfig.color} text-lg"></i>
                                             <span class="uppercase tracking-widest">${btnConfig.label}</span>
                                         </div>
-                                        <i class="ph-bold ph-arrow-right text-sm"></i>
+                                        <i class="ph-bold ph-arrow-right text-white/30 text-sm"></i>
                                     </button>
                                 </div>
                             `;
@@ -11113,23 +11184,30 @@ const astroDescriptions = {
                     }
                 }
 
-                // РЕНДЕР БАБЛА
-                return `
-                    <div class="flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
-                        <div class="${msg.type === 'user' 
-                            ? 'bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_15px_rgba(99,102,241,0.25)]' 
-                            : 'glass bg-space-800/80 text-white/90 border border-white/5 shadow-md'} 
-                            max-w-[85%] px-4 py-3 rounded-[20px] ${msg.type === 'user' ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}">
-                            
-                            <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown">
-                                ${displayHtml}
+                if (msg.type === 'user') {
+                    return `
+                        <div class="flex justify-end animate-fade-in w-full mb-2">
+                            <div class="bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_20px_rgba(99,102,241,0.3)] max-w-[85%] px-4 py-3 rounded-2xl rounded-br-sm border border-white/10">
+                                <div class="text-sm leading-relaxed font-medium break-words whitespace-pre-wrap">${displayHtml}</div>
                             </div>
-                            
-                            ${actionButtonHtml}
-                            
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    return `
+                        <div class="flex justify-start items-end gap-2 animate-fade-in w-full mb-2 mt-2">
+                            <div class="w-8 h-8 rounded-full bg-space-800 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative mb-1">
+                                <div class="absolute inset-0 bg-neon-indigo/20 rounded-full"></div>
+                                <i class="ph-fill ph-sparkle text-white/70 text-xs relative z-10"></i>
+                            </div>
+                            <div class="glass bg-space-800/90 text-white/90 border border-white/10 shadow-lg max-w-[82%] px-4 py-3 rounded-2xl rounded-bl-sm">
+                                <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown break-words">
+                                    ${displayHtml}
+                                </div>
+                                ${actionButtonHtml}
+                            </div>
+                        </div>
+                    `;
+                }
             }).join('');
             
             container.innerHTML = html;
@@ -11177,8 +11255,33 @@ const astroDescriptions = {
         }
     
     
-        function sendQuickReply(text) {
-            document.getElementById('message-input').value = text;
+        const chipTranslations = {
+            card: { ru: 'Карта дня', en: 'Daily Card', es: 'Carta Diaria', fr: 'Carte du Jour', de: 'Tageskarte' },
+            spread: { ru: 'Расклад Таро', en: 'Tarot Spread', es: 'Tirada de Tarot', fr: 'Tirage Tarot', de: 'Tarot-Legung' },
+            dream: { ru: 'Сонник', en: 'Dream Analysis', es: 'Análisis de Sueño', fr: 'Analyse de Rêve', de: 'Traumdeutung' },
+            astro: { ru: 'Астрология', en: 'Astrology', es: 'Astrología', fr: 'Astrologie', de: 'Astrologie' }
+        };
+
+        // Обновление языка на чипах
+        function updateChatChips() {
+            const lang = activeLanguage || 'en';
+            ['card', 'spread', 'dream', 'astro'].forEach(key => {
+                const el = document.getElementById(`chip-${key}`);
+                if (el) el.textContent = chipTranslations[key][lang] || chipTranslations[key]['en'];
+            });
+        }
+
+        // Вызов быстрого действия
+        function sendQuickAction(actionKey) {
+            const lang = activeLanguage || 'en';
+            const text = chipTranslations[actionKey][lang] || chipTranslations[actionKey]['en'];
+            
+            const input = document.getElementById('message-input');
+            input.value = text;
+            
+            // Прячем панель подсказок после использования, чтобы не мешала
+            document.getElementById('chat-quick-actions').classList.add('hidden');
+            
             sendMessage();
         }
     
@@ -11189,8 +11292,11 @@ const astroDescriptions = {
     
             if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
             chatMessages[currentChat].push({ type: 'user', text });
-            chatOffset++; // <--- ВОТ ТУТ
+            chatOffset++; 
+            
             input.value = '';
+            input.style.height = 'auto'; // Сброс высоты textarea
+            
             renderMessages();
             document.getElementById('typing-indicator').classList.remove('hidden');
             scrollToBottom();
@@ -11200,7 +11306,7 @@ const astroDescriptions = {
     
             if (data.success) {
                 chatMessages[currentChat].push({ type: 'ai', text: data.response });
-                chatOffset++; // <--- И ВОТ ТУТ
+                chatOffset++; 
                 userBalance.energy = data.energy;
                 updateBalanceUI();
             } else {
@@ -11211,6 +11317,7 @@ const astroDescriptions = {
                 }
             }
             renderMessages();
+            scrollToBottom();
         }
     
         // Кастомная маска для времени (ЧЧ:ММ)
