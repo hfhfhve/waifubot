@@ -6454,6 +6454,201 @@ const characters = [
 
 
 ==================================================
+Файл: ./len.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anime RP Game</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome для иконок -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Telegram WebApp JS -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkBg: '#0A0A0F',
+                        cardBg: '#15151E',
+                        primary: '#b026ff',
+                        secondary: '#ff26a8'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0A0A0F;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Стеклянная панелька на карточке */
+        .glass-panel {
+            background: rgba(21, 21, 30, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Плавное нажатие для всех элементов */
+        .click-effect {
+            transition: transform 0.1s ease-in-out;
+        }
+        .click-effect:active {
+            transform: scale(0.96);
+        }
+        /* Скрытие скроллбара */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="pb-28"> <!-- Отступ снизу для плавающей кнопки -->
+
+    <div class="max-w-md mx-auto min-h-screen relative">
+        
+        <!-- Верхние табы -->
+        <div class="flex gap-3 p-4 pt-6">
+            <button onclick="redirectToBot()" class="click-effect flex-1 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary font-bold text-sm shadow-[0_0_15px_rgba(176,38,255,0.3)]">
+                <i class="fa-solid fa-venus mr-1"></i> ДЕВУШКИ
+            </button>
+            <button onclick="redirectToBot()" class="click-effect flex-1 py-3 rounded-2xl bg-cardBg border border-white/5 text-gray-400 font-bold text-sm">
+                <i class="fa-solid fa-mars mr-1"></i> ПАРНИ
+            </button>
+        </div>
+
+        <!-- Главная карточка персонажа -->
+        <div class="px-4 mt-2">
+            <div onclick="redirectToBot()" class="click-effect relative rounded-[32px] overflow-hidden aspect-[4/5] shadow-[0_0_25px_rgba(0,0,0,0.5)]">
+                <!-- ВАЖНО: Сюда вставь SFW (безопасную) аниме-картинку -->
+                <img src="https://images.unsplash.com/photo-1601850494422-3fc19d4b00a5?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover" alt="Anime Girl" />
+                
+                <!-- Градиентное затемнение снизу -->
+                <div class="absolute inset-0 bg-gradient-to-t from-darkBg via-darkBg/30 to-transparent"></div>
+                
+                <!-- Контент поверх карточки -->
+                <div class="absolute bottom-0 left-0 right-0 p-5">
+                    <h2 class="text-3xl font-extrabold mb-3 drop-shadow-lg">Кира</h2>
+                    
+                    <div class="glass-panel rounded-2xl p-4">
+                        <p class="text-sm font-medium text-gray-200 leading-relaxed">
+                            Пожалуйста, не бросай меня одну... Я так долго ждала, когда ты мне напишешь 🥺
+                        </p>
+                        <div class="flex items-center gap-2 mt-3 text-xs font-bold text-emerald-400 uppercase tracking-wide">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></span> В сети
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел "Другие персонажи" -->
+        <div class="p-4 mt-6">
+            <div class="flex justify-between items-end mb-4 px-1">
+                <h3 class="font-bold text-lg">Другие AI-вайфу</h3>
+                <span class="text-xs text-secondary font-bold tracking-wide">100+ ВНУТРИ</span>
+            </div>
+            
+            <!-- Круглые аватарки -->
+            <div class="flex justify-between gap-2">
+                <!-- Аватар 1 -->
+                <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
+                        <!-- Замени ссылки на свои SFW аватарки -->
+                        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-300 font-medium">Мэй</span>
+                </div>
+                <!-- Аватар 2 -->
+                <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-primary/50 overflow-hidden relative shadow-[0_0_10px_rgba(176,38,255,0.3)]">
+                        <img src="https://images.unsplash.com/photo-1541562232579-512a21360020?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
+                    </div>
+                    <span class="text-xs font-bold text-white">Ая</span>
+                </div>
+                <!-- Аватар 3 -->
+                <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-300 font-medium">Рей</span>
+                </div>
+                <!-- Аватар 4 -->
+                <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1560457079-9a6532ccb118?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-300 font-medium">Вика</span>
+                </div>
+                <!-- Аватар 5 -->
+                <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden opacity-70">
+                        <div class="w-full h-full bg-cardBg flex items-center justify-center">
+                            <i class="fa-solid fa-plus text-gray-400"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-500 font-medium">Еще</span>
+                </div>
+            </div>
+
+            <!-- Социальное доказательство (Fake Counter) -->
+            <div class="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
+                <div class="flex -space-x-2">
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&h=50&fit=crop" />
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=50&h=50&fit=crop" />
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=50&h=50&fit=crop" />
+                </div>
+                <p><strong class="text-white">184 293</strong> пользователя уже тут</p>
+            </div>
+        </div>
+
+        <!-- Плавающая кнопка снизу (Fixed Bottom CTA) -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-darkBg via-darkBg/90 to-transparent pb-8">
+            <button onclick="redirectToBot()" class="click-effect w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-black text-[15px] tracking-wide shadow-[0_4px_25px_rgba(255,38,168,0.4)] flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> ОТКРЫТЬ СЕКРЕТНЫЙ ЧАТ
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Сообщаем телеграму, что WebApp готов к работе
+        window.Telegram.WebApp.ready();
+        // Разворачиваем на всю высоту
+        window.Telegram.WebApp.expand();
+        // Красим хедер в цвет фона
+        window.Telegram.WebApp.setHeaderColor('#0A0A0F');
+
+        function redirectToBot() {
+            // ВАЖНО: Укажи здесь ссылку на своего ОСНОВНОГО 18+ бота
+            const botUrl = "https://t.me/midnight_rpbot";
+            
+            // Пытаемся открыть через нативный метод Telegram WebApp (откроет бота прямо в ТГ)
+            if (window.Telegram.WebApp.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(botUrl);
+            } else {
+                // Если по какой-то причине открыли в браузере, делаем обычный редирект
+                window.location.href = botUrl;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+==================================================
 Файл: ./tarot/data.js
 ==================================================
 
