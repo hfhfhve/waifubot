@@ -6529,7 +6529,7 @@ const characters = [
         <div class="px-4 mt-2">
             <div onclick="redirectToBot()" class="click-effect relative rounded-[32px] overflow-hidden aspect-[4/5] shadow-[0_0_25px_rgba(0,0,0,0.5)]">
                 <!-- ВАЖНО: Сюда вставь SFW (безопасную) аниме-картинку -->
-                <img src="https://images.unsplash.com/photo-1601850494422-3fc19d4b00a5?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover" alt="Anime Girl" />
+                <img src="https://api.waifubot.website/static/kir.webp" class="absolute inset-0 w-full h-full object-cover" alt="Anime Girl" />
                 
                 <!-- Градиентное затемнение снизу -->
                 <div class="absolute inset-0 bg-gradient-to-t from-darkBg via-darkBg/30 to-transparent"></div>
@@ -6563,7 +6563,7 @@ const characters = [
                 <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
                     <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
                         <!-- Замени ссылки на свои SFW аватарки -->
-                        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <img src="https://api.waifubot.website/static/alisa_intro.webp" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
                     </div>
                     <span class="text-xs text-gray-300 font-medium">Мэй</span>
@@ -6571,7 +6571,7 @@ const characters = [
                 <!-- Аватар 2 -->
                 <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
                     <div class="w-14 h-14 rounded-full border-2 border-primary/50 overflow-hidden relative shadow-[0_0_10px_rgba(176,38,255,0.3)]">
-                        <img src="https://images.unsplash.com/photo-1541562232579-512a21360020?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <img src="https://api.waifubot.website/static/alex_intro.webp" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
                     </div>
                     <span class="text-xs font-bold text-white">Ая</span>
@@ -6579,7 +6579,7 @@ const characters = [
                 <!-- Аватар 3 -->
                 <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
                     <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <img src="https://api.waifubot.website/static/alisa_intro.webp" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
                     </div>
                     <span class="text-xs text-gray-300 font-medium">Рей</span>
@@ -6587,7 +6587,7 @@ const characters = [
                 <!-- Аватар 4 -->
                 <div onclick="redirectToBot()" class="click-effect flex flex-col items-center gap-2">
                     <div class="w-14 h-14 rounded-full border-2 border-white/10 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1560457079-9a6532ccb118?w=150&h=150&fit=crop" class="w-full h-full object-cover" />
+                        <img src="https://api.waifubot.website/static/eva_intro.webp" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-darkBg rounded-full"></div>
                     </div>
                     <span class="text-xs text-gray-300 font-medium">Вика</span>
@@ -6606,9 +6606,9 @@ const characters = [
             <!-- Социальное доказательство (Fake Counter) -->
             <div class="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
                 <div class="flex -space-x-2">
-                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&h=50&fit=crop" />
-                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=50&h=50&fit=crop" />
-                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=50&h=50&fit=crop" />
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://api.waifubot.website/static/sophia_app.webp" />
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://api.waifubot.website/static/david_app.webp" />
+                    <img class="w-6 h-6 rounded-full border border-darkBg" src="https://api.waifubot.website/static/chloe_app.webp" />
                 </div>
                 <p><strong class="text-white">184 293</strong> пользователя уже тут</p>
             </div>
