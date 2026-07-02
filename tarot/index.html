@@ -918,81 +918,62 @@
     </div>
 
     <div id="screen-chats" class="screen hidden absolute inset-0 bg-space-900 z-20 flex flex-col">
-        <!-- Астральный фон чата -->
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neon-purple/10 via-space-900 to-black pointer-events-none"></div>
-
-        <!-- 1. ШАПКА ЧАТА (Glassmorphism) -->
-        <div class="h-[76px] glass-strong px-5 flex items-center justify-between border-b border-white/5 z-50 shrink-0">
+        <!-- Астральный фон чата (чуть приглушим) -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.05),_transparent_70%)] pointer-events-none"></div>
+    
+        <!-- 1. НОВАЯ АККУРАТНАЯ ШАПКА (Стиль как у конкурента, но в космосе) -->
+        <div class="h-[70px] glass-strong px-5 flex items-center justify-between border-b border-white/5 z-50 shrink-0">
             <div class="flex items-center gap-3">
-                <!-- Аватарка Оракула с пульсирующим статусом -->
-                <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple p-[1px] shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                <!-- Аватарка поменьше и почетче -->
+                <div class="relative w-10 h-10 rounded-full bg-gradient-to-br from-neon-indigo/40 to-neon-purple/40 p-[1px]">
                     <div class="w-full h-full bg-space-900 rounded-full flex items-center justify-center">
-                        <i class="ph-fill ph-sparkle text-white text-xl"></i>
+                        <i class="ph-fill ph-sparkle text-neon-indigo text-lg"></i>
                     </div>
-                    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-space-900 animate-pulse"></div>
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-space-900"></div>
                 </div>
                 <div>
-                    <p class="text-white text-lg font-mystic font-bold tracking-wide" data-i18n="chat_oracle">Вселенский Оракул</p>
-                    <p class="text-neon-cyan text-[10px] uppercase tracking-widest font-bold" data-i18n="chat_online">На связи</p>
+                    <p class="text-white text-base font-bold tracking-tight">Вселенский Оракул</p>
+                    <p class="text-white/40 text-[10px] font-medium flex items-center gap-1">
+                        <span class="w-1 h-1 bg-neon-amber rounded-full animate-pulse"></span>
+                        1 энергия за сообщение
+                    </p>
                 </div>
             </div>
-            <button onclick="openModal('delete_chat')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-neon-rose hover:bg-neon-rose/10 transition-colors active:scale-95 shrink-0" title="Очистить историю">
-                <i class="ph-bold ph-trash text-lg"></i>
+            
+            <!-- Кнопка очистки — сделаем как "Новый чат" -->
+            <button onclick="openModal('delete_chat')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white/60 active:scale-95 transition-all">
+                <i class="ph-bold ph-trash text-sm"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Очистить</span>
             </button>
         </div>
-
-        <!-- 2. ЗОНА СООБЩЕНИЙ -->
-        <div id="chat-scroll-wrapper" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col px-4 pt-6 pb-2 scroll-smooth z-10 relative">
-            <div class="flex-1 shrink-0"></div> <!-- Распорка для прижатия к низу -->
-            
+    
+        <!-- 2. ЗОНА СООБЩЕНИЙ (Более чистая) -->
+        <div id="chat-scroll-wrapper" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col px-4 pt-4 pb-2 scroll-smooth z-10 relative">
             <div id="messages-container" class="space-y-4 flex flex-col justify-end">
-                <!-- Сообщения вставляются сюда -->
+                <!-- Сообщения будут вставляться через JS -->
             </div>
             
-            <!-- Индикатор печати ИИ -->
-            <div id="typing-indicator" class="hidden mt-4 mb-2 flex items-end gap-2 w-full shrink-0">
-                <div class="w-8 h-8 rounded-full bg-space-800 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative">
-                    <div class="absolute inset-0 bg-neon-indigo/20 rounded-full"></div>
-                    <i class="ph-fill ph-sparkle text-white/50 text-xs relative z-10"></i>
-                </div>
-                <div class="glass bg-space-800/80 px-4 py-3 rounded-2xl rounded-bl-sm shadow-md border border-neon-indigo/30 backdrop-blur-md flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 bg-neon-indigo rounded-full animate-bounce"></div>
-                    <div class="w-1.5 h-1.5 bg-neon-purple rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div class="w-1.5 h-1.5 bg-neon-fuchsia rounded-full animate-bounce [animation-delay:0.4s]"></div>
+            <!-- Индикатор печати -->
+            <div id="typing-indicator" class="hidden mt-4 mb-2 flex items-center gap-2">
+                <div class="glass bg-white/5 px-4 py-2.5 rounded-2xl rounded-bl-sm border border-white/5 flex items-center gap-1.5">
+                    <div class="w-1 h-1 bg-white/40 rounded-full animate-bounce"></div>
+                    <div class="w-1 h-1 bg-white/40 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div class="w-1 h-1 bg-white/40 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
             </div>
         </div>
-
-        <!-- 3. ЗОНА ВВОДА И БЫСТРЫХ ДЕЙСТВИЙ -->
-        <div class="shrink-0 z-50 bg-gradient-to-t from-space-900 via-space-900/95 to-transparent pt-4 pb-[100px] px-4 relative">
-            
-            <!-- Быстрые действия (Скроллятся по горизонтали) -->
-            <div id="chat-quick-actions" class="flex overflow-x-auto hide-scrollbar gap-2 mb-3 pb-1 w-full">
-                <button onclick="sendQuickAction('card')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph-fill ph-moon text-neon-amber"></i> <span id="chip-card">Карта дня</span>
-                </button>
-                <button onclick="sendQuickAction('spread')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph-fill ph-cards text-neon-indigo"></i> <span id="chip-spread">Расклад Таро</span>
-                </button>
-                <button onclick="sendQuickAction('dream')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph-fill ph-moon-stars text-neon-cyan"></i> <span id="chip-dream">Сонник</span>
-                </button>
-                <button onclick="sendQuickAction('astro')" class="shrink-0 bg-space-800 hover:bg-space-700 text-white/90 border border-white/10 px-4 py-2.5 rounded-full text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph-fill ph-planet text-neon-fuchsia"></i> <span id="chip-astro">Астрология</span>
-                </button>
-            </div>
-
-            <!-- Современное динамическое поле ввода -->
+    
+        <!-- 3. ЗОНА ВВОДА (Минимализм) -->
+        <div class="shrink-0 z-50 bg-space-900/80 backdrop-blur-md pt-3 pb-[100px] px-4 relative border-t border-white/5">
             <div class="flex items-end gap-2 w-full max-w-[500px] mx-auto relative">
-                <div class="flex-1 glass bg-space-800 border border-white/10 rounded-3xl min-h-[52px] flex items-center px-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus-within:border-neon-indigo/50 focus-within:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all">
-                    <!-- Textarea с авто-высотой -->
-                    <textarea id="message-input" rows="1" data-i18n="ph_chat" placeholder="Спроси Оракула..." maxlength="1000" 
-                        class="w-full bg-transparent text-white text-sm placeholder-white/40 outline-none resize-none hide-scrollbar max-h-[120px] py-3.5"
+                <div class="flex-1 bg-white/5 border border-white/10 rounded-2xl min-h-[48px] flex items-center px-4 transition-all focus-within:border-neon-indigo/30">
+                    <textarea id="message-input" rows="1" placeholder="Напиши сообщение..." maxlength="1000" 
+                        class="w-full bg-transparent text-white text-sm placeholder-white/20 outline-none resize-none hide-scrollbar py-3"
                         oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px';"
                         onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
                 </div>
-                <button onclick="sendMessage()" class="w-[52px] h-[52px] shrink-0 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-[0_5px_15px_rgba(99,102,241,0.4)] group">
-                    <i class="ph-fill ph-arrow-up text-white text-xl group-hover:-translate-y-0.5 transition-transform"></i>
+                <button onclick="sendMessage()" class="w-12 h-12 shrink-0 rounded-2xl bg-neon-indigo flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-neon-indigo/20">
+                    <i class="ph-fill ph-paper-plane-right text-white text-xl"></i>
                 </button>
             </div>
         </div>
@@ -3748,7 +3729,8 @@
         function renderMessages() {
             const container = document.getElementById('messages-container');
             const messages = chatMessages[currentChat] || [];
-
+        
+            // Твои словари переводов (сохраняем полностью)
             const actionT = {
                 'DAILY_CARD': { 'ru': 'Карта Дня', 'en': 'Daily Card', 'es': 'Carta del Día', 'fr': 'Carte du Jour', 'de': 'Tageskarte' },
                 'TAROT_SPREADS': { 'ru': 'Расклады Таро', 'en': 'Tarot Spreads', 'es': 'Tiradas de Tarot', 'fr': 'Tirages de Tarot', 'de': 'Tarot-Legungen' },
@@ -3761,9 +3743,9 @@
                 'SHOP': { 'ru': 'Магазин энергии', 'en': 'Energy Shop', 'es': 'Tienda de Energía', 'fr': 'Boutique d\'Énergie', 'de': 'Energie-Shop' },
                 'PROFILE': { 'ru': 'Профиль', 'en': 'Profile', 'es': 'Perfil', 'fr': 'Profil', 'de': 'Profil' }
             };
-
+        
             const lang = (typeof activeLanguage !== 'undefined' && actionT['DAILY_CARD'][activeLanguage]) ? activeLanguage : 'en';
-
+        
             const actionMap = {
                 'DAILY_CARD': { label: actionT['DAILY_CARD'][lang], icon: 'ph-moon', color: 'text-neon-amber', action: 'openDailyCardModal()' },
                 'TAROT_SPREADS': { label: actionT['TAROT_SPREADS'][lang], icon: 'ph-cards', color: 'text-neon-indigo', action: "navigateTo('spreads')" },
@@ -3776,21 +3758,22 @@
                 'SHOP': { label: actionT['SHOP'][lang], icon: 'ph-lightning', color: 'text-orange-400', action: "navigateTo('shop')" },
                 'PROFILE': { label: actionT['PROFILE'][lang], icon: 'ph-user-circle', color: 'text-neon-purple', action: "navigateTo('profile')" }
             };
-
+        
             let html = '';
             
+            // Возвращаем лоадер истории
             if (hasMoreHistory && initialChatLoaded) {
                 html += `<div id="history-loader-placeholder" class="w-full flex justify-center py-4 opacity-0 transition-opacity duration-300">
-                    <div class="bg-space-800/80 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm">
+                    <div class="bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm">
                         <i class="ph-fill ph-spinner animate-spin text-sm text-neon-indigo"></i>
                     </div>
                 </div>`;
             }
-
+        
             html += messages.map(msg => {
                 let displayHtml = DOMPurify.sanitize(msg.text);
                 let actionButtonHtml = '';
-
+        
                 if (msg.type === 'ai') {
                     const actionMatch = displayHtml.match(/\[ACTION:([A-Z_]+)\]/);
                     if (actionMatch) {
@@ -3799,41 +3782,41 @@
                         
                         if (actionMap[actionKey]) {
                             const btnConfig = actionMap[actionKey];
+                            // Делаем кнопку более аккуратной в новом стиле
                             actionButtonHtml = `
-                                <div class="mt-3 pt-3 border-t border-white/10">
-                                    <button onclick="${btnConfig.action}" class="w-full bg-space-800 hover:bg-space-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl border border-white/5 active:scale-95 transition-transform flex items-center justify-between">
+                                <div class="mt-3 pt-3 border-t border-white/5">
+                                    <button onclick="${btnConfig.action}" class="w-full bg-white/5 hover:bg-white/10 text-white/80 text-[11px] font-bold py-2.5 px-4 rounded-xl border border-white/5 active:scale-95 transition-all flex items-center justify-between">
                                         <div class="flex items-center gap-2">
-                                            <i class="ph-fill ${btnConfig.icon} ${btnConfig.color} text-lg"></i>
+                                            <i class="ph-fill ${btnConfig.icon} ${btnConfig.color} text-base"></i>
                                             <span class="uppercase tracking-widest">${btnConfig.label}</span>
                                         </div>
-                                        <i class="ph-bold ph-arrow-right text-white/30 text-sm"></i>
+                                        <i class="ph-bold ph-caret-right text-white/20"></i>
                                     </button>
                                 </div>
                             `;
                         }
                     }
-                }
-
-                if (msg.type === 'user') {
+        
+                    // Рендер сообщения ИИ (Аккуратный стиль)
                     return `
-                        <div class="flex justify-end animate-fade-in w-full mb-2">
-                            <div class="bg-gradient-to-br from-neon-indigo to-neon-purple text-white shadow-[0_5px_20px_rgba(99,102,241,0.3)] max-w-[85%] px-4 py-3 rounded-2xl rounded-br-sm border border-white/10">
-                                <div class="text-sm leading-relaxed font-medium break-words whitespace-pre-wrap">${displayHtml}</div>
+                        <div class="flex justify-start items-end gap-2 animate-fade-in w-full mb-2">
+                            <div class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mb-1">
+                                <i class="ph-fill ph-sparkle text-neon-indigo text-[10px]"></i>
+                            </div>
+                            <div class="bg-white/5 text-white/90 border border-white/10 max-w-[82%] px-4 py-3 rounded-[20px] rounded-bl-none shadow-sm">
+                                <div class="text-[14px] leading-relaxed font-light space-y-2 content-daily-markdown">
+                                    ${displayHtml}
+                                </div>
+                                ${actionButtonHtml}
                             </div>
                         </div>
                     `;
                 } else {
+                    // Рендер сообщения Пользователя (Аккуратный стиль)
                     return `
-                        <div class="flex justify-start items-end gap-2 animate-fade-in w-full mb-2 mt-2">
-                            <div class="w-8 h-8 rounded-full bg-space-800 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative mb-1">
-                                <div class="absolute inset-0 bg-neon-indigo/20 rounded-full"></div>
-                                <i class="ph-fill ph-sparkle text-white/70 text-xs relative z-10"></i>
-                            </div>
-                            <div class="glass bg-space-800/90 text-white/90 border border-white/10 shadow-lg max-w-[82%] px-4 py-3 rounded-2xl rounded-bl-sm">
-                                <div class="text-sm leading-relaxed font-light space-y-2 content-daily-markdown break-words">
-                                    ${displayHtml}
-                                </div>
-                                ${actionButtonHtml}
+                        <div class="flex justify-end w-full animate-fade-in mb-2">
+                            <div class="bg-neon-indigo/15 border border-neon-indigo/20 text-white/90 max-w-[80%] px-4 py-3 rounded-[20px] rounded-br-none shadow-sm">
+                                <div class="text-[14px] leading-relaxed">${displayHtml}</div>
                             </div>
                         </div>
                     `;
