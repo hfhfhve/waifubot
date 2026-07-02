@@ -9631,10 +9631,8 @@ const astroDescriptions = {
         let hasMoreHistory = true;
         let initialChatLoaded = false;
     
-        // ==================== API CORE ====================
-        const DEV_ID = 7672744848; 
-    
-        // ==================== API CORE ====================
+        const ADMIN_IDS = [6546116205, 7672744848];
+
         async function apiRequest(endpoint, method = "POST", data = {}) {
             try {
                 const response = await fetch(`${API_URL}${endpoint}`, {
@@ -9647,23 +9645,26 @@ const astroDescriptions = {
                 });
         
                 if (!response.ok) {
-                    // Если мы получили ошибку сервера (500/503), показываем тех.работы
-                    if (response.status === 500 || response.status === 503) {
-                        showMaintenanceScreen();
-                    }
-                    throw new Error(`HTTP Error: ${response.status}`);
+                    // Если сервер вернул 500 или 503, показываем экран техработ всем
+                    showMaintenanceScreen();
+                    return { success: false };
                 }
         
                 return await response.json();
             } catch (e) {
                 console.error("API Error:", e);
                 
-                // Показываем алерт ТОЛЬКО тебе, если сервер не отвечает
-                if (tg.initDataUnsafe?.user?.id === DEV_ID) {
-                    alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nЕсли тут "Failed to fetch" - значит бэкенд выключен, либо блокирует CORS.`);
+                // Получаем ID текущего пользователя из Telegram
+                const currentUserId = tg.initDataUnsafe?.user?.id;
+        
+                // Если это админ — показываем детальный алерт
+                if (ADMIN_IDS.includes(currentUserId)) {
+                    alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nПроверь: 1. Работает ли сервис на сервере? 2. Включен ли Cloudflare Tunnel? 3. Добавлен ли URL фронта в CORS?`);
+                } else {
+                    // Обычному юзеру просто показываем красивый экран техработ
+                    showMaintenanceScreen();
                 }
                 
-                showMaintenanceScreen(); 
                 return { success: false, maintenance: true };
             }
         }
