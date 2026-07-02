@@ -1130,6 +1130,19 @@
                     </div>
                 </button>
 
+                <div class="glass bg-space-800 rounded-[24px] p-4 flex items-center justify-between border border-white/5 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-neon-indigo/10 flex items-center justify-center text-neon-indigo">
+                            <i class="ph-fill ph-bell"></i>
+                        </div>
+                        <span class="text-sm font-medium text-white/90">Уведомления о карте дня</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="notif-toggle" class="sr-only peer" checked onchange="toggleNotifications(this.checked)">
+                        <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-indigo"></div>
+                    </label>
+                </div>
+
                 <!-- Language (Fixed) -->
                 <button onclick="openModal('language')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
@@ -2338,6 +2351,13 @@
             } else {
                 // Если ошибка API, прячем лоадер, чтобы не висел бесконечно
                 if (loadMore && loader) loader.classList.replace('opacity-100', 'opacity-0');
+            }
+        }
+
+        async function toggleNotifications(isEnabled) {
+            const data = await apiRequest("/profile/notifications", "POST", { enabled: isEnabled });
+            if (data.success) {
+                showToast(isEnabled ? "Уведомления включены" : "Уведомления выключены", "ph-bell");
             }
         }
     
