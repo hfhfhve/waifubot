@@ -9796,27 +9796,17 @@ const astroDescriptions = {
         }
 
         async function buyEnergyRub(itemId) {
-            // Показываем уведомление, что процесс пошел
             showToast("Создаем счет...", "ph-spinner animate-spin");
-            
-            // Вызываем твой бэкенд (тот самый эндпоинт, который мы создали ранее)
             const data = await apiRequest("/shop/invoice-rub", "POST", { item_id: itemId });
             
             if (data.success && data.invoice_url) {
-                // Открываем нативное окно оплаты Telegram
-                tg.openInvoice(data.invoice_url, function(status) {
-                    if (status === 'paid') {
-                        showToast("Оплата успешна!", "ph-check-circle text-green-400");
-                        // Обновляем баланс в приложении через 2 секунды
-                        setTimeout(() => {
-                            initApp(); // Перезагружаем данные юзера
-                        }, 2000);
-                    } else if (status === 'cancelled') {
-                        showToast("Оплата отменена", "ph-x-circle");
-                    } else {
-                        showToast("Ошибка платежа", "ph-warning-circle text-red-400");
-                    }
-                });
+                hideToast(); // Прячем лоадер
+                
+                // Открываем ссылку на страницу ЮKassa
+                tg.openLink(data.invoice_url);
+                
+                // Показываем плашку
+                showToast("После оплаты энергия зачислится автоматически", "ph-info");
             } else {
                 showToast("Не удалось создать счет", "ph-warning-circle");
             }
