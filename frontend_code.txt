@@ -9674,54 +9674,84 @@ const astroDescriptions = {
         async function loadShopItems() {
             const container = document.getElementById('shop-items-container');
             if (!container) return;
-    
+        
+            // Запрос к твоему API за списком товаров
             const data = await apiRequest("/shop/items", "GET");
             
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
-                data.items.forEach((item, index) => {
-                    const tiers = [
-                        { gradient: 'from-neon-cyan/50 to-neon-indigo/50', textGrad: 'from-neon-cyan to-neon-indigo', badge: null, shadow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]' },
-                        { gradient: 'from-neon-fuchsia/60 to-neon-purple/60', textGrad: 'from-neon-fuchsia to-neon-purple', badge: 'ХИТ', shadow: 'shadow-[0_0_30px_rgba(232,121,249,0.25)]' },
-                        { gradient: 'from-neon-amber/60 to-orange-500/60', textGrad: 'from-neon-amber to-orange-400', badge: 'ВЫГОДА', shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]' }
-                    ];
-                    const tier = tiers[index % tiers.length];
-                    const badgeHTML = tier.badge ? `<div class="absolute -top-3 right-4 bg-gradient-to-r ${tier.textGrad} px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg border border-white/20 z-20">${tier.badge}</div>` : '';
-    
+                data.items.forEach((item) => {
+                    // Создаем карточку товара
                     const itemHTML = `
-                        <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="relative w-full p-[1px] rounded-[24px] overflow-visible group active:scale-[0.98] transition-all duration-300">
-                            <div class="absolute inset-0 bg-gradient-to-r ${tier.gradient} rounded-[24px] opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                            ${badgeHTML}
-                            <div class="relative bg-space-900/95 backdrop-blur-xl rounded-[23px] p-5 flex items-center justify-between ${tier.shadow} group-hover:bg-space-900/80 transition-colors h-full">
+                        <div class="glass-strong bg-space-800/50 border border-white/5 rounded-[28px] p-5 mb-4 shadow-xl relative overflow-hidden group">
+                            <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-space-800 border border-white/10 flex items-center justify-center relative shrink-0 overflow-hidden">
-                                        <div class="absolute inset-0 bg-gradient-to-b ${tier.gradient} opacity-20"></div>
-                                        <i class="ph-fill ph-lightning text-2xl text-transparent bg-clip-text bg-gradient-to-b ${tier.textGrad}"></i>
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shadow-lg shadow-neon-indigo/20">
+                                        <i class="ph-fill ph-lightning text-3xl text-white"></i>
                                     </div>
-                                    <div class="text-left">
-                                        <div class="text-white font-mystic text-3xl font-bold leading-none tracking-wide">${item.amount}</div>
-                                        <div class="text-white/40 text-[10px] tracking-widest uppercase mt-1 font-semibold" data-i18n="energy_unit">${t('energy_unit')}</div>
+                                    <div>
+                                        <h3 class="text-white text-2xl font-mystic font-bold leading-none">${item.amount}</h3>
+                                        <p class="text-white/40 text-[10px] uppercase tracking-widest font-bold mt-1">Энергии</p>
                                     </div>
-                                </div>
-                                <div class="shrink-0 bg-space-800 border border-white/10 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
-                                    <span class="text-white">${item.price_stars}</span>
-                                    <i class="ph-fill ph-lightning text-neon-amber text-base drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"></i>
                                 </div>
                             </div>
-                        </button>
+        
+                            <!-- Блок с кнопками оплаты -->
+                            <div class="grid grid-cols-2 gap-3">
+                                
+                                <!-- Кнопка: ТГ ЗВЕЗДЫ -->
+                                <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/10 hover:border-neon-amber/50 rounded-2xl py-3 transition-all active:scale-95 group/btn">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-white font-bold text-base">${item.price_stars}</span>
+                                        <i class="ph-fill ph-lightning text-neon-amber text-lg"></i>
+                                    </div>
+                                    <span class="text-[9px] text-white/40 uppercase font-black tracking-tighter">Звездами</span>
+                                </button>
+        
+                                <!-- Кнопка: БАНКОВСКАЯ КАРТА (ЮKassa) -->
+                                <button onclick="buyEnergyRub('${item.id}')" class="flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/10 hover:border-neon-fuchsia/50 rounded-2xl py-3 transition-all active:scale-95 group/btn">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-white font-bold text-base">${item.price_rub}</span>
+                                        <span class="text-white/80 font-bold text-sm">₽</span>
+                                    </div>
+                                    <span class="text-[9px] text-white/40 uppercase font-black tracking-tighter">Картой РФ</span>
+                                </button>
+        
+                            </div>
+                        </div>
                     `;
                     container.innerHTML += itemHTML;
                 });
             } else {
-                container.innerHTML = `
-                    <div class="glass bg-space-800 rounded-[24px] p-8 text-center border border-white/5 flex flex-col items-center mt-10">
-                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
-                            <i class="ph-fill ph-storefront text-3xl text-white/30"></i>
-                        </div>
-                        <h3 class="text-white font-bold text-lg mb-1" data-i18n="shop_empty">Витрина пуста</h3>
-                        <p class="text-white/40 text-sm" data-i18n="shop_empty_desc">Кристаллы энергии еще формируются...</p>
-                    </div>`;
+                container.innerHTML = `<p class="text-white/30 text-center py-10">Магазин временно пуст...</p>`;
+            }
+        }
+
+        async function buyEnergyRub(itemId) {
+            // Показываем уведомление, что процесс пошел
+            showToast("Создаем счет...", "ph-spinner animate-spin");
+            
+            // Вызываем твой бэкенд (тот самый эндпоинт, который мы создали ранее)
+            const data = await apiRequest("/shop/invoice-rub", "POST", { item_id: itemId });
+            
+            if (data.success && data.invoice_url) {
+                // Открываем нативное окно оплаты Telegram
+                tg.openInvoice(data.invoice_url, function(status) {
+                    if (status === 'paid') {
+                        showToast("Оплата успешна!", "ph-check-circle text-green-400");
+                        // Обновляем баланс в приложении через 2 секунды
+                        setTimeout(() => {
+                            initApp(); // Перезагружаем данные юзера
+                        }, 2000);
+                    } else if (status === 'cancelled') {
+                        showToast("Оплата отменена", "ph-x-circle");
+                    } else {
+                        showToast("Ошибка платежа", "ph-warning-circle text-red-400");
+                    }
+                });
+            } else {
+                showToast("Не удалось создать счет", "ph-warning-circle");
             }
         }
     
