@@ -2059,56 +2059,61 @@
             const container = document.getElementById('shop-items-container');
             if (!container) return;
         
-            // Запрос к твоему API за списком товаров
             const data = await apiRequest("/shop/items", "GET");
             
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
                 data.items.forEach((item) => {
-                    // Создаем карточку товара
+                    // Определяем название набора в зависимости от количества (для красоты)
+                    let tierName = "Starter";
+                    let tierDesc = "НАБОР НОВИЧКА";
+                    if (item.amount >= 500) { tierName = "Oracle"; tierDesc = "СИЛА ПРОВИДЦА"; }
+                    if (item.amount >= 1000) { tierName = "Cosmic"; tierDesc = "ЭНЕРГИЯ ВСЕЛЕННОЙ"; }
+        
                     const itemHTML = `
-                        <div class="glass-strong bg-space-800/50 border border-white/5 rounded-[28px] p-5 mb-4 shadow-xl relative overflow-hidden group">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center shadow-lg shadow-neon-indigo/20">
-                                        <i class="ph-fill ph-lightning text-3xl text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-white text-2xl font-mystic font-bold leading-none">${item.amount}</h3>
-                                        <p class="text-white/40 text-[10px] uppercase tracking-widest font-bold mt-1">Энергии</p>
-                                    </div>
+                        <div class="bg-[#0f0f13] border border-white/5 rounded-[32px] p-6 mb-5 shadow-2xl relative overflow-hidden">
+                            <!-- Хедер карточки -->
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-14 h-14 bg-[#16161a] rounded-[18px] flex items-center justify-center border border-white/10 shadow-inner">
+                                    <i class="ph-fill ph-package text-3xl text-white/80"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white text-2xl font-bold tracking-tight leading-none">${tierName}</h3>
+                                    <p class="text-white/30 text-[9px] font-black uppercase tracking-[0.15em] mt-1.5">${tierDesc}</p>
                                 </div>
                             </div>
         
-                            <!-- Блок с кнопками оплаты -->
+                            <!-- Плитки ресурсов -->
+                            <div class="grid grid-cols-1 gap-3 mb-6">
+                                <div class="bg-[#16161a] rounded-[22px] py-4 px-2 text-center border border-white/5 relative group">
+                                    <p class="text-4xl text-white font-black tracking-tighter">${item.amount}</p>
+                                    <p class="text-neon-amber text-[10px] font-bold uppercase mt-1 flex items-center justify-center gap-1.5">
+                                        <i class="ph-fill ph-lightning"></i> Энергии
+                                    </p>
+                                </div>
+                            </div>
+        
+                            <!-- Кнопки оплаты -->
                             <div class="grid grid-cols-2 gap-3">
-                                
-                                <!-- Кнопка: ТГ ЗВЕЗДЫ -->
-                                <button onclick="buyEnergy('${item.id}', ${item.price_stars})" class="flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/10 hover:border-neon-amber/50 rounded-2xl py-3 transition-all active:scale-95 group/btn">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-white font-bold text-base">${item.price_stars}</span>
-                                        <i class="ph-fill ph-lightning text-neon-amber text-lg"></i>
-                                    </div>
-                                    <span class="text-[9px] text-white/40 uppercase font-black tracking-tighter">Звездами</span>
+                                <!-- Оплата картой (Циан) -->
+                                <button onclick="buyEnergyRub('${item.id}')" 
+                                    class="bg-transparent border-2 border-cyan-500/40 hover:border-cyan-500/80 text-cyan-400 py-3.5 rounded-[18px] font-black text-sm transition-all active:scale-95 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                                    ${item.price_rub} ₽
                                 </button>
         
-                                <!-- Кнопка: БАНКОВСКАЯ КАРТА (ЮKassa) -->
-                                <button onclick="buyEnergyRub('${item.id}')" class="flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/10 hover:border-neon-fuchsia/50 rounded-2xl py-3 transition-all active:scale-95 group/btn">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-white font-bold text-base">${item.price_rub}</span>
-                                        <span class="text-white/80 font-bold text-sm">₽</span>
-                                    </div>
-                                    <span class="text-[9px] text-white/40 uppercase font-black tracking-tighter">Картой РФ</span>
+                                <!-- Оплата звездами (Золото) -->
+                                <button onclick="buyEnergy('${item.id}', ${item.price_stars})" 
+                                    class="bg-transparent border-2 border-amber-500/40 hover:border-amber-500/80 text-amber-400 py-3.5 rounded-[18px] font-black text-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                                    ${item.price_stars} <i class="ph-fill ph-star text-base"></i>
                                 </button>
-        
                             </div>
                         </div>
                     `;
                     container.innerHTML += itemHTML;
                 });
             } else {
-                container.innerHTML = `<p class="text-white/30 text-center py-10">Магазин временно пуст...</p>`;
+                container.innerHTML = `<div class="text-center py-20 text-white/20 font-bold uppercase tracking-widest text-xs">Витрина пуста</div>`;
             }
         }
 
