@@ -8409,7 +8409,7 @@ const astroDescriptions = {
                         1 <i class="ph-fill ph-lightning text-neon-amber text-xs drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]"></i>
                     </span>
                 </button>
-                <p class="text-center text-white/30 text-[9px] uppercase tracking-[0.1em] mt-3 px-4 leading-relaxed font-semibold">Нажми на любую карточку для подробной расшифровки от Оракула.</p>
+                <p class="text-center text-white/30 text-[9px] uppercase tracking-[0.1em] mt-3 px-4 leading-relaxed font-semibold" data-i18n="astro_hint">Нажми на любую карточку для подробной расшифровки от Оракула.</p>
             </div>
 
         </div>
@@ -9437,25 +9437,67 @@ const astroDescriptions = {
             'ru': { 
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 // НОВЫЕ ПЕРЕВОДЫ ДЛЯ МАГАЗИНА:
-                shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay'
+                shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
+                astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.'
             },
             'en': { 
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
-                shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay'
+                shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
+                astro_hint: 'Click on any card for a detailed interpretation from the Oracle.'
             },
             'es': { 
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
-                shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay'
+                shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
+                astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.'
             },
             'fr': { 
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
-                shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay'
+                shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
+                stro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.'
             },
             'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
-                shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay'
+                shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
+                astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.'
             }
         };
+
+        const astroDictLocal = {
+            signs: {
+                "Овен": { en: "Aries", es: "Aries", fr: "Bélier", de: "Widder", ru: "Овен" },
+                "Телец": { en: "Taurus", es: "Tauro", fr: "Taureau", de: "Stier", ru: "Телец" },
+                "Близнецы": { en: "Gemini", es: "Géminis", fr: "Gémeaux", de: "Zwillinge", ru: "Близнецы" },
+                "Рак": { en: "Cancer", es: "Cáncer", fr: "Cancer", de: "Krebs", ru: "Рак" },
+                "Лев": { en: "Leo", es: "Leo", fr: "Lion", de: "Löwe", ru: "Лев" },
+                "Дева": { en: "Virgo", es: "Virgo", fr: "Vierge", de: "Jungfrau", ru: "Дева" },
+                "Весы": { en: "Libra", es: "Libra", fr: "Balance", de: "Waage", ru: "Весы" },
+                "Скорпион": { en: "Scorpio", es: "Escorpio", fr: "Scorpion", de: "Skorpion", ru: "Скорпион" },
+                "Стрелец": { en: "Sagittarius", es: "Sagitario", fr: "Sagittaire", de: "Schütze", ru: "Стрелец" },
+                "Козерог": { en: "Capricorn", es: "Capricornio", fr: "Capricorne", de: "Steinbock", ru: "Козерог" },
+                "Водолей": { en: "Aquarius", es: "Acuario", fr: "Verseau", de: "Wassermann", ru: "Водолей" },
+                "Рыбы": { en: "Pisces", es: "Piscis", fr: "Poissons", de: "Fische", ru: "Рыбы" }
+            },
+            planets: {
+                "Марс": { en: "Mars", es: "Marte", fr: "Mars", de: "Mars", ru: "Марс" },
+                "Венера": { en: "Venus", es: "Venus", fr: "Vénus", de: "Venus", ru: "Венера" },
+                "Меркурий": { en: "Mercury", es: "Mercurio", fr: "Mercure", de: "Merkur", ru: "Меркурий" },
+                "Луна": { en: "Moon", es: "Luna", fr: "Lune", de: "Mond", ru: "Луна" },
+                "Солнце": { en: "Sun", es: "Sol", fr: "Soleil", de: "Sonne", ru: "Солнце" },
+                "Плутон": { en: "Pluto", es: "Plutón", fr: "Pluton", de: "Pluto", ru: "Плутон" },
+                "Юпитер": { en: "Jupiter", es: "Júpiter", fr: "Jupiter", de: "Jupiter", ru: "Юпитер" },
+                "Сатурн": { en: "Saturn", es: "Saturno", fr: "Saturne", de: "Saturn", ru: "Сатурн" },
+                "Уран": { en: "Uranus", es: "Urano", fr: "Uranus", de: "Uranus", ru: "Уран" },
+                "Нептун": { en: "Neptune", es: "Neptuno", fr: "Neptune", de: "Neptun", ru: "Нептун" }
+            },
+            elements: {
+                "Огонь": { en: "Fire", es: "Fuego", fr: "Feu", de: "Feuer", ru: "Огонь" },
+                "Земля": { en: "Earth", es: "Tierra", fr: "Terre", de: "Erde", ru: "Земля" },
+                "Воздух": { en: "Air", es: "Aire", fr: "Air", de: "Luft", ru: "Воздух" },
+                "Вода": { en: "Water", es: "Agua", fr: "Eau", de: "Wasser", ru: "Вода" },
+                "—": { en: "—", es: "—", fr: "—", de: "—", ru: "—" }
+            }
+        };
+        
         if (typeof translations !== 'undefined') {
             for (const lang in extraTranslations) {
                 if (!translations[lang]) translations[lang] = {};
@@ -11231,10 +11273,19 @@ const astroDescriptions = {
                 
                 // Заполняем Карточки (Знак, Луна, Планета, Стихия)
                 const chart = userAstroData.chart;
-                document.getElementById('astro-card-sun').textContent = chart.sun;
-                document.getElementById('astro-card-moon').textContent = chart.moon;
-                document.getElementById('astro-card-planet').textContent = chart.planet;
-                document.getElementById('astro-card-element').textContent = chart.element;
+
+                // Мини-функция для перевода слова из БД на текущий активный язык
+                const tAstro = (cat, word) => {
+                    if (astroDictLocal[cat] && astroDictLocal[cat][word] && astroDictLocal[cat][word][activeLanguage]) {
+                        return astroDictLocal[cat][word][activeLanguage];
+                    }
+                    return word; // Фолбэк, если слова нет в словаре
+                };
+                
+                document.getElementById('astro-card-sun').textContent = tAstro('signs', chart.sun);
+                document.getElementById('astro-card-moon').textContent = tAstro('signs', chart.moon);
+                document.getElementById('astro-card-planet').textContent = tAstro('planets', chart.planet);
+                document.getElementById('astro-card-element').textContent = tAstro('elements', chart.element);
                 
                 // Динамическая окраска Стихии под стать профилю!
                 if (window.userAstroIndices) {
@@ -11382,6 +11433,7 @@ const astroDescriptions = {
             loadLunarCalendar();
             loadSpreads();
             loadShopItems(); // <--- ВОТ ЭТО ДОБАВИЛ! (Перерисует слово "Энергия" в списке)
+            if (userAstroData && activeTab === 'astro') openAstro();
         }
     
         let toastTimeout; // Глобальная переменная для хранения таймера
