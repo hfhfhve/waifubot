@@ -1614,34 +1614,29 @@
 
     <div id="modal-purchase" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[70]">
         <div class="glass-strong bg-[#131315] rounded-t-[32px] pb-8 flex flex-col px-5">
-            <!-- Ползунок -->
             <div class="flex justify-center pt-3 pb-5">
                 <div class="w-10 h-1.5 bg-white/10 rounded-full"></div>
             </div>
     
-            <!-- Заголовок -->
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-white text-2xl font-bold tracking-tight">Покупка</h3>
-                    <p class="text-white/50 text-xs mt-0.5">Безопасная транзакция</p>
+                    <h3 class="text-white text-2xl font-bold tracking-tight" data-i18n="modal_purchase">Покупка</h3>
+                    <p class="text-white/50 text-xs mt-0.5" data-i18n="modal_secure">Безопасная транзакция</p>
                 </div>
                 <div class="w-12 h-12 bg-gradient-to-br from-[#1a1a24] to-[#101014] rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
                     <i class="ph-fill ph-shopping-bag text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]"></i>
                 </div>
             </div>
     
-            <!-- Плашка 'К оплате' -->
             <div class="bg-[#1c1c24] border border-white/5 rounded-2xl p-5 mb-5 flex justify-between items-center shadow-lg">
-                <span class="text-white/60 text-sm font-medium">К оплате:</span>
+                <span class="text-white/60 text-sm font-medium" data-i18n="modal_to_pay">К оплате:</span>
                 <div class="text-right">
                     <p id="purchase-price-rub" class="text-white text-2xl font-black leading-none tracking-tight">0 ₽</p>
                     <p id="purchase-price-stars" class="text-amber-400 text-xs font-bold mt-1.5">или 0 <i class="ph-fill ph-star"></i></p>
                 </div>
             </div>
     
-            <!-- Кнопки оплаты -->
             <div class="space-y-3">
-                <!-- Кнопка Telegram Stars -->
                 <button id="btn-pay-stars" class="w-full bg-[#1c1c24] border border-white/5 hover:border-amber-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl border border-amber-500/20 group-hover:scale-105 transition-transform">
@@ -1649,7 +1644,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-white font-bold text-base">Telegram Stars</p>
-                            <p class="text-white/40 text-xs mt-0.5">Моментально</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_instant">Моментально</p>
                         </div>
                     </div>
                     <div class="bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-400 font-bold text-sm flex items-center gap-1">
@@ -1657,19 +1652,18 @@
                     </div>
                 </button>
     
-                <!-- Кнопка Банковская карта -->
                 <button id="btn-pay-rub" class="w-full bg-[#1c1c24] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
                             <i class="ph-fill ph-credit-card"></i>
                         </div>
                         <div class="text-left">
-                            <p class="text-white font-bold text-base">Банковская карта</p>
-                            <p class="text-white/40 text-xs mt-0.5">РФ, СБП, T-Pay, ЮMoney</p>
+                            <p class="text-white font-bold text-base" data-i18n="modal_card">Банковская карта</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_card_desc">РФ, СБП, SberPay</p>
                         </div>
                     </div>
                     <div class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 font-bold text-sm">
-                        <span id="label-rub">0</span> ₽
+                        <span id="label-rub">0</span> <span class="currency-symbol">₽</span>
                     </div>
                 </button>
             </div>
@@ -1824,11 +1818,27 @@
   <script>
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
-            'ru': { astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные' },
-            'en': { astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data' },
-            'es': { astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos' },
-            'fr': { astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données' },
-            'de': { astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern' }
+            'ru': { 
+                astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
+                // НОВЫЕ ПЕРЕВОДЫ ДЛЯ МАГАЗИНА:
+                shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay'
+            },
+            'en': { 
+                astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
+                shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay'
+            },
+            'es': { 
+                astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
+                shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay'
+            },
+            'fr': { 
+                astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
+                shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay'
+            },
+            'de': { 
+                astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
+                shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay'
+            }
         };
         if (typeof translations !== 'undefined') {
             for (const lang in extraTranslations) {
@@ -2122,16 +2132,15 @@
         async function loadShopItems() {
             const container = document.getElementById('shop-items-container');
             if (!container) return;
-        
+
             const data = await apiRequest("/shop/items", "GET");
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
                 data.items.forEach((item) => {
-                    // Надежная проверка цены, чтобы избежать undefined
                     const rubPrice = item.price_rub || item.price_usd || 0; 
                     const starsPrice = item.price_stars || 0;
-        
+                    // ВАЖНО: Вместо "Энергии" пишем ${t('shop_energy')}
                     container.innerHTML += `
                         <div onclick="selectShopItem('${item.id}', ${item.amount}, ${starsPrice}, ${rubPrice})" 
                             class="bg-[#1c1c24] border border-white/5 hover:border-white/10 rounded-[24px] p-4 mb-3 flex items-center justify-between active:scale-95 transition-all cursor-pointer group">
@@ -2142,7 +2151,7 @@
                                 </div>
                                 <div>
                                     <p class="text-white text-xl font-bold leading-none">${item.amount}</p>
-                                    <p class="text-white/40 text-[10px] uppercase tracking-wider font-bold mt-1">Энергии</p>
+                                    <p class="text-white/40 text-[10px] uppercase tracking-wider font-bold mt-1">${t('shop_energy')}</p>
                                 </div>
                             </div>
                             
@@ -2156,26 +2165,24 @@
                 container.innerHTML = `<div class="text-center py-20 text-white/30 text-sm">Витрина пуста...</div>`;
             }
         }
-
+    
         function selectShopItem(id, amount, stars, rub) {
-            // Вставляем правильные цифры в HTML-модалку
             document.getElementById('purchase-price-rub').textContent = `${rub} ₽`;
-            document.getElementById('purchase-price-stars').innerHTML = `или ${stars} <i class="ph-fill ph-star"></i>`;
+            // ВАЖНО: Вместо "или" пишем ${t('modal_or')}
+            document.getElementById('purchase-price-stars').innerHTML = `${t('modal_or')} ${stars} <i class="ph-fill ph-star"></i>`;
             document.getElementById('label-stars').textContent = stars;
             document.getElementById('label-rub').textContent = rub;
         
-            // Назначаем кнопкам правильные ID товара
             document.getElementById('btn-pay-stars').onclick = () => {
-                closeAllModals(); // Закрываем модалку
-                buyEnergy(id, stars); // Вызываем твою старую функцию покупки за звезды
+                closeAllModals();
+                buyEnergy(id, stars);
             };
             
             document.getElementById('btn-pay-rub').onclick = () => {
-                closeAllModals(); // Закрываем модалку
-                buyEnergyRub(id); // Вызываем новую функцию покупки картой
+                closeAllModals();
+                buyEnergyRub(id);
             };
         
-            // Показываем саму модалку
             openModal('purchase');
         }
 
@@ -3736,38 +3743,29 @@
     
         async function selectLanguage(code, nameStr) {
             activeLanguage = code;
-            
-            // СБРАСЫВАЕМ КЭШ ПРИ СМЕНЕ ЯЗЫКА!
             window.planetCache = {}; 
             dailyCardDataCache = null;
-
             document.querySelectorAll('.language-check').forEach(check => { 
                 check.classList.toggle('hidden', check.dataset.lang !== code); 
             });
-            
             updateLanguageDisplay(code);
-            updateInterfaceTranslations();
+            updateInterfaceTranslations(); // <--- переведет модалку
             updateDynamicDates();
             updateChatChips();
             updateZodiacUI(window.userBirthDate); 
-
             if (dailyCardDataCache && currentElementData) {
                 const elNode = document.getElementById('stat-element');
                 if (elNode) elNode.textContent = currentElementData[code] || currentElementData['en'];
             }
-            
             showToast(t('toast_lang_changed') || 'Language changed', 'ph-globe');
             setTimeout(closeAllModals, 300);
             updateCustomMonthLanguage();
-        
-            // 1. Сохраняем новый язык на бэкенд
             await apiRequest("/profile/update", "POST", { language_code: code });
             
-            // 🛠 2. СРАЗУ перезапрашиваем календарь, чтобы он подгрузил нужный кусок JSON!
+            // ОБНОВЛЯЕМ ВСЕ ДАННЫЕ
             loadLunarCalendar();
-            
-            // 🛠 3. И ПЕРЕЗАПРАШИВАЕМ РАСКЛАДЫ, чтобы обновились их названия и описания!
             loadSpreads();
+            loadShopItems(); // <--- ВОТ ЭТО ДОБАВИЛ! (Перерисует слово "Энергия" в списке)
         }
     
         let toastTimeout; // Глобальная переменная для хранения таймера
