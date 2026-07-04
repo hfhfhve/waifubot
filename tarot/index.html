@@ -1612,6 +1612,70 @@
         </div>
     </div>
 
+    <div id="modal-purchase" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[70]">
+        <div class="glass-strong bg-[#131315] rounded-t-[32px] pb-8 flex flex-col px-5">
+            <!-- Ползунок -->
+            <div class="flex justify-center pt-3 pb-5">
+                <div class="w-10 h-1.5 bg-white/10 rounded-full"></div>
+            </div>
+    
+            <!-- Заголовок -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-white text-2xl font-bold tracking-tight">Покупка</h3>
+                    <p class="text-white/50 text-xs mt-0.5">Безопасная транзакция</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-br from-[#1a1a24] to-[#101014] rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                    <i class="ph-fill ph-shopping-bag text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]"></i>
+                </div>
+            </div>
+    
+            <!-- Плашка 'К оплате' -->
+            <div class="bg-[#1c1c24] border border-white/5 rounded-2xl p-5 mb-5 flex justify-between items-center shadow-lg">
+                <span class="text-white/60 text-sm font-medium">К оплате:</span>
+                <div class="text-right">
+                    <p id="purchase-price-rub" class="text-white text-2xl font-black leading-none tracking-tight">0 ₽</p>
+                    <p id="purchase-price-stars" class="text-amber-400 text-xs font-bold mt-1.5">или 0 <i class="ph-fill ph-star"></i></p>
+                </div>
+            </div>
+    
+            <!-- Кнопки оплаты -->
+            <div class="space-y-3">
+                <!-- Кнопка Telegram Stars -->
+                <button id="btn-pay-stars" class="w-full bg-[#1c1c24] border border-white/5 hover:border-amber-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl border border-amber-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-star"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base">Telegram Stars</p>
+                            <p class="text-white/40 text-xs mt-0.5">Моментально</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-400 font-bold text-sm flex items-center gap-1">
+                        <span id="label-stars">0</span> <i class="ph-fill ph-star text-xs"></i>
+                    </div>
+                </button>
+    
+                <!-- Кнопка Банковская карта -->
+                <button id="btn-pay-rub" class="w-full bg-[#1c1c24] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-credit-card"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base">Банковская карта</p>
+                            <p class="text-white/40 text-xs mt-0.5">РФ, СБП, SberPay</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 font-bold text-sm">
+                        <span id="label-rub">0</span> ₽
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ASTRO / NATAL MODAL -->
     <div id="modal-astro-form" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
         <div class="glass-strong rounded-t-[32px] max-h-[85vh] overflow-hidden flex flex-col">
@@ -2060,61 +2124,59 @@
             if (!container) return;
         
             const data = await apiRequest("/shop/items", "GET");
-            
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
                 data.items.forEach((item) => {
-                    // Определяем название набора в зависимости от количества (для красоты)
-                    let tierName = "Starter";
-                    let tierDesc = "НАБОР НОВИЧКА";
-                    if (item.amount >= 500) { tierName = "Oracle"; tierDesc = "СИЛА ПРОВИДЦА"; }
-                    if (item.amount >= 1000) { tierName = "Cosmic"; tierDesc = "ЭНЕРГИЯ ВСЕЛЕННОЙ"; }
+                    // Надежная проверка цены, чтобы избежать undefined
+                    const rubPrice = item.price_rub || item.price_usd || 0; 
+                    const starsPrice = item.price_stars || 0;
         
-                    const itemHTML = `
-                        <div class="bg-[#0f0f13] border border-white/5 rounded-[32px] p-6 mb-5 shadow-2xl relative overflow-hidden">
-                            <!-- Хедер карточки -->
-                            <div class="flex items-center gap-4 mb-6">
-                                <div class="w-14 h-14 bg-[#16161a] rounded-[18px] flex items-center justify-center border border-white/10 shadow-inner">
-                                    <i class="ph-fill ph-package text-3xl text-white/80"></i>
+                    container.innerHTML += `
+                        <div onclick="selectShopItem('${item.id}', ${item.amount}, ${starsPrice}, ${rubPrice})" 
+                            class="bg-[#1c1c24] border border-white/5 hover:border-white/10 rounded-[24px] p-4 mb-3 flex items-center justify-between active:scale-95 transition-all cursor-pointer group">
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-space-700 to-space-800 rounded-xl flex items-center justify-center border border-white/5 shadow-inner group-hover:scale-105 transition-transform">
+                                    <i class="ph-fill ph-lightning text-2xl text-neon-amber"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-white text-2xl font-bold tracking-tight leading-none">${tierName}</h3>
-                                    <p class="text-white/30 text-[9px] font-black uppercase tracking-[0.15em] mt-1.5">${tierDesc}</p>
+                                    <p class="text-white text-xl font-bold leading-none">${item.amount}</p>
+                                    <p class="text-white/40 text-[10px] uppercase tracking-wider font-bold mt-1">Энергии</p>
                                 </div>
                             </div>
-        
-                            <!-- Плитки ресурсов -->
-                            <div class="grid grid-cols-1 gap-3 mb-6">
-                                <div class="bg-[#16161a] rounded-[22px] py-4 px-2 text-center border border-white/5 relative group">
-                                    <p class="text-4xl text-white font-black tracking-tighter">${item.amount}</p>
-                                    <p class="text-neon-amber text-[10px] font-bold uppercase mt-1 flex items-center justify-center gap-1.5">
-                                        <i class="ph-fill ph-lightning"></i> Энергии
-                                    </p>
-                                </div>
-                            </div>
-        
-                            <!-- Кнопки оплаты -->
-                            <div class="grid grid-cols-2 gap-3">
-                                <!-- Оплата картой (Циан) -->
-                                <button onclick="buyEnergyRub('${item.id}')" 
-                                    class="bg-transparent border-2 border-cyan-500/40 hover:border-cyan-500/80 text-cyan-400 py-3.5 rounded-[18px] font-black text-sm transition-all active:scale-95 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                                    ${item.price_rub} ₽
-                                </button>
-        
-                                <!-- Оплата звездами (Золото) -->
-                                <button onclick="buyEnergy('${item.id}', ${item.price_stars})" 
-                                    class="bg-transparent border-2 border-amber-500/40 hover:border-amber-500/80 text-amber-400 py-3.5 rounded-[18px] font-black text-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                                    ${item.price_stars} <i class="ph-fill ph-star text-base"></i>
-                                </button>
+                            
+                            <div class="bg-[#131315] px-4 py-2.5 rounded-xl border border-white/5 shadow-inner">
+                                <span class="text-white font-bold text-sm">${rubPrice} ₽</span>
                             </div>
                         </div>
                     `;
-                    container.innerHTML += itemHTML;
                 });
             } else {
-                container.innerHTML = `<div class="text-center py-20 text-white/20 font-bold uppercase tracking-widest text-xs">Витрина пуста</div>`;
+                container.innerHTML = `<div class="text-center py-20 text-white/30 text-sm">Витрина пуста...</div>`;
             }
+        }
+
+        function selectShopItem(id, amount, stars, rub) {
+            // Вставляем правильные цифры в HTML-модалку
+            document.getElementById('purchase-price-rub').textContent = `${rub} ₽`;
+            document.getElementById('purchase-price-stars').innerHTML = `или ${stars} <i class="ph-fill ph-star"></i>`;
+            document.getElementById('label-stars').textContent = stars;
+            document.getElementById('label-rub').textContent = rub;
+        
+            // Назначаем кнопкам правильные ID товара
+            document.getElementById('btn-pay-stars').onclick = () => {
+                closeAllModals(); // Закрываем модалку
+                buyEnergy(id, stars); // Вызываем твою старую функцию покупки за звезды
+            };
+            
+            document.getElementById('btn-pay-rub').onclick = () => {
+                closeAllModals(); // Закрываем модалку
+                buyEnergyRub(id); // Вызываем новую функцию покупки картой
+            };
+        
+            // Показываем саму модалку
+            openModal('purchase');
         }
 
         async function buyEnergyRub(itemId) {
