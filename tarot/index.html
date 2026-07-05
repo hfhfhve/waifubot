@@ -582,6 +582,55 @@
         </div>
     </div>
 
+    <div id="modal-buy-spread" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[80]">
+        <div class="glass-strong bg-[#131315] rounded-t-[32px] pb-8 flex flex-col px-5">
+            <div class="flex justify-center pt-3 pb-5">
+                <div class="w-10 h-1.5 bg-white/10 rounded-full"></div>
+            </div>
+    
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-neon-indigo/20 to-neon-purple/20 flex items-center justify-center text-neon-indigo text-3xl mx-auto mb-3 border border-neon-indigo/30 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                    <i class="ph-fill ph-cards"></i>
+                </div>
+                <h3 class="text-white text-xl font-bold tracking-tight mb-1" data-i18n="modal_unlock_spread">Открыть расклад</h3>
+                <p id="buy-spread-title" class="text-neon-indigo font-mystic text-2xl font-bold leading-tight drop-shadow-md">Название</p>
+                <p class="text-white/50 text-xs mt-2 mx-auto max-w-[250px]" data-i18n="modal_unlock_desc">После оплаты расклад начнется автоматически. Ваш вопрос уже сохранен.</p>
+            </div>
+    
+            <div class="space-y-3">
+                <button onclick="payForSpreadStars()" class="w-full bg-[#1c1c24] border border-white/5 hover:border-amber-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl border border-amber-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-star"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base">Telegram Stars</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_instant">Моментально</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-400 font-bold text-sm flex items-center gap-1">
+                        <span id="buy-spread-stars-price">0</span> <i class="ph-fill ph-star text-xs"></i>
+                    </div>
+                </button>
+    
+                <button onclick="payForSpreadRub()" class="w-full bg-[#1c1c24] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-credit-card"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base" data-i18n="modal_card">Банковская карта</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_card_desc">РФ, СБП, SberPay</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 font-bold text-sm">
+                        <span id="buy-spread-rub-price">0</span> <span class="currency-symbol">₽</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== 2. РАСКЛАДЫ (SPREADS) ==================== -->
     <div id="screen-spreads" class="screen hidden flex-1 overflow-y-auto pb-24 hide-scrollbar">
         <div class="px-5 pt-8 pb-4">
@@ -1818,31 +1867,41 @@
   <script>
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
-            'ru': { 
+        'ru': { 
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
-                // НОВЫЕ ПЕРЕВОДЫ ДЛЯ МАГАЗИНА:
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
-                astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.'
+                astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
+                // НОВЫЕ КЛЮЧИ ДЛЯ МОДАЛКИ ПОКУПКИ РАСКЛАДА:
+                modal_unlock_spread: 'Открыть расклад',
+                modal_unlock_desc: 'После оплаты расклад начнется автоматически. Ваш вопрос уже сохранен.'
             },
             'en': { 
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
-                astro_hint: 'Click on any card for a detailed interpretation from the Oracle.'
+                astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
+                modal_unlock_spread: 'Unlock Spread',
+                modal_unlock_desc: 'After payment, the spread will start automatically. Your question is saved.'
             },
             'es': { 
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
-                astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.'
+                astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
+                modal_unlock_spread: 'Desbloquear Tirada',
+                modal_unlock_desc: 'Tras el pago, la tirada comenzará automáticamente. Tu pregunta está guardada.'
             },
             'fr': { 
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
-                stro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.'
+                astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.', // <- тут я исправил тебе опечатку
+                modal_unlock_spread: 'Débloquer le Tirage',
+                modal_unlock_desc: 'Après le paiement, le tirage commencera automatiquement. Votre question est sauvegardée.'
             },
             'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
-                astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.'
+                astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
+                modal_unlock_spread: 'Legung freischalten',
+                modal_unlock_desc: 'Nach der Zahlung startet die Legung automatisch. Deine Frage ist gespeichert.'
             }
         };
 
@@ -2639,6 +2698,22 @@
                             createdAtEl.dataset.rawDate = data.created_at; // <-- ДОБАВИТЬ ЭТО
                             const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long' });
                             createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
+                        }
+                    }
+                    const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
+                    if (pendingSpreadStr) {
+                        const pendingData = JSON.parse(pendingSpreadStr);
+                        
+                        // Если энергия пришла — автоматически запускаем!
+                        if (userBalance.energy >= pendingData.energyNeeded) {
+                            localStorage.removeItem('pending_spread_payment'); // Очищаем
+                            
+                            // Подготавливаем стол
+                            selectSpread(pendingData.spreadType); 
+                            document.getElementById('tarot-user-question').value = pendingData.question;
+                            
+                            // Сразу жмем "Вытянуть карты" за него
+                            setTimeout(() => startAutomatedRitual(), 500);
                         }
                     }
                     if (data.language_code) {
@@ -3499,8 +3574,8 @@
             // Проверяем баланс
             const numericPrice = currentSpread.price === t('free') ? 0 : parseInt(currentSpread.price);
             if (userBalance.energy < numericPrice) {
-                showToast(t('toast_no_energy'), "ph-lightning text-neon-amber");
-                navigateTo('shop');
+                // ВМЕСТО ПЕРЕБРОСА В МАГАЗИН ОТКРЫВАЕМ НОВУЮ МОДАЛКУ
+                openBuySpreadModal(numericPrice);
                 return;
             }
     
@@ -3527,6 +3602,65 @@
     
             // Сразу запускаем анализ (чтобы не терять время, пока идет анимация)
             await executeSpreadAnalysis();
+        }
+
+        function openBuySpreadModal(energyPrice) {
+            // Расчет цены по твоей формуле
+            const starsPrice = energyPrice * 4;
+            const rubPrice = ((energyPrice * 2) - 0.01).toFixed(2); // 15.99
+
+            document.getElementById('buy-spread-title').textContent = document.getElementById('table-spread-name').textContent;
+            document.getElementById('buy-spread-stars-price').textContent = starsPrice;
+            document.getElementById('buy-spread-rub-price').textContent = rubPrice;
+
+            // Сохраняем состояние, чтобы продолжить после оплаты
+            localStorage.setItem('pending_spread_payment', JSON.stringify({
+                spreadType: currentSpread.type,
+                question: document.getElementById('tarot-user-question').value.trim(),
+                energyNeeded: energyPrice
+            }));
+
+            openModal('buy-spread');
+        }
+
+        async function payForSpreadStars() {
+            showToast(t('toast_wait'), "ph-spinner animate-spin");
+            // Вызываем новый эндпоинт
+            const data = await apiRequest("/shop/invoice-direct-spread", "POST", { spread_id: currentSpread.type });
+            
+            if (data.success && data.invoice_url) {
+                tg.openInvoice(data.invoice_url, function(status) {
+                    if (status === 'paid') {
+                        closeAllModals();
+                        showToast("Оплачено! Карты уже перемешиваются...", "ph-sparkle");
+                        
+                        // Ждем 2.5 сек, пока бэкенд обработает вебхук и начислит энергию
+                        setTimeout(async () => {
+                            const userData = await apiRequest("/get-user");
+                            if (userData.success) {
+                                userBalance.energy = userData.energy;
+                                updateBalanceUI();
+                                // АВТОЗАПУСК РАСКЛАДА!
+                                startAutomatedRitual(); 
+                            }
+                        }, 2500);
+                    }
+                });
+            } else {
+                showToast(t('toast_error'), "ph-warning-circle");
+            }
+        }
+
+        async function payForSpreadRub() {
+            showToast(t('toast_wait'), "ph-spinner animate-spin");
+            const data = await apiRequest("/shop/invoice-direct-spread-rub", "POST", { spread_id: currentSpread.type });
+            
+            if (data.success && data.invoice_url) {
+                hideToast();
+                tg.openLink(data.invoice_url); // Откроется Юкасса. При возврате приложение перезагрузится.
+            } else {
+                showToast(t('toast_error'), "ph-warning-circle");
+            }
         }
     
         async function executeSpreadAnalysis() {
