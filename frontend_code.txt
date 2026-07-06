@@ -8200,17 +8200,28 @@ const astroDescriptions = {
 
     <div id="modal-buy-spread" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[80]">
         <div class="glass-strong bg-[#131315] rounded-t-[32px] pb-8 flex flex-col px-5">
-            <div class="flex justify-center pt-3 pb-5">
+            <div class="flex justify-center pt-3 pb-4">
                 <div class="w-10 h-1.5 bg-white/10 rounded-full"></div>
             </div>
     
             <div class="text-center mb-6">
+                <!-- КРАСНЫЙ БЕЙДЖ НЕХВАТКИ ЭНЕРГИИ -->
+                <div class="inline-flex items-center gap-1.5 bg-neon-rose/10 border border-neon-rose/30 text-neon-rose px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 shadow-[0_0_15px_rgba(251,113,133,0.2)]">
+                    <i class="ph-fill ph-lightning"></i>
+                    <span data-i18n="modal_no_energy_badge">Недостаточно энергии</span>
+                </div>
+
                 <div class="w-16 h-16 rounded-full bg-gradient-to-br from-neon-indigo/20 to-neon-purple/20 flex items-center justify-center text-neon-indigo text-3xl mx-auto mb-3 border border-neon-indigo/30 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                     <i class="ph-fill ph-cards"></i>
                 </div>
+                
                 <h3 class="text-white text-xl font-bold tracking-tight mb-1" data-i18n="modal_unlock_spread">Открыть расклад</h3>
-                <p id="buy-spread-title" class="text-neon-indigo font-mystic text-2xl font-bold leading-tight drop-shadow-md">Название</p>
-                <p class="text-white/50 text-xs mt-2 mx-auto max-w-[250px]" data-i18n="modal_unlock_desc">После оплаты расклад начнется автоматически. Ваш вопрос уже сохранен.</p>
+                <p id="buy-spread-title" class="text-neon-indigo font-mystic text-2xl font-bold leading-tight drop-shadow-md mb-2">Название</p>
+                
+                <!-- НОВОЕ ОПИСАНИЕ С АКЦЕНТОМ НА ВЫГОДУ -->
+                <p class="text-white/60 text-xs mx-auto max-w-[280px] leading-relaxed" data-i18n="modal_unlock_desc">
+                    Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!
+                </p>
             </div>
     
             <div class="space-y-3">
@@ -9483,41 +9494,46 @@ const astroDescriptions = {
   <script>
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
-        'ru': { 
+            'ru': { 
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
                 astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
-                // НОВЫЕ КЛЮЧИ ДЛЯ МОДАЛКИ ПОКУПКИ РАСКЛАДА:
+                // МОДАЛКА ПРЯМОЙ ПОКУПКИ:
+                modal_no_energy_badge: 'Недостаточно энергии',
                 modal_unlock_spread: 'Открыть расклад',
-                modal_unlock_desc: 'После оплаты расклад начнется автоматически. Ваш вопрос уже сохранен.'
+                modal_unlock_desc: 'Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!'
             },
             'en': { 
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
                 astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
+                modal_no_energy_badge: 'Not enough energy',
                 modal_unlock_spread: 'Unlock Spread',
-                modal_unlock_desc: 'After payment, the spread will start automatically. Your question is saved.'
+                modal_unlock_desc: 'No need to buy a huge pack in the store! You can pay for <b>just this spread</b>. It will start automatically.'
             },
             'es': { 
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
                 astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
+                modal_no_energy_badge: 'Energía insuficiente',
                 modal_unlock_spread: 'Desbloquear Tirada',
-                modal_unlock_desc: 'Tras el pago, la tirada comenzará automáticamente. Tu pregunta está guardada.'
+                modal_unlock_desc: '¡No es necesario comprar un paquete grande! Puedes pagar <b>solo por esta tirada</b>. Comenzará automáticamente.'
             },
             'fr': { 
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
-                astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.', // <- тут я исправил тебе опечатку
+                astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.',
+                modal_no_energy_badge: 'Énergie insuffisante',
                 modal_unlock_spread: 'Débloquer le Tirage',
-                modal_unlock_desc: 'Après le paiement, le tirage commencera automatiquement. Votre question est sauvegardée.'
+                modal_unlock_desc: 'Pas besoin d\'acheter un gros pack ! Vous pouvez payer pour <b>ce tirage uniquement</b>. Il commencera automatiquement.'
             },
             'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
                 astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
+                modal_no_energy_badge: 'Nicht genug Energie',
                 modal_unlock_spread: 'Legung freischalten',
-                modal_unlock_desc: 'Nach der Zahlung startet die Legung automatisch. Deine Frage ist gespeichert.'
+                modal_unlock_desc: 'Du musst kein großes Paket kaufen! Bezahle einfach für <b>nur diese Legung</b>. Sie startet automatisch.'
             }
         };
 
