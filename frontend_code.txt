@@ -8735,32 +8735,32 @@ const astroDescriptions = {
 
             <!-- Stats Cards (Темное стекло) -->
             <div class="grid grid-cols-2 gap-3 mb-5">
+                
+                <!-- 1. Карточка ПОДРЯД -->
                 <div class="glass bg-space-800 rounded-[20px] p-4 flex items-center gap-3 border border-white/5">
                     <div class="w-10 h-10 rounded-full bg-neon-rose/10 text-neon-rose flex items-center justify-center text-xl shrink-0 border border-neon-rose/20">
                         <i class="ph-fill ph-fire"></i>
                     </div>
-                    <div>
-                        <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5" data-i18n="prof_streak">ПОДРЯД</p>
-                        <p class="text-white font-bold text-sm">
+                    <div class="min-w-0">
+                        <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5 truncate" data-i18n="prof_streak">ПОДРЯД</p>
+                        <p class="text-white font-bold text-sm truncate">
                             <span id="profile-streak-count">0</span> 
                             <span id="profile-streak-word" class="font-normal text-xs text-white/40" data-i18n="days">дней</span>
                         </p>
                     </div>
                 </div>
-                <div class="glass bg-space-800 rounded-[20px] p-4 flex items-center gap-3 relative border border-white/5">
-                    <div class="w-10 h-10 rounded-full bg-neon-amber/10 text-neon-amber flex items-center justify-center text-xl shrink-0 border border-neon-amber/20">
-                        <i class="ph-fill ph-lightning"></i>
+                
+                <!-- 2. Кликабельная карточка БАЛАНС -->
+                <button onclick="navigateTo('shop')" class="w-full text-left glass bg-space-800 rounded-[20px] p-4 flex items-center gap-3 relative border border-white/5 hover:border-neon-amber/30 active:scale-95 transition-all group shadow-sm overflow-hidden">
+                    <div class="w-10 h-10 rounded-full bg-neon-amber/10 text-neon-amber flex items-center justify-center text-xl shrink-0 border border-neon-amber/20 group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-lightning drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]"></i>
                     </div>
-                    <button onclick="navigateTo('shop')" class="w-full text-left glass bg-space-800 rounded-[20px] p-4 flex items-center gap-3 relative border border-white/5 hover:border-neon-amber/30 active:scale-95 transition-all group shadow-sm">
-                        <div class="w-10 h-10 rounded-full bg-neon-amber/10 text-neon-amber flex items-center justify-center text-xl shrink-0 border border-neon-amber/20 group-hover:scale-110 transition-transform">
-                            <i class="ph-fill ph-lightning drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]"></i>
-                        </div>
-                        <div>
-                            <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5" data-i18n="prof_balance">БАЛАНС</p>
-                            <p class="text-white font-bold text-sm"><span id="profile-star-balance">0</span> <span class="font-normal text-xs text-white/40">✦</span></p>
-                        </div>
-                    </button>
-                </div>
+                    <div class="min-w-0">
+                        <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-0.5 truncate" data-i18n="prof_balance">БАЛАНС</p>
+                        <p class="text-white font-bold text-sm truncate"><span id="profile-star-balance">0</span> <span class="font-normal text-xs text-white/40">✦</span></p>
+                    </div>
+                </button>
+
             </div>
 
             <!-- Замена блоку "Пригласи друзей" - Кнопка Реферальной программы -->
