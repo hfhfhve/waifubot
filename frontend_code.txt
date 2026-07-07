@@ -8597,32 +8597,36 @@ const astroDescriptions = {
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.05),_transparent_70%)] pointer-events-none"></div>
     
         <!-- 1. НОВАЯ АККУРАТНАЯ ШАПКА (Стиль как у конкурента, но в космосе) -->
-        <div class="h-[70px] bg-[#03030b] px-5 flex items-center justify-between border-b border-white/5 z-50 shrink-0">
+        <div class="h-[70px] bg-[#03030b] px-4 flex items-center justify-between border-b border-white/5 z-50 shrink-0">
             <div class="flex items-center gap-3">
-                <!-- Аватарка поменьше и почетче -->
-                <div class="relative w-10 h-10 rounded-full bg-gradient-to-br from-neon-indigo/40 to-neon-purple/40 p-[1px]">
+                <!-- Кнопка Назад -->
+                <button onclick="navigateTo('home')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/10">
+                    <i class="ph-bold ph-caret-left text-lg"></i>
+                </button>
+                
+                <!-- Аватарка -->
+                <div class="relative w-9 h-9 rounded-full bg-gradient-to-br from-neon-indigo/40 to-neon-purple/40 p-[1px]">
                     <div class="w-full h-full bg-space-900 rounded-full flex items-center justify-center">
-                        <i class="ph-fill ph-sparkle text-neon-indigo text-lg"></i>
+                        <i class="ph-fill ph-sparkle text-neon-indigo text-base"></i>
                     </div>
                     <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-space-900"></div>
                 </div>
                 <div>
-                    <p class="text-white text-base font-bold tracking-tight">Вселенский Оракул</p>
+                    <p class="text-white text-sm font-bold tracking-tight">Вселенский Оракул</p>
                     <p class="text-white/40 text-[10px] font-medium flex items-center gap-1">
                         <span class="w-1 h-1 bg-neon-amber rounded-full animate-pulse"></span>
-                        1 энергия за сообщение
+                        В сети
                     </p>
                 </div>
             </div>
             
-            <!-- Кнопка очистки — сделаем как "Новый чат" -->
-            <button onclick="openModal('delete_chat')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white/60 active:scale-95 transition-all">
-                <i class="ph-bold ph-trash text-sm"></i>
-                <span class="text-[10px] font-bold uppercase tracking-wider">Очистить</span>
+            <!-- Очистить (Корзина) -->
+            <button onclick="openModal('delete_chat')" class="flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 active:scale-95 transition-all">
+                <i class="ph-bold ph-trash text-base"></i>
             </button>
         </div>
     
-        <!-- 2. ЗОНА СООБЩЕНИЙ (Более чистая) -->
+        <!-- 2. ЗОНА СООБЩЕНИЙ -->
         <div id="chat-scroll-wrapper" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col px-4 pt-4 pb-2 scroll-smooth z-10 relative">
             <div id="messages-container" class="space-y-4 flex flex-col justify-end">
                 <!-- Сообщения будут вставляться через JS -->
@@ -8638,17 +8642,24 @@ const astroDescriptions = {
             </div>
         </div>
     
-        <!-- 3. ЗОНА ВВОДА (Минимализм) -->
-        <div class="shrink-0 z-50 bg-space-900/80 backdrop-blur-md pt-3 pb-[100px] px-4 relative border-t border-white/5">
-            <div class="flex items-end gap-2 w-full max-w-[500px] mx-auto relative">
-                <div class="flex-1 bg-white/5 border border-white/10 rounded-2xl min-h-[48px] flex items-center px-4 transition-all focus-within:border-neon-indigo/30">
-                    <textarea id="message-input" rows="1" placeholder="Напиши сообщение..." maxlength="1000" 
-                        class="w-full bg-transparent text-white text-sm placeholder-white/20 outline-none resize-none hide-scrollbar py-3"
-                        oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px';"
-                        onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
-                </div>
-                <button onclick="sendMessage()" class="w-12 h-12 shrink-0 rounded-2xl bg-neon-indigo flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-neon-indigo/20">
-                    <i class="ph-fill ph-paper-plane-right text-white text-xl"></i>
+        <!-- 3. ЗОНА ВВОДА (Стекло + Встроенная кнопка) -->
+        <div class="shrink-0 z-50 bg-[#03030b]/80 backdrop-blur-xl pt-2 border-t border-white/5" style="padding-bottom: calc(16px + env(safe-area-inset-bottom));">
+            <!-- Капсула ввода -->
+            <div class="relative w-[calc(100%-32px)] max-w-[500px] mx-auto flex items-end bg-white/5 border border-white/10 rounded-[24px] p-1.5 focus-within:border-neon-indigo/40 focus-within:bg-white/10 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                
+                <!-- Текстовое поле -->
+                <textarea id="message-input" rows="1" placeholder="Задай вопрос Оракулу..." maxlength="1000" 
+                    class="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none resize-none hide-scrollbar py-2.5 px-3 min-h-[44px]"
+                    oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px';"
+                    onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                
+                <!-- Кнопка отправки с индикатором энергии -->
+                <button onclick="sendMessage()" class="w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-neon-indigo/20 relative ml-1 mb-0.5 group">
+                    <i class="ph-fill ph-paper-plane-right text-white text-lg relative -left-0.5 group-hover:scale-110 transition-transform"></i>
+                    <!-- Крошечный бейдж с молнией (стоимость) -->
+                    <div class="absolute -top-1 -right-1 bg-space-900 border border-neon-amber/50 rounded-full w-[18px] h-[18px] flex items-center justify-center shadow-sm">
+                        <i class="ph-fill ph-lightning text-neon-amber text-[9px]"></i>
+                    </div>
                 </button>
             </div>
         </div>
@@ -10776,7 +10787,7 @@ const astroDescriptions = {
             });
     
             const bottomNavWrapper = document.getElementById('bottom-nav-wrapper');
-            if (tab === 'tarot-table') {
+            if (tab === 'tarot-table' || tab === 'chats') {
                 bottomNavWrapper.classList.add('hidden');
             } else {
                 bottomNavWrapper.classList.remove('hidden');
