@@ -10823,7 +10823,6 @@ const astroDescriptions = {
             const modal = document.getElementById('modal-daily-card');
             modal.classList.remove('hidden');
             
-            // Синхронизируем название фазы луны с главной страницы
             const mainLunarPhase = document.getElementById('lunar-phase-type');
             if (mainLunarPhase) {
                 document.getElementById('modal-lunar-phase').textContent = mainLunarPhase.textContent;
@@ -10832,12 +10831,19 @@ const astroDescriptions = {
             setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
         
             if (dailyCardDataCache) {
-                setupOpenedCardUI(dailyCardDataCache);
+                // Если по какой-то причине текста нет (баг), заставляем ИИ сгенерировать его сейчас
+                if (dailyCardDataCache.interpretation === "..." || !dailyCardDataCache.interpretation) {
+                    document.getElementById('modal-daily-placeholder').classList.add('hidden');
+                    document.getElementById('daily-result-block').classList.add('hidden');
+                    document.getElementById('daily-reading-loader').classList.remove('hidden');
+                    processDailyCard();
+                } else {
+                    setupOpenedCardUI(dailyCardDataCache);
+                }
             } else {
+                // Если карты или текста еще нет - показываем кнопку "Вытянуть карту"
                 document.getElementById('modal-daily-placeholder').classList.remove('hidden');
                 document.getElementById('daily-result-block').classList.add('hidden');
-                
-                // Сбрасываем 3D карту при новом открытии
                 document.getElementById('daily-modal-card-3d').classList.remove('flipped');
             }
         }
