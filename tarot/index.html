@@ -487,7 +487,7 @@
                         <p id="current-date-display" class="text-[10px] uppercase tracking-widest font-bold text-white">Загрузка...</p>
                     </div>
                     <h1 class="text-white text-3xl font-mystic font-bold leading-tight drop-shadow-md">
-                        <span data-i18n="home_ready">Звезды готовы,</span><br><span class="italic text-white/90" data-i18n="home_wanderer">Странник</span>
+                        <span data-i18n="home_ready">Звезды готовы,</span><br><span id="home-wanderer-text" class="italic text-white/90">Странник</span>
                     </h1>
                 </div>
                 <button onclick="navigateTo('shop')" class="flex items-center gap-1.5 glass bg-white/5 px-3 py-2 rounded-2xl active:scale-95 transition-transform">
@@ -1881,42 +1881,41 @@
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
                 astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
-                // МОДАЛКА ПРЯМОЙ ПОКУПКИ:
-                modal_no_energy_badge: 'Недостаточно энергии',
-                modal_unlock_spread: 'Открыть расклад',
-                modal_unlock_desc: 'Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!'
+                modal_no_energy_badge: 'Недостаточно энергии', modal_unlock_spread: 'Открыть расклад', modal_unlock_desc: 'Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!',
+                energy_day: 'Карта дня', // <-- Заменили Энергию на Карту
+                wanderer_list: ['Странник', 'Путник', 'Искатель', 'Звездная душа', 'Мистик'] // <-- 5 вариантов
             },
             'en': { 
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
                 astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
-                modal_no_energy_badge: 'Not enough energy',
-                modal_unlock_spread: 'Unlock Spread',
-                modal_unlock_desc: 'No need to buy a huge pack in the store! You can pay for <b>just this spread</b>. It will start automatically.'
+                modal_no_energy_badge: 'Not enough energy', modal_unlock_spread: 'Unlock Spread', modal_unlock_desc: 'No need to buy a huge pack in the store! You can pay for <b>just this spread</b>. It will start automatically.',
+                energy_day: 'Card of the Day',
+                wanderer_list: ['Wanderer', 'Traveler', 'Seeker', 'Star Soul', 'Mystic']
             },
             'es': { 
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
                 astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
-                modal_no_energy_badge: 'Energía insuficiente',
-                modal_unlock_spread: 'Desbloquear Tirada',
-                modal_unlock_desc: '¡No es necesario comprar un paquete grande! Puedes pagar <b>solo por esta tirada</b>. Comenzará automáticamente.'
+                modal_no_energy_badge: 'Energía insuficiente', modal_unlock_spread: 'Desbloquear Tirada', modal_unlock_desc: '¡No es necesario comprar un paquete grande! Puedes pagar <b>solo por esta tirada</b>. Comenzará automáticamente.',
+                energy_day: 'Carta del Día',
+                wanderer_list: ['Caminante', 'Viajero', 'Buscador', 'Alma Estelar', 'Místico']
             },
             'fr': { 
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
                 astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.',
-                modal_no_energy_badge: 'Énergie insuffisante',
-                modal_unlock_spread: 'Débloquer le Tirage',
-                modal_unlock_desc: 'Pas besoin d\'acheter un gros pack ! Vous pouvez payer pour <b>ce tirage uniquement</b>. Il commencera automatiquement.'
+                modal_no_energy_badge: 'Énergie insuffisante', modal_unlock_spread: 'Débloquer le Tirage', modal_unlock_desc: 'Pas besoin d\'acheter un gros pack ! Vous pouvez payer pour <b>ce tirage uniquement</b>. Il commencera automatiquement.',
+                energy_day: 'Carte du Jour',
+                wanderer_list: ['Vagabond', 'Voyageur', 'Chercheur', 'Âme Stellaire', 'Mystique']
             },
             'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
                 astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
-                modal_no_energy_badge: 'Nicht genug Energie',
-                modal_unlock_spread: 'Legung freischalten',
-                modal_unlock_desc: 'Du musst kein großes Paket kaufen! Bezahle einfach für <b>nur diese Legung</b>. Sie startet automatisch.'
+                modal_no_energy_badge: 'Nicht genug Energie', modal_unlock_spread: 'Legung freischalten', modal_unlock_desc: 'Du musst kein großes Paket kaufen! Bezahle einfach für <b>nur diese Legung</b>. Sie startet automatisch.',
+                energy_day: 'Karte des Tages',
+                wanderer_list: ['Wanderer', 'Reisender', 'Sucher', 'Sternenseele', 'Mystiker']
             }
         };
 
@@ -1963,7 +1962,8 @@
             }
         }
         let activeTab = 'home';
-        let currentChat = 'oracle'; // ВАЖНО: Теперь по умолчанию всегда Оракул!
+        let currentChat = 'oracle';
+        let currentWandererIndex = Math.floor(Math.random() * 5);
         let isCardFlipped = false;
         let activeLanguage = 'ru';
         let userBalance = { energy: 0, streak: 0 };
@@ -2149,6 +2149,17 @@
                     }
                 }
             });
+        
+            // --- НОВАЯ ЛОГИКА ДЛЯ РАНДОМНОГО ОБРАЩЕНИЯ ---
+            const wandererSpan = document.getElementById('home-wanderer-text');
+            if (wandererSpan) {
+                // Берем массив для текущего языка (или английский как фолбэк)
+                const langData = translations[activeLanguage] || translations['ru'];
+                const list = langData.wanderer_list || translations['en'].wanderer_list;
+                
+                // Подставляем слово по сгенерированному при старте индексу
+                wandererSpan.textContent = list[currentWandererIndex];
+            }
         }
         
         // 👇 ВОТ СЮДА НУЖНО ВСТАВИТЬ НАШ НОВЫЙ СЛОВАРЬ И ФУНКЦИЮ 👇
