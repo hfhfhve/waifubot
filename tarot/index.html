@@ -3448,7 +3448,10 @@
                 iconEl.className = "ph-fill ph-heart text-neon-rose text-2xl animate-pulse-slow";
             }
 
-            // КРАСИВЫЙ ФЕЙКОВЫЙ РЕЗУЛЬТАТ (Так мы заставим ИИ отдавать нам ответ с бэкенда)
+            // 👇 ДОБАВЬ ЭТУ СТРОКУ, чтобы сформировать дату:
+            const partnerDateFormatted = `${y}-${m}-${d}`;
+
+            // Теперь отправляем запрос:
             const data = await apiRequest("/tarot/synastry", "POST", {
                 partner_name: partnerName,
                 partner_date: partnerDateFormatted,
