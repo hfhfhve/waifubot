@@ -8546,11 +8546,11 @@ const astroDescriptions = {
                 
                 <!-- Главный % Совместимости (Теперь по центру, крупный и сочный) -->
                 <div class="relative w-48 h-48 mx-auto flex items-center justify-center mb-10 mt-2">
-                    <!-- Задний фон кольца -->
-                    <div class="absolute inset-0 rounded-full border-[6px] border-white/5 shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"></div>
-                    <!-- Само кольцо SVG -->
                     <svg class="absolute inset-0 w-full h-full transform -rotate-90">
-                        <circle id="synastry-circle" cx="96" cy="96" r="90" fill="none" stroke="#fb7185" stroke-width="6" stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="565" class="transition-all duration-1000 ease-out drop-shadow-[0_0_20px_rgba(251,113,133,0.8)]"></circle>
+                        <!-- Серый полупрозрачный трек (замена багованному div) -->
+                        <circle cx="96" cy="96" r="90" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6"></circle>
+                        <!-- Неоновое кольцо -->
+                        <circle id="synastry-circle" cx="96" cy="96" r="90" fill="none" stroke="#fb7185" stroke-width="6" stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="565" class="transition-all duration-1000 ease-out drop-shadow-[0_0_15px_rgba(251,113,133,0.8)]"></circle>
                     </svg>
                     <!-- Цифры внутри -->
                     <div class="text-center absolute flex flex-col items-center justify-center mt-2">
