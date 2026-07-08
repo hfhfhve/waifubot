@@ -8790,7 +8790,6 @@ const astroDescriptions = {
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-user"></i></div>
                         <span class="text-sm font-medium text-white/90" data-i18n="prof_name">Имя</span>
                     </div>
-                    <!-- Добавили блок с выводом имени -->
                     <div class="flex items-center gap-2">
                         <span id="settings-name-display" class="text-xs text-white/40 font-medium"></span>
                         <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
@@ -8809,20 +8808,7 @@ const astroDescriptions = {
                     </div>
                 </button>
 
-                <div class="glass bg-space-800 rounded-[24px] p-4 flex items-center justify-between border border-white/5 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-neon-indigo/10 flex items-center justify-center text-neon-indigo">
-                            <i class="ph-fill ph-bell"></i>
-                        </div>
-                        <span class="text-sm font-medium text-white/90">Уведомления о карте дня</span>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="notif-toggle" class="sr-only peer" checked onchange="toggleNotifications(this.checked)">
-                        <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-indigo"></div>
-                    </label>
-                </div>
-
-                <!-- Language (Fixed) -->
+                <!-- Language -->
                 <button onclick="openModal('language')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-globe"></i></div>
@@ -8833,7 +8819,22 @@ const astroDescriptions = {
                         <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
                     </div>
                 </button>
+
+                <!-- Notifications (Теперь в едином стиле и на своем месте) -->
+                <div class="w-full flex items-center justify-between p-4 border-b border-white/5 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40">
+                            <i class="ph-fill ph-bell"></i>
+                        </div>
+                        <span class="text-sm font-medium text-white/90" data-i18n="prof_notif">Уведомления о карте дня</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="notif-toggle" class="sr-only peer" onchange="toggleNotifications(this.checked)">
+                        <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-indigo"></div>
+                    </label>
+                </div>
                 
+                <!-- Support -->
                 <button onclick="tg.openTelegramLink('https://t.me/neurotarot_supportbot')" class="w-full flex items-center justify-between p-4 border-b border-white/5 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-headset"></i></div>
@@ -8842,6 +8843,7 @@ const astroDescriptions = {
                     <i class="ph-bold ph-caret-right text-white/30 text-sm"></i>
                 </button>
 
+                <!-- Terms -->
                 <button onclick="tg.openLink('https://telegra.ph/Legal-Documents--Terms-of-Service-Summary-06-01')" class="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40"><i class="ph-fill ph-shield-check"></i></div>
@@ -9543,6 +9545,7 @@ const astroDescriptions = {
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
             'ru': { 
+                prof_notif: 'Уведомления о карте дня',
                 ref_bonus: 'Зови друзей и получай +7 энергии за каждого', ref_remind: 'Напомнить', ref_status_done: 'Награда получена', ref_status_pending: 'Регистрируется', ref_empty: 'Вы еще никого не пригласили', toast_reminded: 'Напоминание отправлено!', toast_remind_limit: 'Можно напоминать 1 раз в 24 часа',
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
@@ -9556,6 +9559,7 @@ const astroDescriptions = {
                 card_back: 'Просто закрыть'
             },
             'en': { 
+                prof_notif: 'Daily Card Notifications',
                 ref_bonus: 'Invite friends and get +7 energy for each', ref_remind: 'Remind', ref_status_done: 'Reward received', ref_status_pending: 'Registering', ref_empty: 'You haven\'t invited anyone yet', toast_reminded: 'Reminder sent!', toast_remind_limit: 'Remind once per 24 hours',
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
@@ -9569,6 +9573,7 @@ const astroDescriptions = {
                 card_back: 'Just close'
             },
             'es': { 
+                prof_notif: 'Notificaciones de Carta Diaria',
                 ref_bonus: 'Invita a amigos y obtén +7 de energía', ref_remind: 'Recordar', ref_status_done: 'Recompensa recibida', ref_status_pending: 'Registrando', ref_empty: 'Aún no has invitado a nadie', toast_reminded: '¡Recordatorio enviado!', toast_remind_limit: 'Recordar una vez cada 24h',
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
@@ -9582,6 +9587,7 @@ const astroDescriptions = {
                 card_back: 'Simplemente cerrar'
             },
             'fr': { 
+                prof_notif: 'Notifications de Carte du Jour',
                 ref_bonus: 'Invitez des amis, obtenez +7 d\'énergie', ref_remind: 'Rappeler', ref_status_done: 'Récompense reçue', ref_status_pending: 'En cours', ref_empty: 'Vous n\'avez invité personne', toast_reminded: 'Rappel envoyé !', toast_remind_limit: 'Rappel une fois par 24h',
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
@@ -9594,7 +9600,8 @@ const astroDescriptions = {
                 discuss_card_prompt: 'Je veux discuter en profondeur de ma carte du jour. Quelles leçons dois-je en tirer aujourd\'hui ?',
                 card_back: 'Juste fermer'
             },
-            'de': { 
+            'de': {   
+                prof_notif: 'Tageskarte Benachrichtigungen',
                 ref_bonus: 'Freunde einladen, +7 Energie erhalten', ref_remind: 'Erinnern', ref_status_done: 'Belohnung erhalten', ref_status_pending: 'Registriert sich', ref_empty: 'Noch niemanden eingeladen', toast_reminded: 'Erinnerung gesendet!', toast_remind_limit: 'Nur einmal pro 24h erinnern',
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
@@ -10585,6 +10592,10 @@ const astroDescriptions = {
                             // Сразу жмем "Вытянуть карты" за него
                             setTimeout(() => startAutomatedRitual(), 500);
                         }
+                    }
+                    if (data.hasOwnProperty('notifications_enabled')) {
+                        const notifToggle = document.getElementById('notif-toggle');
+                        if (notifToggle) notifToggle.checked = data.notifications_enabled;
                     }
                     if (data.language_code) {
                         let lang = data.language_code.toLowerCase().trim().substring(0, 2);
