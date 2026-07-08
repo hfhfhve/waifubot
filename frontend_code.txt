@@ -9855,6 +9855,52 @@ const astroDescriptions = {
             }
         }
 
+        function startPaymentPolling(isSpread = false) {
+            let attempts = 0;
+            const interval = setInterval(async () => {
+                attempts++;
+                // Проверяем ровно 1 минуту (20 раз по 3 сек). Если не оплатил — выключаем радар.
+                if (attempts > 20) { 
+                    clearInterval(interval);
+                    return;
+                }
+                
+                // Тихо запрашиваем баланс с сервера
+                const data = await apiRequest("/get-user");
+                if (data && data.success) {
+                    // Если энергия увеличилась (значит вебхук успешно зачислил оплату)
+                    if (data.energy > userBalance.energy) {
+                        clearInterval(interval);
+                        userBalance.energy = data.energy;
+                        updateBalanceUI(); // Обновляем циферки на экране
+                        
+                        if (isSpread) {
+                            const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
+                            if (pendingSpreadStr) {
+                                const pendingData = JSON.parse(pendingSpreadStr);
+                                if (userBalance.energy >= pendingData.energyNeeded) {
+                                    localStorage.removeItem('pending_spread_payment');
+                                    showToast("Оплата получена! Карты перемешиваются...", "ph-sparkle");
+                                    
+                                    // Убеждаемся, что юзер стоит у стола Таро
+                                    if (activeTab !== 'tarot-table') {
+                                        selectSpread(pendingData.spreadType);
+                                        document.getElementById('tarot-user-question').value = pendingData.question;
+                                    }
+                                    
+                                    // Мгновенный автозапуск!
+                                    setTimeout(() => startAutomatedRitual(), 500);
+                                }
+                            }
+                        } else {
+                            // Если это была обычная покупка энергии в магазине
+                            showToast("Энергия успешно зачислена!", "ph-lightning text-neon-amber");
+                        }
+                    }
+                }
+            }, 3000); // 3000 миллисекунд = 3 секунды
+        }
+
         function createHistoryCardHTML(item) {
             const template = spreadTemplatesCache.find(s => s.id === item.spread_type);
             const spreadName = template ? template.name : (t('history_classic') || 'Классический расклад');
@@ -10354,13 +10400,12 @@ const astroDescriptions = {
             const data = await apiRequest("/shop/invoice-rub", "POST", { item_id: itemId });
             
             if (data.success && data.invoice_url) {
-                hideToast(); // Прячем лоадер
-                
-                // Открываем ссылку на страницу ЮKassa
+                hideToast();
+                closeAllModals(); // <-- ЗАКРЫВАЕМ ОКНО МАГАЗИНА
                 tg.openLink(data.invoice_url);
                 
-                // Показываем плашку
                 showToast("После оплаты энергия зачислится автоматически", "ph-info");
+                startPaymentPolling(false); // <-- РАДАР ДЛЯ МАГАЗИНА
             } else {
                 showToast("Не удалось создать счет", "ph-warning-circle");
             }
@@ -10415,14 +10460,9 @@ const astroDescriptions = {
             if (data.success && data.invoice_url) {
                 tg.openInvoice(data.invoice_url, function(status) {
                     if (status === 'paid') {
-                        showToast(t('toast_success'), "ph-check-circle text-green-400");
-                        setTimeout(async () => {
-                            const userData = await apiRequest("/get-user");
-                            if (userData.success) {
-                                userBalance.energy = userData.energy;
-                                updateBalanceUI();
-                            }
-                        }, 2000);
+                        closeAllModals(); // <-- ЗАКРЫВАЕМ ОКНО МАГАЗИНА
+                        showToast("Проверка платежа...", "ph-spinner animate-spin");
+                        startPaymentPolling(false); // <-- РАДАР ДЛЯ МАГАЗИНА
                     } else if (status === 'cancelled') {
                         showToast(t('cancel'), "ph-x-circle text-red-400");
                     } else {
@@ -11722,25 +11762,16 @@ const astroDescriptions = {
 
         async function payForSpreadStars() {
             showToast(t('toast_wait'), "ph-spinner animate-spin");
-            // Вызываем новый эндпоинт
             const data = await apiRequest("/shop/invoice-direct-spread", "POST", { spread_id: currentSpread.type });
             
             if (data.success && data.invoice_url) {
                 tg.openInvoice(data.invoice_url, function(status) {
                     if (status === 'paid') {
-                        closeAllModals();
-                        showToast("Оплачено! Карты уже перемешиваются...", "ph-sparkle");
-                        
-                        // Ждем 2.5 сек, пока бэкенд обработает вебхук и начислит энергию
-                        setTimeout(async () => {
-                            const userData = await apiRequest("/get-user");
-                            if (userData.success) {
-                                userBalance.energy = userData.energy;
-                                updateBalanceUI();
-                                // АВТОЗАПУСК РАСКЛАДА!
-                                startAutomatedRitual(); 
-                            }
-                        }, 2500);
+                        closeAllModals(); // <-- МГНОВЕННО ЗАКРЫВАЕМ ОКНО
+                        showToast("Проверка платежа...", "ph-spinner animate-spin");
+                        startPaymentPolling(true); // <-- ВКЛЮЧАЕМ РАДАР (ждем вебхук от ТГ)
+                    } else {
+                        hideToast();
                     }
                 });
             } else {
@@ -11754,7 +11785,11 @@ const astroDescriptions = {
             
             if (data.success && data.invoice_url) {
                 hideToast();
-                tg.openLink(data.invoice_url); // Откроется Юкасса. При возврате приложение перезагрузится.
+                closeAllModals(); // <-- МГНОВЕННО ЗАКРЫВАЕМ ОКНО
+                tg.openLink(data.invoice_url); // Перебрасываем в браузер
+                
+                showToast("Ожидаем оплату...", "ph-spinner animate-spin");
+                startPaymentPolling(true); // <-- ВКЛЮЧАЕМ РАДАР
             } else {
                 showToast(t('toast_error'), "ph-warning-circle");
             }
