@@ -550,6 +550,29 @@
         <!-- Возможности (Сетка 2x2) -->
         <div class="px-5">
             <p class="text-xs uppercase tracking-widest font-bold text-white/50 mb-3 ml-1" data-i18n="opportunities">ВОЗМОЖНОСТИ</p>
+
+            <!-- ШИРОКИЙ ПРЕМИУМ-БАННЕР СОВМЕСТИМОСТИ (Над сеткой) -->
+            <button onclick="openSynastryModal()" class="w-full glass bg-gradient-to-r from-space-800 to-[#1a0b2e] border border-neon-rose/30 hover:border-neon-rose/60 shadow-[0_10px_30px_rgba(251,113,133,0.15)] rounded-[24px] p-4 flex items-center justify-between active:scale-[0.98] transition-all group overflow-hidden relative mb-4">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-rose/20 rounded-full blur-2xl group-hover:bg-neon-rose/30 transition-colors pointer-events-none"></div>
+
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-14 h-14 rounded-full bg-neon-rose/10 border border-neon-rose/30 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-infinity text-2xl text-neon-rose drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]"></i>
+                    </div>
+                    <div class="text-left pr-2">
+                        <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-1" data-i18n="opp_synastry">Совместимость</h3>
+                        <p class="text-[10px] text-white/50 leading-snug max-w-[180px]" data-i18n="opp_synastry_desc">Анализ отношений и кармической связи</p>
+                    </div>
+                </div>
+                
+                <!-- Плашка цены прям на баннере (чтобы сразу понимали ценность) -->
+                <div class="relative z-10 bg-neon-rose/10 border border-neon-rose/30 px-2.5 py-1.5 rounded-xl flex items-center gap-1 shrink-0 shadow-inner">
+                    <span class="text-neon-rose text-sm font-black">15</span>
+                    <i class="ph-fill ph-lightning text-neon-amber drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]"></i>
+                </div>
+            </button>
+
+            <!-- СЕТКА 2x2 ОСТАЛЬНЫХ ФИЧ -->
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="navigateTo('spreads')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-indigo/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-indigo/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-indigo/20 transition-colors">
@@ -560,6 +583,7 @@
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="tarot_desc">Расклады и анализ</p>
                     </div>
                 </button>
+                
                 <button onclick="openAstro()" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-fuchsia/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-fuchsia/20 transition-colors">
                         <i class="ph-fill ph-planet text-xl text-neon-fuchsia"></i>
@@ -569,6 +593,7 @@
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="astro_desc">Натальная карта</p>
                     </div>
                 </button>
+                
                 <button onclick="navigateTo('dream')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-cyan/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-cyan/20 transition-colors">
                         <i class="ph-fill ph-moon-stars text-xl text-neon-cyan"></i>
@@ -578,6 +603,7 @@
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="dreams_desc">Толкование символов</p>
                     </div>
                 </button>
+                
                 <button onclick="navigateTo('calendar')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-amber/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-amber/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-amber/20 transition-colors">
                         <i class="ph-fill ph-calendar text-xl text-neon-amber"></i>
@@ -586,18 +612,6 @@
                         <p class="text-white text-sm font-bold mb-1" data-i18n="cal">Календарь</p>
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="cal_desc">Лунные фазы</p>
                     </div>
-                </button>
-                <!-- НОВАЯ ШИРОКАЯ КНОПКА СИНАСТРИИ -->
-                <button onclick="openSynastryModal()" class="col-span-2 glass bg-gradient-to-br from-space-800 to-[#1a0b2e] rounded-[20px] p-4 flex items-center gap-4 text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-rose/40 group relative overflow-hidden">
-                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-neon-rose/20 rounded-full blur-2xl group-hover:bg-neon-rose/30 transition-colors pointer-events-none"></div>
-                    <div class="w-12 h-12 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 border border-neon-rose/30 shadow-inner group-hover:scale-110 transition-transform">
-                        <i class="ph-fill ph-infinity text-2xl text-neon-rose drop-shadow-[0_0_8px_rgba(251,113,133,0.8)]"></i>
-                    </div>
-                    <div class="flex-1 relative z-10">
-                        <p class="text-white text-sm font-bold mb-0.5" data-i18n="opp_synastry">Астральный Союз</p>
-                        <p class="text-white/50 text-[10px] leading-snug" data-i18n="opp_synastry_desc">Совместимость душ</p>
-                    </div>
-                    <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
                 </button>
             </div>
         </div>
@@ -2362,6 +2376,7 @@
                 synastry_you: 'Твои данные:', synastry_partner_name: 'Имя партнера', synastry_partner_date: 'Дата рождения партнера',
                 synastry_rel_type: 'Тип связи', type_partner: 'Партнер', type_friend: 'Друг', type_business: 'Бизнес',
                 btn_calc_synastry: 'СДЕЛАТЬ РАЗБОР', synastry_res_title: 'Астральный Отчет', synastry_resonance: 'Резонанс',
+                opp_synastry: 'Совместимость', opp_synastry_desc: 'Анализ отношений и кармической связи',
                 toast_enter_partner: 'Введите имя и корректную дату рождения',
                 toast_need_your_date: 'Сначала укажите свою дату рождения в профиле',
                 synastry_weaving: 'Сплетаем судьбы...',
@@ -2385,6 +2400,7 @@
                 share_story: 'Telegram Stories',
                 share_chat: 'Send to Chat',
                 share_other: 'Other Apps',
+                opp_synastry: 'Compatibility', opp_synastry_desc: 'Relationship analysis and karmic connection',
                 share_text: '🌌 My Daily Card: {card}\n\n✨ {desc}\n\n🔮 Find out what the stars have for you today:',
                 opp_synastry: 'Astral Union', opp_synastry_desc: 'Soul compatibility',
                 synastry_title: 'Union Analysis', synastry_subtitle: 'The Oracle will weave your destinies',
@@ -2414,6 +2430,7 @@
                 share_story: 'Telegram Stories',
                 share_chat: 'Enviar al chat',
                 share_other: 'Otras Aplicaciones',
+                opp_synastry: 'Compatibilidad', opp_synastry_desc: 'Análisis de relaciones y conexión kármica',
                 share_text: '🌌 Mi Carta Diaria: {card}\n\n✨ {desc}\n\n🔮 Descubre qué te deparan las estrellas hoy:',
                 opp_synastry: 'Unión Astral', opp_synastry_desc: 'Compatibilidad de almas',
                 synastry_title: 'Análisis de Unión', synastry_subtitle: 'El Oráculo tejerá sus destinos',
@@ -2443,6 +2460,7 @@
                 share_story: 'Telegram Stories',
                 share_chat: 'Envoyer au chat',
                 share_other: 'Autres applications',
+                opp_synastry: 'Compatibilité', opp_synastry_desc: 'Analyse relationnelle et lien karmique',
                 share_text: '🌌 Ma Carte du Jour : {card}\n\n✨ {desc}\n\n🔮 Découvrez ce que les étoiles vous réservent aujourd\'hui :',
                 opp_synastry: 'Union Astrale', opp_synastry_desc: 'Compatibilité des âmes',
                 synastry_title: 'Analyse d\'Union', synastry_subtitle: 'L\'Oracle tissera vos destins',
@@ -2472,6 +2490,7 @@
                 share_story: 'Telegram Stories',
                 share_chat: 'Im Chat senden',
                 share_other: 'Andere Apps',
+                opp_synastry: 'Kompatibilität', opp_synastry_desc: 'Beziehungsanalyse und karmische Verbindung',
                 share_text: '🌌 Meine Tageskarte: {card}\n\n✨ {desc}\n\n🔮 Finde heraus, was die Sterne heute für dich bereithalten:',
                 opp_synastry: 'Astrale Union', opp_synastry_desc: 'Seelenkompatibilität',
                 synastry_title: 'Unionsanalyse', synastry_subtitle: 'Das Orakel webt eure Schicksale',
