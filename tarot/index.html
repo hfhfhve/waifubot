@@ -926,26 +926,50 @@
                 <h3 class="text-2xl font-mystic font-bold text-white mb-2 text-center animate-pulse" data-i18n="synastry_weaving">Сплетаем судьбы...</h3>
             </div>
     
-            <div id="synastry-content" class="w-full hidden animate-fade-in flex-col items-center">
-                <div class="relative w-40 h-40 flex items-center justify-center mb-8">
-                    <div class="absolute inset-0 rounded-full border-4 border-white/5"></div>
+            <div id="synastry-content" class="w-full hidden animate-fade-in flex-col">
+                
+                <!-- Главный % Совместимости (Теперь по центру, крупный и сочный) -->
+                <div class="relative w-48 h-48 mx-auto flex items-center justify-center mb-10 mt-2">
+                    <!-- Задний фон кольца -->
+                    <div class="absolute inset-0 rounded-full border-[6px] border-white/5 shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"></div>
+                    <!-- Само кольцо SVG -->
                     <svg class="absolute inset-0 w-full h-full transform -rotate-90">
-                        <circle id="synastry-circle" cx="80" cy="80" r="76" fill="none" stroke="#fb7185" stroke-width="4" stroke-dasharray="477" stroke-dashoffset="477" class="transition-all duration-1000 ease-out drop-shadow-[0_0_10px_rgba(251,113,133,0.8)]"></circle>
+                        <circle id="synastry-circle" cx="96" cy="96" r="90" fill="none" stroke="#fb7185" stroke-width="6" stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="565" class="transition-all duration-1000 ease-out drop-shadow-[0_0_20px_rgba(251,113,133,0.8)]"></circle>
                     </svg>
-                    <div class="text-center">
-                        <span id="synastry-percent" class="text-5xl font-black text-white drop-shadow-md">0</span><span class="text-2xl font-black text-neon-rose">%</span>
-                        <p class="text-[9px] text-white/50 uppercase font-bold tracking-widest mt-1" data-i18n="synastry_resonance">Резонанс</p>
+                    <!-- Цифры внутри -->
+                    <div class="text-center absolute flex flex-col items-center justify-center mt-2">
+                        <div class="flex items-baseline">
+                            <span id="synastry-percent" class="text-6xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] tracking-tighter">0</span>
+                            <span class="text-3xl font-black text-neon-rose ml-1">%</span>
+                        </div>
+                        <p class="text-[10px] text-white/50 uppercase font-black tracking-[0.3em] mt-1" data-i18n="synastry_resonance">Резонанс</p>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-center gap-4 mb-8 w-full">
-                    <div class="text-right flex-1"><p id="synastry-name-1" class="text-lg font-bold text-white truncate">Ты</p></div>
-                    <i class="ph-fill ph-heart text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]" id="synastry-icon-center"></i>
-                    <div class="text-left flex-1"><p id="synastry-name-2" class="text-lg font-bold text-white truncate">Партнер</p></div>
+                <!-- Имена в стеклянной капсуле -->
+                <div class="glass-strong bg-space-800/80 border border-neon-rose/20 rounded-3xl p-5 mb-8 w-full shadow-[0_10px_30px_rgba(251,113,133,0.1)] relative overflow-hidden mx-auto">
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(251,113,133,0.15),_transparent_70%)] pointer-events-none"></div>
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="flex-1 text-right">
+                            <p class="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">Ты</p>
+                            <p id="synastry-name-1" class="text-xl font-mystic font-bold text-white truncate drop-shadow-md">Имя</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 border border-neon-rose/40 shadow-[0_0_15px_rgba(251,113,133,0.5)]">
+                            <i class="ph-fill ph-heart text-neon-rose text-2xl animate-pulse-slow" id="synastry-icon-center"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <p class="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">Партнер</p>
+                            <p id="synastry-name-2" class="text-xl font-mystic font-bold text-white truncate drop-shadow-md">Имя</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="synastry-ai-text" class="w-full text-white/85 text-[15px] leading-relaxed space-y-6 font-light pb-8 content-daily-markdown"></div>
+                <!-- Контейнер для текста от ИИ -->
+                <div id="synastry-ai-text" class="w-full pb-8 space-y-4">
+                    <!-- Заполняется из JS -->
+                </div>
 
+                <!-- Кнопка перехода в чат -->
                 <button onclick="discussSynastry()" class="w-full relative group overflow-hidden rounded-[20px] p-[1px] active:scale-[0.98] transition-all">
                     <span class="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,#fb7185_360deg)] animate-spin-slow opacity-100"></span>
                     <div class="relative flex items-center justify-between w-full h-full bg-[#080812] backdrop-blur-xl rounded-[19px] py-4 px-5 border border-white/5">
@@ -3376,28 +3400,32 @@
             openModal('synastry-form');
         }
 
+        function capitalizeFirstLetter(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+        }
+
         async function startSynastryCalculation() {
-            const partnerName = document.getElementById('synastry-partner-name').value.trim();
+            let partnerNameRaw = document.getElementById('synastry-partner-name').value.trim();
             const isDesktop = document.body.classList.contains('is-desktop');
             
-            // Читаем кастомную дату
             let d = isDesktop ? document.getElementById('synastry-desk-day').value : document.getElementById('synastry-day').value;
             let m = isDesktop ? document.getElementById('synastry-desk-month').value : document.getElementById('synastry-month').value;
             let y = isDesktop ? document.getElementById('synastry-desk-year').value : document.getElementById('synastry-year').value;
             
-            if (!partnerName || !d || !m || !y || y.length < 4) {
+            if (!partnerNameRaw || !d || !m || !y || y.length < 4) {
                 return showToast(t('toast_enter_partner') || "Введите имя и дату", "ph-warning-circle");
             }
 
             if (d.length === 1) d = '0' + d;
             if (m.length === 1) m = '0' + m;
 
-            // Используем ваш надежный валидатор
             if (!validateDateInput(y, m, d)) {
                 return showToast(t('toast_invalid_date') || "Некорректная дата!", "ph-warning-circle text-neon-amber");
             }
 
-            const partnerDateFormatted = `${y}-${m}-${d}`;
+            // Делаем имя красивым (например "эвелина" -> "Эвелина")
+            const partnerName = capitalizeFirstLetter(partnerNameRaw);
 
             closeAllModals();
             
@@ -3411,19 +3439,35 @@
             document.getElementById('synastry-name-1').textContent = document.getElementById('syn-user-name').textContent;
             document.getElementById('synastry-name-2').textContent = partnerName;
 
-            // Меняем иконку в центре в зависимости от типа связи
             const iconEl = document.getElementById('synastry-icon-center');
             if(activeSynastryStatus === 'business') {
-                iconEl.className = "ph-fill ph-handshake text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+                iconEl.className = "ph-fill ph-handshake text-neon-rose text-2xl animate-pulse-slow";
             } else if(activeSynastryStatus === 'friend') {
-                iconEl.className = "ph-fill ph-users text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+                iconEl.className = "ph-fill ph-users text-neon-rose text-2xl animate-pulse-slow";
             } else {
-                iconEl.className = "ph-fill ph-heart text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+                iconEl.className = "ph-fill ph-heart text-neon-rose text-2xl animate-pulse-slow";
             }
 
-            // Имитация ожидания
+            // КРАСИВЫЙ ФЕЙКОВЫЙ РЕЗУЛЬТАТ (Так мы заставим ИИ отдавать нам ответ с бэкенда)
+            const fakeHtmlResponse = `
+                <div class="glass bg-space-800/40 p-5 rounded-[24px] border border-white/5 shadow-sm">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="ph-fill ph-sparkle text-neon-rose text-xl"></i>
+                        <h4 class="text-lg font-mystic font-bold text-white tracking-wide">Кармическая задача союза</h4>
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed font-light">Ваша встреча не случайна. Вселенная свела вас, чтобы проработать эго и научиться находить баланс между личной свободой и привязанностью.</p>
+                </div>
+                <div class="glass bg-space-800/40 p-5 rounded-[24px] border border-white/5 shadow-sm">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="ph-fill ph-warning-circle text-neon-amber text-xl"></i>
+                        <h4 class="text-lg font-mystic font-bold text-white tracking-wide">Зоны напряжения</h4>
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed font-light">Марс в оппозиции к Солнцу партнера указывает на частые споры из-за мелочей. Избегайте резких слов в периоды убывающей луны.</p>
+                </div>
+            `;
+
             setTimeout(() => {
-                showSynastryResult(87, "<b>Кармический узел</b><br><br>Здесь будет большой и глубокий разбор от ИИ, который мы напишем на бэкенде!");
+                showSynastryResult(87, fakeHtmlResponse);
             }, 4000);
         }
 
@@ -3436,7 +3480,9 @@
 
             const circle = document.getElementById('synastry-circle');
             const numEl = document.getElementById('synastry-percent');
-            const offset = 477 - (477 * percentage) / 100;
+            
+            // НОВАЯ МАТЕМАТИКА КОЛЬЦА (Длина окружности 565 для r=90)
+            const offset = 565 - (565 * percentage) / 100;
             
             setTimeout(() => {
                 circle.style.strokeDashoffset = offset;
@@ -3451,7 +3497,7 @@
                 }, 20);
             }, 100);
         }
-
+    
         function closeSynastryModal() {
             const modal = document.getElementById('modal-synastry-result');
             modal.classList.add('opacity-0');
