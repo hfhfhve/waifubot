@@ -1996,17 +1996,13 @@
                 </div>
 
                 <div class="space-y-3 w-full">
-                    <!-- Нативный шеринг в Telegram Истории -->
-                    <button onclick="shareToTgStoryNative()" class="w-full bg-gradient-to-r from-[#0088cc] to-[#00aaff] rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-[0_5px_20px_rgba(0,136,204,0.4)]">
-                        <i class="ph-fill ph-instagram-logo text-xl text-white"></i>
-                        <span class="text-white font-bold text-sm tracking-wide uppercase">В Telegram Историю</span>
-                    </button>
-
-                    <!-- Скачать / Поделиться картинкой в другие чаты -->
-                    <button onclick="shareGeneratedImage()" class="w-full glass bg-space-800 border border-white/20 hover:border-white/40 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                    <!-- Единая мощная кнопка -->
+                    <button onclick="shareGeneratedImage()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-[0_5px_20px_rgba(99,102,241,0.4)]">
                         <i class="ph-bold ph-export text-xl text-white"></i>
-                        <span class="text-white font-bold text-sm tracking-wide uppercase">Скачать / Другие сети</span>
+                        <span class="text-white font-bold text-sm tracking-wide uppercase">Отправить / В Сторис</span>
                     </button>
+                    
+                    <p class="text-center text-[10px] text-white/40 mt-1 font-medium">Картинка сохранится или отправится в любое приложение</p>
                 </div>
             </div>
         </div>
@@ -2779,27 +2775,11 @@
             }
         }
 
-        // ВАЖНЫЙ ФИКС №2: Проверка платформы
-        function shareToTgStoryNative() {
-            if (!dailyCardDataCache) return;
-            
-            // Проверяем, поддерживает ли устройство сторис (На ПК выведет ошибку)
-            if (tg.shareToStory) {
-                const botUrl = "https://t.me/tarot_neurobot";
-                tg.shareToStory(dailyCardDataCache.image, {
-                    text: `Моя Карта Дня: ${dailyCardDataCache.name} ✨\nУзнай свою:`,
-                    widget_link: { url: botUrl, name: "Вытянуть Карту" }
-                });
-            } else {
-                showToast("Доступно только в мобильном Telegram", "ph-warning-circle");
-            }
-        }
-
         // ВАЖНЫЙ ФИКС №3: Принудительное скачивание для ПК
         async function shareGeneratedImage() {
             if (!window.currentStoryBlob) return;
             
-            // Если мы на компьютере (или старом браузере) - ПРИНУДИТЕЛЬНО СКАЧИВАЕМ
+            // Если мы на компьютере - ПРИНУДИТЕЛЬНО СКАЧИВАЕМ
             const isDesktop = ['tdesktop', 'web', 'macos'].includes(tg.platform) || !navigator.share;
             
             if (isDesktop) {
@@ -2808,6 +2788,17 @@
             }
 
             const file = new File([window.currentStoryBlob], 'cosmic_tarot.jpg', { type: 'image/jpeg' });
+            
+            // Мультиязычный сочный текст с ПРЯМОЙ ссылкой (для появления открывашки бота)
+            const shareTexts = {
+                'ru': `🌌 Моя Карта Дня: ${dailyCardDataCache.name}\n\n🔮 Оракул готов прочитать твою судьбу. Вытяни свою карту здесь:\n👉 https://t.me/tarot_neurobot`,
+                'en': `🌌 My Daily Card: ${dailyCardDataCache.name}\n\n🔮 The Oracle is ready to read your destiny. Draw your card here:\n👉 https://t.me/tarot_neurobot`,
+                'es': `🌌 Mi Carta Diaria: ${dailyCardDataCache.name}\n\n🔮 El Oráculo está listo para leer tu destino. Saca tu carta aquí:\n👉 https://t.me/tarot_neurobot`,
+                'fr': `🌌 Ma Carte du Jour : ${dailyCardDataCache.name}\n\n🔮 L'Oracle est prêt à lire votre destin. Tirez votre carte ici :\n👉 https://t.me/tarot_neurobot`,
+                'de': `🌌 Meine Tageskarte: ${dailyCardDataCache.name}\n\n🔮 Das Orakel ist bereit, dein Schicksal zu lesen. Ziehe hier deine Karte:\n👉 https://t.me/tarot_neurobot`
+            };
+            
+            const caption = shareTexts[activeLanguage] || shareTexts['ru'];
 
             // Если мобилка поддерживает отправку картинок в другие приложухи:
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -2815,13 +2806,13 @@
                     await navigator.share({
                         files: [file],
                         title: 'Cosmic Tarot',
-                        text: 'Узнай свою Карту Дня в @tarot_neurobot ✨'
+                        text: caption // Вот тут передается красивый текст с ссылкой!
                     });
                 } catch (e) {
                     console.log("Отмена отправки", e);
                 }
             } else {
-                // Если мобилка не поддерживает (очень старый Android) - тоже скачиваем
+                // Если телефон старый - скачиваем
                 downloadImageDirectly();
             }
         }
