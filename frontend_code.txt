@@ -9792,19 +9792,36 @@ const astroDescriptions = {
 
                 let html = '';
                 
-                const renderSection = (title, items) => {
+                const renderSection = (catId, title, items) => {
                     if (items.length === 0) return '';
+                    
+                    // Настраиваем уникальный стиль (цвет и иконку) для каждой категории
+                    let icon = 'ph-sparkle';
+                    let theme = { text: 'text-white/70', line: 'to-white/20' };
+                    
+                    if (catId === 'basic') { icon = 'ph-cards'; theme = { text: 'text-neon-cyan', line: 'to-neon-cyan/40' }; }
+                    else if (catId === 'love') { icon = 'ph-heart'; theme = { text: 'text-neon-rose', line: 'to-neon-rose/40' }; }
+                    else if (catId === 'career') { icon = 'ph-coins'; theme = { text: 'text-neon-amber', line: 'to-neon-amber/40' }; }
+                    else if (catId === 'deep') { icon = 'ph-moon-stars'; theme = { text: 'text-neon-purple', line: 'to-neon-purple/40' }; }
+
                     return `
-                        <p class="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1 mt-5">${title}</p>
+                        <div class="w-full flex items-center gap-3 mt-10 mb-5">
+                            <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent ${theme.line}"></div>
+                            <div class="flex items-center gap-2">
+                                <i class="ph-fill ${icon} ${theme.text} text-sm drop-shadow-[0_0_8px_currentColor]"></i>
+                                <p class="text-[10px] uppercase tracking-[0.2em] font-black ${theme.text} text-center drop-shadow-[0_0_8px_currentColor]">${title}</p>
+                            </div>
+                            <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent ${theme.line}"></div>
+                        </div>
                         <div>${items.map(renderCard).join('')}</div>
                     `;
                 };
 
-                // Отрисовываем секции в правильном порядке
-                html += renderSection(catTitles['basic'], basicSpreads);
-                html += renderSection(catTitles['love'], loveSpreads);
-                html += renderSection(catTitles['career'], careerSpreads);
-                html += renderSection(catTitles['deep'], deepSpreads);
+                // Отрисовываем секции в правильном порядке, передавая ID категории
+                html += renderSection('basic', catTitles['basic'], basicSpreads);
+                html += renderSection('love', catTitles['love'], loveSpreads);
+                html += renderSection('career', catTitles['career'], careerSpreads);
+                html += renderSection('deep', catTitles['deep'], deepSpreads);
 
                 container.innerHTML = html;
             }
