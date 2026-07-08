@@ -10772,22 +10772,6 @@ const astroDescriptions = {
                             createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
                         }
                     }
-                    const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
-                    if (pendingSpreadStr) {
-                        const pendingData = JSON.parse(pendingSpreadStr);
-                        
-                        // Если энергия пришла — автоматически запускаем!
-                        if (userBalance.energy >= pendingData.energyNeeded) {
-                            localStorage.removeItem('pending_spread_payment'); // Очищаем
-                            
-                            // Подготавливаем стол
-                            selectSpread(pendingData.spreadType); 
-                            document.getElementById('tarot-user-question').value = pendingData.question;
-                            
-                            // Сразу жмем "Вытянуть карты" за него
-                            setTimeout(() => startAutomatedRitual(), 500);
-                        }
-                    }
                     if (data.hasOwnProperty('notifications_enabled')) {
                         const notifToggle = document.getElementById('notif-toggle');
                         if (notifToggle) notifToggle.checked = data.notifications_enabled;
@@ -10890,6 +10874,33 @@ const astroDescriptions = {
                 updateInterfaceTranslations();
                 updateDynamicDates();
                 updateChatChips();
+                await Promise.all([
+                    loadShopItems(),
+                    loadLunarCalendar(),
+                    loadSpreads(), // Кэш раскладов заполняется здесь!
+                    updateBonusBannerState() 
+                ]);
+    
+                // АКТИВИРУЕМ ЛОКАЛИЗАЦИЮ ИНТЕРФЕЙСА ПЕРЕД ПОКАЗОМ ЭКРАНА
+                updateInterfaceTranslations();
+                
+                // ====== ИСПРАВЛЕННЫЙ АВТОЗАПУСК РАСКЛАДА ПОСЛЕ ОПЛАТЫ ======
+                const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
+                if (pendingSpreadStr) {
+                    const pendingData = JSON.parse(pendingSpreadStr);
+                    
+                    // Если энергия пришла — автоматически запускаем!
+                    if (userBalance.energy >= pendingData.energyNeeded) {
+                        localStorage.removeItem('pending_spread_payment'); // Очищаем
+                        
+                        // Подготавливаем стол (теперь кэш точно загружен!)
+                        selectSpread(pendingData.spreadType); 
+                        document.getElementById('tarot-user-question').value = pendingData.question;
+                        
+                        // Сразу жмем "Вытянуть карты" за него
+                        setTimeout(() => startAutomatedRitual(), 500);
+                    }
+                }
                 hideAppLoader();
             }
         }
