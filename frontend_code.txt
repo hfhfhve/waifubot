@@ -9612,74 +9612,74 @@ const astroDescriptions = {
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
             'ru': { 
-                prof_notif: 'Уведомления о карте дня',
-                ref_bonus: 'Зови друзей и получай +7 энергии за каждого', ref_remind: 'Напомнить', ref_status_done: 'Награда получена', ref_status_pending: 'Регистрируется', ref_empty: 'Вы еще никого не пригласили', toast_reminded: 'Напоминание отправлено!', toast_remind_limit: 'Можно напоминать 1 раз в 24 часа',
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
                 astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
                 modal_no_energy_badge: 'Недостаточно энергии', modal_unlock_spread: 'Открыть расклад', modal_unlock_desc: 'Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!',
                 energy_day: 'Карта дня',
                 wanderer_list: ['Странник', 'Путник', 'Искатель', 'Звездная душа', 'Мистик'],
-                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
                 btn_discuss_oracle: 'ОБСУДИТЬ С ОРАКУЛОМ',
                 discuss_card_prompt: 'Я хочу глубже обсудить мою карту дня. Какие уроки я должен извлечь из неё сегодня?',
-                card_back: 'Просто закрыть'
+                card_back: 'Просто закрыть',
+                prof_notif: 'Уведомления о карте дня',
+                ref_bonus: 'Зови друзей и получай +7 энергии за каждого', ref_remind: 'Напомнить', ref_status_done: 'Награда получена', ref_status_pending: 'Регистрируется', ref_empty: 'Вы еще никого не пригласили', toast_reminded: 'Напоминание отправлено!', toast_remind_limit: 'Можно напоминать 1 раз в 24 часа',
+                prof_history: 'История раскладов', prof_history_desc: 'Твои прошлые сеансы с Оракулом', history_title: 'Твои расклады', history_empty: 'Ты еще не делал раскладов', history_classic: 'Классический расклад'
             },
             'en': { 
-                prof_notif: 'Daily Card Notifications',
-                ref_bonus: 'Invite friends and get +7 energy for each', ref_remind: 'Remind', ref_status_done: 'Reward received', ref_status_pending: 'Registering', ref_empty: 'You haven\'t invited anyone yet', toast_reminded: 'Reminder sent!', toast_remind_limit: 'Remind once per 24 hours',
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
                 astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
                 modal_no_energy_badge: 'Not enough energy', modal_unlock_spread: 'Unlock Spread', modal_unlock_desc: 'No need to buy a huge pack in the store! You can pay for <b>just this spread</b>. It will start automatically.',
                 energy_day: 'Card of the Day',
                 wanderer_list: ['Wanderer', 'Traveler', 'Seeker', 'Star Soul', 'Mystic'],
-                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
                 btn_discuss_oracle: 'DISCUSS WITH ORACLE',
                 discuss_card_prompt: 'I want to deeply discuss my Daily Card. What lessons should I learn from it today?',
-                card_back: 'Just close'
+                card_back: 'Just close',
+                prof_notif: 'Daily Card Notifications',
+                ref_bonus: 'Invite friends and get +7 energy for each', ref_remind: 'Remind', ref_status_done: 'Reward received', ref_status_pending: 'Registering', ref_empty: 'You haven\'t invited anyone yet', toast_reminded: 'Reminder sent!', toast_remind_limit: 'Remind once per 24 hours',
+                prof_history: 'Spread History', prof_history_desc: 'Your past sessions with Oracle', history_title: 'Your Spreads', history_empty: 'You have no past readings yet', history_classic: 'Classic Spread'
             },
             'es': { 
-                prof_notif: 'Notificaciones de Carta Diaria',
-                ref_bonus: 'Invita a amigos y obtén +7 de energía', ref_remind: 'Recordar', ref_status_done: 'Recompensa recibida', ref_status_pending: 'Registrando', ref_empty: 'Aún no has invitado a nadie', toast_reminded: '¡Recordatorio enviado!', toast_remind_limit: 'Recordar una vez cada 24h',
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
                 astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
                 modal_no_energy_badge: 'Energía insuficiente', modal_unlock_spread: 'Desbloquear Tirada', modal_unlock_desc: '¡No es necesario comprar un paquete grande! Puedes pagar <b>solo por esta tirada</b>. Comenzará automáticamente.',
                 energy_day: 'Carta del Día',
                 wanderer_list: ['Caminante', 'Viajero', 'Buscador', 'Alma Estelar', 'Místico'],
-                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
                 btn_discuss_oracle: 'DISCUTIR CON EL ORÁCULO',
                 discuss_card_prompt: 'Quiero discutir a fondo mi carta del día. ¿Qué lecciones debo aprender de ella hoy?',
-                card_back: 'Simplemente cerrar'
+                card_back: 'Simplemente cerrar',
+                prof_notif: 'Notificaciones de Carta Diaria',
+                ref_bonus: 'Invita a amigos y obtén +7 de energía', ref_remind: 'Recordar', ref_status_done: 'Recompensa recibida', ref_status_pending: 'Registrando', ref_empty: 'Aún no has invitado a nadie', toast_reminded: '¡Recordatorio enviado!', toast_remind_limit: 'Recordar una vez cada 24h',
+                prof_history: 'Historial de Tiradas', prof_history_desc: 'Tus sesiones pasadas con el Oráculo', history_title: 'Tus Tiradas', history_empty: 'Aún no tienes lecturas pasadas', history_classic: 'Tirada Clásica'
             },
             'fr': { 
-                prof_notif: 'Notifications de Carte du Jour',
-                ref_bonus: 'Invitez des amis, obtenez +7 d\'énergie', ref_remind: 'Rappeler', ref_status_done: 'Récompense reçue', ref_status_pending: 'En cours', ref_empty: 'Vous n\'avez invité personne', toast_reminded: 'Rappel envoyé !', toast_remind_limit: 'Rappel une fois par 24h',
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
                 astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.',
                 modal_no_energy_badge: 'Énergie insuffisante', modal_unlock_spread: 'Débloquer le Tirage', modal_unlock_desc: 'Pas besoin d\'acheter un gros pack ! Vous pouvez payer pour <b>ce tirage uniquement</b>. Il commencera automatiquement.',
                 energy_day: 'Carte du Jour',
                 wanderer_list: ['Vagabond', 'Voyageur', 'Chercheur', 'Âme Stellaire', 'Mystique'],
-                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
                 btn_discuss_oracle: 'DISCUTER AVEC L\'ORACLE',
                 discuss_card_prompt: 'Je veux discuter en profondeur de ma carte du jour. Quelles leçons dois-je en tirer aujourd\'hui ?',
-                card_back: 'Juste fermer'
+                card_back: 'Juste fermer',
+                prof_notif: 'Notifications de Carte du Jour',
+                ref_bonus: 'Invitez des amis, obtenez +7 d\'énergie', ref_remind: 'Rappeler', ref_status_done: 'Récompense reçue', ref_status_pending: 'En cours', ref_empty: 'Vous n\'avez invité personne', toast_reminded: 'Rappel envoyé !', toast_remind_limit: 'Rappel une fois par 24h',
+                prof_history: 'Historique des Tirages', prof_history_desc: 'Vos sessions passées avec l\'Oracle', history_title: 'Vos Tirages', history_empty: 'Vous n\'avez pas encore de tirages', history_classic: 'Tirage Classique'
             },
-            'de': {   
-                prof_notif: 'Tageskarte Benachrichtigungen',
-                ref_bonus: 'Freunde einladen, +7 Energie erhalten', ref_remind: 'Erinnern', ref_status_done: 'Belohnung erhalten', ref_status_pending: 'Registriert sich', ref_empty: 'Noch niemanden eingeladen', toast_reminded: 'Erinnerung gesendet!', toast_remind_limit: 'Nur einmal pro 24h erinnern',
+            'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
                 astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
                 modal_no_energy_badge: 'Nicht genug Energie', modal_unlock_spread: 'Legung freischalten', modal_unlock_desc: 'Du musst kein großes Paket kaufen! Bezahle einfach für <b>nur diese Legung</b>. Sie startet automatisch.',
                 energy_day: 'Karte des Tages',
                 wanderer_list: ['Wanderer', 'Reisender', 'Sucher', 'Sternenseele', 'Mystiker'],
-                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
                 btn_discuss_oracle: 'MIT ORAKEL BESPRECHEN',
                 discuss_card_prompt: 'Ich möchte meine Tageskarte genauer besprechen. Welche Lektionen sollte ich heute daraus lernen?',
-                card_back: 'Einfach schließen'
+                card_back: 'Einfach schließen',
+                prof_notif: 'Tageskarte Benachrichtigungen',
+                ref_bonus: 'Freunde einladen, +7 Energie erhalten', ref_remind: 'Erinnern', ref_status_done: 'Belohnung erhalten', ref_status_pending: 'Registriert sich', ref_empty: 'Noch niemanden eingeladen', toast_reminded: 'Erinnerung gesendet!', toast_remind_limit: 'Nur einmal pro 24h erinnern',
+                prof_history: 'Legungshistorie', prof_history_desc: 'Deine vergangenen Orakel-Sitzungen', history_title: 'Deine Legungen', history_empty: 'Du hast noch keine Legungen gemacht', history_classic: 'Klassische Legung'
             }
         };
 
