@@ -1905,7 +1905,7 @@
     </div>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[70] flex justify-center pointer-events-none opacity-0 transition-all duration-300 w-[90%] max-w-sm translate-y-[-20px]">
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] flex justify-center pointer-events-none opacity-0 transition-all duration-300 w-[90%] max-w-sm translate-y-[-20px]">
         <div class="bg-space-800 border border-neon-indigo/50 w-full px-5 py-3.5 rounded-2xl flex items-center gap-3 shadow-[0_10px_30px_rgba(99,102,241,0.2)]">
             <i id="toast-icon" class="ph-fill ph-check-circle text-neon-indigo text-xl"></i>
             <span id="toast-message" class="text-white font-bold text-sm" data-i18n="toast_success">Успешно!</span>
@@ -2320,6 +2320,9 @@
         function discussDailyCard() {
             // Проверяем баланс
             if (userBalance.energy < 1) {
+                // Если нет энергии — закрываем карту, кидаем в магазин и показываем ошибку ПОВЕРХ всего
+                closeDailyModal();
+                navigateTo('shop');
                 return showToast(t('toast_no_energy') || "Недостаточно энергии", "ph-lightning text-neon-amber");
             }
     
@@ -2340,12 +2343,14 @@
             setTimeout(() => {
                 const promptText = t('discuss_card_prompt') || "Я хочу глубже обсудить мою карту дня. Какие уроки я должен извлечь из неё сегодня?";
                 const input = document.getElementById('message-input');
-                input.value = promptText;
-                input.focus(); // Автоматически ставим курсор, чтобы вылезла клавиатура
-                
-                // Подгоняем высоту поля ввода
-                input.style.height = 'auto';
-                input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+                if (input) {
+                    input.value = promptText;
+                    input.focus(); // Автоматически ставим курсор, чтобы вылезла клавиатура
+                    
+                    // Подгоняем высоту поля ввода
+                    input.style.height = 'auto';
+                    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+                }
             }, 400); // Небольшая задержка, чтобы успела пройти анимация перехода
         }
     
