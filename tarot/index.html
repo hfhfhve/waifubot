@@ -740,7 +740,7 @@
             <!-- Вопрос юзера -->
             <div class="glass bg-space-800/80 rounded-2xl p-4 border border-white/10 mb-6 relative overflow-hidden">
                 <p class="text-neon-amber text-[9px] uppercase tracking-widest font-bold mb-1" data-i18n="your_question">Твой вопрос</p>
-                <p id="result-user-question" class="text-white text-sm italic font-light leading-relaxed">...</p>
+                <p id="result-user-question" class="text-white text-sm italic font-light leading-relaxed break-words break-all">...</p>
             </div>
 
             <!-- Изображения выпавших карт -->
@@ -1550,7 +1550,7 @@
                 <div class="mb-5 text-center">
                     <span id="history-detail-date" class="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">Дата</span>
                     <h3 id="history-detail-title" class="text-white font-mystic text-2xl font-bold leading-tight mb-3">Название</h3>
-                    <p id="history-detail-question" class="text-white/80 text-sm italic border border-white/10 py-2 px-4 bg-space-900/50 rounded-xl inline-block max-w-[90%]">Вопрос</p>
+                    <p id="history-detail-question" class="text-white/80 text-sm italic border border-white/10 py-2 px-4 bg-space-900/50 rounded-xl inline-block max-w-[90%] break-words break-all">Вопрос</p>
                 </div>
                 
                 <!-- 3D Карты внахлест -->
@@ -2340,20 +2340,29 @@
             const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long', year: 'numeric' });
             const qText = item.question ? `«${item.question}»` : (t('history_classic') || 'Классический расклад');
             
-            // Генерируем мини-картинки для эстетики
+            // ГЕНЕРИРУЕМ МИНИ-КАРТИНКИ (С ОГРАНИЧЕНИЕМ)
             let miniCardsHtml = '';
             if (item.cards && item.cards.length > 0) {
-                miniCardsHtml = item.cards.map(c => `<img src="${c.image}" class="w-6 h-9 rounded-sm object-cover border border-white/20 shadow-sm opacity-80 group-hover:opacity-100 transition-opacity">`).join('');
+                const maxVisible = 5; // Показываем максимум 5 карт
+                const visibleCards = item.cards.slice(0, maxVisible);
+                
+                miniCardsHtml = visibleCards.map(c => `<img src="${c.image}" class="w-6 h-9 rounded-sm object-cover border border-white/20 shadow-sm opacity-80 group-hover:opacity-100 transition-opacity shrink-0">`).join('');
+                
+                // Если карт больше 5, добавляем красивую плашку "+X"
+                if (item.cards.length > maxVisible) {
+                    miniCardsHtml += `<div class="w-6 h-9 rounded-sm bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white/60 shadow-sm shrink-0 backdrop-blur-sm">+${item.cards.length - maxVisible}</div>`;
+                }
             }
             
+            // Обрати внимание: я добавил flex-wrap и break-all для защиты от багов
             return `
                 <div onclick="openHistoryDetail(${item.id})" class="glass bg-space-800 rounded-2xl p-4 border border-white/5 hover:border-neon-fuchsia/40 active:scale-[0.98] transition-all cursor-pointer group">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">${dateStr}</span>
-                        <div class="flex gap-1">${miniCardsHtml}</div>
+                    <div class="flex justify-between items-start mb-2 gap-3">
+                        <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest shrink-0 mt-0.5">${dateStr}</span>
+                        <div class="flex flex-wrap justify-end gap-1">${miniCardsHtml}</div>
                     </div>
                     <h4 class="text-white font-bold text-sm mb-1">${spreadName}</h4>
-                    <p class="text-white/50 text-xs line-clamp-1 italic">${qText}</p>
+                    <p class="text-white/50 text-xs line-clamp-1 italic break-all">${qText}</p>
                 </div>
             `;
         }
