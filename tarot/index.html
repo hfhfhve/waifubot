@@ -3449,26 +3449,43 @@
             }
 
             // КРАСИВЫЙ ФЕЙКОВЫЙ РЕЗУЛЬТАТ (Так мы заставим ИИ отдавать нам ответ с бэкенда)
-            const fakeHtmlResponse = `
-                <div class="glass bg-space-800/40 p-5 rounded-[24px] border border-white/5 shadow-sm">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i class="ph-fill ph-sparkle text-neon-rose text-xl"></i>
-                        <h4 class="text-lg font-mystic font-bold text-white tracking-wide">Кармическая задача союза</h4>
-                    </div>
-                    <p class="text-white/70 text-sm leading-relaxed font-light">Ваша встреча не случайна. Вселенная свела вас, чтобы проработать эго и научиться находить баланс между личной свободой и привязанностью.</p>
-                </div>
-                <div class="glass bg-space-800/40 p-5 rounded-[24px] border border-white/5 shadow-sm">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i class="ph-fill ph-warning-circle text-neon-amber text-xl"></i>
-                        <h4 class="text-lg font-mystic font-bold text-white tracking-wide">Зоны напряжения</h4>
-                    </div>
-                    <p class="text-white/70 text-sm leading-relaxed font-light">Марс в оппозиции к Солнцу партнера указывает на частые споры из-за мелочей. Избегайте резких слов в периоды убывающей луны.</p>
-                </div>
-            `;
+            const data = await apiRequest("/tarot/synastry", "POST", {
+                partner_name: partnerName,
+                partner_date: partnerDateFormatted,
+                relation_type: activeSynastryStatus
+            });
 
-            setTimeout(() => {
-                showSynastryResult(87, fakeHtmlResponse);
-            }, 4000);
+            if (data.success) {
+                // Обновляем энергию на экране
+                userBalance.energy = data.energy;
+                updateBalanceUI();
+
+                // ИИ вернул нам готовые блоки в JSON, собираем их в HTML!
+                let htmlText = "";
+                data.report.blocks.forEach(b => {
+                    htmlText += `
+                    <div class="glass bg-space-800/40 p-5 rounded-[24px] border border-white/5 shadow-sm mb-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="ph-fill ${b.icon} ${b.color} text-xl drop-shadow-[0_0_8px_currentColor]"></i>
+                            <h4 class="text-lg font-mystic font-bold text-white tracking-wide">${b.title}</h4>
+                        </div>
+                        <p class="text-white/70 text-sm leading-relaxed font-light">${b.text}</p>
+                    </div>`;
+                });
+                
+                showSynastryResult(data.report.percentage, htmlText);
+            } else {
+                closeSynastryModal();
+                if (data.message === "no_energy") {
+                    showToast(t('toast_no_energy') || "Недостаточно энергии", "ph-lightning text-neon-amber");
+                    navigateTo('shop');
+                } else if (data.message === "need_birth_date") {
+                    showToast(t('toast_need_your_date') || "Укажите свою дату рождения", "ph-warning-circle");
+                    setTimeout(() => openModal('astro-form'), 1000);
+                } else {
+                    showToast("Оракул медитирует... Попробуйте еще раз", "ph-warning-circle");
+                }
+            }
         }
 
         function showSynastryResult(percentage, htmlText) {
