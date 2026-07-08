@@ -2385,6 +2385,7 @@
                 toast_enter_partner: 'Введите имя и корректную дату рождения',
                 toast_need_your_date: 'Сначала укажите свою дату рождения в профиле',
                 synastry_weaving: 'Сплетаем судьбы...',
+                discuss_synastry_prompt: 'Я хочу обсудить нашу совместимость с {name}. На что мне стоит обратить внимание?',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2415,6 +2416,7 @@
                 toast_enter_partner: 'Enter a name and valid birth date',
                 toast_need_your_date: 'First, set your birth date in your profile',
                 synastry_weaving: 'Weaving destinies...',
+                discuss_synastry_prompt: 'I want to discuss my compatibility with {name}. What should I pay attention to?',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2445,6 +2447,7 @@
                 toast_enter_partner: 'Ingresa un nombre y fecha válidos',
                 toast_need_your_date: 'Primero configura tu fecha de nacimiento',
                 synastry_weaving: 'Tejiendo destinos...',
+                discuss_synastry_prompt: 'Quiero discutir mi compatibilidad con {name}. ¿A qué debo prestar atención?',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2475,6 +2478,7 @@
                 toast_enter_partner: 'Entrez un nom et une date valide',
                 toast_need_your_date: 'D\'abord, configurez votre date de naissance',
                 synastry_weaving: 'Tissage des destins...',
+                discuss_synastry_prompt: 'Je veux discuter de ma compatibilité avec {name}. À quoi dois-je faire attention ?',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2505,6 +2509,7 @@
                 toast_enter_partner: 'Geben Sie einen Namen und ein gültiges Datum ein',
                 toast_need_your_date: 'Bitte zuerst dein Geburtsdatum einstellen',
                 synastry_weaving: 'Schicksale verweben...',
+                discuss_synastry_prompt: 'Ich möchte meine Kompatibilität mit {name} besprechen. Worauf sollte ich achten?',
             }
         };
 
@@ -3462,6 +3467,10 @@
                 // Обновляем энергию на экране
                 userBalance.energy = data.energy;
                 updateBalanceUI();
+                
+                // === ДОБАВЬТЕ ЭТИ ДВЕ СТРОЧКИ СЮДА ===
+                window.currentSynastryData = data.report;
+                window.currentSynastryPartner = partnerName;
 
                 // ИИ вернул нам готовые блоки в JSON, собираем их в HTML!
                 let htmlText = "";
@@ -3529,7 +3538,54 @@
         }
 
         function discussSynastry() {
-            showToast("Функция чата будет доступна после подключения бэкенда!", "ph-info");
+            // 1. Проверяем энергию (на чат нужен 1 заряд)
+            if (userBalance.energy < 1) {
+                closeSynastryModal();
+                navigateTo('shop');
+                return showToast(t('toast_no_energy') || "Недостаточно энергии", "ph-lightning text-neon-amber");
+            }
+
+            // 2. Закрываем окно синастрии и открываем чат
+            closeSynastryModal();
+            navigateTo('chats');
+
+            // 3. Достаем сохраненные данные
+            const partnerName = window.currentSynastryPartner || "Партнером";
+            const percent = window.currentSynastryData?.percentage || 0;
+            let reportText = "";
+            
+            if (window.currentSynastryData && window.currentSynastryData.blocks) {
+                // Превращаем красивые карточки обратно в текст для нейросети
+                reportText = window.currentSynastryData.blocks.map(b => `${b.title}: ${b.text}`).join("\n");
+            }
+
+            // 4. Формируем скрытый контекст для ИИ
+            window.cardDiscussContext = `[СИСТЕМНОЕ СООБЩЕНИЕ: Пользователь хочет обсудить анализ совместимости со своим партнером по имени ${partnerName}.
+Общий процент совместимости: ${percent}%.
+Вот астрологический отчет, который ты только что сгенерировал для них:
+${reportText}
+
+ТВОЯ ЗАДАЧА: Веди себя как эмпатичный таролог-психолог в формате чата.
+ЖЕСТКИЕ ПРАВИЛА:
+1. НЕ повторяй весь отчет целиком! Пользователь его уже читал.
+2. Спроси пользователя, как эти аспекты проявляются в их реальной жизни.
+3. Давай практические советы по улучшению отношений.
+4. Отвечай коротко (1-2 абзаца). 
+5. ВСЕГДА заканчивай свое сообщение одним открытым вопросом, чтобы разговорить пользователя.]`;
+
+            // 5. Вставляем красивый текст в поле ввода пользователя
+            setTimeout(() => {
+                let promptText = t('discuss_synastry_prompt') || `Я хочу обсудить нашу совместимость с {name}. На что мне стоит обратить внимание?`;
+                promptText = promptText.replace('{name}', partnerName);
+                
+                const input = document.getElementById('message-input');
+                if (input) {
+                    input.value = promptText;
+                    input.focus(); // Вызываем клавиатуру
+                    input.style.height = 'auto';
+                    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+                }
+            }, 400);
         }
     
         // ==================== SHOP LOGIC ====================
