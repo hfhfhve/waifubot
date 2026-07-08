@@ -8778,6 +8778,20 @@ const astroDescriptions = {
                 <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
             </button>
 
+            <button onclick="openModal('spread-history')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 rounded-[20px] p-4 flex items-center justify-between shadow-sm mb-6 active:scale-95 transition-transform text-left border border-neon-fuchsia/20 relative overflow-hidden">
+                <div class="absolute -right-4 top-1/2 -translate-y-1/2 w-16 h-16 bg-neon-fuchsia/20 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-neon-fuchsia/20 text-neon-fuchsia flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                        <i class="ph-fill ph-book-open"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold text-sm" data-i18n="prof_history">История раскладов</p>
+                        <p class="text-white/50 text-xs mt-0.5" data-i18n="prof_history_desc">Твои прошлые сеансы с Оракулом</p>
+                    </div>
+                </div>
+                <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
+            </button>
+
             <!-- Настройки -->
             <div class="flex items-center gap-2 mb-3 opacity-60 ml-1">
                 <p class="text-[10px] uppercase tracking-widest font-bold text-white" data-i18n="prof_settings">НАСТРОЙКИ</p>
@@ -9088,6 +9102,59 @@ const astroDescriptions = {
                 <button onclick="closeAllModals()" id="stat-info-btn" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-4 rounded-xl mt-8 active:scale-95 transition-all text-xs tracking-widest uppercase border border-white/10 shadow-md">
                     Понятно
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-spread-history" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
+        <div class="glass-strong rounded-t-[32px] pb-4 flex flex-col max-h-[85vh]">
+            <div class="flex justify-center pt-3 pb-2 shrink-0">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <!-- Бесконечный скролл вешается сюда -->
+            <div class="p-5 flex-1 overflow-y-auto hide-scrollbar" onscroll="handleHistoryScroll(this)">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-neon-fuchsia/30 to-neon-purple/20 flex items-center justify-center mx-auto mb-2 border border-neon-fuchsia/30 shadow-[0_0_15px_rgba(232,121,249,0.2)]">
+                        <i class="ph-fill ph-book-open text-2xl text-neon-fuchsia"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-1" data-i18n="history_title">История раскладов</h3>
+                </div>
+                
+                <!-- Контейнер для карточек -->
+                <div id="history-list-container" class="space-y-3 pb-4"></div>
+                
+                <!-- Лоадер, который крутится при подгрузке следующих 10 -->
+                <div id="history-loading-indicator" class="hidden text-center py-4">
+                    <i class="ph-fill ph-spinner animate-spin text-2xl text-neon-fuchsia"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА: ЧТЕНИЕ КОНКРЕТНОГО РАСКЛАДА -->
+    <div id="modal-history-detail" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[70]">
+        <div class="glass-strong rounded-t-[32px] pb-6 flex flex-col max-h-[90vh]">
+            <div class="flex justify-center pt-3 pb-2 shrink-0">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="px-5 pt-2 pb-4 overflow-y-auto hide-scrollbar">
+                <!-- Кнопка назад возвращает к списку -->
+                <button onclick="openModal('spread-history')" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 active:scale-95 transition-all shadow-md group mb-5 w-max">
+                    <i class="ph-bold ph-caret-left text-lg text-neon-fuchsia group-hover:-translate-x-0.5 transition-transform"></i>
+                    <span class="text-xs font-black uppercase tracking-wider" data-i18n="back">Назад</span>
+                </button>
+                
+                <div class="mb-5 text-center">
+                    <span id="history-detail-date" class="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">Дата</span>
+                    <h3 id="history-detail-title" class="text-white font-mystic text-2xl font-bold leading-tight mb-3">Название</h3>
+                    <p id="history-detail-question" class="text-white/80 text-sm italic border border-white/10 py-2 px-4 bg-space-900/50 rounded-xl inline-block max-w-[90%]">Вопрос</p>
+                </div>
+                
+                <!-- 3D Карты внахлест -->
+                <div id="history-detail-cards" class="flex justify-center flex-wrap gap-[-10px] mb-8 relative"></div>
+                
+                <!-- Текст от Оракула -->
+                <div id="history-detail-text" class="text-white/85 text-sm leading-relaxed space-y-4 font-light content-daily-markdown pb-8"></div>
             </div>
         </div>
     </div>
@@ -9733,6 +9800,134 @@ const astroDescriptions = {
             if (input && counter) {
                 counter.textContent = `${input.value.length} / ${maxLen}`;
             }
+        }
+
+        let spreadHistoryOffset = 0;
+        let isFetchingHistorySpreads = false;
+        let hasMoreHistorySpreads = true;
+        let cachedHistorySpreads = []; // Кэш для быстрого открытия модалки детализации
+
+        // Функция сброса и загрузки с нуля (вызывается при клике на кнопку в профиле)
+        function resetAndLoadHistory() {
+            spreadHistoryOffset = 0;
+            hasMoreHistorySpreads = true;
+            cachedHistorySpreads = [];
+            document.getElementById('history-list-container').innerHTML = '';
+            loadSpreadsHistory();
+        }
+
+        async function loadSpreadsHistory(isLoadMore = false) {
+            // Защита от дублей запросов
+            if (isFetchingHistorySpreads || (!hasMoreHistorySpreads && isLoadMore)) return;
+            
+            isFetchingHistorySpreads = true;
+            const loader = document.getElementById('history-loading-indicator');
+            const container = document.getElementById('history-list-container');
+            
+            if (isLoadMore) {
+                loader.classList.remove('hidden');
+            } else {
+                container.innerHTML = '<div class="text-center py-10"><i class="ph-fill ph-spinner animate-spin text-3xl text-neon-fuchsia"></i></div>';
+            }
+
+            const res = await apiRequest(`/tarot/history?offset=${spreadHistoryOffset}&limit=10`, "GET");
+            isFetchingHistorySpreads = false;
+            
+            if (isLoadMore) loader.classList.add('hidden');
+            if (!isLoadMore) container.innerHTML = '';
+
+            if (res.success) {
+                hasMoreHistorySpreads = res.has_more;
+                
+                if (res.spreads.length === 0 && spreadHistoryOffset === 0) {
+                    container.innerHTML = `<div class="text-center text-white/30 text-xs py-8 bg-space-800/50 rounded-2xl border border-white/5">${t('history_empty') || 'Ты еще не делал раскладов'}</div>`;
+                    return;
+                }
+
+                res.spreads.forEach(item => {
+                    cachedHistorySpreads.push(item);
+                    container.innerHTML += createHistoryCardHTML(item);
+                });
+                
+                spreadHistoryOffset += res.spreads.length;
+            } else {
+                if (!isLoadMore) container.innerHTML = `<div class="text-center text-red-400 text-xs py-4">${t('toast_error')}</div>`;
+            }
+        }
+
+        function createHistoryCardHTML(item) {
+            const template = spreadTemplatesCache.find(s => s.id === item.spread_type);
+            const spreadName = template ? template.name : (t('history_classic') || 'Классический расклад');
+            
+            const dateObj = new Date(item.created_at);
+            const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long', year: 'numeric' });
+            const qText = item.question ? `«${item.question}»` : (t('history_classic') || 'Классический расклад');
+            
+            // Генерируем мини-картинки для эстетики
+            let miniCardsHtml = '';
+            if (item.cards && item.cards.length > 0) {
+                miniCardsHtml = item.cards.map(c => `<img src="${c.image}" class="w-6 h-9 rounded-sm object-cover border border-white/20 shadow-sm opacity-80 group-hover:opacity-100 transition-opacity">`).join('');
+            }
+            
+            return `
+                <div onclick="openHistoryDetail(${item.id})" class="glass bg-space-800 rounded-2xl p-4 border border-white/5 hover:border-neon-fuchsia/40 active:scale-[0.98] transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">${dateStr}</span>
+                        <div class="flex gap-1">${miniCardsHtml}</div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-1">${spreadName}</h4>
+                    <p class="text-white/50 text-xs line-clamp-1 italic">${qText}</p>
+                </div>
+            `;
+        }
+
+        // Детектор скролла (если до конца списка осталось 50px - грузим еще)
+        function handleHistoryScroll(el) {
+            if (el.scrollHeight - el.scrollTop - el.clientHeight < 50) {
+                if (hasMoreHistorySpreads && !isFetchingHistorySpreads) {
+                    loadSpreadsHistory(true);
+                }
+            }
+        }
+
+        function openHistoryDetail(id) {
+            const item = cachedHistorySpreads.find(i => i.id === id);
+            if (!item) return;
+
+            const template = spreadTemplatesCache.find(s => s.id === item.spread_type);
+            const spreadName = template ? template.name : (t('history_classic') || 'Классический расклад');
+            
+            const dateObj = new Date(item.created_at);
+            
+            // Заполняем Шапку
+            document.getElementById('history-detail-date').textContent = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+            document.getElementById('history-detail-title').textContent = spreadName;
+            
+            const qEl = document.getElementById('history-detail-question');
+            if (item.question) {
+                qEl.textContent = `«${item.question}»`;
+                qEl.classList.remove('hidden');
+            } else {
+                qEl.classList.add('hidden');
+            }
+
+            // Рендерим крупные карты с красивым нахлестом
+            const cardsContainer = document.getElementById('history-detail-cards');
+            cardsContainer.innerHTML = '';
+            if (item.cards && item.cards.length > 0) {
+                item.cards.forEach((c, idx) => {
+                    cardsContainer.innerHTML += `
+                        <div class="relative result-card-item" style="z-index: ${idx}">
+                            <img src="${c.image}" class="w-[85px] sm:w-[100px] rounded-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.8)] border border-white/10" alt="Card">
+                        </div>
+                    `;
+                });
+            }
+
+            // Вставляем ИИ-интерпретацию
+            document.getElementById('history-detail-text').innerHTML = DOMPurify.sanitize(item.interpretation);
+            
+            openModal('history-detail');
         }
 
         async function loadSpreads() {
@@ -11808,8 +12003,9 @@ const astroDescriptions = {
           const modal = document.getElementById('modal-' + modalId);
           if (modal) setTimeout(() => modal.classList.add('active'), 10);
           
-          // НОВАЯ СТРОЧКА:
           if (modalId === 'referral') loadReferralsList();
+          // НОВАЯ СТРОЧКА:
+          if (modalId === 'spread-history') resetAndLoadHistory();
         }
     
         function closeAllModals() {
