@@ -587,6 +587,18 @@
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="cal_desc">Лунные фазы</p>
                     </div>
                 </button>
+                <!-- НОВАЯ ШИРОКАЯ КНОПКА СИНАСТРИИ -->
+                <button onclick="openSynastryModal()" class="col-span-2 glass bg-gradient-to-br from-space-800 to-[#1a0b2e] rounded-[20px] p-4 flex items-center gap-4 text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-rose/40 group relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-neon-rose/20 rounded-full blur-2xl group-hover:bg-neon-rose/30 transition-colors pointer-events-none"></div>
+                    <div class="w-12 h-12 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 border border-neon-rose/30 shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-infinity text-2xl text-neon-rose drop-shadow-[0_0_8px_rgba(251,113,133,0.8)]"></i>
+                    </div>
+                    <div class="flex-1 relative z-10">
+                        <p class="text-white text-sm font-bold mb-0.5" data-i18n="opp_synastry">Астральный Союз</p>
+                        <p class="text-white/50 text-[10px] leading-snug" data-i18n="opp_synastry_desc">Совместимость душ</p>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-white/30 relative z-10"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -791,33 +803,80 @@
             <div class="px-5 pt-2 pb-4 overflow-y-auto hide-scrollbar relative z-10">
                 <div class="text-center mb-6">
                     <i class="ph-fill ph-intersect text-4xl text-neon-rose drop-shadow-[0_0_15px_rgba(251,113,133,0.6)] mb-2"></i>
-                    <h3 class="text-2xl font-mystic text-white font-bold">Анализ Союза</h3>
-                    <p class="text-xs text-white/50 mt-1">Оракул сплетет ваши линии судьбы</p>
+                    <h3 class="text-2xl font-mystic text-white font-bold" data-i18n="synastry_title">Анализ Союза</h3>
+                    <p class="text-xs text-white/50 mt-1" data-i18n="synastry_subtitle">Оракул сплетет ваши линии судьбы</p>
                 </div>
                 
                 <div class="space-y-4">
+                    <!-- Блок с данными самого юзера (Read-only) -->
                     <div>
-                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Имя партнера</label>
-                        <input type="text" id="synastry-partner-name" maxlength="30" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-rose/50 transition-colors text-sm" placeholder="Кого проверяем?">
+                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="synastry_you">Твои данные:</label>
+                        <div class="bg-space-900/50 border border-white/5 rounded-xl p-3.5 flex justify-between items-center shadow-inner">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50"><i class="ph-fill ph-user"></i></div>
+                                <span id="syn-user-name" class="text-sm font-bold text-white">Имя</span>
+                            </div>
+                            <span id="syn-user-date" class="text-xs font-bold text-white/50">00.00.0000</span>
+                        </div>
                     </div>
+
+                    <!-- Ввод Имени партнера -->
                     <div>
-                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider">Дата рождения партнера</label>
-                        <input type="date" id="synastry-partner-date" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-rose/50 transition-colors text-sm">
+                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="synastry_partner_name">Имя партнера</label>
+                        <input type="text" id="synastry-partner-name" maxlength="30" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-rose/50 transition-colors text-sm" placeholder="...">
                     </div>
                     
-                    <div>
-                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-2 block uppercase tracking-wider">Статус отношений</label>
-                        <div class="grid grid-cols-2 gap-2" id="synastry-status-chips">
-                            <button type="button" class="synastry-chip active glass bg-neon-rose/20 border border-neon-rose/50 text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="Тайная симпатия">Тайная симпатия</button>
-                            <button type="button" class="synastry-chip glass bg-space-800 border border-white/10 text-white/60 hover:text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="В отношениях">В отношениях</button>
-                            <button type="button" class="synastry-chip glass bg-space-800 border border-white/10 text-white/60 hover:text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="Бывшие">Бывший партнер</button>
-                            <button type="button" class="synastry-chip glass bg-space-800 border border-white/10 text-white/60 hover:text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="Всё сложно">Всё сложно</button>
+                    <!-- Сложный выбор даты (Точь-в-точь как в профиле) -->
+                    <div class="relative z-50">
+                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="synastry_partner_date">Дата рождения партнера</label>
+                        
+                        <!-- МОБИЛЬНЫЙ -->
+                        <div class="grid grid-cols-12 gap-2 mobile-date-ui">
+                            <div class="relative col-span-3">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-rose/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer custom-select-btn" data-target="synastry-day-list">
+                                    <span id="label-synastry-day" class="truncate">ДД</span>
+                                </div>
+                                <div id="synastry-day-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50 shadow-2xl"></div>
+                                <input type="hidden" id="synastry-day">
+                            </div>
+                            <div class="relative col-span-5">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-rose/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer custom-select-btn" data-target="synastry-month-list">
+                                    <span id="label-synastry-month" class="truncate" data-i18n="month">Месяц</span>
+                                </div>
+                                <div id="synastry-month-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50 shadow-2xl"></div>
+                                <input type="hidden" id="synastry-month">
+                            </div>
+                            <div class="relative col-span-4">
+                                <div class="w-full bg-space-800 border border-white/10 hover:border-neon-rose/50 rounded-xl py-4 px-3 text-white text-sm flex items-center justify-between cursor-pointer custom-select-btn" data-target="synastry-year-list">
+                                    <span id="label-synastry-year" class="truncate" data-i18n="year">ГГГГ</span>
+                                </div>
+                                <div id="synastry-year-list" class="absolute top-full left-0 w-full mt-2 bg-space-700 border border-white/10 rounded-xl max-h-[160px] overflow-y-auto hide-scrollbar hidden z-50 shadow-2xl"></div>
+                                <input type="hidden" id="synastry-year">
+                            </div>
+                        </div>
+
+                        <!-- ДЕСКТОП -->
+                        <div class="flex items-center justify-center gap-2 desktop-date-ui hidden">
+                            <input type="text" id="synastry-desk-day" maxlength="2" placeholder="ДД" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-rose/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner">
+                            <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                            <input type="text" id="synastry-desk-month" maxlength="2" placeholder="ММ" class="w-[70px] bg-space-800 border border-white/10 focus:border-neon-rose/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner">
+                            <span class="text-white/30 text-2xl font-bold mb-1">.</span>
+                            <input type="text" id="synastry-desk-year" maxlength="4" placeholder="ГГГГ" class="w-[100px] bg-space-800 border border-white/10 focus:border-neon-rose/50 rounded-xl py-4 text-white text-center font-mono text-xl outline-none transition-colors shadow-inner">
                         </div>
                     </div>
                     
-                    <button onclick="startSynastryCalculation()" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl mt-4 shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide flex justify-center items-center gap-2 relative overflow-hidden group">
+                    <div class="relative z-40">
+                        <label class="text-[10px] font-bold text-white/40 ml-1 mb-2 block uppercase tracking-wider" data-i18n="synastry_rel_type">Тип связи</label>
+                        <div class="grid grid-cols-3 gap-2" id="synastry-status-chips">
+                            <button type="button" class="synastry-chip active glass bg-neon-rose/20 border border-neon-rose/50 text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="partner" data-i18n="type_partner">Партнер</button>
+                            <button type="button" class="synastry-chip glass bg-space-800 border border-white/10 text-white/60 hover:text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="friend" data-i18n="type_friend">Друг</button>
+                            <button type="button" class="synastry-chip glass bg-space-800 border border-white/10 text-white/60 hover:text-white rounded-xl py-2.5 text-xs font-bold transition-all" data-status="business" data-i18n="type_business">Бизнес</button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startSynastryCalculation()" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl mt-6 shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide flex justify-center items-center gap-2 relative overflow-hidden group">
                         <span class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] opacity-0 group-hover:opacity-100"></span>
-                        <span class="relative z-10">СДЕЛАТЬ РАЗБОР</span>
+                        <span class="relative z-10 uppercase" data-i18n="btn_calc_synastry">СДЕЛАТЬ РАЗБОР</span>
                         <span class="relative z-10 bg-black/30 border border-white/10 px-2 py-0.5 rounded-md text-[11px] font-black flex items-center gap-1">
                             15 <i class="ph-fill ph-lightning text-neon-amber drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]"></i>
                         </span>
@@ -835,14 +894,13 @@
         <div class="sticky top-0 inset-x-0 px-5 py-4 flex justify-between items-center z-50 bg-[#03030b]/90 backdrop-blur-xl border-b border-white/5">
             <button onclick="closeSynastryModal()" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white/80 hover:text-white active:scale-95 transition-all shadow-sm">
                 <i class="ph-bold ph-caret-left text-lg text-neon-rose"></i>
-                <span class="text-xs font-black uppercase tracking-wider">Назад</span>
+                <span class="text-xs font-black uppercase tracking-wider" data-i18n="back">Назад</span>
             </button>
-            <p class="text-white/40 text-[9px] uppercase tracking-widest font-bold text-right">Астральный Отчет</p>
+            <p class="text-white/40 text-[9px] uppercase tracking-widest font-bold text-right" data-i18n="synastry_res_title">Астральный Отчет</p>
         </div>
     
         <div class="flex-1 w-full max-w-md mx-auto px-5 pt-8 pb-24 flex flex-col items-center relative z-10">
             
-            <!-- ЛОАДЕР (АНИМАЦИЯ СЛИЯНИЯ ПЛАНЕТ) -->
             <div id="synastry-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-[#02020a] z-40">
                 <div class="relative w-32 h-32 mb-8 flex items-center justify-center">
                     <div class="absolute inset-0 rounded-full border border-dashed border-neon-rose/30 animate-spin-slow"></div>
@@ -851,13 +909,10 @@
                     <div class="w-4 h-4 bg-neon-cyan rounded-full absolute bottom-0 shadow-[0_0_15px_rgba(34,211,238,0.8)]"></div>
                     <i class="ph-fill ph-infinity text-4xl text-white/80 animate-pulse"></i>
                 </div>
-                <h3 class="text-2xl font-mystic font-bold text-white mb-2 text-center animate-pulse">Сплетаем судьбы...</h3>
-                <p class="text-sm text-white/50 text-center max-w-[250px] font-light">Синхронизация натальных карт занимает около 15-20 секунд.</p>
+                <h3 class="text-2xl font-mystic font-bold text-white mb-2 text-center animate-pulse" data-i18n="synastry_weaving">Сплетаем судьбы...</h3>
             </div>
     
-            <!-- ГОТОВЫЙ РЕЗУЛЬТАТ -->
             <div id="synastry-content" class="w-full hidden animate-fade-in flex-col items-center">
-                <!-- Главный % Совместимости -->
                 <div class="relative w-40 h-40 flex items-center justify-center mb-8">
                     <div class="absolute inset-0 rounded-full border-4 border-white/5"></div>
                     <svg class="absolute inset-0 w-full h-full transform -rotate-90">
@@ -865,20 +920,17 @@
                     </svg>
                     <div class="text-center">
                         <span id="synastry-percent" class="text-5xl font-black text-white drop-shadow-md">0</span><span class="text-2xl font-black text-neon-rose">%</span>
-                        <p class="text-[9px] text-white/50 uppercase font-bold tracking-widest mt-1">Резонанс</p>
+                        <p class="text-[9px] text-white/50 uppercase font-bold tracking-widest mt-1" data-i18n="synastry_resonance">Резонанс</p>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-center gap-4 mb-8 w-full">
                     <div class="text-right flex-1"><p id="synastry-name-1" class="text-lg font-bold text-white truncate">Ты</p></div>
-                    <i class="ph-fill ph-heart text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]"></i>
+                    <i class="ph-fill ph-heart text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]" id="synastry-icon-center"></i>
                     <div class="text-left flex-1"><p id="synastry-name-2" class="text-lg font-bold text-white truncate">Партнер</p></div>
                 </div>
 
-                <!-- Контейнер для текста от ИИ -->
-                <div id="synastry-ai-text" class="w-full text-white/85 text-[15px] leading-relaxed space-y-6 font-light pb-8 content-daily-markdown">
-                    <!-- Заполняется из Python -->
-                </div>
+                <div id="synastry-ai-text" class="w-full text-white/85 text-[15px] leading-relaxed space-y-6 font-light pb-8 content-daily-markdown"></div>
 
                 <button onclick="discussSynastry()" class="w-full relative group overflow-hidden rounded-[20px] p-[1px] active:scale-[0.98] transition-all">
                     <span class="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,#fb7185_360deg)] animate-spin-slow opacity-100"></span>
@@ -887,7 +939,7 @@
                             <div class="w-10 h-10 rounded-full bg-neon-rose/10 flex items-center justify-center border border-neon-rose/20 shadow-[0_0_15px_rgba(251,113,133,0.3)]">
                                 <i class="ph-fill ph-chat-circle-text text-neon-rose text-lg"></i>
                             </div>
-                            <span class="text-white font-bold text-sm tracking-widest uppercase drop-shadow-md">Обсудить пару</span>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase drop-shadow-md" data-i18n="btn_discuss_oracle">Обсудить с Оракулом</span>
                         </div>
                         <div class="bg-black/50 border border-white/10 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 text-white shadow-inner">
                             1 <i class="ph-fill ph-lightning text-neon-amber"></i>
@@ -2305,6 +2357,14 @@
                 share_chat: 'Отправить в чат',
                 share_other: 'Другие приложения',
                 share_text: '🌌 Моя Карта Дня: {card}\n\n✨ {desc}\n\n🔮 Узнай, что звезды приготовили для тебя сегодня:',
+                opp_synastry: 'Астральный Союз', opp_synastry_desc: 'Совместимость душ',
+                synastry_title: 'Анализ Союза', synastry_subtitle: 'Оракул сплетет ваши линии судьбы',
+                synastry_you: 'Твои данные:', synastry_partner_name: 'Имя партнера', synastry_partner_date: 'Дата рождения партнера',
+                synastry_rel_type: 'Тип связи', type_partner: 'Партнер', type_friend: 'Друг', type_business: 'Бизнес',
+                btn_calc_synastry: 'СДЕЛАТЬ РАЗБОР', synastry_res_title: 'Астральный Отчет', synastry_resonance: 'Резонанс',
+                toast_enter_partner: 'Введите имя и корректную дату рождения',
+                toast_need_your_date: 'Сначала укажите свою дату рождения в профиле',
+                synastry_weaving: 'Сплетаем судьбы...',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2326,6 +2386,14 @@
                 share_chat: 'Send to Chat',
                 share_other: 'Other Apps',
                 share_text: '🌌 My Daily Card: {card}\n\n✨ {desc}\n\n🔮 Find out what the stars have for you today:',
+                opp_synastry: 'Astral Union', opp_synastry_desc: 'Soul compatibility',
+                synastry_title: 'Union Analysis', synastry_subtitle: 'The Oracle will weave your destinies',
+                synastry_you: 'Your data:', synastry_partner_name: 'Partner\'s Name', synastry_partner_date: 'Partner\'s Birth Date',
+                synastry_rel_type: 'Connection Type', type_partner: 'Partner', type_friend: 'Friend', type_business: 'Business',
+                btn_calc_synastry: 'ANALYZE UNION', synastry_res_title: 'Astral Report', synastry_resonance: 'Resonance',
+                toast_enter_partner: 'Enter a name and valid birth date',
+                toast_need_your_date: 'First, set your birth date in your profile',
+                synastry_weaving: 'Weaving destinies...',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2347,6 +2415,14 @@
                 share_chat: 'Enviar al chat',
                 share_other: 'Otras Aplicaciones',
                 share_text: '🌌 Mi Carta Diaria: {card}\n\n✨ {desc}\n\n🔮 Descubre qué te deparan las estrellas hoy:',
+                opp_synastry: 'Unión Astral', opp_synastry_desc: 'Compatibilidad de almas',
+                synastry_title: 'Análisis de Unión', synastry_subtitle: 'El Oráculo tejerá sus destinos',
+                synastry_you: 'Tus datos:', synastry_partner_name: 'Nombre de la pareja', synastry_partner_date: 'Fecha de nacimiento',
+                synastry_rel_type: 'Tipo de conexión', type_partner: 'Pareja', type_friend: 'Amigo', type_business: 'Negocio',
+                btn_calc_synastry: 'ANALIZAR UNIÓN', synastry_res_title: 'Reporte Astral', synastry_resonance: 'Resonancia',
+                toast_enter_partner: 'Ingresa un nombre y fecha válidos',
+                toast_need_your_date: 'Primero configura tu fecha de nacimiento',
+                synastry_weaving: 'Tejiendo destinos...',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2368,6 +2444,14 @@
                 share_chat: 'Envoyer au chat',
                 share_other: 'Autres applications',
                 share_text: '🌌 Ma Carte du Jour : {card}\n\n✨ {desc}\n\n🔮 Découvrez ce que les étoiles vous réservent aujourd\'hui :',
+                opp_synastry: 'Union Astrale', opp_synastry_desc: 'Compatibilité des âmes',
+                synastry_title: 'Analyse d\'Union', synastry_subtitle: 'L\'Oracle tissera vos destins',
+                synastry_you: 'Vos données :', synastry_partner_name: 'Nom du partenaire', synastry_partner_date: 'Date de naissance',
+                synastry_rel_type: 'Type de lien', type_partner: 'Partenaire', type_friend: 'Ami', type_business: 'Affaires',
+                btn_calc_synastry: 'ANALYSER L\'UNION', synastry_res_title: 'Rapport Astral', synastry_resonance: 'Résonance',
+                toast_enter_partner: 'Entrez un nom et une date valide',
+                toast_need_your_date: 'D\'abord, configurez votre date de naissance',
+                synastry_weaving: 'Tissage des destins...',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2389,6 +2473,14 @@
                 share_chat: 'Im Chat senden',
                 share_other: 'Andere Apps',
                 share_text: '🌌 Meine Tageskarte: {card}\n\n✨ {desc}\n\n🔮 Finde heraus, was die Sterne heute für dich bereithalten:',
+                opp_synastry: 'Astrale Union', opp_synastry_desc: 'Seelenkompatibilität',
+                synastry_title: 'Unionsanalyse', synastry_subtitle: 'Das Orakel webt eure Schicksale',
+                synastry_you: 'Deine Daten:', synastry_partner_name: 'Name des Partners', synastry_partner_date: 'Geburtsdatum',
+                synastry_rel_type: 'Verbindungstyp', type_partner: 'Partner', type_friend: 'Freund', type_business: 'Geschäft',
+                btn_calc_synastry: 'ANALYSIEREN', synastry_res_title: 'Astraler Bericht', synastry_resonance: 'Resonanz',
+                toast_enter_partner: 'Geben Sie einen Namen und ein gültiges Datum ein',
+                toast_need_your_date: 'Bitte zuerst dein Geburtsdatum einstellen',
+                synastry_weaving: 'Schicksale verweben...',
             }
         };
 
@@ -3249,19 +3341,16 @@
             }, 400); // Небольшая задержка, чтобы успела пройти анимация перехода
         }
 
-        let activeSynastryStatus = "Тайная симпатия";
+        let activeSynastryStatus = "partner"; // Внутренний ключ (partner, friend, business)
 
-        // Обработка кликов по чипсам статуса
         document.addEventListener('DOMContentLoaded', () => {
             const chips = document.querySelectorAll('.synastry-chip');
             chips.forEach(chip => {
                 chip.addEventListener('click', (e) => {
-                    // Сбрасываем стили у всех
                     chips.forEach(c => {
                         c.classList.remove('bg-neon-rose/20', 'border-neon-rose/50', 'text-white', 'active');
                         c.classList.add('bg-space-800', 'border-white/10', 'text-white/60');
                     });
-                    // Применяем к нажатому
                     e.target.classList.remove('bg-space-800', 'border-white/10', 'text-white/60');
                     e.target.classList.add('bg-neon-rose/20', 'border-neon-rose/50', 'text-white', 'active');
                     activeSynastryStatus = e.target.getAttribute('data-status');
@@ -3269,29 +3358,49 @@
             });
         });
 
-        // Запуск (Клик по кнопке "СДЕЛАТЬ РАЗБОР")
-        async function startSynastryCalculation() {
-            const partnerName = document.getElementById('synastry-partner-name').value.trim();
-            const partnerDate = document.getElementById('synastry-partner-date').value;
-
-            // Проверяем, ввел ли юзер свою дату рождения (это обязательно для синастрии)
+        function openSynastryModal() {
+            // Проверяем, введена ли дата юзера
             if (!window.userBirthDate) {
-                closeAllModals();
-                showToast("Сначала укажите свою дату рождения в Космо-Паспорте", "ph-warning-circle");
+                showToast(t('toast_need_your_date') || "Сначала укажите свою дату рождения", "ph-warning-circle");
                 setTimeout(() => openModal('astro-form'), 1000);
                 return;
             }
 
-            if (!partnerName || !partnerDate) {
-                return showToast("Введите имя и дату рождения партнера", "ph-warning-circle");
+            // Заполняем блок юзера (read-only)
+            const userNameEl = document.getElementById('profile-name');
+            document.getElementById('syn-user-name').textContent = userNameEl ? userNameEl.textContent : 'Странник';
+            
+            const [y, m, d] = window.userBirthDate.split('-');
+            document.getElementById('syn-user-date').textContent = `${d}.${m}.${y}`;
+
+            openModal('synastry-form');
+        }
+
+        async function startSynastryCalculation() {
+            const partnerName = document.getElementById('synastry-partner-name').value.trim();
+            const isDesktop = document.body.classList.contains('is-desktop');
+            
+            // Читаем кастомную дату
+            let d = isDesktop ? document.getElementById('synastry-desk-day').value : document.getElementById('synastry-day').value;
+            let m = isDesktop ? document.getElementById('synastry-desk-month').value : document.getElementById('synastry-month').value;
+            let y = isDesktop ? document.getElementById('synastry-desk-year').value : document.getElementById('synastry-year').value;
+            
+            if (!partnerName || !d || !m || !y || y.length < 4) {
+                return showToast(t('toast_enter_partner') || "Введите имя и дату", "ph-warning-circle");
             }
 
-            // Временно: Имитируем запрос к бэкенду (ПОКА БЭКЕНД НЕ ГОТОВ)
-            // Когда напишем бэкенд, мы заменим это на apiRequest!
-            
+            if (d.length === 1) d = '0' + d;
+            if (m.length === 1) m = '0' + m;
+
+            // Используем ваш надежный валидатор
+            if (!validateDateInput(y, m, d)) {
+                return showToast(t('toast_invalid_date') || "Некорректная дата!", "ph-warning-circle text-neon-amber");
+            }
+
+            const partnerDateFormatted = `${y}-${m}-${d}`;
+
             closeAllModals();
             
-            // Открываем экран результата и показываем лоадер
             const resultModal = document.getElementById('modal-synastry-result');
             resultModal.classList.remove('hidden');
             setTimeout(() => resultModal.classList.remove('opacity-0'), 10);
@@ -3299,12 +3408,22 @@
             document.getElementById('synastry-loader').classList.remove('hidden');
             document.getElementById('synastry-content').classList.add('hidden');
 
-            document.getElementById('synastry-name-1').textContent = document.getElementById('profile-name').textContent || 'Ты';
+            document.getElementById('synastry-name-1').textContent = document.getElementById('syn-user-name').textContent;
             document.getElementById('synastry-name-2').textContent = partnerName;
 
-            // Имитация ожидания ИИ (5 секунд)
+            // Меняем иконку в центре в зависимости от типа связи
+            const iconEl = document.getElementById('synastry-icon-center');
+            if(activeSynastryStatus === 'business') {
+                iconEl.className = "ph-fill ph-handshake text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+            } else if(activeSynastryStatus === 'friend') {
+                iconEl.className = "ph-fill ph-users text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+            } else {
+                iconEl.className = "ph-fill ph-heart text-neon-rose text-2xl drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]";
+            }
+
+            // Имитация ожидания
             setTimeout(() => {
-                showSynastryResult(87, "<b>Кармический узел</b><br><br>Здесь будет большой и глубокий разбор от ИИ, который мы напишем на бэкенде в следующем шаге!");
+                showSynastryResult(87, "<b>Кармический узел</b><br><br>Здесь будет большой и глубокий разбор от ИИ, который мы напишем на бэкенде!");
             }, 4000);
         }
 
@@ -3315,17 +3434,12 @@
 
             document.getElementById('synastry-ai-text').innerHTML = htmlText;
 
-            // Анимация кольца и цифр
             const circle = document.getElementById('synastry-circle');
             const numEl = document.getElementById('synastry-percent');
-            
-            // Длина окружности circle (2 * PI * 76 = 477)
             const offset = 477 - (477 * percentage) / 100;
             
             setTimeout(() => {
                 circle.style.strokeDashoffset = offset;
-                
-                // Анимация бегущих цифр
                 let curr = 0;
                 const interval = setInterval(() => {
                     curr += 2;
@@ -3343,7 +3457,7 @@
             modal.classList.add('opacity-0');
             setTimeout(() => { 
                 modal.classList.add('hidden');
-                document.getElementById('synastry-circle').style.strokeDashoffset = "477"; // сброс
+                document.getElementById('synastry-circle').style.strokeDashoffset = "477";
                 document.getElementById('synastry-percent').textContent = "0";
             }, 300);
         }
@@ -3705,6 +3819,8 @@
             setupDropdown('astro-day', days);
             setupDropdown('edit-year', years);
             setupDropdown('astro-year', years);
+            setupDropdown('synastry-day', days);
+            setupDropdown('synastry-year', years);
             
             updateCustomMonthLanguage();
         }
@@ -3848,6 +3964,7 @@
     
             renderMonth('edit-month');
             renderMonth('astro-month');
+            renderMonth('synastry-month');
         }
     
         // ==================== INITIALIZATION ====================
@@ -4303,6 +4420,7 @@
 
             bindInputs('edit');
             bindInputs('astro');
+            bindInputs('synastry');
         }
     
         function showMaintenanceScreen() {
