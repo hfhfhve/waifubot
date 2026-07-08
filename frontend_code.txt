@@ -7628,6 +7628,7 @@ const astroDescriptions = {
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.min.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="data.js?v=6"></script>
   
   <script>
@@ -9103,8 +9104,13 @@ const astroDescriptions = {
                     <span class="text-white font-bold text-sm tracking-widest uppercase" data-i18n="share_card">Поделиться картой</span>
                 </button>
 
+                <button onclick="generateAndShowShare()" class="w-full glass bg-space-800/80 border border-white/10 hover:border-white/30 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-all mb-4">
+                    <i class="ph-bold ph-camera text-xl text-white"></i>
+                    <span class="text-white font-bold text-sm tracking-widest uppercase">Поделиться картой</span>
+                </button>
+                
                 <button onclick="closeDailyModal()" class="mt-2 text-white/30 hover:text-white/70 text-[10px] uppercase tracking-[0.2em] font-bold active:scale-95 transition-colors">
-                    <span data-i18n="card_back">Просто закрыть</span>
+                    <span>Просто закрыть</span>
                 </button>
             </div>
         </div>
@@ -9553,6 +9559,66 @@ const astroDescriptions = {
                     <div class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 font-bold text-sm">
                         <span id="label-rub">0</span> <span class="currency-symbol">₽</span>
                     </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="story-export-template" class="fixed top-0 left-[-9999px] w-[1080px] h-[1920px] bg-[#03030b] flex flex-col items-center justify-between py-24 px-16 z-0">
+        <!-- Неоновые эффекты на фоне -->
+        <div class="absolute top-0 left-0 w-[800px] h-[800px] bg-neon-indigo/40 blur-[150px] rounded-full"></div>
+        <div class="absolute bottom-0 right-0 w-[800px] h-[800px] bg-neon-fuchsia/40 blur-[150px] rounded-full"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[2px] bg-white/5 blur-sm"></div>
+
+        <!-- Шапка -->
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="flex items-center gap-4 mb-4">
+                <i class="ph-fill ph-sparkle text-5xl text-neon-fuchsia drop-shadow-[0_0_20px_rgba(232,121,249,0.8)]"></i>
+                <h1 class="text-6xl font-mystic font-bold text-white tracking-widest uppercase">Cosmic Tarot</h1>
+                <i class="ph-fill ph-sparkle text-5xl text-neon-cyan drop-shadow-[0_0_20px_rgba(34,211,238,0.8)]"></i>
+            </div>
+            <p id="story-date" class="text-3xl text-white/70 font-medium uppercase tracking-[0.3em]">Карта Дня</p>
+        </div>
+
+        <!-- Карта (Крупно) -->
+        <div class="relative z-10 w-[600px] h-[950px] rounded-[40px] p-3 bg-gradient-to-br from-neon-indigo to-neon-fuchsia shadow-[0_0_100px_rgba(232,121,249,0.4)]">
+            <div class="w-full h-full rounded-[32px] overflow-hidden bg-space-900">
+                <img id="story-img" src="" crossorigin="anonymous" class="w-full h-full object-cover" alt="Card">
+            </div>
+        </div>
+
+        <!-- Интерпретация (Текст больше не обрезается, он красиво вписан) -->
+        <div class="relative z-10 w-full bg-space-800/80 backdrop-blur-xl rounded-[40px] p-12 border border-white/20 shadow-2xl">
+            <h2 id="story-title" class="text-6xl font-mystic font-bold text-white mb-6 text-center drop-shadow-md">Название Карты</h2>
+            <p id="story-desc" class="text-3xl text-white/90 leading-[1.6] font-light text-center"></p>
+        </div>
+
+        <!-- Подвал с рекламой вашего бота -->
+        <div class="relative z-10 flex items-center justify-center gap-5 bg-white/10 px-12 py-6 rounded-full border border-white/20 backdrop-blur-md">
+            <i class="ph-fill ph-telegram-logo text-5xl text-[#00aaff]"></i>
+            <span class="text-3xl font-bold text-white tracking-wide">@tarot_neurobot</span>
+        </div>
+    </div>
+
+    <div id="modal-share-preview" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[120]">
+        <div class="glass-strong rounded-t-[32px] pb-8 flex flex-col relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-neon-fuchsia/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex justify-center pt-4 pb-3">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 flex flex-col items-center relative z-10">
+                <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-4">Предпросмотр Сторис</p>
+                
+                <!-- Сюда вставится готовая картинка -->
+                <div class="w-[65%] rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.6)] border border-white/20 overflow-hidden mb-6 bg-space-800 aspect-[9/16]">
+                    <img id="share-preview-img" src="" class="w-full h-full object-cover">
+                </div>
+
+                <button onclick="shareGeneratedImage()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-[0_5px_20px_rgba(99,102,241,0.4)]">
+                    <i class="ph-bold ph-share-network text-xl text-white"></i>
+                    <span class="text-white font-bold text-sm tracking-wide uppercase">Отправить / Сохранить</span>
                 </button>
             </div>
         </div>
@@ -10235,6 +10301,113 @@ const astroDescriptions = {
         function t(key) {
             const langData = translations[activeLanguage] || translations['ru'];
             return langData[key] || key;
+        }
+
+        function stripHtmlTags(str) {
+            if (!str) return "";
+            // Удаляем теги, заменяем <br> на пробелы
+            return str.replace(/<br\s*\/?>/gi, ' ').replace(/<\/?[^>]+(>|$)/g, "").trim();
+        }
+
+        async function generateAndShowShare() {
+            if (!dailyCardDataCache) return;
+
+            showToast("Создаем звездный слепок...", "ph-spinner animate-spin");
+
+            // 1. Заполняем скрытый макет данными
+            document.getElementById('story-img').src = dailyCardDataCache.image;
+            document.getElementById('story-title').textContent = dailyCardDataCache.name;
+
+            // Берем чистый текст. Берем первые 2-3 предложения, чтобы они красиво влезли в макет.
+            let cleanText = stripHtmlTags(dailyCardDataCache.interpretation);
+            if (cleanText.length > 250) {
+                // Обрезаем до точки, чтобы не было "..."
+                cleanText = cleanText.substring(0, 250);
+                cleanText = cleanText.substring(0, cleanText.lastIndexOf('.')) + '.';
+            }
+            document.getElementById('story-desc').textContent = cleanText;
+
+            // Дата
+            const dateOptions = { day: 'numeric', month: 'long' };
+            document.getElementById('story-date').textContent = `Энергия дня • ${new Date().toLocaleDateString(activeLanguage, dateOptions)}`;
+
+            // Ждем загрузки картинки (чтобы не было белого квадрата)
+            await new Promise((resolve) => {
+                const img = document.getElementById('story-img');
+                if (img.complete) resolve();
+                else { img.onload = resolve; img.onerror = resolve; }
+            });
+
+            const template = document.getElementById('story-export-template');
+            
+            // Временно показываем блок браузеру (без этого плагин его не сфотографирует)
+            template.style.left = "0px";
+            template.style.opacity = "0.01"; // Делаем почти невидимым, но в DOM
+
+            try {
+                // 2. Делаем скриншот макета
+                const canvas = await html2canvas(template, {
+                    scale: 1, // 1080x1920 это уже высокое качество
+                    useCORS: true,
+                    backgroundColor: "#03030b",
+                    logging: false
+                });
+
+                // Возвращаем макет в невидимую зону
+                template.style.left = "-9999px";
+                template.style.opacity = "1";
+
+                // Конвертируем в картинку
+                const imgDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+                document.getElementById('share-preview-img').src = imgDataUrl;
+
+                // Сохраняем файл глобально для кнопки отправки
+                canvas.toBlob(blob => {
+                    window.currentStoryBlob = blob;
+                }, 'image/jpeg', 0.9);
+
+                hideToast();
+                
+                // Закрываем меню карты и открываем меню предпросмотра
+                const overlay = document.getElementById('overlay');
+                overlay.style.zIndex = "115"; // Поднимаем над оверлеем
+                overlay.classList.add('active');
+                
+                document.getElementById('modal-share-preview').classList.add('active');
+
+            } catch (error) {
+                console.error("Ошибка при генерации картинки:", error);
+                template.style.left = "-9999px";
+                template.style.opacity = "1";
+                showToast("Ошибка генерации. Попробуйте позже.", "ph-warning-circle");
+            }
+        }
+
+        async function shareGeneratedImage() {
+            if (!window.currentStoryBlob) return;
+            
+            // Превращаем Blob в Файл
+            const file = new File([window.currentStoryBlob], 'cosmic_tarot.jpg', { type: 'image/jpeg' });
+
+            // Проверяем, поддерживает ли телефон нативную отправку картинок
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Cosmic Tarot',
+                        text: 'Узнай свою Карту Дня в @tarot_neurobot ✨'
+                    });
+                } catch (e) {
+                    console.error("Отмена отправки", e);
+                }
+            } else {
+                // Если телефон старый или это ПК - просто скачиваем картинку в галерею
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(window.currentStoryBlob);
+                link.download = 'Cosmic_Tarot_Card.jpg';
+                link.click();
+                showToast("Картинка сохранена в галерею!", "ph-check-circle");
+            }
         }
     
         function updateInterfaceTranslations() {
