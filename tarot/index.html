@@ -931,24 +931,27 @@
             </div>
 
             <!-- Красота и Тело -->
-            <div class="glass bg-space-800 rounded-[24px] p-5 mb-6 border border-white/5">
-                <p class="text-neon-fuchsia text-[10px] font-bold uppercase tracking-widest mb-4" data-i18n="cal_beauty">Красота и тело</p>
+            <div class="glass bg-space-800 rounded-[24px] p-5 mb-6 border border-white/5 shadow-lg">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="ph-fill ph-infinity text-neon-fuchsia text-lg"></i>
+                    <p class="text-neon-fuchsia text-[10px] font-bold uppercase tracking-widest leading-none">Матрица Дня</p>
+                </div>
                 <div class="space-y-3.5">
-                    <div class="flex justify-between items-end border-b border-white/5 pb-3">
-                        <span class="text-white/70 text-sm" data-i18n="haircut">Стрижка</span>
-                        <span id="beauty-haircut" class="text-white font-medium text-sm text-right">...</span>
+                    <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 rounded-t-lg transition-colors">
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-heart text-neon-rose text-xs"></i> Любовь</span>
+                        <span id="matrix-love" class="text-white font-medium text-sm text-right">...</span>
                     </div>
-                    <div class="flex justify-between items-end border-b border-white/5 pb-3">
-                        <span class="text-white/70 text-sm" data-i18n="coloring">Окрашивание</span>
-                        <span id="beauty-coloring" class="text-white font-medium text-sm text-right">...</span>
+                    <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 transition-colors">
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-coins text-neon-amber text-xs"></i> Дела и деньги</span>
+                        <span id="matrix-finance" class="text-white font-medium text-sm text-right">...</span>
                     </div>
-                    <div class="flex justify-between items-end border-b border-white/5 pb-3">
-                        <span class="text-white/70 text-sm" data-i18n="manicure">Маникюр</span>
-                        <span id="beauty-manicure" class="text-white font-medium text-sm text-right">...</span>
+                    <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 transition-colors">
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-lightning text-neon-cyan text-xs"></i> Тонус энергии</span>
+                        <span id="matrix-energy" class="text-white font-medium text-sm text-right">...</span>
                     </div>
-                    <div class="flex justify-between items-end">
-                        <span class="text-white/70 text-sm" data-i18n="face_care">Косметология</span>
-                        <span id="beauty-face" class="text-white font-medium text-sm text-right">...</span>
+                    <div class="flex justify-between items-end group hover:bg-white/5 rounded-b-lg transition-colors">
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-sparkle text-neon-purple text-xs"></i> Интуиция</span>
+                        <span id="matrix-intuition" class="text-white font-medium text-sm text-right">...</span>
                     </div>
                 </div>
             </div>
@@ -3003,11 +3006,11 @@
                 ).join('');
     
                 // 3. Красота и Тело
-                if (f.beauty) {
-                    document.getElementById('beauty-haircut').textContent = f.beauty.haircut || '—';
-                    document.getElementById('beauty-coloring').textContent = f.beauty.coloring || '—';
-                    document.getElementById('beauty-manicure').textContent = f.beauty.manicure || '—';
-                    document.getElementById('beauty-face').textContent = f.beauty.face_care || '—';
+                if (f.matrix) {
+                    document.getElementById('matrix-love').textContent = f.matrix.love || '—';
+                    document.getElementById('matrix-finance').textContent = f.matrix.finance || '—';
+                    document.getElementById('matrix-energy').textContent = f.matrix.energy || '—';
+                    document.getElementById('matrix-intuition').textContent = f.matrix.intuition || '—';
                 }
     
                 // 4. Персональный Гороскоп и ЭМОДЗИ
