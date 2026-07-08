@@ -1425,11 +1425,30 @@
                     <!-- Сюда залетает структурированный астральный распорядок -->
                 </div>
                 
-                <!-- Дополнительная жирная кнопка выхода снизу, чтобы не тянуться наверх -->
-                <button onclick="closeDailyModal()" class="w-full py-4 rounded-2xl glass bg-white/5 border border-white/10 text-white/60 hover:text-white font-bold text-xs tracking-widest uppercase active:scale-[0.98] transition-all" data-i18n="card_back">
-                    Вернуться в созвездия
+                <button onclick="discussDailyCard()" class="w-full relative group overflow-hidden rounded-[20px] p-[1px] active:scale-[0.98] transition-all">
+                    <!-- Неоновый вращающийся градиент -->
+                    <span class="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,#e879f9_360deg)] animate-spin-slow opacity-100"></span>
+                    <span class="absolute inset-0 bg-gradient-to-r from-neon-indigo/50 to-neon-fuchsia/50 blur-md group-hover:opacity-100 transition-opacity opacity-70"></span>
+                    
+                    <!-- Внутренняя темная капсула -->
+                    <div class="relative flex items-center justify-between w-full h-full bg-[#080812] backdrop-blur-xl rounded-[19px] py-4 px-5 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/20 shadow-[0_0_15px_rgba(232,121,249,0.3)] group-hover:scale-110 transition-transform">
+                                <i class="ph-fill ph-magic-wand text-neon-fuchsia text-lg"></i>
+                            </div>
+                            <span class="text-white font-bold text-sm tracking-widest uppercase drop-shadow-md" data-i18n="btn_discuss_oracle">Обсудить с Оракулом</span>
+                        </div>
+                        
+                        <div class="bg-black/50 border border-white/10 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 text-white shadow-inner">
+                            1 <i class="ph-fill ph-lightning text-neon-amber"></i>
+                        </div>
+                    </div>
                 </button>
-    
+
+                <!-- Оставляем маленькую ссылку просто для закрытия, если юзер не хочет общаться -->
+                <button onclick="closeDailyModal()" class="mt-4 text-white/30 hover:text-white/70 text-[10px] uppercase tracking-[0.2em] font-bold active:scale-95 transition-colors">
+                    <span data-i18n="card_back">Просто закрыть</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1905,8 +1924,12 @@
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
                 astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
                 modal_no_energy_badge: 'Недостаточно энергии', modal_unlock_spread: 'Открыть расклад', modal_unlock_desc: 'Можно не покупать большой пакет в магазине, а оплатить <b>только этот расклад</b>. Он начнется автоматически!',
-                energy_day: 'Карта дня', // <-- Заменили Энергию на Карту
-                wanderer_list: ['Странник', 'Путник', 'Искатель', 'Звездная душа', 'Мистик'] // <-- 5 вариантов
+                energy_day: 'Карта дня',
+                wanderer_list: ['Странник', 'Путник', 'Искатель', 'Звездная душа', 'Мистик'],
+                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
+                btn_discuss_oracle: 'ОБСУДИТЬ С ОРАКУЛОМ',
+                discuss_card_prompt: 'Я хочу глубже обсудить мою карту дня. Какие уроки я должен извлечь из неё сегодня?',
+                card_back: 'Просто закрыть'
             },
             'en': { 
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
@@ -1914,7 +1937,11 @@
                 astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
                 modal_no_energy_badge: 'Not enough energy', modal_unlock_spread: 'Unlock Spread', modal_unlock_desc: 'No need to buy a huge pack in the store! You can pay for <b>just this spread</b>. It will start automatically.',
                 energy_day: 'Card of the Day',
-                wanderer_list: ['Wanderer', 'Traveler', 'Seeker', 'Star Soul', 'Mystic']
+                wanderer_list: ['Wanderer', 'Traveler', 'Seeker', 'Star Soul', 'Mystic'],
+                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
+                btn_discuss_oracle: 'DISCUSS WITH ORACLE',
+                discuss_card_prompt: 'I want to deeply discuss my Daily Card. What lessons should I learn from it today?',
+                card_back: 'Just close'
             },
             'es': { 
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
@@ -1922,7 +1949,11 @@
                 astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
                 modal_no_energy_badge: 'Energía insuficiente', modal_unlock_spread: 'Desbloquear Tirada', modal_unlock_desc: '¡No es necesario comprar un paquete grande! Puedes pagar <b>solo por esta tirada</b>. Comenzará automáticamente.',
                 energy_day: 'Carta del Día',
-                wanderer_list: ['Caminante', 'Viajero', 'Buscador', 'Alma Estelar', 'Místico']
+                wanderer_list: ['Caminante', 'Viajero', 'Buscador', 'Alma Estelar', 'Místico'],
+                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
+                btn_discuss_oracle: 'DISCUTIR CON EL ORÁCULO',
+                discuss_card_prompt: 'Quiero discutir a fondo mi carta del día. ¿Qué lecciones debo aprender de ella hoy?',
+                card_back: 'Simplemente cerrar'
             },
             'fr': { 
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
@@ -1930,7 +1961,11 @@
                 astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.',
                 modal_no_energy_badge: 'Énergie insuffisante', modal_unlock_spread: 'Débloquer le Tirage', modal_unlock_desc: 'Pas besoin d\'acheter un gros pack ! Vous pouvez payer pour <b>ce tirage uniquement</b>. Il commencera automatiquement.',
                 energy_day: 'Carte du Jour',
-                wanderer_list: ['Vagabond', 'Voyageur', 'Chercheur', 'Âme Stellaire', 'Mystique']
+                wanderer_list: ['Vagabond', 'Voyageur', 'Chercheur', 'Âme Stellaire', 'Mystique'],
+                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
+                btn_discuss_oracle: 'DISCUTER AVEC L\'ORACLE',
+                discuss_card_prompt: 'Je veux discuter en profondeur de ma carte du jour. Quelles leçons dois-je en tirer aujourd\'hui ?',
+                card_back: 'Juste fermer'
             },
             'de': { 
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
@@ -1938,7 +1973,11 @@
                 astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
                 modal_no_energy_badge: 'Nicht genug Energie', modal_unlock_spread: 'Legung freischalten', modal_unlock_desc: 'Du musst kein großes Paket kaufen! Bezahle einfach für <b>nur diese Legung</b>. Sie startet automatisch.',
                 energy_day: 'Karte des Tages',
-                wanderer_list: ['Wanderer', 'Reisender', 'Sucher', 'Sternenseele', 'Mystiker']
+                wanderer_list: ['Wanderer', 'Reisender', 'Sucher', 'Sternenseele', 'Mystiker'],
+                // НОВЫЕ КНОПКИ И ПРОМПТЫ:
+                btn_discuss_oracle: 'MIT ORAKEL BESPRECHEN',
+                discuss_card_prompt: 'Ich möchte meine Tageskarte genauer besprechen. Welche Lektionen sollte ich heute daraus lernen?',
+                card_back: 'Einfach schließen'
             }
         };
 
@@ -2276,6 +2315,38 @@
             return titles[
                 (number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]
             ];
+        }
+
+        function discussDailyCard() {
+            // Проверяем баланс
+            if (userBalance.energy < 1) {
+                return showToast(t('toast_no_energy') || "Недостаточно энергии", "ph-lightning text-neon-amber");
+            }
+    
+            // Если энергия есть:
+            closeDailyModal(); // Закрываем модалку
+            navigateTo('chats'); // Переходим в чат
+    
+            // Подготавливаем скрытый контекст для ИИ
+            if (dailyCardDataCache) {
+                const cardName = dailyCardDataCache.name;
+                const element = document.getElementById('stat-element').textContent;
+                
+                // Этот текст улетит на бэкенд, но юзер его не увидит
+                window.cardDiscussContext = `[СИСТЕМНОЕ СООБЩЕНИЕ: Пользователь инициировал диалог о своей Карте Дня. Выпавшая карта: "${cardName}". Стихия: ${element}. Твоя задача: действуй как Оракул, дай глубокий инсайт об этой карте и ОБЯЗАТЕЛЬНО задай один уточняющий вопрос о том, как эта карта резонирует с его текущей жизненной ситуацией, чтобы поддержать диалог.]`;
+            }
+    
+            // Вставляем красивый текст в поле ввода
+            setTimeout(() => {
+                const promptText = t('discuss_card_prompt') || "Я хочу глубже обсудить мою карту дня. Какие уроки я должен извлечь из неё сегодня?";
+                const input = document.getElementById('message-input');
+                input.value = promptText;
+                input.focus(); // Автоматически ставим курсор, чтобы вылезла клавиатура
+                
+                // Подгоняем высоту поля ввода
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+            }, 400); // Небольшая задержка, чтобы успела пройти анимация перехода
         }
     
         // ==================== SHOP LOGIC ====================
@@ -4105,7 +4176,8 @@
             }
         
             html += messages.map(msg => {
-                let displayHtml = DOMPurify.sanitize(msg.text);
+                let rawText = msg.text.split('===HIDDEN_DATA===')[0].trim();
+                let displayHtml = DOMPurify.sanitize(rawText);
                 let actionButtonHtml = '';
                 
                 // Время из истории или --:-- если это старое сообщение из БД
@@ -4257,7 +4329,14 @@
             document.getElementById('typing-indicator').classList.remove('hidden');
             scrollToBottom();
     
-            const data = await apiRequest("/chat/send", "POST", { text: text, persona: currentChat });
+            // --- МАГИЯ СКРЫТОГО ПРОМПТА ---
+            let apiText = text;
+            if (window.cardDiscussContext) {
+                apiText = text + "\n\n===HIDDEN_DATA===\n" + window.cardDiscussContext;
+                window.cardDiscussContext = null; // Очищаем после использования
+            }
+    
+            const data = await apiRequest("/chat/send", "POST", { text: apiText, persona: currentChat });
             document.getElementById('typing-indicator').classList.add('hidden');
     
             if (data.success) {
