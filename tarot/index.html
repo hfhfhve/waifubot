@@ -1633,35 +1633,42 @@
 
     <!-- REFERRAL MODAL -->
     <div id="modal-referral" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[60]">
-        <div class="glass-strong rounded-t-[32px] pb-4 flex flex-col">
-            <div class="flex justify-center pt-3 pb-2">
+        <div class="glass-strong rounded-t-[32px] pb-4 flex flex-col max-h-[85vh]">
+            <div class="flex justify-center pt-3 pb-2 shrink-0">
                 <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
             </div>
-            <div class="p-5">
+            
+            <div class="p-5 flex-1 overflow-y-auto hide-scrollbar">
                 <div class="text-center mb-4">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-neon-indigo/30 to-neon-purple/20 flex items-center justify-center mx-auto mb-2 border border-neon-indigo/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
                         <i class="ph-fill ph-users-three text-2xl text-neon-indigo"></i>
                     </div>
                     <h3 class="text-white font-bold text-xl mb-1" data-i18n="ref_friends">Твои друзья</h3>
-                    <p class="text-white/50 text-xs" data-i18n="ref_bonus">Зови друзей и получай +3 энергии за каждого</p>
+                    <!-- ТЕПЕРЬ ТЕКСТ ПОДТЯНЕТСЯ ИЗ JS И БУДЕТ ГЛАСИТЬ +7 ЭНЕРГИИ -->
+                    <p class="text-white/50 text-xs" data-i18n="ref_bonus">Зови друзей и получай +7 энергии за каждого</p>
                 </div>
 
-                <div class="glass bg-space-800 rounded-2xl p-3 mb-4 border border-white/5">
+                <div class="glass bg-space-800 rounded-2xl p-3 mb-6 border border-white/5">
                     <p class="text-white/50 text-[10px] mb-1.5 font-bold uppercase tracking-widest" data-i18n="ref_link">Твоя ссылка</p>
-                    <div class="relative w-full">
+                    <div class="relative w-full mb-2">
                         <input type="text" id="ref-link-input" readonly class="w-full bg-black/40 rounded-xl pl-3 pr-10 py-3 text-white/70 text-xs outline-none border border-white/10 overflow-hidden text-ellipsis">
                         <button onclick="copyReferralLink()" class="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-neon-indigo hover:text-white transition-colors active:scale-95">
                             <i class="ph-bold ph-copy text-lg"></i>
                         </button>
                     </div>
-                    <button onclick="shareReferralLink()" class="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-neon-indigo to-neon-purple text-white text-xs font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(99,102,241,0.3)]">
+                    <button onclick="shareReferralLink()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-neon-indigo to-neon-purple text-white text-xs font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(99,102,241,0.3)]">
                         <i class="ph-fill ph-paper-plane-right"></i> <span data-i18n="ref_share">Отправить в Telegram</span>
                     </button>
                 </div>
 
-                <div class="flex items-center justify-between px-1">
+                <div class="flex items-center justify-between px-1 mb-3">
                     <h4 class="text-sm font-bold text-white" data-i18n="ref_invited">Приглашенные</h4>
                     <span id="referrals-count-display" class="bg-white/10 px-2.5 py-0.5 rounded-full text-xs font-bold text-white/70 shadow-inner">0</span>
+                </div>
+                
+                <!-- КОНТЕЙНЕР ДЛЯ СПИСКА ДРУЗЕЙ -->
+                <div id="referrals-list" class="space-y-3 pb-8">
+                    <!-- Заполняется через JS -->
                 </div>
             </div>
         </div>
@@ -1920,6 +1927,7 @@
         // ==================== STATE & CONFIG ====================
         const extraTranslations = {
             'ru': { 
+                ref_bonus: 'Зови друзей и получай +7 энергии за каждого', ref_remind: 'Напомнить', ref_status_done: 'Награда получена', ref_status_pending: 'Регистрируется', ref_empty: 'Вы еще никого не пригласили', toast_reminded: 'Напоминание отправлено!', toast_remind_limit: 'Можно напоминать 1 раз в 24 часа',
                 astro_sun_label: 'Солнце • Ядро личности', astro_moon_label: 'Луна • Сфера эмоций', astro_planet_label: 'Планета', astro_element_label: 'Стихия', btn_recalc: 'Изменить данные',
                 shop_energy: 'Энергии', modal_purchase: 'Покупка', modal_secure: 'Безопасная транзакция', modal_to_pay: 'К оплате:', modal_or: 'или', modal_instant: 'Моментально', modal_card: 'Банковская карта', modal_card_desc: 'РФ, СБП, SberPay',
                 astro_hint: 'Нажми на любую карточку для подробной расшифровки от Оракула.',
@@ -1932,6 +1940,7 @@
                 card_back: 'Просто закрыть'
             },
             'en': { 
+                ref_bonus: 'Invite friends and get +7 energy for each', ref_remind: 'Remind', ref_status_done: 'Reward received', ref_status_pending: 'Registering', ref_empty: 'You haven\'t invited anyone yet', toast_reminded: 'Reminder sent!', toast_remind_limit: 'Remind once per 24 hours',
                 astro_sun_label: 'Sun • Core Identity', astro_moon_label: 'Moon • Emotions', astro_planet_label: 'Ruling Planet', astro_element_label: 'Element', btn_recalc: 'Change Data',
                 shop_energy: 'Energy', modal_purchase: 'Purchase', modal_secure: 'Secure transaction', modal_to_pay: 'Total to pay:', modal_or: 'or', modal_instant: 'Instantly', modal_card: 'Bank Card', modal_card_desc: 'Cards, Apple/Google Pay',
                 astro_hint: 'Click on any card for a detailed interpretation from the Oracle.',
@@ -1944,6 +1953,7 @@
                 card_back: 'Just close'
             },
             'es': { 
+                ref_bonus: 'Invita a amigos y obtén +7 de energía', ref_remind: 'Recordar', ref_status_done: 'Recompensa recibida', ref_status_pending: 'Registrando', ref_empty: 'Aún no has invitado a nadie', toast_reminded: '¡Recordatorio enviado!', toast_remind_limit: 'Recordar una vez cada 24h',
                 astro_sun_label: 'Sol • Identidad Central', astro_moon_label: 'Luna • Emociones', astro_planet_label: 'Planeta Regente', astro_element_label: 'Elemento', btn_recalc: 'Cambiar Datos',
                 shop_energy: 'Energía', modal_purchase: 'Compra', modal_secure: 'Transacción segura', modal_to_pay: 'A pagar:', modal_or: 'o', modal_instant: 'Al instante', modal_card: 'Tarjeta Bancaria', modal_card_desc: 'Tarjetas, Apple/Google Pay',
                 astro_hint: 'Haz clic en cualquier tarjeta para una interpretación detallada del Oráculo.',
@@ -1956,6 +1966,7 @@
                 card_back: 'Simplemente cerrar'
             },
             'fr': { 
+                ref_bonus: 'Invitez des amis, obtenez +7 d\'énergie', ref_remind: 'Rappeler', ref_status_done: 'Récompense reçue', ref_status_pending: 'En cours', ref_empty: 'Vous n\'avez invité personne', toast_reminded: 'Rappel envoyé !', toast_remind_limit: 'Rappel une fois par 24h',
                 astro_sun_label: 'Soleil • Identité', astro_moon_label: 'Lune • Émotions', astro_planet_label: 'Planète', astro_element_label: 'Élément', btn_recalc: 'Modifier les Données',
                 shop_energy: 'Énergie', modal_purchase: 'Achat', modal_secure: 'Transaction sécurisée', modal_to_pay: 'À payer :', modal_or: 'ou', modal_instant: 'Instantanément', modal_card: 'Carte Bancaire', modal_card_desc: 'Cartes, Apple/Google Pay',
                 astro_hint: 'Cliquez sur n\'importe quelle carte pour une interprétation détaillée de l\'Oracle.',
@@ -1968,6 +1979,7 @@
                 card_back: 'Juste fermer'
             },
             'de': { 
+                ref_bonus: 'Freunde einladen, +7 Energie erhalten', ref_remind: 'Erinnern', ref_status_done: 'Belohnung erhalten', ref_status_pending: 'Registriert sich', ref_empty: 'Noch niemanden eingeladen', toast_reminded: 'Erinnerung gesendet!', toast_remind_limit: 'Nur einmal pro 24h erinnern',
                 astro_sun_label: 'Sonne • Identität', astro_moon_label: 'Mond • Emotionen', astro_planet_label: 'Planet', astro_element_label: 'Element', btn_recalc: 'Daten Ändern',
                 shop_energy: 'Energie', modal_purchase: 'Kauf', modal_secure: 'Sichere Transaktion', modal_to_pay: 'Zu zahlen:', modal_or: 'oder', modal_instant: 'Sofort', modal_card: 'Bankkarte', modal_card_desc: 'Karten, Apple/Google Pay',
                 astro_hint: 'Klicke auf eine beliebige Karte für eine detaillierte Interpretation des Orakels.',
@@ -2332,6 +2344,90 @@
             return titles[
                 (number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]
             ];
+        }
+
+        async function loadReferralsList() {
+            const container = document.getElementById('referrals-list');
+            container.innerHTML = '<div class="text-center py-4"><i class="ph-fill ph-spinner animate-spin text-2xl text-neon-indigo"></i></div>';
+
+            const res = await apiRequest("/referrals", "GET");
+            if (res.success) {
+                document.getElementById('referrals-count-display').textContent = res.referrals.length;
+
+                if (res.referrals.length === 0) {
+                    container.innerHTML = `<div class="text-center text-white/30 text-xs py-5 bg-space-800/50 rounded-2xl border border-white/5">${t('ref_empty')}</div>`;
+                    return;
+                }
+
+                let html = '';
+                res.referrals.forEach(r => {
+                    // Аватарка (первая буква имени или знак вопроса)
+                    const initial = r.name ? r.name.charAt(0).toUpperCase() : '?';
+                    const isDone = r.status === 'done';
+                    
+                    const statusText = isDone ? t('ref_status_done') : t('ref_status_pending');
+                    const statusColor = isDone ? 'text-emerald-400' : 'text-neon-amber';
+                    const bgAvatar = isDone ? 'from-emerald-500/20 to-emerald-500/5' : 'from-neon-amber/20 to-neon-amber/5';
+                    const textAvatar = isDone ? 'text-emerald-400' : 'text-neon-amber';
+                    const borderAvatar = isDone ? 'border-emerald-500/30' : 'border-neon-amber/30';
+
+                    let btnHtml = '';
+                    if (!isDone) {
+                        if (r.can_remind) {
+                            btnHtml = `<button onclick="remindReferral(${r.id})" id="remind-btn-${r.id}" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg text-[10px] font-bold text-white transition-all border border-white/10 shadow-sm">${t('ref_remind')}</button>`;
+                        } else {
+                            btnHtml = `<div class="px-3 py-1.5 bg-space-900 rounded-lg text-[10px] font-bold text-white/30 border border-white/5 flex items-center gap-1 shadow-inner"><i class="ph-fill ph-clock"></i> 24h</div>`;
+                        }
+                    } else {
+                        btnHtml = `<i class="ph-fill ph-check-circle text-emerald-400 text-xl drop-shadow-[0_0_5px_rgba(52,211,153,0.4)] mr-1"></i>`;
+                    }
+
+                    html += `
+                        <div class="flex items-center justify-between p-3.5 bg-space-800 rounded-2xl border border-white/5 shadow-sm hover:border-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-full bg-gradient-to-br ${bgAvatar} border ${borderAvatar} flex items-center justify-center font-bold text-lg ${textAvatar} shadow-inner shrink-0">
+                                    ${initial}
+                                </div>
+                                <div class="flex flex-col overflow-hidden">
+                                    <span class="text-white font-bold text-sm truncate max-w-[130px]">${r.name || 'Скрытый Странник'}</span>
+                                    <span class="${statusColor} text-[9px] font-black uppercase tracking-[0.1em] mt-0.5 flex items-center gap-1">
+                                        ID: ${r.id} • ${statusText}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="shrink-0 ml-2">
+                                ${btnHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+        }
+
+        async function remindReferral(targetId) {
+            const btn = document.getElementById(`remind-btn-${targetId}`);
+            if(btn) {
+                btn.innerHTML = '<i class="ph-fill ph-spinner animate-spin"></i>';
+                btn.disabled = true;
+            }
+
+            const res = await apiRequest("/referrals/remind", "POST", { target_user_id: targetId });
+            if (res.success) {
+                showToast(t('toast_reminded'), 'ph-bell-ringing text-neon-indigo');
+                // Обновляем список, чтобы кнопка стала серой с таймером 24h
+                loadReferralsList(); 
+            } else {
+                if (res.message === 'limit_reached') {
+                    showToast(t('toast_remind_limit'), 'ph-warning-circle text-neon-amber');
+                } else {
+                    showToast(t('toast_error'), 'ph-warning-circle text-red-400');
+                }
+                if(btn) {
+                    btn.innerHTML = t('ref_remind');
+                    btn.disabled = false;
+                }
+            }
         }
 
         function discussDailyCard() {
@@ -4084,6 +4180,9 @@
           document.getElementById('overlay').classList.add('active');
           const modal = document.getElementById('modal-' + modalId);
           if (modal) setTimeout(() => modal.classList.add('active'), 10);
+          
+          // НОВАЯ СТРОЧКА:
+          if (modalId === 'referral') loadReferralsList();
         }
     
         function closeAllModals() {
