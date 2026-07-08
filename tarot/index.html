@@ -1464,10 +1464,10 @@
                     <!-- Сюда залетает структурированный астральный распорядок -->
                 </div>
                 
+                <!-- КНОПКА 1: ОБСУДИТЬ С ОРАКУЛОМ -->
                 <button onclick="discussDailyCard()" class="w-full relative group overflow-hidden rounded-[20px] p-[1px] active:scale-[0.98] transition-all mb-3">
                     <span class="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,#e879f9_360deg)] animate-spin-slow opacity-100"></span>
                     <span class="absolute inset-0 bg-gradient-to-r from-neon-indigo/50 to-neon-fuchsia/50 blur-md group-hover:opacity-100 transition-opacity opacity-70"></span>
-                    
                     <div class="relative flex items-center justify-between w-full h-full bg-[#080812] backdrop-blur-xl rounded-[19px] py-4 px-5 border border-white/5">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/20 shadow-[0_0_15px_rgba(232,121,249,0.3)] group-hover:scale-110 transition-transform">
@@ -1475,26 +1475,21 @@
                             </div>
                             <span class="text-white font-bold text-sm tracking-widest uppercase drop-shadow-md" data-i18n="btn_discuss_oracle">Обсудить с Оракулом</span>
                         </div>
-                        
                         <div class="bg-black/50 border border-white/10 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 text-white shadow-inner">
                             1 <i class="ph-fill ph-lightning text-neon-amber"></i>
                         </div>
                     </div>
                 </button>
 
-                <!-- НОВАЯ КНОПКА ПОДЕЛИТЬСЯ -->
-                <button onclick="openShareModal()" class="w-full glass bg-space-800/80 border border-white/10 hover:border-white/30 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-all mb-4">
-                    <i class="ph-bold ph-share-network text-xl text-white"></i>
+                <!-- КНОПКА 2: ПОДЕЛИТЬСЯ КАРТИНКОЙ -->
+                <button onclick="generateAndShowShare()" class="w-full glass bg-space-800/80 border border-white/10 hover:border-white/30 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-all mb-4">
+                    <i class="ph-bold ph-camera text-xl text-white"></i>
                     <span class="text-white font-bold text-sm tracking-widest uppercase" data-i18n="share_card">Поделиться картой</span>
                 </button>
 
-                <button onclick="generateAndShowShare()" class="w-full glass bg-space-800/80 border border-white/10 hover:border-white/30 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-all mb-4">
-                    <i class="ph-bold ph-camera text-xl text-white"></i>
-                    <span class="text-white font-bold text-sm tracking-widest uppercase">Поделиться картой</span>
-                </button>
-                
+                <!-- КНОПКА 3: ЗАКРЫТЬ -->
                 <button onclick="closeDailyModal()" class="mt-2 text-white/30 hover:text-white/70 text-[10px] uppercase tracking-[0.2em] font-bold active:scale-95 transition-colors">
-                    <span>Просто закрыть</span>
+                    <span data-i18n="card_back">Просто закрыть</span>
                 </button>
             </div>
         </div>
@@ -1993,17 +1988,26 @@
             </div>
             
             <div class="px-6 flex flex-col items-center relative z-10">
-                <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-4">Предпросмотр Сторис</p>
+                <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-4">Твоя Карта Дня</p>
                 
-                <!-- Сюда вставится готовая картинка -->
+                <!-- Сюда вставится яркая сгенерированная картинка -->
                 <div class="w-[65%] rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.6)] border border-white/20 overflow-hidden mb-6 bg-space-800 aspect-[9/16]">
                     <img id="share-preview-img" src="" class="w-full h-full object-cover">
                 </div>
 
-                <button onclick="shareGeneratedImage()" class="w-full bg-gradient-to-r from-neon-indigo to-neon-purple rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-[0_5px_20px_rgba(99,102,241,0.4)]">
-                    <i class="ph-bold ph-share-network text-xl text-white"></i>
-                    <span class="text-white font-bold text-sm tracking-wide uppercase">Отправить / Сохранить</span>
-                </button>
+                <div class="space-y-3 w-full">
+                    <!-- Нативный шеринг в Telegram Истории -->
+                    <button onclick="shareToTgStoryNative()" class="w-full bg-gradient-to-r from-[#0088cc] to-[#00aaff] rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-[0_5px_20px_rgba(0,136,204,0.4)]">
+                        <i class="ph-fill ph-instagram-logo text-xl text-white"></i>
+                        <span class="text-white font-bold text-sm tracking-wide uppercase">В Telegram Историю</span>
+                    </button>
+
+                    <!-- Скачать / Поделиться картинкой в другие чаты -->
+                    <button onclick="shareGeneratedImage()" class="w-full glass bg-space-800 border border-white/20 hover:border-white/40 rounded-[20px] p-4 flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                        <i class="ph-bold ph-export text-xl text-white"></i>
+                        <span class="text-white font-bold text-sm tracking-wide uppercase">Скачать / Другие сети</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2689,7 +2693,6 @@
 
         function stripHtmlTags(str) {
             if (!str) return "";
-            // Удаляем теги, заменяем <br> на пробелы
             return str.replace(/<br\s*\/?>/gi, ' ').replace(/<\/?[^>]+(>|$)/g, "").trim();
         }
 
@@ -2698,24 +2701,19 @@
 
             showToast("Создаем звездный слепок...", "ph-spinner animate-spin");
 
-            // 1. Заполняем скрытый макет данными
             document.getElementById('story-img').src = dailyCardDataCache.image;
             document.getElementById('story-title').textContent = dailyCardDataCache.name;
 
-            // Берем чистый текст. Берем первые 2-3 предложения, чтобы они красиво влезли в макет.
             let cleanText = stripHtmlTags(dailyCardDataCache.interpretation);
             if (cleanText.length > 250) {
-                // Обрезаем до точки, чтобы не было "..."
                 cleanText = cleanText.substring(0, 250);
                 cleanText = cleanText.substring(0, cleanText.lastIndexOf('.')) + '.';
             }
             document.getElementById('story-desc').textContent = cleanText;
 
-            // Дата
             const dateOptions = { day: 'numeric', month: 'long' };
             document.getElementById('story-date').textContent = `Энергия дня • ${new Date().toLocaleDateString(activeLanguage, dateOptions)}`;
 
-            // Ждем загрузки картинки (чтобы не было белого квадрата)
             await new Promise((resolve) => {
                 const img = document.getElementById('story-img');
                 if (img.complete) resolve();
@@ -2724,37 +2722,32 @@
 
             const template = document.getElementById('story-export-template');
             
-            // Временно показываем блок браузеру (без этого плагин его не сфотографирует)
+            // ВАЖНОЕ ИСПРАВЛЕНИЕ: Прячем блок глубоко по z-index, чтобы opacity оставалась 100% (яркая картинка!)
             template.style.left = "0px";
-            template.style.opacity = "0.01"; // Делаем почти невидимым, но в DOM
+            template.style.zIndex = "-1000";
+            template.style.opacity = "1"; 
 
             try {
-                // 2. Делаем скриншот макета
                 const canvas = await html2canvas(template, {
-                    scale: 1, // 1080x1920 это уже высокое качество
+                    scale: 1, 
                     useCORS: true,
                     backgroundColor: "#03030b",
                     logging: false
                 });
 
-                // Возвращаем макет в невидимую зону
-                template.style.left = "-9999px";
-                template.style.opacity = "1";
+                template.style.left = "-9999px"; // Убираем макет обратно
 
-                // Конвертируем в картинку
                 const imgDataUrl = canvas.toDataURL("image/jpeg", 0.9);
                 document.getElementById('share-preview-img').src = imgDataUrl;
 
-                // Сохраняем файл глобально для кнопки отправки
                 canvas.toBlob(blob => {
                     window.currentStoryBlob = blob;
                 }, 'image/jpeg', 0.9);
 
                 hideToast();
                 
-                // Закрываем меню карты и открываем меню предпросмотра
                 const overlay = document.getElementById('overlay');
-                overlay.style.zIndex = "115"; // Поднимаем над оверлеем
+                overlay.style.zIndex = "115"; 
                 overlay.classList.add('active');
                 
                 document.getElementById('modal-share-preview').classList.add('active');
@@ -2762,18 +2755,30 @@
             } catch (error) {
                 console.error("Ошибка при генерации картинки:", error);
                 template.style.left = "-9999px";
-                template.style.opacity = "1";
                 showToast("Ошибка генерации. Попробуйте позже.", "ph-warning-circle");
+            }
+        }
+
+        function shareToTgStoryNative() {
+            if (!dailyCardDataCache) return;
+            // Нативный и самый красивый метод Telegram (без Canvas)
+            if (tg.shareToStory) {
+                const botUrl = "https://t.me/tarot_neurobot";
+                tg.shareToStory(dailyCardDataCache.image, {
+                    text: `Моя Карта Дня: ${dailyCardDataCache.name} ✨\nУзнай свою:`,
+                    widget_link: { url: botUrl, name: "Вытянуть Карту" }
+                });
+            } else {
+                showToast("Обновите Telegram для этой функции", "ph-warning-circle");
             }
         }
 
         async function shareGeneratedImage() {
             if (!window.currentStoryBlob) return;
             
-            // Превращаем Blob в Файл
             const file = new File([window.currentStoryBlob], 'cosmic_tarot.jpg', { type: 'image/jpeg' });
 
-            // Проверяем, поддерживает ли телефон нативную отправку картинок
+            // Открывает системное меню (на iOS/Android) для отправки в любой чат, ВК, Инсту
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
