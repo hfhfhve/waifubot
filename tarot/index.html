@@ -2336,7 +2336,13 @@
                 const element = document.getElementById('stat-element').textContent;
                 
                 // Этот текст улетит на бэкенд, но юзер его не увидит
-                window.cardDiscussContext = `[СИСТЕМНОЕ СООБЩЕНИЕ: Пользователь инициировал диалог о своей Карте Дня. Выпавшая карта: "${cardName}". Стихия: ${element}. Твоя задача: действуй как Оракул, дай глубокий инсайт об этой карте и ОБЯЗАТЕЛЬНО задай один уточняющий вопрос о том, как эта карта резонирует с его текущей жизненной ситуацией, чтобы поддержать диалог.]`;
+                window.cardDiscussContext = `[СИСТЕМНОЕ СООБЩЕНИЕ: Пользователь хочет обсудить Карту Дня: "${cardName}" (Стихия: ${element}). Действуй как Оракул. 
+            ЖЕСТКИЕ ПРАВИЛА ФОРМАТИРОВАНИЯ ОТВЕТА: 
+            1. Текст должен быть ОЧЕНЬ легким для чтения с экрана телефона. 
+            2. Обязательно дели текст на короткие абзацы (максимум по 2-3 предложения). Используй теги <br><br> для создания пустых строк между абзацами.
+            3. Выделяй самые главные инсайты жирным шрифтом с помощью тегов <b>текст</b>.
+            4. Добавь 1-2 эмодзи для атмосферы.
+            5. В самом конце задай один короткий вовлекающий вопрос, чтобы продолжить диалог.]`;
             }
     
             // Вставляем красивый текст в поле ввода
@@ -4215,7 +4221,8 @@
                     return `
                         <div class="flex justify-start w-full animate-fade-in mb-3">
                             <div class="bg-space-800/80 border border-white/5 text-white/90 max-w-[88%] px-4 pt-3 pb-2 rounded-[22px] rounded-bl-[4px] shadow-sm">
-                                <div class="text-[14px] leading-relaxed font-light space-y-2 content-daily-markdown break-words">
+                                <!-- ДОБАВЛЕН whitespace-pre-wrap -->
+                                <div class="text-[14px] leading-relaxed font-light whitespace-pre-wrap break-words">
                                     ${displayHtml}
                                 </div>
                                 ${actionButtonHtml}
@@ -4226,11 +4233,11 @@
                         </div>
                     `;
                 } else {
-                    // Рендер сообщения Юзера (с хвостиком справа и временем с галочками)
                     return `
                         <div class="flex justify-end w-full animate-fade-in mb-3">
                             <div class="bg-neon-indigo/20 border border-neon-indigo/30 text-white max-w-[88%] px-4 pt-3 pb-2 rounded-[22px] rounded-br-[4px] shadow-sm">
-                                <div class="text-[14px] leading-relaxed break-words">${displayHtml}</div>
+                                <!-- ДОБАВЛЕН whitespace-pre-wrap -->
+                                <div class="text-[14px] leading-relaxed whitespace-pre-wrap break-words">${displayHtml}</div>
                                 <div class="flex justify-end items-center gap-1 mt-1.5">
                                     <span class="text-[10px] text-neon-indigo/50 font-medium tracking-wide">${timeStr}</span>
                                     <i class="ph-bold ph-check-all text-neon-indigo/80 text-[11px]"></i>
