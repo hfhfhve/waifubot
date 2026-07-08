@@ -3003,6 +3003,7 @@
             // Запрашиваем инфу о бонусах в фоне
             const data = await apiRequest("/bonus/info", "GET");
             if (data && data.success) {
+                const btn = document.getElementById('daily-bonus-btn'); // Добавили захват самой кнопки
                 const text = document.getElementById('daily-bonus-text');
                 const badge = document.getElementById('daily-bonus-badge');
                 const iconBg = document.getElementById('daily-bonus-icon-bg');
@@ -3011,21 +3012,24 @@
     
                 // Показываем какой сегодня день
                 badge.textContent = `${t('day').toUpperCase()} ${data.cycle_day}`;
-                badge.classList.remove('hidden');
     
                 if (data.claimed_today) {
-                    // Если забрано - делаем серым и спокойным
-                    text.textContent = t('bonus_claimed');
-                    text.className = "text-white/50 font-bold text-sm leading-none";
+                    // ЕСЛИ ЗАБРАНО: Делаем максимально серым и незаметным
+                    btn.className = "w-full glass bg-space-800 border border-white/5 rounded-[20px] p-4 flex items-center justify-between shadow-sm active:scale-95 transition-all relative overflow-hidden group";
+                    text.textContent = t('bonus_claimed') || "Бонус получен";
+                    text.className = "text-white/40 font-bold text-sm leading-none";
                     iconBg.className = "w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shadow-inner shrink-0 transition-colors";
-                    icon.className = "ph-bold ph-check text-white/40 text-xl";
+                    icon.className = "ph-bold ph-check text-white/30 text-xl";
+                    badge.className = "bg-white/10 text-white/40 border border-white/10 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider";
                     glow.classList.add('hidden');
                 } else {
-                    // Если не забрано - делаем ярким и призывным
-                    text.textContent = t('bonus_claim');
-                    text.className = "text-white font-bold text-sm leading-none";
-                    iconBg.className = "w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30 shadow-inner shrink-0 transition-colors";
-                    icon.className = "ph-fill ph-gift text-neon-fuchsia text-xl animate-pulse";
+                    // ЕСЛИ НЕ ЗАБРАНО: Включаем подсветку, анимацию и призыв к действию
+                    btn.className = "w-full glass bg-gradient-to-r from-space-800 to-[#2d1b3d] border border-neon-fuchsia/50 shadow-[0_0_20px_rgba(232,121,249,0.25)] rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-all relative overflow-hidden group";
+                    text.textContent = t('bonus_claim') || "Забрать награду!";
+                    text.className = "text-white font-bold text-sm leading-none drop-shadow-md";
+                    iconBg.className = "w-12 h-12 rounded-full bg-neon-fuchsia/20 flex items-center justify-center border border-neon-fuchsia/50 shadow-[0_0_15px_rgba(232,121,249,0.5)] shrink-0 transition-colors";
+                    icon.className = "ph-fill ph-gift text-neon-fuchsia text-xl animate-bounce"; // Прыгающий подарочек
+                    badge.className = "bg-neon-fuchsia text-white border border-neon-fuchsia shadow-[0_0_10px_rgba(232,121,249,0.8)] text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse"; // Светящаяся пульсирующая плашка
                     glow.classList.remove('hidden');
                 }
             }
