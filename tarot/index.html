@@ -3775,7 +3775,7 @@
         function openBuySpreadModal(energyPrice) {
             // Расчет цены по твоей формуле
             const starsPrice = energyPrice * 8;
-            const rubPrice = ((energyPrice * 5) - 0.01).toFixed(2); // 15.99
+            const rubPrice = ((energyPrice * 6) - 0.01).toFixed(2);
 
             document.getElementById('buy-spread-title').textContent = document.getElementById('table-spread-name').textContent;
             document.getElementById('buy-spread-stars-price').textContent = starsPrice;
