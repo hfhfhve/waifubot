@@ -2696,17 +2696,38 @@
             return str.replace(/<br\s*\/?>/gi, ' ').replace(/<\/?[^>]+(>|$)/g, "").trim();
         }
 
+        // ВАЖНЫЙ ФИКС №1: Превращаем картинку в Base64, чтобы обойти блокировку CORS
+        async function getBase64ImageFromUrl(imageUrl) {
+            try {
+                const res = await fetch(imageUrl);
+                const blob = await res.blob();
+                return await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                console.error("CORS Error:", e);
+                // Фолбэк, если fetch заблокирован: добавляем случайный параметр от кэша
+                return imageUrl + "?t=" + new Date().getTime();
+            }
+        }
+
         async function generateAndShowShare() {
             if (!dailyCardDataCache) return;
 
             showToast("Создаем звездный слепок...", "ph-spinner animate-spin");
 
-            document.getElementById('story-img').src = dailyCardDataCache.image;
+            // ИСПОЛЬЗУЕМ BASE64 (Карта больше не будет черным квадратом)
+            const safeImgSrc = await getBase64ImageFromUrl(dailyCardDataCache.image);
+            document.getElementById('story-img').src = safeImgSrc;
+            
             document.getElementById('story-title').textContent = dailyCardDataCache.name;
 
             let cleanText = stripHtmlTags(dailyCardDataCache.interpretation);
-            if (cleanText.length > 250) {
-                cleanText = cleanText.substring(0, 250);
+            if (cleanText.length > 220) {
+                cleanText = cleanText.substring(0, 220);
                 cleanText = cleanText.substring(0, cleanText.lastIndexOf('.')) + '.';
             }
             document.getElementById('story-desc').textContent = cleanText;
@@ -2721,8 +2742,6 @@
             });
 
             const template = document.getElementById('story-export-template');
-            
-            // ВАЖНОЕ ИСПРАВЛЕНИЕ: Прячем блок глубоко по z-index, чтобы opacity оставалась 100% (яркая картинка!)
             template.style.left = "0px";
             template.style.zIndex = "-1000";
             template.style.opacity = "1"; 
@@ -2731,11 +2750,12 @@
                 const canvas = await html2canvas(template, {
                     scale: 1, 
                     useCORS: true,
+                    allowTaint: true, // Разрешаем "грязные" картинки на всякий случай
                     backgroundColor: "#03030b",
                     logging: false
                 });
 
-                template.style.left = "-9999px"; // Убираем макет обратно
+                template.style.left = "-9999px"; 
 
                 const imgDataUrl = canvas.toDataURL("image/jpeg", 0.9);
                 document.getElementById('share-preview-img').src = imgDataUrl;
@@ -2759,9 +2779,11 @@
             }
         }
 
+        // ВАЖНЫЙ ФИКС №2: Проверка платформы
         function shareToTgStoryNative() {
             if (!dailyCardDataCache) return;
-            // Нативный и самый красивый метод Telegram (без Canvas)
+            
+            // Проверяем, поддерживает ли устройство сторис (На ПК выведет ошибку)
             if (tg.shareToStory) {
                 const botUrl = "https://t.me/tarot_neurobot";
                 tg.shareToStory(dailyCardDataCache.image, {
@@ -2769,16 +2791,25 @@
                     widget_link: { url: botUrl, name: "Вытянуть Карту" }
                 });
             } else {
-                showToast("Обновите Telegram для этой функции", "ph-warning-circle");
+                showToast("Доступно только в мобильном Telegram", "ph-warning-circle");
             }
         }
 
+        // ВАЖНЫЙ ФИКС №3: Принудительное скачивание для ПК
         async function shareGeneratedImage() {
             if (!window.currentStoryBlob) return;
             
+            // Если мы на компьютере (или старом браузере) - ПРИНУДИТЕЛЬНО СКАЧИВАЕМ
+            const isDesktop = ['tdesktop', 'web', 'macos'].includes(tg.platform) || !navigator.share;
+            
+            if (isDesktop) {
+                downloadImageDirectly();
+                return;
+            }
+
             const file = new File([window.currentStoryBlob], 'cosmic_tarot.jpg', { type: 'image/jpeg' });
 
-            // Открывает системное меню (на iOS/Android) для отправки в любой чат, ВК, Инсту
+            // Если мобилка поддерживает отправку картинок в другие приложухи:
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
@@ -2787,16 +2818,22 @@
                         text: 'Узнай свою Карту Дня в @tarot_neurobot ✨'
                     });
                 } catch (e) {
-                    console.error("Отмена отправки", e);
+                    console.log("Отмена отправки", e);
                 }
             } else {
-                // Если телефон старый или это ПК - просто скачиваем картинку в галерею
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(window.currentStoryBlob);
-                link.download = 'Cosmic_Tarot_Card.jpg';
-                link.click();
-                showToast("Картинка сохранена в галерею!", "ph-check-circle");
+                // Если мобилка не поддерживает (очень старый Android) - тоже скачиваем
+                downloadImageDirectly();
             }
+        }
+
+        function downloadImageDirectly() {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(window.currentStoryBlob);
+            link.download = 'Cosmic_Tarot_Card.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Картинка скачана!", "ph-check-circle");
         }
     
         function updateInterfaceTranslations() {
