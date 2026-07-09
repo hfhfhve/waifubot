@@ -2721,14 +2721,14 @@
             let attempts = 0;
             const interval = setInterval(async () => {
                 attempts++;
-                // Проверяем ровно 1 минуту (20 раз по 3 сек). Если не оплатил — выключаем радар.
                 if (attempts > 20) { 
                     clearInterval(interval);
                     return;
                 }
                 
-                // Тихо запрашиваем баланс с сервера
-                const data = await apiRequest("/get-user");
+                // ФИКС: Передаем 4-м аргументом true (silent mode)
+                const data = await apiRequest("/get-user", "POST", {}, true);
+                
                 if (data && data.success) {
                     // Если энергия увеличилась (значит вебхук успешно зачислил оплату)
                     if (data.energy > userBalance.energy) {
@@ -3200,7 +3200,7 @@
     
         const ADMIN_IDS = [6546116205, 7672744848];
 
-        async function apiRequest(endpoint, method = "POST", data = {}) {
+        async function apiRequest(endpoint, method = "POST", data = {}, silent = false) {
             try {
                 const response = await fetch(`${API_URL}${endpoint}`, {
                     method: method,
@@ -3212,30 +3212,40 @@
                 });
         
                 if (!response.ok) {
-                    // Если сервер вернул 500 или 503, показываем экран техработ всем
-                    showMaintenanceScreen();
+                    // Если silent = true, мы не пугаем юзера красным экраном
+                    if (!silent) showMaintenanceScreen();
                     return { success: false };
                 }
+        
+                // ФИКС: Если любой запрос прошел успешно — прячем залипший экран ошибки!
+                hideMaintenanceScreen();
         
                 return await response.json();
             } catch (e) {
                 console.error("API Error:", e);
                 
-                // Получаем ID текущего пользователя из Telegram
-                const currentUserId = tg.initDataUnsafe?.user?.id;
-        
-                // Если это админ — показываем детальный алерт
-                if (ADMIN_IDS.includes(currentUserId)) {
-                    alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nПроверь: 1. Работает ли сервис на сервере? 2. Включен ли Cloudflare Tunnel? 3. Добавлен ли URL фронта в CORS?`);
-                } else {
-                    // Обычному юзеру просто показываем красивый экран техработ
-                    showMaintenanceScreen();
+                if (!silent) {
+                    const currentUserId = tg.initDataUnsafe?.user?.id;
+                    const ADMIN_IDS = [6546116205, 7672744848];
+            
+                    if (ADMIN_IDS.includes(currentUserId)) {
+                        alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nПроверь: 1. Работает ли сервис на сервере? 2. Включен ли Cloudflare Tunnel? 3. Добавлен ли URL фронта в CORS?`);
+                    } else {
+                        showMaintenanceScreen();
+                    }
                 }
                 
                 return { success: false, maintenance: true };
             }
         }
 
+        function hideMaintenanceScreen() {
+            const screen = document.getElementById('maintenance-screen');
+            if (screen && !screen.classList.contains('hidden')) {
+                screen.classList.add('hidden');
+                screen.classList.remove('flex');
+            }
+        }
         
     
         function declension(number, titles) {
