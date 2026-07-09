@@ -8751,23 +8751,23 @@ const astroDescriptions = {
             <div class="glass bg-space-800 rounded-[24px] p-5 mb-6 border border-white/5 shadow-lg">
                 <div class="flex items-center gap-2 mb-4">
                     <i class="ph-fill ph-infinity text-neon-fuchsia text-lg"></i>
-                    <p class="text-neon-fuchsia text-[10px] font-bold uppercase tracking-widest leading-none">Матрица Дня</p>
+                    <p class="text-neon-fuchsia text-[10px] font-bold uppercase tracking-widest leading-none" data-i18n="matrix_title">Матрица Дня</p>
                 </div>
                 <div class="space-y-3.5">
                     <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 rounded-t-lg transition-colors">
-                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-heart text-neon-rose text-xs"></i> Любовь</span>
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-heart text-neon-rose text-xs"></i> <span data-i18n="matrix_love">Любовь</span></span>
                         <span id="matrix-love" class="text-white font-medium text-sm text-right">...</span>
                     </div>
                     <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 transition-colors">
-                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-coins text-neon-amber text-xs"></i> Дела и деньги</span>
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-coins text-neon-amber text-xs"></i> <span data-i18n="matrix_finance">Дела и деньги</span></span>
                         <span id="matrix-finance" class="text-white font-medium text-sm text-right">...</span>
                     </div>
                     <div class="flex justify-between items-end border-b border-white/5 pb-3 group hover:bg-white/5 transition-colors">
-                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-lightning text-neon-cyan text-xs"></i> Тонус энергии</span>
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-lightning text-neon-cyan text-xs"></i> <span data-i18n="matrix_energy">Тонус энергии</span></span>
                         <span id="matrix-energy" class="text-white font-medium text-sm text-right">...</span>
                     </div>
                     <div class="flex justify-between items-end group hover:bg-white/5 rounded-b-lg transition-colors">
-                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-sparkle text-neon-purple text-xs"></i> Интуиция</span>
+                        <span class="text-white/70 text-sm flex items-center gap-1.5"><i class="ph-fill ph-sparkle text-neon-purple text-xs"></i> <span data-i18n="matrix_intuition">Интуиция</span></span>
                         <span id="matrix-intuition" class="text-white font-medium text-sm text-right">...</span>
                     </div>
                 </div>
@@ -10002,7 +10002,8 @@ const astroDescriptions = {
                 toast_need_your_date: 'Сначала укажите свою дату рождения в профиле',
                 synastry_weaving: 'Сплетаем судьбы...',
                 discuss_synastry_prompt: 'Я хочу обсудить нашу совместимость с {name}. На что мне стоит обратить внимание?',
-                pread_cards: 'карт', spread_min: 'мин',
+                matrix_title: 'Матрица Дня', matrix_love: 'Любовь', matrix_finance: 'Дела и деньги', matrix_energy: 'Тонус энергии', matrix_intuition: 'Интуиция',
+                spread_min: 'мин',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -10034,6 +10035,7 @@ const astroDescriptions = {
                 toast_need_your_date: 'First, set your birth date in your profile',
                 synastry_weaving: 'Weaving destinies...',
                 discuss_synastry_prompt: 'I want to discuss my compatibility with {name}. What should I pay attention to?',
+                matrix_title: 'Matrix of the Day', matrix_love: 'Love', matrix_finance: 'Business & Money', matrix_energy: 'Energy Tone', matrix_intuition: 'Intuition',
                 spread_cards: 'cards', spread_min: 'min',
             },
             'es': { 
@@ -10066,6 +10068,7 @@ const astroDescriptions = {
                 toast_need_your_date: 'Primero configura tu fecha de nacimiento',
                 synastry_weaving: 'Tejiendo destinos...',
                 discuss_synastry_prompt: 'Quiero discutir mi compatibilidad con {name}. ¿A qué debo prestar atención?',
+                matrix_title: 'Matriz del Día', matrix_love: 'Amor', matrix_finance: 'Negocios y Dinero', matrix_energy: 'Energía', matrix_intuition: 'Intuición',
                 spread_cards: 'cartas', spread_min: 'min',
             },
             'fr': { 
@@ -10098,6 +10101,7 @@ const astroDescriptions = {
                 toast_need_your_date: 'D\'abord, configurez votre date de naissance',
                 synastry_weaving: 'Tissage des destins...',
                 discuss_synastry_prompt: 'Je veux discuter de ma compatibilité avec {name}. À quoi dois-je faire attention ?',
+                matrix_title: 'Matrice du Jour', matrix_love: 'Amour', matrix_finance: 'Affaires et Argent', matrix_energy: 'Énergie', matrix_intuition: 'Intuition',
                 spread_cards: 'cartes', spread_min: 'min',
             },
             'de': { 
@@ -10130,6 +10134,7 @@ const astroDescriptions = {
                 toast_need_your_date: 'Bitte zuerst dein Geburtsdatum einstellen',
                 synastry_weaving: 'Schicksale verweben...',
                 discuss_synastry_prompt: 'Ich möchte meine Kompatibilität mit {name} besprechen. Worauf sollte ich achten?',
+                matrix_title: 'Matrix des Tages', matrix_love: 'Liebe', matrix_finance: 'Geschäft & Geld', matrix_energy: 'Energie', matrix_intuition: 'Intuition',
                 spread_cards: 'Karten', spread_min: 'Min',
             }
         };
@@ -10487,9 +10492,14 @@ const astroDescriptions = {
                         : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
 
                     // Секция с бейджиками: количество карт и время
+                    const cardsWord = activeLanguage === 'ru' 
+                        ? declension(s.cards_count, ['карта', 'карты', 'карт']) 
+                        : t('spread_cards');
+
+                    // Секция с бейджиками
                     const badgesHtml = `
                         <div class="flex items-center gap-2 mt-2">
-                            <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-cards"></i> ${s.cards_count} ${t('spread_cards')}</span>
+                            <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-cards"></i> ${s.cards_count} ${cardsWord}</span>
                             <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-clock"></i> ~${s.estimated_time} ${t('spread_min')}</span>
                         </div>
                     `;
