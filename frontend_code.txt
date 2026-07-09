@@ -8143,22 +8143,26 @@ const astroDescriptions = {
                 <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
             </div>
 
+            <!-- Вся карточка - это единая кнопка, нажимается везде -->
             <button onclick="openDailyCardModal()" class="w-full glass bg-space-800 rounded-[24px] p-1 border border-white/10 active:scale-[0.98] transition-all relative overflow-hidden group">
                 <div class="absolute inset-0 bg-gradient-to-r from-neon-indigo/10 to-neon-purple/10 opacity-50 group-hover:opacity-100 transition-opacity"></div>
                 
                 <div class="flex items-center gap-4 relative z-10 p-3">
-                    <!-- Загадочная упаковка / Миниатюра карты -->
                     <div id="home-daily-thumb" class="w-16 h-24 rounded-[10px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-indigo/30 to-space-900 border border-white/20 shadow-inner flex items-center justify-center overflow-hidden shrink-0 transition-all duration-500">
                         <i id="home-daily-icon" class="ph-fill ph-sparkle text-3xl text-white/60 animate-pulse"></i>
                         <img id="home-daily-img" src="" class="w-full h-full object-cover hidden" alt="Thumb">
                     </div>
                     
-                    <div class="text-left flex-1 pr-2">
+                    <div class="text-left flex-1 pr-1">
                         <h3 id="home-daily-title" class="text-white font-mystic text-xl font-bold mb-1" data-i18n="card_day">Твоя Карта Дня</h3>
-                        <p id="home-daily-subtitle" class="text-white/50 text-xs leading-snug" data-i18n="card_day_desc">Вселенная приготовила послание. Открой, чтобы узнать.</p>
+                        <p id="home-daily-subtitle" class="text-white/50 text-[11px] leading-snug" data-i18n="card_day_desc">Вселенная приготовила послание. Открой, чтобы узнать.</p>
                     </div>
                     
-                    <i class="ph-bold ph-caret-right text-white/30"></i>
+                    <!-- КРАСИВАЯ КНОПКА CTA -->
+                    <div class="shrink-0 bg-white/5 group-hover:bg-neon-indigo/20 border border-white/10 group-hover:border-neon-indigo/40 px-3 py-1.5 rounded-full flex items-center gap-1 transition-all shadow-sm">
+                        <span class="text-white font-bold text-[9px] uppercase tracking-wider" data-i18n="card_reveal">Раскрыть</span>
+                        <i class="ph-bold ph-caret-right text-white/70 text-[10px]"></i>
+                    </div>
                 </div>
             </button>
         </div>
@@ -8876,7 +8880,15 @@ const astroDescriptions = {
         </div>
     
         <!-- 3. ЗОНА ВВОДА (Приподнята и увеличена) -->
-        <div class="shrink-0 z-50 bg-[#03030b]/90 backdrop-blur-xl pt-4 border-t border-white/5" style="padding-bottom: calc(32px + env(safe-area-inset-bottom));">
+        <div class="shrink-0 z-50 bg-[#03030b]/90 backdrop-blur-xl pt-6 pb-2 border-t border-white/5 relative" style="padding-bottom: calc(8px + env(safe-area-inset-bottom));">
+            
+            <!-- ПЛАВАЮЩИЙ БАЛАНС (Как на скриншоте) -->
+            <div class="absolute -top-3 right-6 bg-[#1a1a24] border border-white/10 shadow-[0_2px_10px_rgba(0,0,0,0.5)] rounded-full px-3 py-0.5 flex items-center gap-1 z-50 cursor-pointer active:scale-95 transition-transform" onclick="navigateTo('shop')">
+                <span class="text-white/50 text-[9px] uppercase font-bold tracking-widest" data-i18n="chat_balance">Баланс:</span>
+                <span id="chat-input-balance" class="text-white font-black text-[10px]">0</span>
+                <i class="ph-fill ph-lightning text-neon-amber text-[10px] drop-shadow-[0_0_3px_rgba(251,191,36,0.8)] ml-0.5"></i>
+            </div>
+            
             <!-- Капсула ввода -->
             <div class="relative w-[calc(100%-32px)] max-w-[500px] mx-auto flex items-end bg-space-800/80 border border-white/10 rounded-[24px] p-2 focus-within:border-neon-indigo/50 focus-within:bg-space-800 transition-all shadow-[0_10px_40px_rgba(0,0,0,0.6)]">
                 
@@ -8887,7 +8899,7 @@ const astroDescriptions = {
                 
                 <button onclick="sendMessage()" class="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-neon-indigo to-neon-purple flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-neon-indigo/20 ml-2 relative group">
                     <i class="ph-fill ph-paper-plane-right text-white text-xl relative -left-0.5 group-hover:scale-110 transition-transform"></i>
-                    <!-- Тот самый значок энергии -->
+                    <!-- Маленький значок стоимости (1 энергия за сообщение) -->
                     <div class="absolute -top-1 -right-1 bg-space-900 border border-neon-amber/50 rounded-full w-5 h-5 flex items-center justify-center shadow-sm z-10">
                         <i class="ph-fill ph-lightning text-neon-amber text-[10px] drop-shadow-md"></i>
                     </div>
@@ -10005,7 +10017,7 @@ const astroDescriptions = {
                 matrix_title: 'Матрица Дня', matrix_love: 'Любовь', matrix_finance: 'Дела и деньги', matrix_energy: 'Тонус энергии', matrix_intuition: 'Интуиция',
                 spread_min: 'мин',
                 shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
-                shop_badge_2: 'Популярно',
+                shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -10040,7 +10052,7 @@ const astroDescriptions = {
                 matrix_title: 'Matrix of the Day', matrix_love: 'Love', matrix_finance: 'Business & Money', matrix_energy: 'Energy Tone', matrix_intuition: 'Intuition',
                 spread_cards: 'cards', spread_min: 'min',
                 shop_desc_0: 'For getting started', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: 'Maximum energy supply',
-                shop_badge_2: 'Popular',
+                shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -10075,7 +10087,7 @@ const astroDescriptions = {
                 matrix_title: 'Matriz del Día', matrix_love: 'Amor', matrix_finance: 'Negocios y Dinero', matrix_energy: 'Energía', matrix_intuition: 'Intuición',
                 spread_cards: 'cartas', spread_min: 'min',
                 shop_desc_0: 'Para empezar', shop_desc_1: 'Suficiente para unas tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: 'Máxima energía',
-                shop_badge_2: 'Popular',
+                shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -10110,7 +10122,7 @@ const astroDescriptions = {
                 matrix_title: 'Matrice du Jour', matrix_love: 'Amour', matrix_finance: 'Affaires et Argent', matrix_energy: 'Énergie', matrix_intuition: 'Intuition',
                 spread_cards: 'cartes', spread_min: 'min',
                 shop_desc_0: 'Pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: 'Réserve d\'énergie maximale',
-                shop_badge_2: 'Populaire',
+                shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -10145,7 +10157,7 @@ const astroDescriptions = {
                 matrix_title: 'Matrix des Tages', matrix_love: 'Liebe', matrix_finance: 'Geschäft & Geld', matrix_energy: 'Energie', matrix_intuition: 'Intuition',
                 spread_cards: 'Karten', spread_min: 'Min',
                 shop_desc_0: 'Für den Einstieg', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: 'Maximaler Energievorrat',
-                shop_badge_2: 'Beliebt',
+                shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:',
             }
         };
 
@@ -12247,6 +12259,10 @@ const astroDescriptions = {
             
             const profileEnergyBalance = document.getElementById("profile-star-balance");
             if (profileEnergyBalance) profileEnergyBalance.textContent = userBalance.energy;
+            
+            // --- НОВАЯ СТРОЧКА ДЛЯ ЧАТА ---
+            const chatBalance = document.getElementById("chat-input-balance");
+            if (chatBalance) chatBalance.textContent = userBalance.energy;
             
             const streakCount = document.getElementById("profile-streak-count");
             const streakWord = document.getElementById("profile-streak-word");
