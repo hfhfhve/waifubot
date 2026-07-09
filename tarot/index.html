@@ -2388,8 +2388,8 @@
                 discuss_synastry_prompt: 'Я хочу обсудить нашу совместимость с {name}. На что мне стоит обратить внимание?',
                 matrix_title: 'Матрица Дня', matrix_love: 'Любовь', matrix_finance: 'Дела и деньги', matrix_energy: 'Тонус энергии', matrix_intuition: 'Интуиция',
                 spread_min: 'мин',
-                shop_desc_0: 'Минимум для старта', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для разбора совместимости', shop_desc_3: '+ Бонусная энергия включена',
-                shop_badge_1: 'ХИТ', shop_badge_2: 'ВЫБОР ОРАКУЛА', shop_badge_3: 'БЕЗЛИМИТ',
+                shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
+                shop_badge_2: 'Популярно',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2423,8 +2423,8 @@
                 discuss_synastry_prompt: 'I want to discuss my compatibility with {name}. What should I pay attention to?',
                 matrix_title: 'Matrix of the Day', matrix_love: 'Love', matrix_finance: 'Business & Money', matrix_energy: 'Energy Tone', matrix_intuition: 'Intuition',
                 spread_cards: 'cards', spread_min: 'min',
-                shop_desc_0: 'Minimum to start', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: '+ Bonus energy included',
-                shop_badge_1: 'HIT', shop_badge_2: 'ORACLE CHOICE', shop_badge_3: 'ULTRA',
+                shop_desc_0: 'For getting started', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: 'Maximum energy supply',
+                shop_badge_2: 'Popular',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2458,8 +2458,8 @@
                 discuss_synastry_prompt: 'Quiero discutir mi compatibilidad con {name}. ¿A qué debo prestar atención?',
                 matrix_title: 'Matriz del Día', matrix_love: 'Amor', matrix_finance: 'Negocios y Dinero', matrix_energy: 'Energía', matrix_intuition: 'Intuición',
                 spread_cards: 'cartas', spread_min: 'min',
-                shop_desc_0: 'Mínimo para empezar', shop_desc_1: 'Suficiente para un par de tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: '+ Energía extra incluida',
-                shop_badge_1: 'TOP', shop_badge_2: 'ELECCIÓN DEL ORÁCULO', shop_badge_3: 'ILIMITADO',
+                shop_desc_0: 'Para empezar', shop_desc_1: 'Suficiente para unas tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: 'Máxima energía',
+                shop_badge_2: 'Popular',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2493,8 +2493,8 @@
                 discuss_synastry_prompt: 'Je veux discuter de ma compatibilité avec {name}. À quoi dois-je faire attention ?',
                 matrix_title: 'Matrice du Jour', matrix_love: 'Amour', matrix_finance: 'Affaires et Argent', matrix_energy: 'Énergie', matrix_intuition: 'Intuition',
                 spread_cards: 'cartes', spread_min: 'min',
-                shop_desc_0: 'Minimum pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: '+ Énergie bonus incluse',
-                shop_badge_1: 'TOP', shop_badge_2: 'CHOIX DE L\'ORACLE', shop_badge_3: 'ILLIMITÉ',
+                shop_desc_0: 'Pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: 'Réserve d\'énergie maximale',
+                shop_badge_2: 'Populaire',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2528,8 +2528,8 @@
                 discuss_synastry_prompt: 'Ich möchte meine Kompatibilität mit {name} besprechen. Worauf sollte ich achten?',
                 matrix_title: 'Matrix des Tages', matrix_love: 'Liebe', matrix_finance: 'Geschäft & Geld', matrix_energy: 'Energie', matrix_intuition: 'Intuition',
                 spread_cards: 'Karten', spread_min: 'Min',
-                shop_desc_0: 'Minimum zum Start', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: '+ Bonus-Energie inklusive',
-                shop_badge_1: 'HIT', shop_badge_2: 'ORAKEL-WAHL', shop_badge_3: 'MAXIMUM',
+                shop_desc_0: 'Für den Einstieg', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: 'Maximaler Energievorrat',
+                shop_badge_2: 'Beliebt',
             }
         };
 
@@ -3635,75 +3635,57 @@
                     const rubPrice = item.price_rub || item.price_usd || 0; 
                     const starsPrice = item.price_stars || 0;
                     
-                    // --- ГЕНЕРАЦИЯ ДИЗАЙНА В ЗАВИСИМОСТИ ОТ РАЗМЕРА ПАКЕТА ---
-                    let cardClass = "bg-space-800 border border-white/5 hover:border-white/20";
-                    let iconHtml = `<i class="ph-fill ph-lightning text-2xl text-neon-cyan drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]"></i>`;
+                    // Строгий минимализм. Базовые стили:
+                    let cardBorder = "border-white/5 hover:border-white/20";
+                    let iconClass = "ph-lightning text-white/50";
+                    let iconBg = "bg-white/5";
+                    let priceClass = "bg-white/5 text-white hover:bg-white/10";
                     let badgeHtml = "";
-                    let descHtml = "";
-                    let glowHtml = "";
-                    let iconBg = "bg-white/5 border-white/10";
-                    let priceClass = "bg-[#131315] border border-white/5 text-white";
 
-                    if (index === 0) {
-                        // ПАКЕТ 1 (10 энергии - Базовый)
-                        descHtml = `<p class="text-white/40 text-[9px] mt-1 uppercase tracking-widest font-bold">${t('shop_desc_0')}</p>`;
-                    } 
-                    else if (index === 1) {
-                        // ПАКЕТ 2 (30 энергии - Хороший)
-                        cardClass = "glass bg-space-800 border border-neon-indigo/30 hover:border-neon-indigo/60 shadow-[0_5px_20px_rgba(99,102,241,0.1)]";
-                        iconHtml = `<i class="ph-fill ph-sparkle text-2xl text-neon-indigo drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]"></i>`;
-                        iconBg = "bg-neon-indigo/10 border-neon-indigo/20";
-                        badgeHtml = `<div class="absolute -top-2.5 right-4 bg-neon-indigo text-white text-[8px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(99,102,241,0.5)] border border-white/20">${t('shop_badge_1')}</div>`;
-                        descHtml = `<p class="text-neon-indigo/70 text-[9px] mt-1 uppercase tracking-widest font-bold">${t('shop_desc_1')}</p>`;
-                        priceClass = "bg-neon-indigo/10 border border-neon-indigo/20 text-white shadow-inner";
-                    } 
-                    else if (index === 2) {
-                        // ПАКЕТ 3 (90 энергии - ПРЕМИУМ ХИТ!)
-                        cardClass = "glass-strong bg-gradient-to-r from-[#2d1b3d] to-space-800 border border-neon-fuchsia/50 hover:border-neon-fuchsia shadow-[0_10px_30px_rgba(232,121,249,0.2)]";
-                        iconHtml = `<i class="ph-fill ph-magic-wand text-2xl text-neon-fuchsia drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]"></i>`;
-                        iconBg = "bg-gradient-to-br from-neon-fuchsia/20 to-neon-purple/10 border-neon-fuchsia/40 shadow-inner";
-                        badgeHtml = `<div class="absolute -top-2.5 right-4 bg-gradient-to-r from-neon-fuchsia to-neon-purple text-white text-[8px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(232,121,249,0.5)] border border-white/20 animate-pulse">${t('shop_badge_2')}</div>`;
-                        descHtml = `<p class="text-neon-fuchsia/80 text-[9px] mt-1 uppercase tracking-widest font-bold">${t('shop_desc_2')}</p>`;
-                        glowHtml = `<div class="absolute -left-10 top-1/2 -translate-y-1/2 w-24 h-24 bg-neon-fuchsia/20 blur-2xl pointer-events-none"></div>`;
-                        priceClass = "bg-neon-fuchsia/20 border border-neon-fuchsia/40 text-white font-black shadow-[0_0_15px_rgba(232,121,249,0.2)]";
-                    } 
-                    else {
-                        // ПАКЕТ 4 (200 энергии - КИТ)
-                        cardClass = "glass-strong bg-gradient-to-b from-space-800 to-[#1a1500] border border-neon-amber/40 hover:border-neon-amber/80 shadow-[0_10px_30px_rgba(251,191,36,0.15)]";
-                        iconHtml = `<i class="ph-fill ph-crown text-2xl text-neon-amber drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]"></i>`;
-                        iconBg = "bg-gradient-to-br from-neon-amber/10 to-orange-500/10 border-neon-amber/30";
-                        badgeHtml = `<div class="absolute -top-2.5 right-4 bg-neon-amber text-space-900 text-[8px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(251,191,36,0.5)] border border-white/40">${t('shop_badge_3')}</div>`;
-                        descHtml = `<p class="text-neon-amber/70 text-[9px] mt-1 uppercase tracking-widest font-bold">${t('shop_desc_3')}</p>`;
-                        glowHtml = `<div class="absolute -right-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-neon-amber/10 blur-3xl pointer-events-none"></div>`;
-                        priceClass = "bg-gradient-to-r from-neon-amber to-orange-500 border border-white/20 text-space-900 font-black shadow-[0_0_15px_rgba(251,191,36,0.4)]";
+                    // Деликатные акценты
+                    if (index === 1) {
+                        iconClass = "ph-lightning text-neon-indigo drop-shadow-md";
+                        iconBg = "bg-neon-indigo/10";
+                    } else if (index === 2) {
+                        // Оптимальный пакет (Слегка подсвечен розовым, чтобы выделяться)
+                        cardBorder = "border-neon-fuchsia/30 shadow-[0_5px_20px_rgba(232,121,249,0.05)]";
+                        iconClass = "ph-magic-wand text-neon-fuchsia drop-shadow-md";
+                        iconBg = "bg-neon-fuchsia/10";
+                        priceClass = "bg-neon-fuchsia text-white shadow-md";
+                        // Бейджик теперь встроен в строку с текстом, он никуда не уедет
+                        badgeHtml = `<span class="bg-neon-fuchsia/20 text-neon-fuchsia border border-neon-fuchsia/30 text-[8px] font-black uppercase px-2 py-0.5 rounded-md ml-2">${t('shop_badge_2')}</span>`;
+                    } else if (index === 3) {
+                        // Большой пакет
+                        cardBorder = "border-neon-amber/20 hover:border-neon-amber/40";
+                        iconClass = "ph-crown text-neon-amber drop-shadow-md";
+                        iconBg = "bg-neon-amber/10";
+                        priceClass = "bg-neon-amber text-[#03030b] font-black";
                     }
-
-                    // Анимация переливающегося блика по кнопкам (появляется при наведении или нажатии)
-                    const hoverShine = `<span class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2.5s_linear_infinite] opacity-0 group-hover:opacity-100 pointer-events-none"></span>`;
 
                     container.innerHTML += `
                         <div onclick="selectShopItem('${item.id}', ${item.amount}, ${starsPrice}, ${rubPrice})" 
-                            class="relative rounded-[24px] p-4 mb-5 flex items-center justify-between active:scale-95 transition-all cursor-pointer group overflow-hidden ${cardClass}">
+                            class="glass bg-[#080812] border ${cardBorder} rounded-[20px] p-4 mb-4 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer group">
                             
-                            ${glowHtml}
-                            ${badgeHtml}
-                            ${hoverShine}
-                            
-                            <div class="flex items-center gap-4 relative z-10">
-                                <div class="w-14 h-14 rounded-full flex items-center justify-center border group-hover:scale-110 transition-transform shadow-inner ${iconBg}">
-                                    ${iconHtml}
+                            <div class="flex items-center gap-4 overflow-hidden">
+                                <!-- Иконка (с защитой от сжатия shrink-0) -->
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-white/5 transition-transform group-hover:scale-105 ${iconBg}">
+                                    <i class="ph-fill ${iconClass} text-xl"></i>
                                 </div>
-                                <div class="text-left">
-                                    <div class="flex items-baseline gap-1.5">
-                                        <p class="text-white text-3xl font-black leading-none tracking-tighter drop-shadow-md">${item.amount}</p>
-                                        <p class="text-white/50 text-[10px] uppercase tracking-widest font-bold">${t('shop_energy')}</p>
+                                
+                                <!-- Текстовый блок (truncate защищает от вылезания за края) -->
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center mb-0.5">
+                                        <span class="text-white text-xl font-bold leading-none tracking-tight">${item.amount}</span>
+                                        <span class="text-white/40 text-[10px] uppercase tracking-widest font-bold ml-1.5">${t('shop_energy')}</span>
+                                        ${badgeHtml}
                                     </div>
-                                    ${descHtml}
+                                    <span class="text-white/50 text-[10px] truncate leading-snug">${t('shop_desc_' + index)}</span>
                                 </div>
                             </div>
                             
-                            <div class="px-4 py-2.5 rounded-xl relative z-10 transition-all group-hover:scale-105 ${priceClass}">
-                                <span>${rubPrice} ₽</span>
+                            <!-- Кнопка с ценой (shrink-0 и whitespace-nowrap защищают от переноса 199 ₽ на новую строку) -->
+                            <div class="shrink-0 ml-3 px-4 py-2.5 rounded-xl border border-white/5 text-sm font-bold whitespace-nowrap transition-colors ${priceClass}">
+                                ${rubPrice} ₽
                             </div>
                         </div>
                     `;
