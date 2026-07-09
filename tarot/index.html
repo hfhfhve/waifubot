@@ -567,7 +567,7 @@
                 
                 <!-- Плашка цены прям на баннере (чтобы сразу понимали ценность) -->
                 <div class="relative z-10 bg-neon-rose/10 border border-neon-rose/30 px-2.5 py-1.5 rounded-xl flex items-center gap-1 shrink-0 shadow-inner">
-                    <span class="text-neon-rose text-sm font-black">15</span>
+                    <span class="text-neon-rose text-sm font-black">7</span>
                     <i class="ph-fill ph-lightning text-neon-amber drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]"></i>
                 </div>
             </button>
@@ -892,7 +892,7 @@
                         <span class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] opacity-0 group-hover:opacity-100"></span>
                         <span class="relative z-10 uppercase" data-i18n="btn_calc_synastry">СДЕЛАТЬ РАЗБОР</span>
                         <span class="relative z-10 bg-black/30 border border-white/10 px-2 py-0.5 rounded-md text-[11px] font-black flex items-center gap-1">
-                            15 <i class="ph-fill ph-lightning text-neon-amber drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]"></i>
+                            7 <i class="ph-fill ph-lightning text-neon-amber drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]"></i>
                         </span>
                     </button>
                 </div>
@@ -2386,6 +2386,7 @@
                 toast_need_your_date: 'Сначала укажите свою дату рождения в профиле',
                 synastry_weaving: 'Сплетаем судьбы...',
                 discuss_synastry_prompt: 'Я хочу обсудить нашу совместимость с {name}. На что мне стоит обратить внимание?',
+                pread_cards: 'карт', spread_min: 'мин',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2417,6 +2418,7 @@
                 toast_need_your_date: 'First, set your birth date in your profile',
                 synastry_weaving: 'Weaving destinies...',
                 discuss_synastry_prompt: 'I want to discuss my compatibility with {name}. What should I pay attention to?',
+                spread_cards: 'cards', spread_min: 'min',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2448,6 +2450,7 @@
                 toast_need_your_date: 'Primero configura tu fecha de nacimiento',
                 synastry_weaving: 'Tejiendo destinos...',
                 discuss_synastry_prompt: 'Quiero discutir mi compatibilidad con {name}. ¿A qué debo prestar atención?',
+                spread_cards: 'cartas', spread_min: 'min',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2479,6 +2482,7 @@
                 toast_need_your_date: 'D\'abord, configurez votre date de naissance',
                 synastry_weaving: 'Tissage des destins...',
                 discuss_synastry_prompt: 'Je veux discuter de ma compatibilité avec {name}. À quoi dois-je faire attention ?',
+                spread_cards: 'cartes', spread_min: 'min',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2510,6 +2514,7 @@
                 toast_need_your_date: 'Bitte zuerst dein Geburtsdatum einstellen',
                 synastry_weaving: 'Schicksale verweben...',
                 discuss_synastry_prompt: 'Ich möchte meine Kompatibilität mit {name} besprechen. Worauf sollte ich achten?',
+                spread_cards: 'Karten', spread_min: 'Min',
             }
         };
 
@@ -2865,28 +2870,40 @@
                         ? `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md inline-flex items-center">${t('free')}</span>`
                         : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
 
+                    // Секция с бейджиками: количество карт и время
+                    const badgesHtml = `
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-cards"></i> ${s.cards_count} ${t('spread_cards')}</span>
+                            <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-clock"></i> ~${s.estimated_time} ${t('spread_min')}</span>
+                        </div>
+                    `;
+
                     // Глубинные расклады рисуем большими блоками
                     if (s.category === 'deep') {
                         return `
                             <button onclick="selectSpread('${s.id}')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3">
                                 <div class="absolute -right-4 -top-4 w-20 h-20 ${style.bg} blur-2xl rounded-full pointer-events-none"></div>
-                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-2">${s.name}</h3>
-                                <p class="text-white/50 text-xs leading-relaxed mb-4">${s.description}</p>
-                                ${priceHtml}
+                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-1">${s.name}</h3>
+                                <p class="text-white/50 text-xs leading-relaxed mb-3">${s.description}</p>
+                                <div class="flex items-center justify-between">
+                                    ${badgesHtml}
+                                    ${priceHtml}
+                                </div>
                             </button>
                         `;
                     } else {
                         // Обычные расклады рисуем списками
                         return `
                             <button onclick="selectSpread('${s.id}')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full ${style.bg} flex items-center justify-center ${style.color} text-xl shrink-0"><i class="ph-fill ${style.icon}"></i></div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full ${style.bg} flex items-center justify-center ${style.color} text-xl shrink-0 mt-0.5"><i class="ph-fill ${style.icon}"></i></div>
                                     <div class="text-left">
                                         <h3 class="text-white font-bold text-sm mb-0.5">${s.name}</h3>
                                         <p class="text-white/40 text-[10px] leading-tight">${s.description}</p>
+                                        ${badgesHtml}
                                     </div>
                                 </div>
-                                <div class="shrink-0 ml-2">
+                                <div class="shrink-0 ml-2 mt-0.5">
                                     ${priceHtml}
                                 </div>
                             </button>
