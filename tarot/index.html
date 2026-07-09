@@ -3200,42 +3200,67 @@
     
         const ADMIN_IDS = [6546116205, 7672744848];
 
-        async function apiRequest(endpoint, method = "POST", data = {}) {
-            try {
-                const response = await fetch(`${API_URL}${endpoint}`, {
-                    method: method,
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Telegram-Init-Data": tg.initData || ""
-                    },
-                    body: method === "GET" ? null : JSON.stringify(data)
-                });
+        async function apiRequest(endpoint, method = "POST", data = {}, silent = false) {
+            let retries = 3; // Даем скрипту 3 скрытых попытки
+            let delay = 1000; // Ждем 1 секунду между попытками
         
-                if (!response.ok) {
-                    // Если сервер вернул 500 или 503, показываем экран техработ всем
-                    showMaintenanceScreen();
-                    return { success: false };
-                }
+            while (retries > 0) {
+                try {
+                    const response = await fetch(`${API_URL}${endpoint}`, {
+                        method: method,
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Telegram-Init-Data": tg.initData || ""
+                        },
+                        body: method === "GET" ? null : JSON.stringify(data)
+                    });
         
-                return await response.json();
-            } catch (e) {
-                console.error("API Error:", e);
+                    if (!response.ok) {
+                        // Если сервер вернул 500 ошибку
+                        if (!silent) showMaintenanceScreen();
+                        return { success: false };
+                    }
+        
+                    // Успех! Если висела красная ошибка сети, убираем её
+                    hideMaintenanceScreen();
+                    
+                    return await response.json();
+        
+                } catch (e) {
+                    retries--;
+                    console.error(`API Error (${endpoint}) [Осталось попыток: ${retries}]:`, e);
+        
+                    // Если попытки еще есть, ждем 1 сек и крутим цикл заново (ТИХО, БЕЗ ОШИБОК)
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue; 
+                    }
+                    
+                    // Если все 3 попытки (3 секунды) сгорели, а интернета так и нет
+                    if (!silent) {
+                        const currentUserId = tg.initDataUnsafe?.user?.id;
+                        const ADMIN_IDS = [6546116205, 7672744848];
                 
-                // Получаем ID текущего пользователя из Telegram
-                const currentUserId = tg.initDataUnsafe?.user?.id;
-        
-                // Если это админ — показываем детальный алерт
-                if (ADMIN_IDS.includes(currentUserId)) {
-                    alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nПроверь: 1. Работает ли сервис на сервере? 2. Включен ли Cloudflare Tunnel? 3. Добавлен ли URL фронта в CORS?`);
-                } else {
-                    // Обычному юзеру просто показываем красивый экран техработ
-                    showMaintenanceScreen();
+                        if (ADMIN_IDS.includes(currentUserId)) {
+                            alert(`АДМИН-ОШИБКА (Сеть):\nЗапрос: ${endpoint}\nПричина: ${e.message}\n\nПроверь: 1. Работает ли сервис на сервере? 2. Включен ли Cloudflare Tunnel? 3. Добавлен ли URL фронта в CORS?`);
+                        } else {
+                            showMaintenanceScreen();
+                        }
+                    }
+                    
+                    return { success: false, maintenance: true };
                 }
-                
-                return { success: false, maintenance: true };
             }
         }
-
+        
+        // ДОБАВЬ ЭТУ ФУНКЦИЮ СРАЗУ ПОД apiRequest
+        function hideMaintenanceScreen() {
+            const screen = document.getElementById('maintenance-screen');
+            if (screen && !screen.classList.contains('hidden')) {
+                screen.classList.add('hidden');
+                screen.classList.remove('flex');
+            }
+        }
         
     
         function declension(number, titles) {
