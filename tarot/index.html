@@ -2449,6 +2449,8 @@
                 spread_min: 'мин',
                 shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
                 shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:', locked_desc: '🔒 После первой покупки', offer_title: '🔥 СТАРТОВЫЙ НАБОР: -50%', offer_desc: 'Забери 30 энергии, пока время не вышло!',
+                toast_offer_expired: 'Время акции истекло!',
+                toast_already_purchased: 'Акция уже недоступна',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2484,6 +2486,8 @@
                 spread_cards: 'cards', spread_min: 'min',
                 shop_desc_0: 'For getting started', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: 'Maximum energy supply',
                 shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:', locked_desc: '🔒 After first purchase', offer_title: '🔥 STARTER PACK: -50%', offer_desc: 'Get 30 energy before time runs out!',
+                toast_offer_expired: 'Offer has expired!',
+                toast_already_purchased: 'Offer is no longer available',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2519,6 +2523,8 @@
                 spread_cards: 'cartas', spread_min: 'min',
                 shop_desc_0: 'Para empezar', shop_desc_1: 'Suficiente para unas tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: 'Máxima energía',
                 shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:', locked_desc: '🔒 Tras primera compra', offer_title: '🔥 PAQUETE DE INICIO: -50%', offer_desc: '¡Consigue 30 de energía antes de que acabe el tiempo!',
+                toast_offer_expired: '¡La oferta ha expirado!',
+                toast_already_purchased: 'La oferta ya no está disponible',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2554,6 +2560,8 @@
                 spread_cards: 'cartes', spread_min: 'min',
                 shop_desc_0: 'Pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: 'Réserve d\'énergie maximale',
                 shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :', locked_desc: '🔒 Après le 1er achat', offer_title: '🔥 PACK DE DÉMARRAGE: -50%', offer_desc: 'Obtenez 30 énergies avant la fin du temps imparti !',
+                toast_offer_expired: 'L\'offre a expiré !',
+                toast_already_purchased: 'L\'offre n\'est plus disponible',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2589,6 +2597,8 @@
                 spread_cards: 'Karten', spread_min: 'Min',
                 shop_desc_0: 'Für den Einstieg', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: 'Maximaler Energievorrat',
                 shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:', locked_desc: '🔒 Nach erstem Kauf', offer_title: '🔥 STARTER-PAKET: -50%', offer_desc: 'Hol dir 30 Energie, bevor die Zeit abläuft!',
+                toast_offer_expired: 'Das Angebot ist abgelaufen!',
+                toast_already_purchased: 'Angebot nicht mehr verfügbar',
             }
         };
 
@@ -3354,13 +3364,19 @@
                     clearInterval(offerTimerInterval);
                     isOfferActiveGlobally = false;
                     
-                    // Время вышло: прячем акцию, возвращаем бонус
                     document.getElementById('starter-pack-container').classList.add('hidden');
                     document.getElementById('daily-bonus-wrapper').classList.remove('hidden');
                     
-                    // Убираем товар из магазина
                     const shopOffer = document.getElementById('shop-starter-offer');
                     if (shopOffer) shopOffer.remove();
+        
+                    // 🛡 НОВОЕ: Если юзер сидел в окне оплаты акции - выкидываем его
+                    const purchaseModal = document.getElementById('modal-purchase');
+                    if (purchaseModal.classList.contains('active') && window.currentPurchaseItemId === 'starter_pack_30') {
+                        closeAllModals();
+                        showToast(t('toast_offer_expired') || 'Время акции истекло!', 'ph-timer text-neon-rose');
+                        loadShopItems(); // Возвращаем обычный товар за 50р на витрину
+                    }
                     return;
                 }
 
@@ -3902,6 +3918,7 @@
         }
     
         function selectShopItem(id, amount, stars, rub) {
+            window.currentPurchaseItemId = id; // Запоминаем, что мы сейчас покупаем
             document.getElementById('purchase-price-rub').textContent = `${rub} ₽`;
             // ВАЖНО: Вместо "или" пишем ${t('modal_or')}
             document.getElementById('purchase-price-stars').innerHTML = `${t('modal_or')} ${stars} <i class="ph-fill ph-star"></i>`;
@@ -3933,7 +3950,17 @@
                 showToast("После оплаты энергия зачислится автоматически", "ph-info");
                 startPaymentPolling(false); // <-- РАДАР ДЛЯ МАГАЗИНА
             } else {
-                showToast("Не удалось создать счет", "ph-warning-circle");
+                // 🛡 НОВАЯ ОБРАБОТКА ОШИБОК
+                if (data.message === "offer_expired") {
+                    showToast(t('toast_offer_expired'), "ph-timer text-neon-rose");
+                    closeAllModals();
+                    loadShopItems();
+                } else if (data.message === "already_purchased") {
+                    showToast(t('toast_already_purchased'), "ph-warning-circle");
+                    closeAllModals();
+                } else {
+                    showToast("Не удалось создать счет", "ph-warning-circle");
+                }
             }
         }
     
@@ -3995,8 +4022,18 @@
                         showToast(t('toast_error'), "ph-warning-circle text-red-400");
                     }
                 });
-            } else {
-                showToast(t('toast_error'), "ph-warning-circle");
+           } else {
+                // 🛡 НОВАЯ ОБРАБОТКА ОШИБОК
+                if (data.message === "offer_expired") {
+                    showToast(t('toast_offer_expired'), "ph-timer text-neon-rose");
+                    closeAllModals();
+                    loadShopItems();
+                } else if (data.message === "already_purchased") {
+                    showToast(t('toast_already_purchased'), "ph-warning-circle");
+                    closeAllModals();
+                } else {
+                    showToast(t('toast_error'), "ph-warning-circle");
+                }
             }
         }
     
