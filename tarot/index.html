@@ -521,26 +521,45 @@
             </div>
 
             <!-- СПЕЦПРЕДЛОЖЕНИЕ (Скрыто по умолчанию) -->
-            <div id="starter-pack-container" class="hidden">
-                <button onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" class="w-full glass bg-gradient-to-r from-[#3e0b1c] to-[#1a050d] border border-neon-rose/60 rounded-[20px] p-4 flex items-center justify-between shadow-[0_0_25px_rgba(251,113,133,0.3)] active:scale-95 transition-all relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-rose/30 blur-2xl rounded-full animate-pulse-slow pointer-events-none"></div>
-                    <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
-                    
-                    <div class="flex items-center gap-4 relative z-10">
-                        <div class="w-12 h-12 rounded-full bg-neon-rose/20 flex items-center justify-center border border-neon-rose/50 shadow-[0_0_15px_rgba(251,113,133,0.5)] shrink-0">
-                            <i class="ph-fill ph-fire text-neon-rose text-2xl animate-bounce"></i>
+            <div id="starter-pack-container" class="hidden relative mb-8">
+                <!-- Внешнее мягкое свечение вокруг всей карточки -->
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-neon-rose/40 via-neon-fuchsia/20 to-transparent rounded-[26px] blur-md opacity-60 animate-pulse-slow pointer-events-none"></div>
+
+                <button onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" class="w-full relative glass-strong bg-gradient-to-br from-[#1a050d] to-[#0a0205] border border-neon-rose/50 rounded-[24px] p-5 flex flex-col gap-3.5 shadow-2xl active:scale-[0.98] transition-all overflow-hidden group">
+                    <!-- Внутренний блик -->
+                    <div class="absolute right-0 top-0 w-40 h-40 bg-neon-rose/15 blur-[50px] rounded-full pointer-events-none group-hover:bg-neon-rose/25 transition-colors"></div>
+
+                    <!-- Верхний ряд: Плашка и Таймер -->
+                    <div class="flex justify-between items-start w-full relative z-10">
+                        <div class="bg-neon-rose/20 border border-neon-rose/40 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                            <i class="ph-fill ph-fire text-neon-rose text-xs animate-pulse"></i>
+                            <span class="text-neon-rose text-[9px] font-black uppercase tracking-widest" data-i18n="offer_title">🔥 СТАРТОВЫЙ НАБОР: -50%</span>
                         </div>
-                        <div class="text-left">
-                            <div class="flex items-center gap-2 mb-1">
-                                <p class="text-neon-rose text-[10px] font-black uppercase tracking-widest leading-none drop-shadow-[0_0_5px_rgba(251,113,133,0.8)]" data-i18n="offer_title">🔥 СТАРТОВЫЙ НАБОР: -50%</p>
-                            </div>
-                            <p class="text-white font-bold text-sm leading-none" data-i18n="offer_desc">Забери 30 энергии!</p>
+                        
+                        <div class="bg-black/60 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                            <i class="ph-bold ph-timer text-white/50 text-xs mb-0.5"></i>
+                            <span id="starter-pack-timer" class="text-white font-mono font-bold text-xs tracking-wider">10:00</span>
                         </div>
                     </div>
-                    
-                    <div class="relative z-10 bg-black/50 border border-neon-rose/40 px-3 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner shrink-0 min-w-[60px]">
-                        <i class="ph-fill ph-timer text-neon-rose text-xs mb-0.5"></i>
-                        <span id="starter-pack-timer" class="text-white font-mono font-bold text-xs">10:00</span>
+
+                    <!-- Нижний ряд: Значение и Цена -->
+                    <div class="flex items-end justify-between w-full relative z-10 mt-1">
+                        <div class="text-left flex flex-col">
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="text-white font-mystic text-5xl font-bold leading-none drop-shadow-md">30</span>
+                                <span class="text-white/50 text-[10px] font-bold uppercase tracking-widest">Энергии</span>
+                            </div>
+                            <p class="text-white/60 text-xs font-light" data-i18n="offer_desc">Пока время не вышло!</p>
+                        </div>
+
+                        <div class="flex flex-col items-end">
+                            <!-- Старая цена (зачеркнута) -->
+                            <span class="text-white/30 text-[11px] line-through decoration-neon-rose/60 font-medium mb-1 mr-1">50 ₽</span>
+                            <!-- Новая цена -->
+                            <div class="bg-neon-rose text-white px-5 py-2.5 rounded-[14px] text-sm font-black shadow-[0_0_20px_rgba(251,113,133,0.3)] group-hover:scale-105 transition-transform flex items-center gap-1">
+                                24.99 ₽
+                            </div>
+                        </div>
                     </div>
                 </button>
             </div>
@@ -3774,31 +3793,48 @@
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
-                // === РИСУЕМ АКЦИЮ СВЕРХУ, ЕСЛИ ОНА АКТИВНА ===
+                // === ПРЕМИУМ-БАННЕР АКЦИИ В МАГАЗИНЕ ===
                 if (isOfferActiveGlobally) {
                     container.innerHTML += `
                         <div id="shop-starter-offer" onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" 
-                            class="glass bg-gradient-to-r from-[#2a0813] to-[#120308] border border-neon-rose/50 rounded-[20px] p-4 mb-5 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer group shadow-[0_10px_30px_rgba(251,113,133,0.2)] relative overflow-hidden">
+                            class="relative glass-strong bg-gradient-to-br from-[#1a050d] to-[#0a0205] border border-neon-rose/50 rounded-[24px] p-5 mb-6 active:scale-[0.98] transition-all cursor-pointer group shadow-[0_15px_35px_rgba(251,113,133,0.15)] overflow-hidden flex flex-col gap-4">
                             
-                            <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
+                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-neon-rose/15 blur-3xl rounded-full pointer-events-none"></div>
+                            <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
 
-                            <div class="flex items-center gap-4 relative z-10">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-neon-rose/30 bg-neon-rose/20 animate-pulse-slow">
-                                    <i class="ph-fill ph-fire text-neon-rose text-xl"></i>
+                            <!-- Шапка с бейджем и таймером -->
+                            <div class="flex justify-between items-center w-full relative z-10">
+                                <div class="bg-neon-rose/20 border border-neon-rose/40 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                                    <i class="ph-fill ph-fire text-neon-rose text-[10px] animate-pulse"></i>
+                                    <span class="text-neon-rose text-[9px] font-black uppercase tracking-widest" data-i18n="offer_title">СТАРТОВЫЙ НАБОР -50%</span>
                                 </div>
-                                <div class="flex flex-col min-w-0">
-                                    <div class="flex items-center mb-0.5">
-                                        <span class="text-white text-xl font-bold leading-none tracking-tight">30</span>
-                                        <span class="text-white/40 text-[10px] uppercase tracking-widest font-bold ml-1.5">${t('shop_energy')}</span>
-                                    </div>
-                                    <span class="text-neon-rose/80 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
-                                        <i class="ph-fill ph-timer"></i> <span id="shop-offer-timer">--:--</span>
-                                    </span>
+                                <div class="bg-black/50 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                                    <i class="ph-bold ph-timer text-white/50 text-xs"></i>
+                                    <span id="shop-offer-timer" class="text-white font-mono font-bold text-xs tracking-wider">--:--</span>
                                 </div>
                             </div>
-                            
-                            <div class="relative z-10 shrink-0 ml-3 px-4 py-2.5 rounded-xl border border-neon-rose/40 text-sm font-black whitespace-nowrap bg-neon-rose text-white shadow-[0_0_15px_rgba(251,113,133,0.5)] group-hover:scale-105 transition-transform">
-                                24.99 ₽
+
+                            <!-- Основной контент (Иконка + Текст + Цены) -->
+                            <div class="flex items-center justify-between w-full relative z-10">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 border border-neon-rose/30 shadow-[0_0_15px_rgba(251,113,133,0.2)] group-hover:scale-105 transition-transform">
+                                        <i class="ph-fill ph-lightning text-neon-rose text-2xl drop-shadow-[0_0_8px_rgba(251,113,133,0.8)]"></i>
+                                    </div>
+                                    <div class="flex flex-col min-w-0">
+                                        <div class="flex items-end gap-1 mb-0.5">
+                                            <span class="text-white text-3xl font-mystic font-bold leading-none tracking-tight">30</span>
+                                            <span class="text-white/40 text-[10px] uppercase tracking-widest font-bold pb-1">${t('shop_energy')}</span>
+                                        </div>
+                                        <span class="text-white/50 text-[10px] leading-snug" data-i18n="offer_desc">Забери 30 энергии!</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col items-end shrink-0 ml-2">
+                                    <span class="text-white/30 text-[11px] line-through decoration-neon-rose/60 font-medium mb-1 mr-1">50 ₽</span>
+                                    <div class="px-5 py-2.5 rounded-[14px] border border-neon-rose/40 text-sm font-black whitespace-nowrap bg-neon-rose text-white shadow-[0_0_15px_rgba(251,113,133,0.4)] group-hover:bg-rose-500 transition-colors">
+                                        24.99 ₽
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -3806,6 +3842,11 @@
                 // ===============================================
 
                 data.items.forEach((item, index) => {
+                    // 🛡 ВЫРЕЗАЕМ ДУБЛИКАТ: Если акция активна, прячем обычный товар на 30 энергии
+                    if (isOfferActiveGlobally && item.amount === 30) {
+                        return; 
+                    }
+
                     const rubPrice = item.price_rub || item.price_usd || 0; 
                     const starsPrice = item.price_stars || 0;
                     
