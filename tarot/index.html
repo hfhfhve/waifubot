@@ -2401,7 +2401,7 @@
                 matrix_title: 'Матрица Дня', matrix_love: 'Любовь', matrix_finance: 'Дела и деньги', matrix_energy: 'Тонус энергии', matrix_intuition: 'Интуиция',
                 spread_min: 'мин',
                 shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
-                shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:',
+                shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:', locked_desc: '🔒 После первой покупки',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2436,7 +2436,7 @@
                 matrix_title: 'Matrix of the Day', matrix_love: 'Love', matrix_finance: 'Business & Money', matrix_energy: 'Energy Tone', matrix_intuition: 'Intuition',
                 spread_cards: 'cards', spread_min: 'min',
                 shop_desc_0: 'For getting started', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: 'Maximum energy supply',
-                shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:',
+                shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:', locked_desc: '🔒 After first purchase',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2471,7 +2471,7 @@
                 matrix_title: 'Matriz del Día', matrix_love: 'Amor', matrix_finance: 'Negocios y Dinero', matrix_energy: 'Energía', matrix_intuition: 'Intuición',
                 spread_cards: 'cartas', spread_min: 'min',
                 shop_desc_0: 'Para empezar', shop_desc_1: 'Suficiente para unas tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: 'Máxima energía',
-                shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:',
+                shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:', locked_desc: '🔒 Tras primera compra',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2506,7 +2506,7 @@
                 matrix_title: 'Matrice du Jour', matrix_love: 'Amour', matrix_finance: 'Affaires et Argent', matrix_energy: 'Énergie', matrix_intuition: 'Intuition',
                 spread_cards: 'cartes', spread_min: 'min',
                 shop_desc_0: 'Pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: 'Réserve d\'énergie maximale',
-                shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :',
+                shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :', Après le 1er achat',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2541,7 +2541,7 @@
                 matrix_title: 'Matrix des Tages', matrix_love: 'Liebe', matrix_finance: 'Geschäft & Geld', matrix_energy: 'Energie', matrix_intuition: 'Intuition',
                 spread_cards: 'Karten', spread_min: 'Min',
                 shop_desc_0: 'Für den Einstieg', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: 'Maximaler Energievorrat',
-                shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:',
+                shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:', Nach erstem Kauf',
             }
         };
 
@@ -2588,6 +2588,7 @@
             }
         }
         let activeTab = 'home';
+        let userHasPurchased = false;
         let currentChat = 'oracle';
         let currentWandererIndex = Math.floor(Math.random() * 5);
         let isCardFlipped = false;
@@ -2735,6 +2736,8 @@
                         clearInterval(interval);
                         userBalance.energy = data.energy;
                         updateBalanceUI(); // Обновляем циферки на экране
+                        userHasPurchased = true; // <-- Теперь у юзера есть покупки!
+                        loadSpreads(); // <-- Мгновенно перерисовываем расклады, чтобы снять замки
                         
                         if (isSpread) {
                             const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
@@ -2893,16 +2896,33 @@
                 const renderCard = (s) => {
                     const style = iconMap[s.id] || { icon: 'ph-cards', color: 'text-neon-amber', bg: 'bg-neon-amber/10' };
                     
-                    const priceHtml = s.price === 0 
+                    // Проверяем блокировку
+                    const isLocked = s.is_premium && !userHasPurchased;
+                    
+                    // Золотой бэйджик для названия
+                    const premiumBadge = s.is_premium ? `<span class="inline-block bg-gradient-to-r from-amber-200 to-yellow-500 text-black text-[8px] font-black uppercase px-1.5 py-0.5 rounded shadow-sm align-middle ml-2 border border-yellow-300">★ Premium</span>` : '';
+                    
+                    // Если заблокировано, затемняем карточку
+                    const dimClass = isLocked ? 'opacity-70 grayscale-[20%]' : '';
+                    
+                    // Клик (открываем расклад или кидаем в магазин)
+                    const clickAction = isLocked 
+                        ? `onclick="showToast('${t('locked_desc')}', 'ph-lock-key'); navigateTo('shop');"`
+                        : `onclick="selectSpread('${s.id}')"`;
+
+                    let priceOrLockHtml = s.price === 0 
                         ? `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md inline-flex items-center">${t('free')}</span>`
                         : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
 
-                    // Секция с бейджиками: количество карт и время
+                    // Если замок — заменяем цену на плашку с замком
+                    if (isLocked) {
+                        priceOrLockHtml = `<span class="text-white/70 text-[9px] font-bold bg-white/10 border border-white/20 px-2 py-1 rounded-md inline-flex items-center gap-1 shadow-inner"><i class="ph-fill ph-lock-key text-neon-amber"></i> ${t('locked_desc')}</span>`;
+                    }
+
                     const cardsWord = activeLanguage === 'ru' 
                         ? declension(s.cards_count, ['карта', 'карты', 'карт']) 
                         : t('spread_cards');
 
-                    // Секция с бейджиками
                     const badgesHtml = `
                         <div class="flex items-center gap-2 mt-2">
                             <span class="text-[9px] text-white/40 font-semibold bg-white/5 border border-white/5 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-cards"></i> ${s.cards_count} ${cardsWord}</span>
@@ -2910,33 +2930,31 @@
                         </div>
                     `;
 
-                    // Глубинные расклады рисуем большими блоками
                     if (s.category === 'deep') {
                         return `
-                            <button onclick="selectSpread('${s.id}')" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3">
+                            <button ${clickAction} class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3 ${dimClass}">
                                 <div class="absolute -right-4 -top-4 w-20 h-20 ${style.bg} blur-2xl rounded-full pointer-events-none"></div>
-                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-1">${s.name}</h3>
+                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-1">${s.name} ${premiumBadge}</h3>
                                 <p class="text-white/50 text-xs leading-relaxed mb-3">${s.description}</p>
                                 <div class="flex items-center justify-between">
                                     ${badgesHtml}
-                                    ${priceHtml}
+                                    ${priceOrLockHtml}
                                 </div>
                             </button>
                         `;
                     } else {
-                        // Обычные расклады рисуем списками
                         return `
-                            <button onclick="selectSpread('${s.id}')" class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3">
+                            <button ${clickAction} class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3 ${dimClass}">
                                 <div class="flex items-start gap-4">
                                     <div class="w-12 h-12 rounded-full ${style.bg} flex items-center justify-center ${style.color} text-xl shrink-0 mt-0.5"><i class="ph-fill ${style.icon}"></i></div>
                                     <div class="text-left">
-                                        <h3 class="text-white font-bold text-sm mb-0.5">${s.name}</h3>
+                                        <h3 class="text-white font-bold text-sm mb-0.5">${s.name} ${premiumBadge}</h3>
                                         <p class="text-white/40 text-[10px] leading-tight">${s.description}</p>
                                         ${badgesHtml}
                                     </div>
                                 </div>
                                 <div class="shrink-0 ml-2 mt-0.5">
-                                    ${priceHtml}
+                                    ${priceOrLockHtml}
                                 </div>
                             </button>
                         `;
@@ -4240,6 +4258,7 @@
                 
                 if (data && data.success) {
                     userBalance.energy = data.energy;
+                    userHasPurchased = data.has_purchased || false;
                     userBalance.streak = data.streak || 0; 
                     updateBalanceUI();
                     
