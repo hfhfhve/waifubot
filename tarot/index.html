@@ -2914,24 +2914,22 @@
                     // Проверяем блокировку
                     const isLocked = s.is_premium && !userHasPurchased;
                     
-                    // Золотой бэйджик для названия
-                    const premiumBadge = s.is_premium ? `<span class="inline-block bg-gradient-to-r from-amber-200 to-yellow-500 text-black text-[8px] font-black uppercase px-1.5 py-0.5 rounded shadow-sm align-middle ml-2 border border-yellow-300">★ Premium</span>` : '';
+                    // Солидное, легкое затемнение закрытых карточек (без сильной серости)
+                    const dimClass = isLocked ? 'opacity-80 grayscale-[30%] hover:grayscale-0 transition-all' : '';
                     
-                    // Если заблокировано, затемняем карточку
-                    const dimClass = isLocked ? 'opacity-70 grayscale-[20%]' : '';
-                    
-                    // Клик (открываем расклад или кидаем в магазин)
+                    // Клик (если закрыто - показываем тост и кидаем в магаз)
                     const clickAction = isLocked 
-                        ? `onclick="showToast('${t('locked_desc')}', 'ph-lock-key'); navigateTo('shop');"`
+                        ? `onclick="showToast('Доступно после первой покупки', 'ph-lock-key'); navigateTo('shop');"`
                         : `onclick="selectSpread('${s.id}')"`;
 
+                    // Блок цены
                     let priceOrLockHtml = s.price === 0 
                         ? `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2 py-1 rounded-md inline-flex items-center">${t('free')}</span>`
                         : `<span class="text-neon-amber text-[10px] font-bold bg-neon-amber/10 px-2.5 py-1 rounded-md inline-flex items-center gap-1">${s.price} <i class="ph-fill ph-lightning text-xs drop-shadow-md"></i></span>`;
 
-                    // Если замок — заменяем цену на плашку с замком
+                    // ЕСЛИ ЗАБЛОКИРОВАНО: Заменяем цену на аккуратный минималистичный замок
                     if (isLocked) {
-                        priceOrLockHtml = `<span class="text-white/70 text-[9px] font-bold bg-white/10 border border-white/20 px-2 py-1 rounded-md inline-flex items-center gap-1 shadow-inner"><i class="ph-fill ph-lock-key text-neon-amber"></i> ${t('locked_desc')}</span>`;
+                        priceOrLockHtml = `<span class="text-white/40 text-[9px] font-black uppercase tracking-widest bg-white/5 border border-white/10 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 shadow-inner"><i class="ph-fill ph-lock-key text-[10px]"></i> Premium</span>`;
                     }
 
                     const cardsWord = activeLanguage === 'ru' 
@@ -2946,36 +2944,38 @@
                     `;
 
                     if (s.category === 'deep') {
+                        // === ГЛУБИННЫЕ РАСКЛАДЫ (Большие карточки) ===
                         return `
-                            <button ${clickAction} class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-95 transition-transform relative overflow-hidden mb-3 ${dimClass}">
+                            <button ${clickAction} class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-${style.color.replace('text-', '')}/20 rounded-[20px] p-5 text-left active:scale-[0.98] transition-all relative overflow-hidden mb-3 ${dimClass}">
                                 <div class="absolute -right-4 -top-4 w-20 h-20 ${style.bg} blur-2xl rounded-full pointer-events-none"></div>
-                                <h3 class="text-white font-mystic text-2xl font-bold leading-tight mb-1">${s.name} ${premiumBadge}</h3>
-                                <p class="text-white/50 text-xs leading-relaxed mb-3">${s.description}</p>
-                                <div class="flex items-center justify-between">
-                                    ${badgesHtml}
-                                    ${priceOrLockHtml}
+                                <div class="flex items-start justify-between gap-3 mb-1">
+                                    <h3 class="text-white font-mystic text-2xl font-bold leading-tight flex-1">${s.name}</h3>
+                                    <div class="shrink-0 mt-1">${priceOrLockHtml}</div>
                                 </div>
+                                <p class="text-white/50 text-xs leading-relaxed mb-3 pr-2">${s.description}</p>
+                                ${badgesHtml}
                             </button>
                         `;
                     } else {
+                        // === ОБЫЧНЫЕ РАСКЛАДЫ (Список) ===
                         return `
-                            <button ${clickAction} class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-95 transition-transform mb-3 ${dimClass}">
-                                <div class="flex items-start gap-4">
+                            <button ${clickAction} class="w-full glass bg-space-800 border-white/5 rounded-[20px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform mb-3 ${dimClass}">
+                                <div class="flex items-start gap-4 flex-1 min-w-0">
                                     <div class="w-12 h-12 rounded-full ${style.bg} flex items-center justify-center ${style.color} text-xl shrink-0 mt-0.5"><i class="ph-fill ${style.icon}"></i></div>
-                                    <div class="text-left">
-                                        <h3 class="text-white font-bold text-sm mb-0.5">${s.name} ${premiumBadge}</h3>
-                                        <p class="text-white/40 text-[10px] leading-tight">${s.description}</p>
+                                    <div class="text-left flex-1 min-w-0 pr-2">
+                                        <h3 class="text-white font-bold text-sm mb-0.5 truncate">${s.name}</h3>
+                                        <p class="text-white/40 text-[10px] leading-tight line-clamp-2">${s.description}</p>
                                         ${badgesHtml}
                                     </div>
                                 </div>
-                                <div class="shrink-0 ml-2 mt-0.5">
+                                <div class="shrink-0 ml-1">
                                     ${priceOrLockHtml}
                                 </div>
                             </button>
                         `;
                     }
                 };
-
+              
                 let html = '';
                 
                 const renderSection = (catId, title, items) => {
