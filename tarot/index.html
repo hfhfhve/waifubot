@@ -500,22 +500,50 @@
 
         <!-- Баннер -->
         <div class="px-5 mb-8">
-            <button id="daily-bonus-btn" onclick="openDailyBonusModal()" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-white/5 hover:border-neon-fuchsia/30 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
-                <div id="daily-bonus-glow" class="absolute -right-4 -top-4 w-20 h-20 bg-neon-fuchsia/20 blur-2xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
-                <div class="flex items-center gap-4 relative z-10">
-                    <div id="daily-bonus-icon-bg" class="w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30 shadow-inner shrink-0 transition-colors">
-                        <i id="daily-bonus-icon" class="ph-fill ph-gift text-neon-fuchsia text-xl animate-pulse"></i>
-                    </div>
-                    <div class="text-left">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none" data-i18n="daily_bonus">Ежедневный бонус</p>
-                            <span id="daily-bonus-badge" class="bg-neon-fuchsia/20 text-neon-fuchsia border border-neon-fuchsia/30 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider hidden">ДЕНЬ 1</span>
+            <!-- Ежедневный бонус -->
+            <div id="daily-bonus-wrapper">
+                <button id="daily-bonus-btn" onclick="openDailyBonusModal()" class="w-full glass bg-gradient-to-r from-space-800 to-space-700 border border-white/5 hover:border-neon-fuchsia/30 rounded-[20px] p-4 flex items-center justify-between shadow-lg active:scale-95 transition-all relative overflow-hidden group">
+                    <div id="daily-bonus-glow" class="absolute -right-4 -top-4 w-20 h-20 bg-neon-fuchsia/20 blur-2xl rounded-full group-hover:bg-neon-fuchsia/30 transition-colors"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div id="daily-bonus-icon-bg" class="w-12 h-12 rounded-full bg-neon-fuchsia/10 flex items-center justify-center border border-neon-fuchsia/30 shadow-inner shrink-0 transition-colors">
+                            <i id="daily-bonus-icon" class="ph-fill ph-gift text-neon-fuchsia text-xl animate-pulse"></i>
                         </div>
-                        <p id="daily-bonus-text" class="text-white font-bold text-sm leading-none" data-i18n="bonus_desc">Заходи каждый день</p>
+                        <div class="text-left">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none" data-i18n="daily_bonus">Ежедневный бонус</p>
+                                <span id="daily-bonus-badge" class="bg-neon-fuchsia/20 text-neon-fuchsia border border-neon-fuchsia/30 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider hidden">ДЕНЬ 1</span>
+                            </div>
+                            <p id="daily-bonus-text" class="text-white font-bold text-sm leading-none" data-i18n="bonus_desc">Заходи каждый день</p>
+                        </div>
                     </div>
-                </div>
-                <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
-            </button>
+                    <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
+                </button>
+            </div>
+
+            <!-- СПЕЦПРЕДЛОЖЕНИЕ (Скрыто по умолчанию) -->
+            <div id="starter-pack-container" class="hidden">
+                <button onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" class="w-full glass bg-gradient-to-r from-[#3e0b1c] to-[#1a050d] border border-neon-rose/60 rounded-[20px] p-4 flex items-center justify-between shadow-[0_0_25px_rgba(251,113,133,0.3)] active:scale-95 transition-all relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-rose/30 blur-2xl rounded-full animate-pulse-slow pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
+                    
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-full bg-neon-rose/20 flex items-center justify-center border border-neon-rose/50 shadow-[0_0_15px_rgba(251,113,133,0.5)] shrink-0">
+                            <i class="ph-fill ph-fire text-neon-rose text-2xl animate-bounce"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="text-neon-rose text-[10px] font-black uppercase tracking-widest leading-none drop-shadow-[0_0_5px_rgba(251,113,133,0.8)]" data-i18n="offer_title">🔥 СТАРТОВЫЙ НАБОР: -50%</p>
+                            </div>
+                            <p class="text-white font-bold text-sm leading-none" data-i18n="offer_desc">Забери 30 энергии!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative z-10 bg-black/50 border border-neon-rose/40 px-3 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner shrink-0 min-w-[60px]">
+                        <i class="ph-fill ph-timer text-neon-rose text-xs mb-0.5"></i>
+                        <span id="starter-pack-timer" class="text-white font-mono font-bold text-xs">10:00</span>
+                    </div>
+                </button>
+            </div>
         </div>
 
         <!-- Карта дня -->
@@ -2401,7 +2429,7 @@
                 matrix_title: 'Матрица Дня', matrix_love: 'Любовь', matrix_finance: 'Дела и деньги', matrix_energy: 'Тонус энергии', matrix_intuition: 'Интуиция',
                 spread_min: 'мин',
                 shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
-                shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:', locked_desc: '🔒 После первой покупки',
+                shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:', locked_desc: '🔒 После первой покупки', offer_title: '🔥 СТАРТОВЫЙ НАБОР: -50%', offer_desc: 'Забери 30 энергии, пока время не вышло!',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2436,7 +2464,7 @@
                 matrix_title: 'Matrix of the Day', matrix_love: 'Love', matrix_finance: 'Business & Money', matrix_energy: 'Energy Tone', matrix_intuition: 'Intuition',
                 spread_cards: 'cards', spread_min: 'min',
                 shop_desc_0: 'For getting started', shop_desc_1: 'Enough for a few spreads', shop_desc_2: 'Perfect for union analysis', shop_desc_3: 'Maximum energy supply',
-                shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:', locked_desc: '🔒 After first purchase',
+                shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:', locked_desc: '🔒 After first purchase', offer_title: '🔥 STARTER PACK: -50%', offer_desc: 'Get 30 energy before time runs out!',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2471,7 +2499,7 @@
                 matrix_title: 'Matriz del Día', matrix_love: 'Amor', matrix_finance: 'Negocios y Dinero', matrix_energy: 'Energía', matrix_intuition: 'Intuición',
                 spread_cards: 'cartas', spread_min: 'min',
                 shop_desc_0: 'Para empezar', shop_desc_1: 'Suficiente para unas tiradas', shop_desc_2: 'Ideal para compatibilidad', shop_desc_3: 'Máxima energía',
-                shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:', locked_desc: '🔒 Tras primera compra',
+                shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:', locked_desc: '🔒 Tras primera compra', offer_title: '🔥 PAQUETE DE INICIO: -50%', offer_desc: '¡Consigue 30 de energía antes de que acabe el tiempo!',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2506,7 +2534,7 @@
                 matrix_title: 'Matrice du Jour', matrix_love: 'Amour', matrix_finance: 'Affaires et Argent', matrix_energy: 'Énergie', matrix_intuition: 'Intuition',
                 spread_cards: 'cartes', spread_min: 'min',
                 shop_desc_0: 'Pour commencer', shop_desc_1: 'Assez pour quelques tirages', shop_desc_2: 'Idéal pour l\'analyse d\'union', shop_desc_3: 'Réserve d\'énergie maximale',
-                shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :', locked_desc: '🔒 Après le 1er achat',
+                shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :', locked_desc: '🔒 Après le 1er achat', offer_title: '🔥 PACK DE DÉMARRAGE: -50%', offer_desc: 'Obtenez 30 énergies avant la fin du temps imparti !',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2541,7 +2569,7 @@
                 matrix_title: 'Matrix des Tages', matrix_love: 'Liebe', matrix_finance: 'Geschäft & Geld', matrix_energy: 'Energie', matrix_intuition: 'Intuition',
                 spread_cards: 'Karten', spread_min: 'Min',
                 shop_desc_0: 'Für den Einstieg', shop_desc_1: 'Genug für ein paar Legungen', shop_desc_2: 'Ideal für Kompatibilität', shop_desc_3: 'Maximaler Energievorrat',
-                shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:', locked_desc: '🔒 Nach erstem Kauf',
+                shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:', locked_desc: '🔒 Nach erstem Kauf', offer_title: '🔥 STARTER-PAKET: -50%', offer_desc: 'Hol dir 30 Energie, bevor die Zeit abläuft!',
             }
         };
 
@@ -3285,6 +3313,50 @@
                 }
             }
         }
+
+        let offerTimerInterval = null;
+        let isOfferActiveGlobally = false;
+
+        function startStarterPackTimer(secondsLeft) {
+            isOfferActiveGlobally = true;
+            
+            // Прячем бонус, показываем акцию на главной
+            document.getElementById('daily-bonus-wrapper').classList.add('hidden');
+            document.getElementById('starter-pack-container').classList.remove('hidden');
+
+            // Перерисовываем магазин, чтобы акция появилась там
+            loadShopItems();
+
+            if (offerTimerInterval) clearInterval(offerTimerInterval);
+
+            offerTimerInterval = setInterval(() => {
+                secondsLeft--;
+                if (secondsLeft <= 0) {
+                    clearInterval(offerTimerInterval);
+                    isOfferActiveGlobally = false;
+                    
+                    // Время вышло: прячем акцию, возвращаем бонус
+                    document.getElementById('starter-pack-container').classList.add('hidden');
+                    document.getElementById('daily-bonus-wrapper').classList.remove('hidden');
+                    
+                    // Убираем товар из магазина
+                    const shopOffer = document.getElementById('shop-starter-offer');
+                    if (shopOffer) shopOffer.remove();
+                    return;
+                }
+
+                const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+                const s = (secondsLeft % 60).toString().padStart(2, '0');
+                const timeStr = `${m}:${s}`;
+                
+                const mainTimer = document.getElementById('starter-pack-timer');
+                if (mainTimer) mainTimer.textContent = timeStr;
+                
+                const shopTimer = document.getElementById('shop-offer-timer');
+                if (shopTimer) shopTimer.textContent = timeStr;
+
+            }, 1000);
+        }
         
         // ДОБАВЬ ЭТУ ФУНКЦИЮ СРАЗУ ПОД apiRequest
         function hideMaintenanceScreen() {
@@ -3702,31 +3774,57 @@
             if (data.success && data.items.length > 0) {
                 container.innerHTML = '';
                 
+                // === РИСУЕМ АКЦИЮ СВЕРХУ, ЕСЛИ ОНА АКТИВНА ===
+                if (isOfferActiveGlobally) {
+                    container.innerHTML += `
+                        <div id="shop-starter-offer" onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" 
+                            class="glass bg-gradient-to-r from-[#2a0813] to-[#120308] border border-neon-rose/50 rounded-[20px] p-4 mb-5 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer group shadow-[0_10px_30px_rgba(251,113,133,0.2)] relative overflow-hidden">
+                            
+                            <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
+
+                            <div class="flex items-center gap-4 relative z-10">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-neon-rose/30 bg-neon-rose/20 animate-pulse-slow">
+                                    <i class="ph-fill ph-fire text-neon-rose text-xl"></i>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center mb-0.5">
+                                        <span class="text-white text-xl font-bold leading-none tracking-tight">30</span>
+                                        <span class="text-white/40 text-[10px] uppercase tracking-widest font-bold ml-1.5">${t('shop_energy')}</span>
+                                    </div>
+                                    <span class="text-neon-rose/80 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                                        <i class="ph-fill ph-timer"></i> <span id="shop-offer-timer">--:--</span>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="relative z-10 shrink-0 ml-3 px-4 py-2.5 rounded-xl border border-neon-rose/40 text-sm font-black whitespace-nowrap bg-neon-rose text-white shadow-[0_0_15px_rgba(251,113,133,0.5)] group-hover:scale-105 transition-transform">
+                                24.99 ₽
+                            </div>
+                        </div>
+                    `;
+                }
+                // ===============================================
+
                 data.items.forEach((item, index) => {
                     const rubPrice = item.price_rub || item.price_usd || 0; 
                     const starsPrice = item.price_stars || 0;
                     
-                    // Строгий минимализм. Базовые стили:
                     let cardBorder = "border-white/5 hover:border-white/20";
                     let iconClass = "ph-lightning text-white/50";
                     let iconBg = "bg-white/5";
                     let priceClass = "bg-white/5 text-white hover:bg-white/10";
                     let badgeHtml = "";
 
-                    // Деликатные акценты
                     if (index === 1) {
                         iconClass = "ph-lightning text-neon-indigo drop-shadow-md";
                         iconBg = "bg-neon-indigo/10";
                     } else if (index === 2) {
-                        // Оптимальный пакет (Слегка подсвечен розовым, чтобы выделяться)
                         cardBorder = "border-neon-fuchsia/30 shadow-[0_5px_20px_rgba(232,121,249,0.05)]";
                         iconClass = "ph-magic-wand text-neon-fuchsia drop-shadow-md";
                         iconBg = "bg-neon-fuchsia/10";
                         priceClass = "bg-neon-fuchsia text-white shadow-md";
-                        // Бейджик теперь встроен в строку с текстом, он никуда не уедет
                         badgeHtml = `<span class="bg-neon-fuchsia/20 text-neon-fuchsia border border-neon-fuchsia/30 text-[8px] font-black uppercase px-2 py-0.5 rounded-md ml-2">${t('shop_badge_2')}</span>`;
                     } else if (index === 3) {
-                        // Большой пакет
                         cardBorder = "border-neon-amber/20 hover:border-neon-amber/40";
                         iconClass = "ph-crown text-neon-amber drop-shadow-md";
                         iconBg = "bg-neon-amber/10";
@@ -3738,12 +3836,9 @@
                             class="glass bg-[#080812] border ${cardBorder} rounded-[20px] p-4 mb-4 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer group">
                             
                             <div class="flex items-center gap-4 overflow-hidden">
-                                <!-- Иконка (с защитой от сжатия shrink-0) -->
                                 <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-white/5 transition-transform group-hover:scale-105 ${iconBg}">
                                     <i class="ph-fill ${iconClass} text-xl"></i>
                                 </div>
-                                
-                                <!-- Текстовый блок (truncate защищает от вылезания за края) -->
                                 <div class="flex flex-col min-w-0">
                                     <div class="flex items-center mb-0.5">
                                         <span class="text-white text-xl font-bold leading-none tracking-tight">${item.amount}</span>
@@ -3754,7 +3849,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Кнопка с ценой (shrink-0 и whitespace-nowrap защищают от переноса 199 ₽ на новую строку) -->
                             <div class="shrink-0 ml-3 px-4 py-2.5 rounded-xl border border-white/5 text-sm font-bold whitespace-nowrap transition-colors ${priceClass}">
                                 ${rubPrice} ₽
                             </div>
@@ -4276,9 +4370,15 @@
                     userHasPurchased = data.has_purchased || false;
                     userBalance.streak = data.streak || 0; 
                     updateBalanceUI();
-                    
                     const refCountEl = document.getElementById('referrals-count-display');
                     if (refCountEl) refCountEl.textContent = data.referrals_count || 0;
+
+                    if (data.special_offer && data.special_offer.active) {
+                        startStarterPackTimer(data.special_offer.time_left);
+                    } else {
+                        document.getElementById('daily-bonus-wrapper').classList.remove('hidden');
+                        document.getElementById('starter-pack-container').classList.add('hidden');
+                    }
                     
                     if (data.created_at) {
                         const dateObj = new Date(data.created_at);
