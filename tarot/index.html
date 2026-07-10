@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta name="theme-color" content="#03030b">
@@ -558,6 +558,42 @@
                             <!-- Новая цена -->
                             <div class="bg-neon-rose text-white px-5 py-2.5 rounded-[14px] text-sm font-black shadow-[0_0_20px_rgba(251,113,133,0.3)] group-hover:scale-105 transition-transform flex items-center gap-1">
                                 24.99 ₽
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <div id="mega-pack-container" class="hidden relative mb-8">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-neon-amber/40 via-orange-500/20 to-transparent rounded-[26px] blur-md opacity-60 animate-[pulse_1s_ease-in-out_infinite] pointer-events-none"></div>
+
+                <button onclick="selectShopItem('mega_pack_30', 30, 15, 4.99)" class="w-full relative glass-strong bg-gradient-to-br from-[#1a1005] to-[#0a0502] border border-neon-amber/50 rounded-[24px] p-5 flex flex-col gap-3.5 shadow-2xl active:scale-[0.98] transition-all overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-40 h-40 bg-neon-amber/15 blur-[50px] rounded-full pointer-events-none group-hover:bg-neon-amber/25 transition-colors"></div>
+
+                    <div class="flex justify-between items-start w-full relative z-10">
+                        <div class="bg-neon-amber/20 border border-neon-amber/40 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                            <i class="ph-fill ph-lightning text-neon-amber text-xs animate-pulse"></i>
+                            <span class="text-neon-amber text-[9px] font-black uppercase tracking-widest" data-i18n="mega_offer_title">⚡️ МЕГА РАСПРОДАЖА: -90%</span>
+                        </div>
+                        
+                        <div class="bg-black/60 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                            <i class="ph-bold ph-timer text-white/50 text-xs mb-0.5"></i>
+                            <span id="mega-pack-timer" class="text-red-400 font-mono font-bold text-xs tracking-wider animate-pulse">05:00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between w-full relative z-10 mt-1">
+                        <div class="text-left flex flex-col">
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="text-white font-mystic text-5xl font-bold leading-none drop-shadow-md">30</span>
+                                <span class="text-white/50 text-[10px] font-bold uppercase tracking-widest">Энергии</span>
+                            </div>
+                            <p class="text-white/60 text-xs font-light" data-i18n="mega_offer_desc">Последний шанс!</p>
+                        </div>
+
+                        <div class="flex flex-col items-end">
+                            <span class="text-white/30 text-[11px] line-through decoration-neon-amber/60 font-medium mb-1 mr-1">50 ₽</span>
+                            <div class="bg-gradient-to-r from-neon-amber to-orange-500 text-black px-5 py-2.5 rounded-[14px] text-sm font-black shadow-[0_0_20px_rgba(251,191,36,0.4)] group-hover:scale-105 transition-transform flex items-center gap-1">
+                                4.99 ₽
                             </div>
                         </div>
                     </div>
@@ -2450,7 +2486,9 @@
                 shop_desc_0: 'Для знакомства с Оракулом', shop_desc_1: 'Хватит на пару раскладов', shop_desc_2: 'Идеально для анализа совместимости', shop_desc_3: 'Максимальный запас энергии',
                 shop_badge_2: 'Популярно', card_reveal: 'Раскрыть', chat_balance: 'Баланс:', locked_desc: '🔒 После первой покупки', offer_title: '🔥 СТАРТОВЫЙ НАБОР: -50%', offer_desc: 'Забери 30 энергии, пока время не вышло!',
                 toast_offer_expired: 'Время акции истекло!',
-                toast_already_purchased: 'Акция уже недоступна',
+                toast_already_purchased: 'Акция уже недоступна', 
+                mega_offer_title: '⚡️ МЕГА РАСПРОДАЖА: -90%',
+                mega_offer_desc: 'Последний шанс забрать 30 энергии!',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2488,6 +2526,8 @@
                 shop_badge_2: 'Popular', card_reveal: 'Reveal', chat_balance: 'Balance:', locked_desc: '🔒 After first purchase', offer_title: '🔥 STARTER PACK: -50%', offer_desc: 'Get 30 energy before time runs out!',
                 toast_offer_expired: 'Offer has expired!',
                 toast_already_purchased: 'Offer is no longer available',
+                mega_offer_title: '⚡️ MEGA SALE: -90%',
+                mega_offer_desc: 'Last chance to get 30 energy!',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2525,6 +2565,8 @@
                 shop_badge_2: 'Popular', card_reveal: 'Revelar', chat_balance: 'Saldo:', locked_desc: '🔒 Tras primera compra', offer_title: '🔥 PAQUETE DE INICIO: -50%', offer_desc: '¡Consigue 30 de energía antes de que acabe el tiempo!',
                 toast_offer_expired: '¡La oferta ha expirado!',
                 toast_already_purchased: 'La oferta ya no está disponible',
+                mega_offer_title: '⚡️ MEGA OFERTA: -90%',
+                mega_offer_desc: '¡Última oportunidad para conseguir 30 de energía!',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2562,6 +2604,8 @@
                 shop_badge_2: 'Populaire', card_reveal: 'Révéler', chat_balance: 'Solde :', locked_desc: '🔒 Après le 1er achat', offer_title: '🔥 PACK DE DÉMARRAGE: -50%', offer_desc: 'Obtenez 30 énergies avant la fin du temps imparti !',
                 toast_offer_expired: 'L\'offre a expiré !',
                 toast_already_purchased: 'L\'offre n\'est plus disponible',
+                mega_offer_title: '⚡️ MÉGA VENTE : -90%',
+                mega_offer_desc: 'Dernière chance d\'obtenir 30 énergies !',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2599,6 +2643,8 @@
                 shop_badge_2: 'Beliebt', card_reveal: 'Aufdecken', chat_balance: 'Guthaben:', locked_desc: '🔒 Nach erstem Kauf', offer_title: '🔥 STARTER-PAKET: -50%', offer_desc: 'Hol dir 30 Energie, bevor die Zeit abläuft!',
                 toast_offer_expired: 'Das Angebot ist abgelaufen!',
                 toast_already_purchased: 'Angebot nicht mehr verfügbar',
+                mega_offer_title: '⚡️ MEGA-SALE: -90%',
+                mega_offer_desc: 'Letzte Chance, 30 Energie zu bekommen!',
             }
         };
 
@@ -3345,15 +3391,22 @@
 
         let offerTimerInterval = null;
         let isOfferActiveGlobally = false;
+        let globalOfferType = null;
 
-        function startStarterPackTimer(secondsLeft) {
+        function startSpecialOfferTimer(secondsLeft, type) {
             isOfferActiveGlobally = true;
+            globalOfferType = type;
             
-            // Прячем бонус, показываем акцию на главной
             document.getElementById('daily-bonus-wrapper').classList.add('hidden');
-            document.getElementById('starter-pack-container').classList.remove('hidden');
+            
+            if (type === 'mega_pack_30') {
+                document.getElementById('starter-pack-container').classList.add('hidden');
+                document.getElementById('mega-pack-container').classList.remove('hidden');
+            } else {
+                document.getElementById('mega-pack-container').classList.add('hidden');
+                document.getElementById('starter-pack-container').classList.remove('hidden');
+            }
 
-            // Перерисовываем магазин, чтобы акция появилась там
             loadShopItems();
 
             if (offerTimerInterval) clearInterval(offerTimerInterval);
@@ -3365,17 +3418,17 @@
                     isOfferActiveGlobally = false;
                     
                     document.getElementById('starter-pack-container').classList.add('hidden');
+                    document.getElementById('mega-pack-container').classList.add('hidden');
                     document.getElementById('daily-bonus-wrapper').classList.remove('hidden');
                     
                     const shopOffer = document.getElementById('shop-starter-offer');
                     if (shopOffer) shopOffer.remove();
-        
-                    // 🛡 НОВОЕ: Если юзер сидел в окне оплаты акции - выкидываем его
+
                     const purchaseModal = document.getElementById('modal-purchase');
-                    if (purchaseModal.classList.contains('active') && window.currentPurchaseItemId === 'starter_pack_30') {
+                    if (purchaseModal.classList.contains('active') && (window.currentPurchaseItemId === 'starter_pack_30' || window.currentPurchaseItemId === 'mega_pack_30')) {
                         closeAllModals();
-                        showToast(t('toast_offer_expired') || 'Время акции истекло!', 'ph-timer text-neon-rose');
-                        loadShopItems(); // Возвращаем обычный товар за 50р на витрину
+                        showToast(t('toast_offer_expired') || 'Время акции истекло!', 'ph-timer text-red-400');
+                        loadShopItems();
                     }
                     return;
                 }
@@ -3384,7 +3437,7 @@
                 const s = (secondsLeft % 60).toString().padStart(2, '0');
                 const timeStr = `${m}:${s}`;
                 
-                const mainTimer = document.getElementById('starter-pack-timer');
+                const mainTimer = document.getElementById(type === 'mega_pack_30' ? 'mega-pack-timer' : 'starter-pack-timer');
                 if (mainTimer) mainTimer.textContent = timeStr;
                 
                 const shopTimer = document.getElementById('shop-offer-timer');
@@ -3811,18 +3864,25 @@
                 
                 // === ПРЕМИУМ-БАННЕР АКЦИИ В МАГАЗИНЕ ===
                 if (isOfferActiveGlobally) {
-                    container.innerHTML += `
-                        <div id="shop-starter-offer" onclick="selectShopItem('starter_pack_30', 30, 75, 24.99)" 
-                            class="relative glass-strong bg-gradient-to-br from-[#1a050d] to-[#0a0205] border border-neon-rose/50 rounded-[24px] p-5 mb-6 active:scale-[0.98] transition-all cursor-pointer group shadow-[0_15px_35px_rgba(251,113,133,0.15)] overflow-hidden flex flex-col gap-4">
-                            
-                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-neon-rose/15 blur-3xl rounded-full pointer-events-none"></div>
-                            <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-shift_2s_linear_infinite] pointer-events-none"></div>
+                    const isMega = globalOfferType === 'mega_pack_30';
+                    const color = isMega ? 'neon-amber' : 'neon-rose';
+                    const bgClass = isMega ? 'from-[#1a1005] to-[#0a0502]' : 'from-[#1a050d] to-[#0a0205]';
+                    const priceRub = isMega ? '4.99' : '24.99';
+                    const priceStars = isMega ? 15 : 75;
+                    const btnClass = isMega ? 'bg-gradient-to-r from-neon-amber to-orange-500 text-black' : 'bg-neon-rose text-white';
+                    const titleText = isMega ? t('mega_offer_title') : t('offer_title');
+                    const descText = isMega ? t('mega_offer_desc') : t('offer_desc');
 
-                            <!-- Шапка с бейджем и таймером -->
+                    container.innerHTML += `
+                        <div id="shop-starter-offer" onclick="selectShopItem('${globalOfferType}', 30, ${priceStars}, ${priceRub})" 
+                            class="relative glass-strong bg-gradient-to-br ${bgClass} border border-${color}/50 rounded-[24px] p-5 mb-6 active:scale-[0.98] transition-all cursor-pointer group shadow-[0_15px_35px_var(--tw-shadow-color)] shadow-${color}/15 overflow-hidden flex flex-col gap-4">
+                            
+                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-${color}/15 blur-3xl rounded-full pointer-events-none"></div>
+
                             <div class="flex justify-between items-center w-full relative z-10">
-                                <div class="bg-neon-rose/20 border border-neon-rose/40 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
-                                    <i class="ph-fill ph-fire text-neon-rose text-[10px] animate-pulse"></i>
-                                    <span class="text-neon-rose text-[9px] font-black uppercase tracking-widest" data-i18n="offer_title">СТАРТОВЫЙ НАБОР -50%</span>
+                                <div class="bg-${color}/20 border border-${color}/40 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
+                                    <i class="ph-fill ph-fire text-${color} text-[10px] animate-pulse"></i>
+                                    <span class="text-${color} text-[9px] font-black uppercase tracking-widest">${titleText}</span>
                                 </div>
                                 <div class="bg-black/50 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-inner">
                                     <i class="ph-bold ph-timer text-white/50 text-xs"></i>
@@ -3830,25 +3890,24 @@
                                 </div>
                             </div>
 
-                            <!-- Основной контент (Иконка + Текст + Цены) -->
                             <div class="flex items-center justify-between w-full relative z-10">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 border border-neon-rose/30 shadow-[0_0_15px_rgba(251,113,133,0.2)] group-hover:scale-105 transition-transform">
-                                        <i class="ph-fill ph-lightning text-neon-rose text-2xl drop-shadow-[0_0_8px_rgba(251,113,133,0.8)]"></i>
+                                    <div class="w-14 h-14 rounded-full bg-${color}/10 flex items-center justify-center shrink-0 border border-${color}/30 shadow-[0_0_15px_var(--tw-shadow-color)] shadow-${color}/20 group-hover:scale-105 transition-transform">
+                                        <i class="ph-fill ph-lightning text-${color} text-2xl drop-shadow-[0_0_8px_var(--tw-shadow-color)] shadow-${color}"></i>
                                     </div>
                                     <div class="flex flex-col min-w-0">
                                         <div class="flex items-end gap-1 mb-0.5">
                                             <span class="text-white text-3xl font-mystic font-bold leading-none tracking-tight">30</span>
                                             <span class="text-white/40 text-[10px] uppercase tracking-widest font-bold pb-1">${t('shop_energy')}</span>
                                         </div>
-                                        <span class="text-white/50 text-[10px] leading-snug" data-i18n="offer_desc">Забери 30 энергии!</span>
+                                        <span class="text-white/50 text-[10px] leading-snug">${descText}</span>
                                     </div>
                                 </div>
                                 
                                 <div class="flex flex-col items-end shrink-0 ml-2">
-                                    <span class="text-white/30 text-[11px] line-through decoration-neon-rose/60 font-medium mb-1 mr-1">50 ₽</span>
-                                    <div class="px-5 py-2.5 rounded-[14px] border border-neon-rose/40 text-sm font-black whitespace-nowrap bg-neon-rose text-white shadow-[0_0_15px_rgba(251,113,133,0.4)] group-hover:bg-rose-500 transition-colors">
-                                        24.99 ₽
+                                    <span class="text-white/30 text-[11px] line-through decoration-${color}/60 font-medium mb-1 mr-1">50 ₽</span>
+                                    <div class="px-5 py-2.5 rounded-[14px] border border-${color}/40 text-sm font-black whitespace-nowrap shadow-[0_0_15px_var(--tw-shadow-color)] shadow-${color}/40 group-hover:scale-105 transition-transform ${btnClass}">
+                                        ${priceRub} ₽
                                     </div>
                                 </div>
                             </div>
@@ -4452,10 +4511,11 @@
                     if (refCountEl) refCountEl.textContent = data.referrals_count || 0;
 
                     if (data.special_offer && data.special_offer.active) {
-                        startStarterPackTimer(data.special_offer.time_left);
+                        startSpecialOfferTimer(data.special_offer.time_left, data.special_offer.type);
                     } else {
                         document.getElementById('daily-bonus-wrapper').classList.remove('hidden');
                         document.getElementById('starter-pack-container').classList.add('hidden');
+                        document.getElementById('mega-pack-container').classList.add('hidden');
                     }
                     
                     if (data.created_at) {
