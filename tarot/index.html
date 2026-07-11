@@ -593,7 +593,7 @@
                         <div class="flex flex-col items-end">
                             <span class="text-white/30 text-[11px] line-through decoration-neon-amber/60 font-medium mb-1 mr-1">50 ₽</span>
                             <div class="bg-gradient-to-r from-neon-amber to-orange-500 text-black px-5 py-2.5 rounded-[14px] text-sm font-black shadow-[0_0_20px_rgba(251,191,36,0.4)] group-hover:scale-105 transition-transform flex items-center gap-1">
-                                4.99 ₽
+                                9.99 ₽
                             </div>
                         </div>
                     </div>
@@ -761,6 +761,9 @@
                     </div>
                 </button>
             </div>
+            <button onclick="closeAllModals(); setTimeout(() => navigateTo('shop'), 300);" class="w-full bg-transparent border border-white/5 hover:bg-white/5 rounded-2xl p-4 flex items-center justify-center transition-all active:scale-95 group mt-2">
+                <span class="text-white/50 font-medium text-sm transition-colors group-hover:text-white/80" data-i18n="modal_go_to_shop">Или пополнить баланс в магазине</span>
+            </button>
         </div>
     </div>
 
@@ -2488,7 +2491,7 @@
                 toast_offer_expired: 'Время акции истекло!',
                 toast_already_purchased: 'Акция уже недоступна', 
                 mega_offer_title: '⚡️ МЕГА РАСПРОДАЖА: -90%',
-                mega_offer_desc: 'Последний шанс забрать 30 энергии!',
+                mega_offer_desc: 'Последний шанс забрать 30 энергии!', modal_go_to_shop: 'Или пополнить баланс в магазине',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2527,7 +2530,7 @@
                 toast_offer_expired: 'Offer has expired!',
                 toast_already_purchased: 'Offer is no longer available',
                 mega_offer_title: '⚡️ MEGA SALE: -90%',
-                mega_offer_desc: 'Last chance to get 30 energy!',
+                mega_offer_desc: 'Last chance to get 30 energy!', modal_go_to_shop: 'Or refill balance in the store',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -2566,7 +2569,7 @@
                 toast_offer_expired: '¡La oferta ha expirado!',
                 toast_already_purchased: 'La oferta ya no está disponible',
                 mega_offer_title: '⚡️ MEGA OFERTA: -90%',
-                mega_offer_desc: '¡Última oportunidad para conseguir 30 de energía!',
+                mega_offer_desc: '¡Última oportunidad para conseguir 30 de energía!', modal_go_to_shop: 'O recargar saldo en la tienda',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -2605,7 +2608,7 @@
                 toast_offer_expired: 'L\'offre a expiré !',
                 toast_already_purchased: 'L\'offre n\'est plus disponible',
                 mega_offer_title: '⚡️ MÉGA VENTE : -90%',
-                mega_offer_desc: 'Dernière chance d\'obtenir 30 énergies !',
+                mega_offer_desc: 'Dernière chance d\'obtenir 30 énergies !', modal_go_to_shop: 'Ou recharger le solde dans la boutique',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -2644,7 +2647,7 @@
                 toast_offer_expired: 'Das Angebot ist abgelaufen!',
                 toast_already_purchased: 'Angebot nicht mehr verfügbar',
                 mega_offer_title: '⚡️ MEGA-SALE: -90%',
-                mega_offer_desc: 'Letzte Chance, 30 Energie zu bekommen!',
+                mega_offer_desc: 'Letzte Chance, 30 Energie zu bekommen!', modal_go_to_shop: 'Oder Guthaben im Shop aufladen',
             }
         };
 
@@ -3867,7 +3870,7 @@
                     const isMega = globalOfferType === 'mega_pack_30';
                     const color = isMega ? 'neon-amber' : 'neon-rose';
                     const bgClass = isMega ? 'from-[#1a1005] to-[#0a0502]' : 'from-[#1a050d] to-[#0a0205]';
-                    const priceRub = isMega ? '4.99' : '24.99';
+                    const priceRub = isMega ? '9.99' : '24.99';
                     const priceStars = isMega ? 15 : 75;
                     const btnClass = isMega ? 'bg-gradient-to-r from-neon-amber to-orange-500 text-black' : 'bg-neon-rose text-white';
                     const titleText = isMega ? t('mega_offer_title') : t('offer_title');
