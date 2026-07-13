@@ -490,6 +490,10 @@
                     <h1 class="text-white text-3xl font-mystic font-bold leading-tight drop-shadow-md">
                         <span data-i18n="home_ready">Звезды готовы,</span><br><span id="home-wanderer-text" class="italic text-white/90">Странник</span>
                     </h1>
+                    <button id="home-astro-teaser" onclick="navigateTo('calendar')" class="hidden mt-2 items-center gap-1.5 text-left active:scale-95 transition-transform">
+                        <i class="ph-fill ph-moon-stars text-neon-amber text-xs drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]"></i>
+                        <span class="text-white/60 text-[11px] font-medium"></span>
+                    </button>
                 </div>
                 <button onclick="navigateTo('shop')" class="flex items-center gap-1.5 glass bg-white/5 px-3 py-2 rounded-2xl active:scale-95 transition-transform">
                     <i class="ph-fill ph-lightning text-neon-amber text-sm"></i>
@@ -521,6 +525,10 @@
             </div>
             <div class="relative mt-4">
                 <div class="absolute -inset-0.5 bg-gradient-to-r from-neon-purple/40 via-neon-indigo/20 to-transparent rounded-[26px] blur-md opacity-60 animate-pulse-slow pointer-events-none"></div>
+                <div id="streak-strip" class="hidden items-center justify-between mt-3 mb-1 px-2">
+                    <div id="streak-dots" class="flex items-center gap-2"></div>
+                    <span id="streak-label" class="text-white/40 text-[10px] font-bold uppercase tracking-wider"></span>
+                </div>
                 <button onclick="openMatrix()" class="w-full relative glass-strong bg-gradient-to-br from-[#120524] to-[#050210] border border-neon-purple/40 rounded-[24px] p-4 flex items-center gap-4 shadow-2xl active:scale-[0.98] transition-all overflow-hidden group">
                     <div class="absolute -right-8 -top-8 w-32 h-32 bg-neon-purple/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-neon-purple/30 transition-colors"></div>
                     <div class="w-12 h-12 rounded-full bg-neon-purple/10 flex items-center justify-center border border-neon-purple/40 shadow-inner shrink-0 relative z-10">
@@ -532,6 +540,10 @@
                             <span class="bg-neon-purple/20 text-neon-purple border border-neon-purple/40 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider" data-i18n="mx_banner_badge">НОВОЕ</span>
                         </div>
                         <p class="text-white/50 text-[11px] leading-none" data-i18n="mx_banner_desc">Кто ты по дате рождения • 17 позиций</p>
+                        <p id="mx-proof" class="hidden text-neon-amber/90 text-[9px] font-bold mt-1 items-center gap-1">
+                            <i class="ph-fill ph-fire text-[9px]"></i>
+                            <span></span>
+                        </p>
                     </div>
                     <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
                 </button>
@@ -717,6 +729,35 @@
                         <p class="text-white/40 text-[10px] leading-snug line-clamp-2" data-i18n="cal_desc">Лунные фазы</p>
                     </div>
                 </button>
+            </div>
+        </div>
+        <div class="px-5 mt-9">
+            <div class="w-full flex items-center gap-2 mb-4 opacity-70">
+                <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/20"></div>
+                <i class="ph-fill ph-chats-circle text-white text-sm"></i>
+                <p class="text-xs uppercase tracking-widest font-bold text-white text-center" data-i18n="orc_widget_title">Спроси Оракула</p>
+                <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
+            </div>
+        
+            <div class="glass bg-gradient-to-br from-space-800 to-[#120b26] border border-neon-indigo/20 rounded-[24px] p-4 relative overflow-hidden">
+                <div class="absolute -left-6 -top-6 w-28 h-28 bg-neon-indigo/15 blur-3xl rounded-full pointer-events-none"></div>
+        
+                <div class="flex items-center gap-3 mb-3 relative z-10">
+                    <div class="relative w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-neon-indigo/40 to-neon-purple/40 p-[1px]">
+                        <div class="w-full h-full bg-space-900 rounded-full flex items-center justify-center">
+                            <i class="ph-fill ph-sparkle text-neon-indigo text-xl"></i>
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-space-900"></div>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold text-sm leading-tight">Вселенский Оракул</p>
+                        <p class="text-green-400/80 text-[10px] font-bold uppercase tracking-wider" data-i18n="orc_online">онлайн</p>
+                    </div>
+                </div>
+        
+                <button onclick="askOracle('')" class="w-full bg-space-900/80 border border-white/10 rounded-[18px] px-4 py-3.5 text-left text-white/40 text-sm active:scale-[0.98] transition-all relative z-10 mb-3" data-i18n="orc_widget_ph">Спроси меня о чем угодно...</button>
+        
+                <div id="oracle-chips" class="flex flex-wrap gap-2 relative z-10"></div>
             </div>
         </div>
     </div>
@@ -2743,7 +2784,11 @@
                 mx_calc_btn: 'РАССЧИТАТЬ СОВМЕСТИМОСТЬ', mx_compat_res: 'Энергетическая совместимость',
                 mx_compat_b1: 'Кармическая связь: почему вы встретились', mx_compat_b2: 'Эмоции и страсть', mx_compat_b3: 'Зоны конфликтов и как их проходить', mx_compat_b4: 'Деньги, быт и главный совет паре',
                 mx_unlock_compat: 'Открыть полный разбор пары',
-                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы',
+                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы', 
+                orc_widget_title: 'Спроси Оракула',
+                orc_widget_ph: 'Спроси меня о чем угодно...',
+                orc_online: 'онлайн',
+                opp_synastry_cta: 'узнать %',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -2801,6 +2846,10 @@
                 mx_compat_b1: 'Karmic bond: why you met', mx_compat_b2: 'Emotions and passion', mx_compat_b3: 'Conflict zones and how to pass them', mx_compat_b4: 'Money, daily life and key advice',
                 mx_unlock_compat: 'Unlock full couple reading',
                 mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix',
+                orc_widget_title: 'Ask the Oracle',
+                orc_widget_ph: 'Ask me anything...',
+                orc_online: 'online',
+                opp_synastry_cta: 'see %',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -6469,6 +6518,179 @@
                 showToast(t('toast_error'), 'ph-warning-circle');
             }
         }
+
+        const ORC_QUESTIONS = {
+            ru: [
+                'Что меня ждет на этой неделе?',
+                'Думает ли обо мне тот, о ком думаю я?',
+                'Стоит ли мне менять работу?',
+                'Как привлечь деньги в свою жизнь?',
+                'Что мне мешает быть счастливым?',
+                'Ждет ли меня любовь в этом году?',
+                'Какой мой скрытый талант?',
+                'О чем меня предупреждают звезды?',
+                'Как наладить отношения с близкими?'
+            ],
+            en: [
+                'What awaits me this week?',
+                'Is the person I think about thinking of me?',
+                'Should I change my job?',
+                'How can I attract money into my life?',
+                'What is blocking my happiness?',
+                'Will I find love this year?',
+                'What is my hidden talent?',
+                'What are the stars warning me about?',
+                'How can I improve my relationships?'
+            ]
+        };
+        
+        function orcLang() {
+            return (typeof activeLanguage !== 'undefined' && ORC_QUESTIONS[activeLanguage]) ? activeLanguage : 'en';
+        }
+        
+        function orcDayOfYear() {
+            const now = new Date();
+            return Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+        }
+        
+        // Открыть чат; если передан вопрос — отправить его автоматически
+        function askOracle(q) {
+            navigateTo('chats');
+            if (!q) {
+                setTimeout(() => {
+                    const i = document.getElementById('message-input');
+                    if (i) i.focus();
+                }, 450);
+                return;
+            }
+            const startWait = Date.now();
+            const timerId = setInterval(() => {
+                const ready = (typeof initialChatLoaded !== 'undefined' && initialChatLoaded) || (Date.now() - startWait > 6000);
+                if (!ready) return;
+                clearInterval(timerId);
+                const input = document.getElementById('message-input');
+                if (!input) return;
+                input.value = q;
+                sendMessage();
+            }, 250);
+        }
+        
+        // Контекстный вопрос про карту дня (через твой же скрытый промпт)
+        function askOracleAboutCard() {
+            const c = (typeof dailyCardDataCache !== 'undefined' && dailyCardDataCache) ? dailyCardDataCache : null;
+            if (!c || !c.name) return;
+            window.cardDiscussContext = 'Пользователь сегодня вытянул карту дня «' + c.name + '». Толкование дня: ' + String(c.interpretation || '').slice(0, 500);
+            const q = orcLang() === 'ru'
+                ? 'Что значит карта «' + c.name + '» для меня сегодня?'
+                : 'What does the card "' + c.name + '" mean for me today?';
+            askOracle(q);
+        }
+        
+        function renderOracleChips() {
+            const box = document.getElementById('oracle-chips');
+            if (!box) return;
+            const list = ORC_QUESTIONS[orcLang()];
+            const doy = orcDayOfYear();
+            const picks = [list[doy % list.length], list[(doy + 3) % list.length], list[(doy + 6) % list.length]];
+            let html = '';
+            const c = (typeof dailyCardDataCache !== 'undefined' && dailyCardDataCache) ? dailyCardDataCache : null;
+            const hasCard = !!(c && c.name);
+            if (hasCard) {
+                const label = orcLang() === 'ru' ? 'Что значит «' + c.name + '»?' : 'Meaning of "' + c.name + '"?';
+                html += '<button onclick="askOracleAboutCard()" class="bg-neon-amber/10 border border-neon-amber/30 text-neon-amber rounded-full px-3.5 py-2 text-[11px] font-medium active:scale-95 transition-transform">✨ ' + label + '</button>';
+            }
+            picks.slice(0, hasCard ? 2 : 3).forEach(q => {
+                html += '<button onclick="askOracle(this.dataset.q)" data-q="' + q.replace(/"/g, '&quot;') + '" class="bg-white/5 border border-white/10 text-white/70 rounded-full px-3.5 py-2 text-[11px] active:scale-95 transition-transform">' + q + '</button>';
+            });
+            box.innerHTML = html;
+        }
+        
+        // Стрик-полоска 7 дней
+        function renderStreakStrip(cycleDay, claimedToday) {
+            const strip = document.getElementById('streak-strip');
+            const dots = document.getElementById('streak-dots');
+            const label = document.getElementById('streak-label');
+            if (!strip || !dots || !label) return;
+            let html = '';
+            for (let d = 1; d <= 7; d++) {
+                if (d < cycleDay || (d === cycleDay && claimedToday)) {
+                    html += '<div class="w-2.5 h-2.5 rounded-full bg-neon-fuchsia shadow-[0_0_6px_rgba(232,121,249,0.8)]"></div>';
+                } else if (d === cycleDay) {
+                    html += '<div class="w-2.5 h-2.5 rounded-full border border-neon-amber bg-neon-amber/20 animate-pulse"></div>';
+                } else if (d === 7) {
+                    html += '<i class="ph-fill ph-gift text-white/30 text-[12px]"></i>';
+                } else {
+                    html += '<div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>';
+                }
+            }
+            dots.innerHTML = html;
+            label.textContent = (orcLang() === 'ru' ? '🔥 День ' + cycleDay + ' из 7' : '🔥 Day ' + cycleDay + ' of 7');
+            strip.classList.remove('hidden');
+            strip.classList.add('flex');
+        }
+        
+        // «Сегодня открыто: N разборов» — детерминированный счетчик, растет в течение дня
+        function renderMxProof() {
+            const el = document.getElementById('mx-proof');
+            if (!el) return;
+            const now = new Date();
+            const n = 17 + ((orcDayOfYear() * 7) % 14) + Math.floor(now.getHours() * 1.4);
+            el.lastElementChild.textContent = (orcLang() === 'ru' ? 'Сегодня открыто: ' + n + ' разборов' : n + ' readings opened today');
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        }
+        
+        // Карта дня открыта — меняем состояние блока на главной
+        function homeCardOpenedUI() {
+            const c = (typeof dailyCardDataCache !== 'undefined' && dailyCardDataCache) ? dailyCardDataCache : null;
+            if (!c || !c.name) return;
+            const sub = document.getElementById('home-daily-subtitle');
+            if (sub) {
+                sub.textContent = orcLang() === 'ru'
+                    ? 'Открыта: «' + c.name + '» — обсуди ее с Оракулом'
+                    : 'Opened: "' + c.name + '" — discuss it with the Oracle';
+            }
+        }
+        
+        // Патчим твои функции БЕЗ правки их кода
+        const __origUpdateHomeWidget = updateHomeWidget;
+        updateHomeWidget = function(cardData) {
+            __origUpdateHomeWidget(cardData);
+            homeCardOpenedUI();
+            renderOracleChips();
+        };
+        
+        const __origUpdateBalanceUI = updateBalanceUI;
+        updateBalanceUI = function() {
+            __origUpdateBalanceUI();
+            const el = document.getElementById('star-balance');
+            if (el && (!userBalance || !userBalance.energy)) {
+                el.innerHTML = '<span class="text-neon-amber font-black animate-pulse">+</span>';
+            }
+        };
+        
+        // Инициализация после загрузки приложения
+        async function initHomeExtras() {
+            renderOracleChips();
+            renderMxProof();
+            try {
+                const cal = await apiRequest('/calendar/today', 'GET', {}, true);
+                if (cal && cal.success && cal.forecast) {
+                    const el = document.getElementById('home-astro-teaser');
+                    if (el) {
+                        el.lastElementChild.textContent = (cal.forecast.phase_type || '') + ' — ' + (cal.forecast.title || '');
+                        el.classList.remove('hidden');
+                        el.classList.add('flex');
+                    }
+                }
+            } catch (e) { /* тихо */ }
+            try {
+                const b = await apiRequest('/bonus/info', 'GET', {}, true);
+                if (b && b.success) renderStreakStrip(b.cycle_day || 1, !!b.claimed_today);
+            } catch (e) { /* тихо */ }
+            homeCardOpenedUI();
+        }
+        setTimeout(initHomeExtras, 1500);
     
         function shareReferralLink() {
             const link = document.getElementById('ref-link-input').value;
