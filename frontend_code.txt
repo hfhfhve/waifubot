@@ -8267,7 +8267,6 @@ const astroDescriptions = {
                     <div class="text-left pr-2">
                         <div class="flex items-center gap-2 mb-1">
                             <h3 class="text-white font-mystic text-2xl font-bold leading-tight" data-i18n="mx_banner_title">Матрица Судьбы</h3>
-                            <span class="bg-neon-purple/20 text-neon-purple border border-neon-purple/30 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider" data-i18n="mx_banner_badge">НОВОЕ</span>
                         </div>
                         <p class="text-[10px] text-white/50 leading-snug max-w-[190px]" data-i18n="mx_banner_desc">Кто ты по дате рождения • 17 позиций</p>
                     </div>
@@ -8279,6 +8278,21 @@ const astroDescriptions = {
 
             <!-- СЕТКА 2x2 ОСТАЛЬНЫХ ФИЧ -->
             <div class="grid grid-cols-2 gap-3">
+                <button onclick="openSynastryModal()" class="col-span-2 glass bg-gradient-to-r from-space-800 to-space-900 rounded-[20px] p-4 flex items-center justify-between text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-rose/30 group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 group-hover:bg-neon-rose/20 transition-colors">
+                            <i class="ph-fill ph-infinity text-xl text-neon-rose"></i>
+                        </div>
+                        <div>
+                            <p class="text-white text-sm font-bold mb-0.5" data-i18n="opp_synastry">Совместимость</p>
+                            <p class="text-white/40 text-[10px] leading-snug" data-i18n="opp_synastry_desc">Анализ отношений и кармической связи</p>
+                        </div>
+                    </div>
+                    <div class="bg-neon-rose/10 border border-neon-rose/30 px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
+                        <span class="text-neon-rose text-xs font-black">7</span>
+                        <i class="ph-fill ph-lightning text-neon-amber text-xs"></i>
+                    </div>
+                </button>
                 <button onclick="navigateTo('spreads')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-indigo/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-indigo/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-indigo/20 transition-colors">
                         <i class="ph-fill ph-cards text-xl text-neon-indigo"></i>
