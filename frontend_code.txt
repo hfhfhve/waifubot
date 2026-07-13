@@ -8279,21 +8279,6 @@ const astroDescriptions = {
 
             <!-- СЕТКА 2x2 ОСТАЛЬНЫХ ФИЧ -->
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="openSynastryModal()" class="col-span-2 glass bg-gradient-to-r from-space-800 to-space-900 rounded-[20px] p-4 flex items-center justify-between text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-rose/30 group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-neon-rose/10 flex items-center justify-center shrink-0 group-hover:bg-neon-rose/20 transition-colors">
-                            <i class="ph-fill ph-infinity text-xl text-neon-rose"></i>
-                        </div>
-                        <div>
-                            <p class="text-white text-sm font-bold mb-0.5" data-i18n="opp_synastry">Совместимость</p>
-                            <p class="text-white/40 text-[10px] leading-snug" data-i18n="opp_synastry_desc">Анализ отношений и кармической связи</p>
-                        </div>
-                    </div>
-                    <div class="bg-neon-rose/10 border border-neon-rose/30 px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
-                        <span class="text-neon-rose text-xs font-black">7</span>
-                        <i class="ph-fill ph-lightning text-neon-amber text-xs"></i>
-                    </div>
-                </button>
                 <button onclick="navigateTo('spreads')" class="glass bg-gradient-to-br from-space-800 to-space-900 rounded-[20px] p-4 flex flex-col text-left active:scale-95 transition-transform border border-white/5 hover:border-neon-indigo/30 group min-h-[135px]">
                     <div class="w-10 h-10 rounded-full bg-neon-indigo/10 flex items-center justify-center mb-auto shrink-0 group-hover:bg-neon-indigo/20 transition-colors">
                         <i class="ph-fill ph-cards text-xl text-neon-indigo"></i>
@@ -9094,47 +9079,6 @@ const astroDescriptions = {
                 <button onclick="mxShare()" class="w-full glass bg-space-800 border border-white/10 hover:border-neon-cyan/40 text-white font-bold py-3.5 rounded-[16px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 text-xs uppercase tracking-wide">
                     <i class="ph-bold ph-share-network text-neon-cyan"></i><span data-i18n="mx_share">Поделиться матрицей</span>
                 </button>
-    
-                <div class="h-px bg-white/5 my-2"></div>
-    
-                <!-- Совместимость -->
-                <div class="glass-strong bg-space-800/80 border border-neon-rose/20 rounded-[24px] p-5 relative overflow-hidden">
-                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-neon-rose/10 blur-3xl rounded-full pointer-events-none"></div>
-                    <div class="text-center mb-4 relative z-10">
-                        <i class="ph-fill ph-intersect text-3xl text-neon-rose drop-shadow-[0_0_15px_rgba(251,113,133,0.6)] mb-1"></i>
-                        <h3 class="text-lg font-mystic text-white font-bold" data-i18n="mx_compat_title">Совместимость по матрице</h3>
-                        <p class="text-xs text-white/50 mt-1" data-i18n="mx_compat_desc">Процент совместимости пары — бесплатно</p>
-                    </div>
-                    <div class="space-y-3 relative z-10">
-                        <div>
-                            <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="mx_partner_name">Имя партнера</label>
-                            <input type="text" id="mx-partner-name" maxlength="50" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-rose/50 transition-colors text-sm" placeholder="...">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="mx_partner_date">Дата рождения партнера</label>
-                            <div class="grid grid-cols-12 gap-2">
-                                <select id="mx-day" class="col-span-3 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
-                                <select id="mx-month" class="col-span-5 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
-                                <select id="mx-year" class="col-span-4 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
-                            </div>
-                        </div>
-                        <button onclick="mxSubmitCompat()" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl mt-2 shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide uppercase" data-i18n="mx_calc_btn">РАССЧИТАТЬ СОВМЕСТИМОСТЬ</button>
-                    </div>
-    
-                    <!-- Результат совместимости -->
-                    <div id="mx-compat-result" class="hidden mt-6 relative z-10">
-                        <p class="text-center text-[9px] text-neon-rose font-black uppercase tracking-[0.2em] mb-1" data-i18n="mx_compat_res">Энергетическая совместимость</p>
-                        <p id="mx-percent" class="text-center text-white font-mystic text-6xl font-bold drop-shadow-[0_0_20px_rgba(251,113,133,0.5)] mb-2">0%</p>
-                        <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-4">
-                            <div id="mx-percent-bar" class="h-full bg-gradient-to-r from-neon-rose to-neon-purple rounded-full transition-all duration-1000" style="width:0%"></div>
-                        </div>
-                        <p id="mx-compat-summary" class="text-white/70 text-sm leading-relaxed mb-4">...</p>
-                        <div id="mx-compat-blocks" class="space-y-2 mb-4"></div>
-                        <button id="mx-compat-buy-btn" onclick="openMatrixBuy('compat')" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide uppercase flex justify-center items-center gap-2">
-                            <i class="ph-fill ph-lock-key-open"></i><span data-i18n="mx_unlock_compat">Открыть полный разбор пары</span>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -13829,7 +13773,6 @@ const astroDescriptions = {
             document.getElementById('mx-price-rub').textContent = mxData.prices.rub + ' ₽';
             document.getElementById('mx-price-stars').textContent = t('modal_or') + ' ' + mxData.prices.stars + ' ⭐';
             if (mxData.is_paid) mxApplyPaid();
-            mxInitSelects();
         }
         
         function mxRenderOctagram() {
@@ -13995,64 +13938,6 @@ const astroDescriptions = {
             setTimeout(() => mxFetchReading(kind, attempt + 1), 4000);
         }
         
-        // ==================== СОВМЕСТИМОСТЬ ====================
-        
-        function mxInitSelects() {
-            if (mxSelectsReady) return;
-            mxSelectsReady = true;
-            const daySel = document.getElementById('mx-day');
-            const monthSel = document.getElementById('mx-month');
-            const yearSel = document.getElementById('mx-year');
-            daySel.innerHTML = '<option value="" disabled selected>ДД</option>';
-            for (let d = 1; d <= 31; d++) daySel.innerHTML += `<option value="${String(d).padStart(2, '0')}">${d}</option>`;
-            const months = monthNamesMap[activeLanguage] || monthNamesMap['ru'];
-            monthSel.innerHTML = `<option value="" disabled selected>${t('month')}</option>`;
-            months.forEach((name, idx) => {
-                monthSel.innerHTML += `<option value="${String(idx + 1).padStart(2, '0')}">${name}</option>`;
-            });
-            yearSel.innerHTML = '<option value="" disabled selected>ГГГГ</option>';
-            const nowYear = new Date().getFullYear();
-            for (let y = nowYear; y >= nowYear - 100; y--) yearSel.innerHTML += `<option value="${y}">${y}</option>`;
-        }
-        
-        async function mxSubmitCompat() {
-            const name = document.getElementById('mx-partner-name').value.trim();
-            const d = document.getElementById('mx-day').value;
-            const m = document.getElementById('mx-month').value;
-            const y = document.getElementById('mx-year').value;
-            if (!name || !d || !m || !y) { showToast(t('toast_enter_partner'), 'ph-warning-circle'); return; }
-            showToast(t('synastry_weaving'), 'ph-spinner animate-spin');
-            const data = await apiRequest('/matrix/compat', 'POST', { partner_name: name, partner_birth_date: `${y}-${m}-${d}` });
-            hideToast();
-            if (!data || !data.success) {
-                if (data && data.message === 'bad_date') showToast(t('toast_enter_partner'), 'ph-warning-circle');
-                else if (data && data.message === 'no_birth_date') showToast(t('mx_no_birth'), 'ph-warning-circle');
-                else showToast(t('toast_error'), 'ph-warning-circle');
-                return;
-            }
-            mxCompat = data;
-            mxCompatInterp = null;
-            mxRenderCompat();
-            if (data.is_paid) mxFetchReading('compat', 0);
-        }
-        
-        function mxRenderCompat() {
-            const box = document.getElementById('mx-compat-result');
-            box.classList.remove('hidden');
-            document.getElementById('mx-percent').textContent = mxCompat.percentage + '%';
-            setTimeout(() => { document.getElementById('mx-percent-bar').style.width = mxCompat.percentage + '%'; }, 50);
-            document.getElementById('mx-compat-summary').textContent = mxCompat.teaser || t('mx_generating');
-            const blocksBox = document.getElementById('mx-compat-blocks');
-            if (mxCompatInterp && mxCompatInterp.blocks) {
-                blocksBox.innerHTML = mxCompatInterp.blocks.map(b => `<div class="glass bg-space-900/60 border border-white/5 rounded-2xl p-4"><p class="text-neon-rose text-[10px] font-black uppercase tracking-wider mb-1.5">${b.title}</p><p class="text-white/70 text-xs leading-relaxed">${b.text}</p></div>`).join('');
-                document.getElementById('mx-compat-buy-btn').classList.add('hidden');
-            } else {
-                const titles = [t('mx_compat_b1'), t('mx_compat_b2'), t('mx_compat_b3'), t('mx_compat_b4')];
-                blocksBox.innerHTML = titles.map(title => `<div class="glass bg-space-900/60 border border-white/5 rounded-2xl p-3.5 flex items-center justify-between"><p class="text-white/60 text-xs font-bold">${title}</p><i class="ph-fill ph-lock-key text-neon-rose/70"></i></div>`).join('');
-                document.getElementById('mx-compat-buy-btn').classList.remove('hidden');
-            }
-            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
         
         // ==================== ШЕРИНГ ====================
         
