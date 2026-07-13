@@ -10067,21 +10067,65 @@ const astroDescriptions = {
         </div>
     </div>
 
-    <div id="matrix-story-template" class="fixed top-0 left-[-9999px] w-[1080px] h-[1920px] bg-[#03030b] flex flex-col items-center justify-between py-32 px-20 z-0" style="opacity:0;">
-        <div class="text-center">
-            <p class="text-white/50 text-[36px] uppercase" style="letter-spacing:12px;">✦ Матрица Судьбы ✦</p>
-            <p id="mx-story-name" class="text-white text-[52px] font-bold mt-6"></p>
-        </div>
-        <div class="text-center">
-            <div class="w-[420px] h-[420px] mx-auto rounded-full border-4 border-purple-400/60 flex flex-col items-center justify-center" style="box-shadow:0 0 120px rgba(168,85,247,0.5); background:radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);">
-                <p id="mx-story-center-num" class="text-white text-[160px] font-bold leading-none"></p>
+    <div id="matrix-story-template" class="fixed top-0 left-[-9999px] w-[1080px] h-[1920px] z-0" style="opacity:0; background:linear-gradient(180deg,#120523 0%,#03030b 40%,#0a0318 100%); overflow:hidden;">
+        <!-- свечения -->
+        <div style="position:absolute; top:-250px; left:-250px; width:800px; height:800px; background:radial-gradient(circle, rgba(168,85,247,0.30), transparent 65%);"></div>
+        <div style="position:absolute; bottom:-150px; right:-300px; width:900px; height:900px; background:radial-gradient(circle, rgba(34,211,238,0.18), transparent 65%);"></div>
+        <div style="position:absolute; top:600px; left:90px; width:900px; height:900px; background:radial-gradient(circle, rgba(168,85,247,0.12), transparent 60%);"></div>
+        <!-- звезды -->
+        <span style="position:absolute; top:180px; left:120px; color:rgba(255,255,255,0.5); font-size:34px;">✦</span>
+        <span style="position:absolute; top:340px; right:150px; color:rgba(232,121,249,0.6); font-size:26px;">✦</span>
+        <span style="position:absolute; top:760px; left:70px; color:rgba(34,211,238,0.45); font-size:22px;">✦</span>
+        <span style="position:absolute; top:1500px; left:160px; color:rgba(255,255,255,0.35); font-size:30px;">✦</span>
+        <span style="position:absolute; top:1360px; right:110px; color:rgba(232,121,249,0.5); font-size:24px;">✦</span>
+        <span style="position:absolute; top:520px; right:90px; color:rgba(255,255,255,0.3); font-size:20px;">•</span>
+        <span style="position:absolute; top:1660px; right:220px; color:rgba(255,255,255,0.3); font-size:20px;">•</span>
+    
+        <div style="position:relative; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:100px 60px;">
+            <!-- шапка -->
+            <div style="text-align:center;">
+                <p style="color:rgba(255,255,255,0.55); font-size:34px; letter-spacing:14px; text-transform:uppercase;">✦ Матрица Судьбы ✦</p>
+                <p id="mx-story-name" style="color:#fff; font-size:58px; font-weight:800; margin-top:18px;"></p>
             </div>
-            <p id="mx-story-center-name" class="text-purple-300 text-[56px] font-bold mt-10"></p>
-            <p class="text-white/60 text-[34px] mt-4">— центр моей матрицы</p>
-        </div>
-        <div class="text-center">
-            <p id="mx-story-cta" class="text-white text-[40px] font-bold">Узнай свою Матрицу Судьбы</p>
-            <p class="text-purple-300 text-[44px] font-bold mt-4">@tarot_neurobot</p>
+    
+            <!-- октаграмма -->
+            <div style="position:relative; width:900px; height:900px;">
+                <div style="position:absolute; left:188px; top:188px; width:523px; height:523px; border:3px solid rgba(232,121,249,0.4); transform:rotate(45deg);"></div>
+                <div style="position:absolute; left:188px; top:188px; width:523px; height:523px; border:3px solid rgba(34,211,238,0.35);"></div>
+                <!-- центр -->
+                <div style="position:absolute; left:285px; top:285px; width:330px; height:330px; border-radius:50%; border:5px solid rgba(251,191,36,0.8); background:radial-gradient(circle, rgba(168,85,247,0.35), rgba(11,11,30,0.95) 75%); display:flex; align-items:center; justify-content:center; box-shadow:0 0 140px rgba(168,85,247,0.55);">
+                    <p id="mx-story-center-num" style="color:#fff; font-size:150px; font-weight:800; line-height:1;"></p>
+                </div>
+                <!-- кардинальные точки (фуксия) -->
+                <div id="mx-story-p-b" style="position:absolute; left:395px; top:25px;   width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #e879f9; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-c" style="position:absolute; left:765px; top:395px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #e879f9; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-d" style="position:absolute; left:395px; top:765px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #e879f9; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-a" style="position:absolute; left:25px;  top:395px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #e879f9; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <!-- диагональные точки (циан) -->
+                <div id="mx-story-p-f" style="position:absolute; left:133px; top:133px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #22d3ee; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-g" style="position:absolute; left:657px; top:133px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #22d3ee; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-h" style="position:absolute; left:657px; top:657px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #22d3ee; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+                <div id="mx-story-p-i" style="position:absolute; left:133px; top:657px;  width:110px; height:110px; border-radius:50%; background:#0b0b1e; border:4px solid #22d3ee; color:#fff; font-size:46px; font-weight:800; display:flex; align-items:center; justify-content:center;"></div>
+            </div>
+    
+            <!-- аркан центра -->
+            <div style="text-align:center;">
+                <p id="mx-story-center-name" style="color:#d8b4fe; font-size:60px; font-weight:800;"></p>
+                <p style="color:rgba(255,255,255,0.55); font-size:32px; margin-top:8px;">— центр моей матрицы</p>
+            </div>
+    
+            <!-- кармический хвост -->
+            <div style="background:rgba(251,113,133,0.10); border:2px solid rgba(251,113,133,0.35); border-radius:100px; padding:22px 50px;">
+                <p style="color:#fda4af; font-size:34px; font-weight:700;">🔒 Кармический хвост: <span id="mx-story-karma" style="color:#fff;"></span></p>
+            </div>
+    
+            <!-- CTA -->
+            <div style="text-align:center;">
+                <div style="background:linear-gradient(90deg,#a855f7,#e879f9); border-radius:100px; padding:26px 70px; display:inline-block;">
+                    <p id="mx-story-cta" style="color:#fff; font-size:38px; font-weight:800;">Узнай свою Матрицу Судьбы</p>
+                </div>
+                <p style="color:#d8b4fe; font-size:42px; font-weight:800; margin-top:26px;">@tarot_neurobot</p>
+            </div>
         </div>
     </div>
 
@@ -13958,11 +14002,17 @@ const astroDescriptions = {
         async function mxShare() {
             if (!mxData) return;
             showToast(t('toast_wait'), 'ph-spinner animate-spin');
-            const c = mxData.points.center;
+            const p = mxData.points;
+            const c = p.center;
             const nameEl = document.getElementById('home-wanderer-text');
             document.getElementById('mx-story-name').textContent = nameEl ? nameEl.textContent : '';
             document.getElementById('mx-story-center-num').textContent = c;
             document.getElementById('mx-story-center-name').textContent = mxArcName(c);
+            document.getElementById('mx-story-karma').textContent = p.karmic_tail.join(' → ');
+            ['a','b','c','d','f','g','h','i'].forEach(function(k) {
+                const el = document.getElementById('mx-story-p-' + k);
+                if (el) el.textContent = p[k];
+            });
             document.getElementById('mx-story-cta').textContent = t('mx_story_cta');
             const template = document.getElementById('matrix-story-template');
             template.style.left = '0px';
