@@ -8135,6 +8135,23 @@ const astroDescriptions = {
                     <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
                 </button>
             </div>
+            <div class="relative mt-4">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-neon-purple/40 via-neon-indigo/20 to-transparent rounded-[26px] blur-md opacity-60 animate-pulse-slow pointer-events-none"></div>
+                <button onclick="openMatrix()" class="w-full relative glass-strong bg-gradient-to-br from-[#120524] to-[#050210] border border-neon-purple/40 rounded-[24px] p-4 flex items-center gap-4 shadow-2xl active:scale-[0.98] transition-all overflow-hidden group">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-neon-purple/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-neon-purple/30 transition-colors"></div>
+                    <div class="w-12 h-12 rounded-full bg-neon-purple/10 flex items-center justify-center border border-neon-purple/40 shadow-inner shrink-0 relative z-10">
+                        <i class="ph-fill ph-star-four text-neon-purple text-xl animate-pulse drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]"></i>
+                    </div>
+                    <div class="text-left flex-1 relative z-10">
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="text-white font-mystic font-bold text-base leading-none" data-i18n="mx_banner_title">Матрица Судьбы</p>
+                            <span class="bg-neon-purple/20 text-neon-purple border border-neon-purple/40 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider" data-i18n="mx_banner_badge">НОВОЕ</span>
+                        </div>
+                        <p class="text-white/50 text-[11px] leading-none" data-i18n="mx_banner_desc">Кто ты по дате рождения • 17 позиций</p>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-white/30 relative z-10 shrink-0"></i>
+                </button>
+            </div>
 
             <!-- СПЕЦПРЕДЛОЖЕНИЕ (Скрыто по умолчанию) -->
             <div id="starter-pack-container" class="hidden relative mb-8">
@@ -8990,6 +9007,134 @@ const astroDescriptions = {
                         <i class="ph-fill ph-lightning text-neon-amber text-[10px] drop-shadow-md"></i>
                     </div>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-matrix" class="screen hidden flex-1 flex flex-col relative bg-[#02020a] pb-24 overflow-y-auto hide-scrollbar">
+        <div class="absolute top-0 inset-x-0 h-[400px] bg-[radial-gradient(ellipse_at_top,_rgba(168,85,247,0.15),_transparent_70%)] pointer-events-none z-0"></div>
+        <div class="absolute top-40 left-0 w-64 h-64 bg-neon-purple/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
+    
+        <!-- Шапка -->
+        <div class="px-5 pt-8 w-full flex justify-between items-center z-20 shrink-0 mb-4 relative">
+            <button onclick="navigateTo('home')" class="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 active:scale-95 transition-transform border border-white/5 shadow-sm">
+                <i class="ph-bold ph-caret-left text-xl"></i>
+            </button>
+            <span class="text-white/50 text-xs font-bold uppercase tracking-widest" data-i18n="mx_title">Матрица Судьбы</span>
+            <div class="w-10"></div>
+        </div>
+    
+        <div class="px-5 flex-1 relative z-10 flex flex-col">
+    
+            <!-- Нет даты рождения -->
+            <div id="mx-no-birth" class="hidden flex-col items-center text-center mt-16">
+                <i class="ph-fill ph-planet text-5xl text-neon-purple/60 mb-4"></i>
+                <p class="text-white/70 text-sm mb-6 px-8" data-i18n="mx_no_birth">Для расчета матрицы нужна твоя дата рождения</p>
+                <button onclick="navigateTo('astro')" class="bg-gradient-to-r from-neon-purple to-neon-indigo text-white font-bold py-3.5 px-8 rounded-xl active:scale-95 transition-transform text-sm uppercase" data-i18n="mx_go_astro">Заполнить Космо-Паспорт</button>
+            </div>
+    
+            <!-- Загрузка -->
+            <div id="mx-loading" class="flex justify-center items-center mt-24">
+                <i class="ph-fill ph-spinner animate-spin text-3xl text-neon-purple"></i>
+            </div>
+    
+            <!-- Контент -->
+            <div id="mx-content" class="hidden flex-col space-y-5">
+                <p class="text-center text-white/40 text-[10px] uppercase tracking-[0.15em] font-bold" data-i18n="mx_subtitle">Твоя энергетическая карта по дате рождения</p>
+    
+                <!-- Октаграмма -->
+                <div id="mx-octagram" class="w-full flex justify-center"></div>
+                <p class="text-center text-white/30 text-[9px] uppercase tracking-[0.1em] font-semibold -mt-2" data-i18n="mx_hint">Нажми на любую точку матрицы</p>
+    
+                <!-- Центр (бесплатная витрина) -->
+                <div class="glass-strong bg-space-800/80 border border-neon-amber/30 rounded-[24px] p-5 relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-neon-amber/10 blur-3xl rounded-full pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-3 relative z-10">
+                        <p class="text-[9px] text-neon-amber font-black uppercase tracking-[0.2em]" data-i18n="mx_center_title">Центр матрицы — твоя суть</p>
+                        <span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider" data-i18n="mx_free_badge">Бесплатно</span>
+                    </div>
+                    <h3 id="mx-center-arcana" class="text-xl font-mystic font-bold text-white mb-2 relative z-10">...</h3>
+                    <p id="mx-center-text" class="text-white/70 text-sm leading-relaxed relative z-10">...</p>
+                </div>
+    
+                <!-- Кармический хвост (крючок) -->
+                <div class="glass-strong bg-space-800/80 border border-neon-rose/30 rounded-[24px] p-5 relative overflow-hidden">
+                    <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-neon-rose/10 blur-3xl rounded-full pointer-events-none"></div>
+                    <p class="text-[9px] text-neon-rose font-black uppercase tracking-[0.2em] mb-2 relative z-10" data-i18n="mx_karma_title">Кармический хвост</p>
+                    <h3 id="mx-karma-arcana" class="text-lg font-mystic font-bold text-white mb-2 relative z-10">...</h3>
+                    <div class="relative z-10">
+                        <p id="mx-karma-text" class="text-white/70 text-sm leading-relaxed">...</p>
+                        <div class="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-[#0c0a14] to-transparent pointer-events-none" id="mx-karma-fade"></div>
+                    </div>
+                    <p class="text-neon-rose/80 text-[10px] font-bold uppercase tracking-wider mt-2 relative z-10 flex items-center gap-1.5" id="mx-karma-lock-note"><i class="ph-fill ph-lock-key"></i><span data-i18n="mx_karma_locked">Продолжение — в полном разборе</span></p>
+                </div>
+    
+                <!-- Пейволл -->
+                <div id="mx-paywall" class="relative">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-neon-purple/40 via-neon-fuchsia/20 to-transparent rounded-[26px] blur-md opacity-60 animate-pulse-slow pointer-events-none"></div>
+                    <div class="relative glass-strong bg-gradient-to-br from-[#120524] to-[#050210] border border-neon-purple/50 rounded-[24px] p-5 text-center overflow-hidden">
+                        <p class="text-white/40 text-[11px] line-through decoration-neon-rose/60 mb-1" data-i18n="mx_anchor">У матрицолога такой разбор стоит 3 000–5 000 ₽</p>
+                        <div class="flex items-baseline justify-center gap-2 mb-4">
+                            <span id="mx-price-rub" class="text-white font-mystic text-4xl font-bold">499 ₽</span>
+                            <span id="mx-price-stars" class="text-amber-400 text-sm font-bold">или 799 ⭐</span>
+                        </div>
+                        <button onclick="openMatrixBuy('personal')" class="w-full bg-gradient-to-r from-neon-purple to-neon-fuchsia text-white font-bold py-4 rounded-xl shadow-[0_5px_20px_rgba(168,85,247,0.4)] active:scale-95 transition-transform text-sm tracking-wide uppercase flex justify-center items-center gap-2">
+                            <i class="ph-fill ph-lock-key-open"></i><span data-i18n="mx_unlock_all">Открыть все 17 позиций</span>
+                        </button>
+                    </div>
+                </div>
+    
+                <!-- Список позиций -->
+                <div>
+                    <p class="text-white/50 text-xs font-bold uppercase tracking-widest mb-3" data-i18n="mx_positions_title">Позиции матрицы</p>
+                    <div id="mx-positions" class="space-y-2"></div>
+                </div>
+    
+                <!-- Шеринг -->
+                <button onclick="mxShare()" class="w-full glass bg-space-800 border border-white/10 hover:border-neon-cyan/40 text-white font-bold py-3.5 rounded-[16px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 text-xs uppercase tracking-wide">
+                    <i class="ph-bold ph-share-network text-neon-cyan"></i><span data-i18n="mx_share">Поделиться матрицей</span>
+                </button>
+    
+                <div class="h-px bg-white/5 my-2"></div>
+    
+                <!-- Совместимость -->
+                <div class="glass-strong bg-space-800/80 border border-neon-rose/20 rounded-[24px] p-5 relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-neon-rose/10 blur-3xl rounded-full pointer-events-none"></div>
+                    <div class="text-center mb-4 relative z-10">
+                        <i class="ph-fill ph-intersect text-3xl text-neon-rose drop-shadow-[0_0_15px_rgba(251,113,133,0.6)] mb-1"></i>
+                        <h3 class="text-lg font-mystic text-white font-bold" data-i18n="mx_compat_title">Совместимость по матрице</h3>
+                        <p class="text-xs text-white/50 mt-1" data-i18n="mx_compat_desc">Процент совместимости пары — бесплатно</p>
+                    </div>
+                    <div class="space-y-3 relative z-10">
+                        <div>
+                            <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="mx_partner_name">Имя партнера</label>
+                            <input type="text" id="mx-partner-name" maxlength="50" class="w-full bg-space-800 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-neon-rose/50 transition-colors text-sm" placeholder="...">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-white/40 ml-1 mb-1.5 block uppercase tracking-wider" data-i18n="mx_partner_date">Дата рождения партнера</label>
+                            <div class="grid grid-cols-12 gap-2">
+                                <select id="mx-day" class="col-span-3 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
+                                <select id="mx-month" class="col-span-5 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
+                                <select id="mx-year" class="col-span-4 bg-space-800 border border-white/10 rounded-xl py-4 px-2 text-white text-sm outline-none focus:border-neon-rose/50"></select>
+                            </div>
+                        </div>
+                        <button onclick="mxSubmitCompat()" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl mt-2 shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide uppercase" data-i18n="mx_calc_btn">РАССЧИТАТЬ СОВМЕСТИМОСТЬ</button>
+                    </div>
+    
+                    <!-- Результат совместимости -->
+                    <div id="mx-compat-result" class="hidden mt-6 relative z-10">
+                        <p class="text-center text-[9px] text-neon-rose font-black uppercase tracking-[0.2em] mb-1" data-i18n="mx_compat_res">Энергетическая совместимость</p>
+                        <p id="mx-percent" class="text-center text-white font-mystic text-6xl font-bold drop-shadow-[0_0_20px_rgba(251,113,133,0.5)] mb-2">0%</p>
+                        <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-4">
+                            <div id="mx-percent-bar" class="h-full bg-gradient-to-r from-neon-rose to-neon-purple rounded-full transition-all duration-1000" style="width:0%"></div>
+                        </div>
+                        <p id="mx-compat-summary" class="text-white/70 text-sm leading-relaxed mb-4">...</p>
+                        <div id="mx-compat-blocks" class="space-y-2 mb-4"></div>
+                        <button id="mx-compat-buy-btn" onclick="openMatrixBuy('compat')" class="w-full bg-gradient-to-r from-neon-rose to-neon-purple text-white font-bold py-4 rounded-xl shadow-[0_5px_20px_rgba(251,113,133,0.4)] active:scale-95 transition-transform text-sm tracking-wide uppercase flex justify-center items-center gap-2">
+                            <i class="ph-fill ph-lock-key-open"></i><span data-i18n="mx_unlock_compat">Открыть полный разбор пары</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -9857,6 +10002,77 @@ const astroDescriptions = {
         </div>
     </div>
 
+    <div id="modal-matrix-point" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[80]">
+        <div class="glass-strong rounded-t-[32px] pb-8 flex flex-col max-h-[85vh] overflow-hidden relative">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="flex justify-center pt-4 pb-2 relative z-10">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+            </div>
+            <div class="px-5 pt-2 overflow-y-auto hide-scrollbar relative z-10">
+                <p id="mx-point-title" class="text-[9px] text-neon-purple font-black uppercase tracking-[0.2em] mb-1">...</p>
+                <h3 id="mx-point-arcana" class="text-2xl font-mystic text-white font-bold mb-3">...</h3>
+                <p id="mx-point-text" class="text-white/70 text-sm leading-relaxed">...</p>
+                <div id="mx-point-locked" class="hidden mt-2">
+                    <div class="bg-space-900/60 border border-white/5 rounded-2xl p-4 mb-4 flex items-start gap-3">
+                        <i class="ph-fill ph-lock-key text-neon-purple text-xl shrink-0 mt-0.5"></i>
+                        <p class="text-white/60 text-xs leading-relaxed" data-i18n="mx_locked_text">Эта позиция закрыта...</p>
+                    </div>
+                    <button onclick="openMatrixBuy('personal')" class="w-full bg-gradient-to-r from-neon-purple to-neon-fuchsia text-white font-bold py-4 rounded-xl active:scale-95 transition-transform text-sm uppercase flex justify-center items-center gap-2">
+                        <i class="ph-fill ph-lock-key-open"></i><span data-i18n="mx_unlock_all">Открыть все 17 позиций</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 🔮 МАТРИЦА: окно оплаты (копия modal-purchase) -->
+    <div id="modal-matrix-buy" class="bottom-sheet fixed bottom-0 w-full max-w-md z-[85]">
+        <div class="glass-strong bg-[#131315] rounded-t-[32px] pb-8 flex flex-col px-5">
+            <div class="flex justify-center pt-3 pb-5">
+                <div class="w-10 h-1.5 bg-white/10 rounded-full"></div>
+            </div>
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 id="mx-buy-title" class="text-white text-xl font-bold tracking-tight">Матрица Судьбы</h3>
+                    <p class="text-white/50 text-xs mt-0.5" data-i18n="modal_secure">Безопасная транзакция</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-br from-[#1a1a24] to-[#101014] rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                    <i class="ph-fill ph-star-four text-neon-purple text-xl drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]"></i>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <button onclick="mxPayStars()" class="w-full bg-[#1c1c24] border border-white/5 hover:border-amber-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl border border-amber-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-star"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base">Telegram Stars</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_instant">Моментально</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-400 font-bold text-sm flex items-center gap-1">
+                        <span id="mx-label-stars">0</span> <i class="ph-fill ph-star text-xs"></i>
+                    </div>
+                </button>
+                <button onclick="mxPayRub()" class="w-full bg-[#1c1c24] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
+                            <i class="ph-fill ph-credit-card"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold text-base" data-i18n="modal_card">Банковская карта</p>
+                            <p class="text-white/40 text-xs mt-0.5" data-i18n="modal_card_desc">РФ, СБП, SberPay</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 font-bold text-sm">
+                        <span id="mx-label-rub">0</span> <span class="currency-symbol">₽</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="story-export-template" class="fixed top-0 left-[-9999px] w-[1080px] h-[1920px] bg-[#03030b] flex flex-col items-center justify-between py-24 px-16 z-0">
         <!-- Неоновые эффекты на фоне -->
         <div class="absolute top-0 left-0 w-[800px] h-[800px] bg-neon-indigo/40 blur-[150px] rounded-full"></div>
@@ -9890,6 +10106,24 @@ const astroDescriptions = {
         <div class="relative z-10 flex items-center justify-center gap-5 bg-white/10 px-12 py-6 rounded-full border border-white/20 backdrop-blur-md">
             <i class="ph-fill ph-telegram-logo text-5xl text-[#00aaff]"></i>
             <span class="text-3xl font-bold text-white tracking-wide">@tarot_neurobot</span>
+        </div>
+    </div>
+
+    <div id="matrix-story-template" class="fixed top-0 left-[-9999px] w-[1080px] h-[1920px] bg-[#03030b] flex flex-col items-center justify-between py-32 px-20 z-0" style="opacity:0;">
+        <div class="text-center">
+            <p class="text-white/50 text-[36px] uppercase" style="letter-spacing:12px;">✦ Матрица Судьбы ✦</p>
+            <p id="mx-story-name" class="text-white text-[52px] font-bold mt-6"></p>
+        </div>
+        <div class="text-center">
+            <div class="w-[420px] h-[420px] mx-auto rounded-full border-4 border-purple-400/60 flex flex-col items-center justify-center" style="box-shadow:0 0 120px rgba(168,85,247,0.5); background:radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);">
+                <p id="mx-story-center-num" class="text-white text-[160px] font-bold leading-none"></p>
+            </div>
+            <p id="mx-story-center-name" class="text-purple-300 text-[56px] font-bold mt-10"></p>
+            <p class="text-white/60 text-[34px] mt-4">— центр моей матрицы</p>
+        </div>
+        <div class="text-center">
+            <p id="mx-story-cta" class="text-white text-[40px] font-bold">Узнай свою Матрицу Судьбы</p>
+            <p class="text-purple-300 text-[44px] font-bold mt-4">@tarot_neurobot</p>
         </div>
     </div>
 
@@ -10108,6 +10342,24 @@ const astroDescriptions = {
                 toast_already_purchased: 'Акция уже недоступна', 
                 mega_offer_title: '⚡️ МЕГА РАСПРОДАЖА: -90%',
                 mega_offer_desc: 'Последний шанс забрать 30 энергии!', modal_go_to_shop: 'Или пополнить баланс в магазине',
+                mx_banner_badge: 'НОВОЕ', mx_banner_title: 'Матрица Судьбы', mx_banner_desc: 'Кто ты по дате рождения • 17 позиций',
+                mx_title: 'Матрица Судьбы', mx_subtitle: 'Твоя энергетическая карта по дате рождения',
+                mx_hint: 'Нажми на любую точку матрицы',
+                mx_center_title: 'Центр матрицы — твоя суть', mx_free_badge: 'Бесплатно',
+                mx_karma_title: 'Кармический хвост', mx_karma_locked: 'Продолжение — в полном разборе',
+                mx_anchor: 'У матрицолога такой разбор стоит 3 000–5 000 ₽',
+                mx_unlock_all: 'Открыть все 17 позиций', mx_positions_title: 'Позиции матрицы',
+                mx_locked_text: 'Эта позиция закрыта. В полном разборе: что этот аркан значит именно у тебя, как он проявляется в жизни и что с ним делать.',
+                mx_buy_title_full: 'Матрица Судьбы: полный разбор', mx_buy_title_compat: 'Матрица совместимости',
+                mx_generating: 'Звезды формируют твой разбор...', mx_opened: 'Матрица открыта! Читай разбор ✨',
+                mx_pay_error: 'Не удалось создать счет',
+                mx_no_birth: 'Для расчета матрицы нужна твоя дата рождения', mx_go_astro: 'Заполнить Космо-Паспорт',
+                mx_compat_title: 'Совместимость по матрице', mx_compat_desc: 'Процент совместимости пары — бесплатно',
+                mx_partner_name: 'Имя партнера', mx_partner_date: 'Дата рождения партнера',
+                mx_calc_btn: 'РАССЧИТАТЬ СОВМЕСТИМОСТЬ', mx_compat_res: 'Энергетическая совместимость',
+                mx_compat_b1: 'Кармическая связь: почему вы встретились', mx_compat_b2: 'Эмоции и страсть', mx_compat_b3: 'Зоны конфликтов и как их проходить', mx_compat_b4: 'Деньги, быт и главный совет паре',
+                mx_unlock_compat: 'Открыть полный разбор пары',
+                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -10147,6 +10399,24 @@ const astroDescriptions = {
                 toast_already_purchased: 'Offer is no longer available',
                 mega_offer_title: '⚡️ MEGA SALE: -90%',
                 mega_offer_desc: 'Last chance to get 30 energy!', modal_go_to_shop: 'Or refill balance in the store',
+                mx_banner_badge: 'NEW', mx_banner_title: 'Destiny Matrix', mx_banner_desc: 'Who you are by birth date • 17 positions',
+                mx_title: 'Destiny Matrix', mx_subtitle: 'Your energy map by date of birth',
+                mx_hint: 'Tap any point of the matrix',
+                mx_center_title: 'Matrix center — your essence', mx_free_badge: 'Free',
+                mx_karma_title: 'Karmic tail', mx_karma_locked: 'Continued in the full reading',
+                mx_anchor: 'A matrix expert charges $50–80 for this reading',
+                mx_unlock_all: 'Unlock all 17 positions', mx_positions_title: 'Matrix positions',
+                mx_locked_text: 'This position is locked. The full reading reveals what this arcana means for you personally, how it shows up in your life and what to do about it.',
+                mx_buy_title_full: 'Destiny Matrix: full reading', mx_buy_title_compat: 'Matrix compatibility',
+                mx_generating: 'The stars are shaping your reading...', mx_opened: 'Matrix unlocked! Enjoy your reading ✨',
+                mx_pay_error: 'Failed to create invoice',
+                mx_no_birth: 'Your birth date is needed to calculate the matrix', mx_go_astro: 'Fill in Astro-Passport',
+                mx_compat_title: 'Matrix compatibility', mx_compat_desc: 'Couple compatibility score — free',
+                mx_partner_name: 'Partner name', mx_partner_date: 'Partner birth date',
+                mx_calc_btn: 'CALCULATE COMPATIBILITY', mx_compat_res: 'Energy compatibility',
+                mx_compat_b1: 'Karmic bond: why you met', mx_compat_b2: 'Emotions and passion', mx_compat_b3: 'Conflict zones and how to pass them', mx_compat_b4: 'Money, daily life and key advice',
+                mx_unlock_compat: 'Unlock full couple reading',
+                mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -13463,6 +13733,357 @@ const astroDescriptions = {
             if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(input.value); } 
             else { input.select(); document.execCommand('copy'); }
             showToast(t('toast_copied'), 'ph-copy');
+        }
+
+        const MX_ORDER = ['a','b','c','d','center','f','g','h','i','sky','earth','personal_purpose','social_purpose','general_purpose','love','money','karmic_tail'];
+
+        const MX_POS = {
+            ru: {
+                a: 'Характер и личность', b: 'Таланты и эмоции', c: 'Задача из прошлого', d: 'Кармическая зона',
+                center: 'Зона комфорта (центр)', f: 'Родовая линия отца (духовная)', g: 'Родовая линия матери (духовная)',
+                h: 'Точка баланса', i: 'Материальная линия отца',
+                sky: 'Небо: духовное предназначение', earth: 'Земля: материальное предназначение',
+                personal_purpose: 'Личное предназначение (до 40 лет)', social_purpose: 'Социальное предназначение (40–60)',
+                general_purpose: 'Общее предназначение (60+)', love: 'Линия любви', money: 'Линия денег',
+                karmic_tail: 'Кармический хвост'
+            },
+            en: {
+                a: 'Character and personality', b: 'Talents and emotions', c: 'Task from the past', d: 'Karmic zone',
+                center: 'Comfort zone (center)', f: 'Father line (spiritual)', g: 'Mother line (spiritual)',
+                h: 'Balance point', i: 'Father line (material)',
+                sky: 'Sky: spiritual purpose', earth: 'Earth: material purpose',
+                personal_purpose: 'Personal purpose (before 40)', social_purpose: 'Social purpose (40–60)',
+                general_purpose: 'General purpose (60+)', love: 'Love line', money: 'Money line',
+                karmic_tail: 'Karmic tail'
+            }
+        };
+        
+        const MX_ARCANA_EN = {
+            1: 'The Magician', 2: 'The High Priestess', 3: 'The Empress', 4: 'The Emperor',
+            5: 'The Hierophant', 6: 'The Lovers', 7: 'The Chariot', 8: 'Strength',
+            9: 'The Hermit', 10: 'Wheel of Fortune', 11: 'Justice', 12: 'The Hanged Man',
+            13: 'Death', 14: 'Temperance', 15: 'The Devil', 16: 'The Tower',
+            17: 'The Star', 18: 'The Moon', 19: 'The Sun', 20: 'Judgement',
+            21: 'The World', 22: 'The Fool'
+        };
+        
+        let mxData = null;
+        let mxCompat = null;
+        let mxInterp = null;
+        let mxCompatInterp = null;
+        let mxBuyKind = 'personal';
+        let mxSelectsReady = false;
+        
+        function mxLangKey() { return activeLanguage === 'ru' ? 'ru' : 'en'; }
+        function mxPosName(key) { return (MX_POS[mxLangKey()] || MX_POS.ru)[key] || key; }
+        function mxArcName(num) {
+            if (activeLanguage === 'ru' && mxData && mxData.arcana_names) return mxData.arcana_names[String(num)] || num;
+            return MX_ARCANA_EN[num] || num;
+        }
+        function mxArcNameMulti(val) {
+            if (Array.isArray(val)) return val.map(v => mxArcName(v)).join(' → ');
+            return mxArcName(val);
+        }
+        
+        function openMatrix() {
+            navigateTo('matrix');
+            loadMatrix();
+        }
+        
+        async function loadMatrix(silent) {
+            document.getElementById('mx-no-birth').classList.add('hidden');
+            if (mxData) { renderMatrix(); return; }
+            if (!silent) {
+                document.getElementById('mx-content').classList.add('hidden');
+                document.getElementById('mx-loading').classList.remove('hidden');
+            }
+            const data = await apiRequest('/matrix/get', 'GET');
+            document.getElementById('mx-loading').classList.add('hidden');
+            if (data && data.message === 'no_birth_date') {
+                const nb = document.getElementById('mx-no-birth');
+                nb.classList.remove('hidden');
+                nb.classList.add('flex');
+                return;
+            }
+            if (!data || !data.success) { showToast(t('toast_error'), 'ph-warning-circle'); return; }
+            mxData = data;
+            renderMatrix();
+            // Если тизер еще не сгенерился (LLM упал) — тихо переспрашиваем через 8 сек
+            if (!data.teaser) setTimeout(() => { mxData = null; loadMatrix(true); }, 8000);
+            // Если уже оплачено — сразу тянем полный разбор
+            if (data.is_paid && !mxInterp) mxFetchReading('personal', 0);
+        }
+        
+        function renderMatrix() {
+            const content = document.getElementById('mx-content');
+            content.classList.remove('hidden');
+            content.classList.add('flex');
+            mxRenderOctagram();
+            mxRenderPositions();
+            const c = mxData.points.center;
+            document.getElementById('mx-center-arcana').textContent = c + ' — ' + mxArcName(c);
+            document.getElementById('mx-center-text').textContent = (mxData.teaser && mxData.teaser.center) ? mxData.teaser.center : t('mx_generating');
+            const kt = mxData.points.karmic_tail;
+            document.getElementById('mx-karma-arcana').textContent = kt.join(' → ') + ' — ' + mxArcNameMulti(kt);
+            document.getElementById('mx-karma-text').textContent = (mxData.teaser && mxData.teaser.karma_hook) ? mxData.teaser.karma_hook : t('mx_generating');
+            document.getElementById('mx-price-rub').textContent = mxData.prices.rub + ' ₽';
+            document.getElementById('mx-price-stars').textContent = t('modal_or') + ' ' + mxData.prices.stars + ' ⭐';
+            if (mxData.is_paid) mxApplyPaid();
+            mxInitSelects();
+        }
+        
+        function mxRenderOctagram() {
+            const p = mxData.points;
+            const P = {
+                b: [160, 38], c: [282, 160], d: [160, 282], a: [38, 160],
+                f: [74, 74], g: [246, 74], h: [246, 246], i: [74, 246]
+            };
+            const colors = {
+                a: '#e879f9', b: '#e879f9', c: '#e879f9', d: '#e879f9',
+                f: '#22d3ee', g: '#22d3ee', h: '#22d3ee', i: '#22d3ee'
+            };
+            let svg = '<svg viewBox="0 0 320 320" class="w-full max-w-[340px] drop-shadow-[0_0_30px_rgba(168,85,247,0.15)]">';
+            svg += '<polygon points="160,38 282,160 160,282 38,160" fill="none" stroke="rgba(232,121,249,0.35)" stroke-width="1.5"/>';
+            svg += '<polygon points="74,74 246,74 246,246 74,246" fill="none" stroke="rgba(34,211,238,0.3)" stroke-width="1.5"/>';
+            svg += '<line x1="38" y1="160" x2="282" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+            svg += '<line x1="160" y1="38" x2="160" y2="282" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+            svg += '<line x1="74" y1="74" x2="246" y2="246" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+            svg += '<line x1="246" y1="74" x2="74" y2="246" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+            for (const key in P) {
+                const x = P[key][0];
+                const y = P[key][1];
+                svg += `<g onclick="openMatrixPoint('${key}')" style="cursor:pointer;">`;
+                svg += `<circle cx="${x}" cy="${y}" r="21" fill="#0b0b1e" stroke="${colors[key]}" stroke-width="1.5" opacity="0.9"/>`;
+                svg += `<text x="${x}" y="${y + 6}" text-anchor="middle" fill="white" font-size="17" font-weight="bold" style="pointer-events:none;">${p[key]}</text>`;
+                svg += '</g>';
+            }
+            svg += `<g onclick="openMatrixPoint('center')" style="cursor:pointer;">`;
+            svg += '<circle cx="160" cy="160" r="28" fill="#0b0b1e" stroke="#fbbf24" stroke-width="2"/>';
+            svg += `<text x="160" y="167" text-anchor="middle" fill="#fbbf24" font-size="20" font-weight="bold" style="pointer-events:none;">${p.center}</text>`;
+            svg += '</g></svg>';
+            document.getElementById('mx-octagram').innerHTML = svg;
+        }
+        
+        function mxRenderPositions() {
+            const box = document.getElementById('mx-positions');
+            let html = '';
+            MX_ORDER.forEach(key => {
+                const val = mxData.points[key];
+                const valText = Array.isArray(val) ? val.join('→') : val;
+                const isOpen = mxData.is_paid || key === 'center';
+                const icon = isOpen ? 'ph-caret-right text-white/30' : 'ph-lock-key text-neon-purple/70';
+                html += `<div onclick="openMatrixPoint('${key}')" class="glass bg-space-800 rounded-2xl p-3.5 border border-white/5 hover:border-neon-purple/40 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-3">`;
+                html += `<div class="min-w-9 h-9 px-1.5 rounded-full bg-neon-purple/10 border border-neon-purple/30 flex items-center justify-center text-white font-bold text-[11px] shrink-0">${valText}</div>`;
+                html += `<div class="flex-1 min-w-0"><p class="text-white text-xs font-bold truncate">${mxPosName(key)}</p><p class="text-white/40 text-[10px] truncate">${mxArcNameMulti(val)}</p></div>`;
+                html += `<i class="ph-bold ${icon} shrink-0"></i></div>`;
+            });
+            box.innerHTML = html;
+        }
+        
+        function openMatrixPoint(key) {
+            if (!mxData) return;
+            const val = mxData.points[key];
+            document.getElementById('mx-point-title').textContent = mxPosName(key);
+            document.getElementById('mx-point-arcana').textContent = (Array.isArray(val) ? val.join(' → ') : val) + ' — ' + mxArcNameMulti(val);
+            const textEl = document.getElementById('mx-point-text');
+            const lockedEl = document.getElementById('mx-point-locked');
+            if (mxData.is_paid && mxInterp && mxInterp[key]) {
+                textEl.textContent = mxInterp[key];
+                textEl.classList.remove('hidden');
+                lockedEl.classList.add('hidden');
+            } else if (key === 'center' && mxData.teaser && mxData.teaser.center) {
+                textEl.textContent = mxData.teaser.center;
+                textEl.classList.remove('hidden');
+                lockedEl.classList.add('hidden');
+            } else if (mxData.is_paid) {
+                // Оплачено, но разбор еще генерится
+                textEl.textContent = t('mx_generating');
+                textEl.classList.remove('hidden');
+                lockedEl.classList.add('hidden');
+                mxFetchReading('personal', 0);
+            } else {
+                textEl.classList.add('hidden');
+                lockedEl.classList.remove('hidden');
+            }
+            openModal('matrix-point');
+        }
+        
+        function mxApplyPaid() {
+            document.getElementById('mx-paywall').classList.add('hidden');
+            document.getElementById('mx-karma-fade').classList.add('hidden');
+            document.getElementById('mx-karma-lock-note').classList.add('hidden');
+            if (mxInterp && mxInterp.center) document.getElementById('mx-center-text').textContent = mxInterp.center;
+            if (mxInterp && mxInterp.karmic_tail) document.getElementById('mx-karma-text').textContent = mxInterp.karmic_tail;
+            mxRenderPositions();
+        }
+        
+        // ==================== ОПЛАТА ====================
+        
+        function openMatrixBuy(kind) {
+            mxBuyKind = kind;
+            const isCompat = kind === 'compat';
+            if (isCompat && !mxCompat) return;
+            if (!isCompat && !mxData) return;
+            const prices = isCompat ? mxCompat.prices : mxData.prices;
+            document.getElementById('mx-buy-title').textContent = isCompat ? t('mx_buy_title_compat') : t('mx_buy_title_full');
+            document.getElementById('mx-label-stars').textContent = prices.stars;
+            document.getElementById('mx-label-rub').textContent = prices.rub;
+            openModal('matrix-buy');
+        }
+        
+        function mxReadingId() {
+            return mxBuyKind === 'compat' ? mxCompat.reading_id : mxData.reading_id;
+        }
+        
+        async function mxPayStars() {
+            showToast(t('toast_wait'), 'ph-spinner animate-spin');
+            const data = await apiRequest('/matrix/invoice', 'POST', { reading_id: mxReadingId() });
+            if (data && data.success && data.invoice_url) {
+                hideToast();
+                const kind = mxBuyKind;
+                tg.openInvoice(data.invoice_url, function(status) {
+                    if (status === 'paid') {
+                        closeAllModals();
+                        showToast(t('mx_generating'), 'ph-spinner animate-spin');
+                        mxFetchReading(kind, 0);
+                    } else if (status === 'cancelled') {
+                        showToast(t('cancel'), 'ph-x-circle text-red-400');
+                    } else {
+                        showToast(t('toast_error'), 'ph-warning-circle text-red-400');
+                    }
+                });
+            } else {
+                showToast(t('mx_pay_error'), 'ph-warning-circle');
+            }
+        }
+        
+        async function mxPayRub() {
+            showToast(t('toast_wait'), 'ph-spinner animate-spin');
+            const data = await apiRequest('/matrix/invoice-rub', 'POST', { reading_id: mxReadingId() });
+            if (data && data.success && data.invoice_url) {
+                hideToast();
+                closeAllModals();
+                const kind = mxBuyKind;
+                tg.openLink(data.invoice_url);
+                showToast(t('mx_generating'), 'ph-spinner animate-spin');
+                mxFetchReading(kind, 0); // радар: ждем вебхук ЮKassa + генерацию
+            } else {
+                showToast(t('mx_pay_error'), 'ph-warning-circle');
+            }
+        }
+        
+        async function mxFetchReading(kind, attempt) {
+            if (attempt > 45) { hideToast(); return; } // ~3 минуты радара
+            const rid = kind === 'compat' ? (mxCompat && mxCompat.reading_id) : (mxData && mxData.reading_id);
+            if (!rid) { hideToast(); return; }
+            const data = await apiRequest(`/matrix/reading?reading_id=${rid}`, 'GET', {}, true);
+            if (data && data.success && data.interpretation) {
+                hideToast();
+                if (kind === 'compat') {
+                    mxCompatInterp = data.interpretation;
+                    if (mxCompat) mxCompat.is_paid = true;
+                    mxRenderCompat();
+                } else {
+                    mxInterp = data.interpretation;
+                    mxData.is_paid = true;
+                    mxApplyPaid();
+                }
+                showToast(t('mx_opened'), 'ph-sparkle');
+                return;
+            }
+            // not_paid (ждем вебхук) или generation_failed_retry (LLM ретраится) — пробуем снова
+            setTimeout(() => mxFetchReading(kind, attempt + 1), 4000);
+        }
+        
+        // ==================== СОВМЕСТИМОСТЬ ====================
+        
+        function mxInitSelects() {
+            if (mxSelectsReady) return;
+            mxSelectsReady = true;
+            const daySel = document.getElementById('mx-day');
+            const monthSel = document.getElementById('mx-month');
+            const yearSel = document.getElementById('mx-year');
+            daySel.innerHTML = '<option value="" disabled selected>ДД</option>';
+            for (let d = 1; d <= 31; d++) daySel.innerHTML += `<option value="${String(d).padStart(2, '0')}">${d}</option>`;
+            const months = monthNamesMap[activeLanguage] || monthNamesMap['ru'];
+            monthSel.innerHTML = `<option value="" disabled selected>${t('month')}</option>`;
+            months.forEach((name, idx) => {
+                monthSel.innerHTML += `<option value="${String(idx + 1).padStart(2, '0')}">${name}</option>`;
+            });
+            yearSel.innerHTML = '<option value="" disabled selected>ГГГГ</option>';
+            const nowYear = new Date().getFullYear();
+            for (let y = nowYear; y >= nowYear - 100; y--) yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+        }
+        
+        async function mxSubmitCompat() {
+            const name = document.getElementById('mx-partner-name').value.trim();
+            const d = document.getElementById('mx-day').value;
+            const m = document.getElementById('mx-month').value;
+            const y = document.getElementById('mx-year').value;
+            if (!name || !d || !m || !y) { showToast(t('toast_enter_partner'), 'ph-warning-circle'); return; }
+            showToast(t('synastry_weaving'), 'ph-spinner animate-spin');
+            const data = await apiRequest('/matrix/compat', 'POST', { partner_name: name, partner_birth_date: `${y}-${m}-${d}` });
+            hideToast();
+            if (!data || !data.success) {
+                if (data && data.message === 'bad_date') showToast(t('toast_enter_partner'), 'ph-warning-circle');
+                else if (data && data.message === 'no_birth_date') showToast(t('mx_no_birth'), 'ph-warning-circle');
+                else showToast(t('toast_error'), 'ph-warning-circle');
+                return;
+            }
+            mxCompat = data;
+            mxCompatInterp = null;
+            mxRenderCompat();
+            if (data.is_paid) mxFetchReading('compat', 0);
+        }
+        
+        function mxRenderCompat() {
+            const box = document.getElementById('mx-compat-result');
+            box.classList.remove('hidden');
+            document.getElementById('mx-percent').textContent = mxCompat.percentage + '%';
+            setTimeout(() => { document.getElementById('mx-percent-bar').style.width = mxCompat.percentage + '%'; }, 50);
+            document.getElementById('mx-compat-summary').textContent = mxCompat.teaser || t('mx_generating');
+            const blocksBox = document.getElementById('mx-compat-blocks');
+            if (mxCompatInterp && mxCompatInterp.blocks) {
+                blocksBox.innerHTML = mxCompatInterp.blocks.map(b => `<div class="glass bg-space-900/60 border border-white/5 rounded-2xl p-4"><p class="text-neon-rose text-[10px] font-black uppercase tracking-wider mb-1.5">${b.title}</p><p class="text-white/70 text-xs leading-relaxed">${b.text}</p></div>`).join('');
+                document.getElementById('mx-compat-buy-btn').classList.add('hidden');
+            } else {
+                const titles = [t('mx_compat_b1'), t('mx_compat_b2'), t('mx_compat_b3'), t('mx_compat_b4')];
+                blocksBox.innerHTML = titles.map(title => `<div class="glass bg-space-900/60 border border-white/5 rounded-2xl p-3.5 flex items-center justify-between"><p class="text-white/60 text-xs font-bold">${title}</p><i class="ph-fill ph-lock-key text-neon-rose/70"></i></div>`).join('');
+                document.getElementById('mx-compat-buy-btn').classList.remove('hidden');
+            }
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // ==================== ШЕРИНГ ====================
+        
+        async function mxShare() {
+            if (!mxData) return;
+            showToast(t('toast_wait'), 'ph-spinner animate-spin');
+            const c = mxData.points.center;
+            const nameEl = document.getElementById('home-wanderer-text');
+            document.getElementById('mx-story-name').textContent = nameEl ? nameEl.textContent : '';
+            document.getElementById('mx-story-center-num').textContent = c;
+            document.getElementById('mx-story-center-name').textContent = mxArcName(c);
+            document.getElementById('mx-story-cta').textContent = t('mx_story_cta');
+            const template = document.getElementById('matrix-story-template');
+            template.style.left = '0px';
+            template.style.zIndex = '-1000';
+            template.style.opacity = '1';
+            try {
+                const canvas = await html2canvas(template, { scale: 1, useCORS: true, allowTaint: true, backgroundColor: '#03030b', logging: false });
+                template.style.left = '-9999px';
+                const imgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                document.getElementById('share-preview-img').src = imgDataUrl;
+                canvas.toBlob(blob => { window.currentStoryBlob = blob; }, 'image/jpeg', 0.9);
+                hideToast();
+                const overlay = document.getElementById('overlay');
+                overlay.style.zIndex = '115';
+                overlay.classList.add('active');
+                document.getElementById('modal-share-preview').classList.add('active');
+            } catch (e) {
+                template.style.left = '-9999px';
+                showToast(t('toast_error'), 'ph-warning-circle');
+            }
         }
     
         function shareReferralLink() {
