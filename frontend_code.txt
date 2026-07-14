@@ -10361,7 +10361,7 @@ const astroDescriptions = {
                 mx_calc_btn: 'РАССЧИТАТЬ СОВМЕСТИМОСТЬ', mx_compat_res: 'Энергетическая совместимость',
                 mx_compat_b1: 'Кармическая связь: почему вы встретились', mx_compat_b2: 'Эмоции и страсть', mx_compat_b3: 'Зоны конфликтов и как их проходить', mx_compat_b4: 'Деньги, быт и главный совет паре',
                 mx_unlock_compat: 'Открыть полный разбор пары',
-                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы', 'Указать дату рождения',
+                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы', mx_go_astro: 'Указать дату рождения',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -10418,7 +10418,7 @@ const astroDescriptions = {
                 mx_calc_btn: 'CALCULATE COMPATIBILITY', mx_compat_res: 'Energy compatibility',
                 mx_compat_b1: 'Karmic bond: why you met', mx_compat_b2: 'Emotions and passion', mx_compat_b3: 'Conflict zones and how to pass them', mx_compat_b4: 'Money, daily life and key advice',
                 mx_unlock_compat: 'Unlock full couple reading',
-                mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix', 'Set birth date',
+                mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix', mx_go_astro: 'Set birth date',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -10457,7 +10457,7 @@ const astroDescriptions = {
                 toast_offer_expired: '¡La oferta ha expirado!',
                 toast_already_purchased: 'La oferta ya no está disponible',
                 mega_offer_title: '⚡️ MEGA OFERTA: -90%',
-                mega_offer_desc: '¡Última oportunidad para conseguir 30 de energía!', modal_go_to_shop: 'O recargar saldo en la tienda', 'Indicar fecha de nacimiento',
+                mega_offer_desc: '¡Última oportunidad para conseguir 30 de energía!', modal_go_to_shop: 'O recargar saldo en la tienda', mx_go_astro: 'Indicar fecha de nacimiento',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -10496,7 +10496,7 @@ const astroDescriptions = {
                 toast_offer_expired: 'L\'offre a expiré !',
                 toast_already_purchased: 'L\'offre n\'est plus disponible',
                 mega_offer_title: '⚡️ MÉGA VENTE : -90%',
-                mega_offer_desc: 'Dernière chance d\'obtenir 30 énergies !', modal_go_to_shop: 'Ou recharger le solde dans la boutique', 'Indiquer la date de naissance',
+                mega_offer_desc: 'Dernière chance d\'obtenir 30 énergies !', modal_go_to_shop: 'Ou recharger le solde dans la boutique', mx_go_astro: 'Indiquer la date de naissance'
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -10535,7 +10535,7 @@ const astroDescriptions = {
                 toast_offer_expired: 'Das Angebot ist abgelaufen!',
                 toast_already_purchased: 'Angebot nicht mehr verfügbar',
                 mega_offer_title: '⚡️ MEGA-SALE: -90%',
-                mega_offer_desc: 'Letzte Chance, 30 Energie zu bekommen!', modal_go_to_shop: 'Oder Guthaben im Shop aufladen', 'Geburtsdatum angeben',
+                mega_offer_desc: 'Letzte Chance, 30 Energie zu bekommen!', modal_go_to_shop: 'Oder Guthaben im Shop aufladen', mx_go_astro: 'Geburtsdatum angeben',
             }
         };
 
