@@ -8056,8 +8056,27 @@ const characters = [
             </div>
     
             <!-- Загрузка -->
-            <div id="mx-loading" class="flex justify-center items-center mt-24">
-                <i class="ph-fill ph-spinner animate-spin text-3xl text-neon-purple"></i>
+            <div id="mx-loading" class="hidden flex-col items-center justify-center mt-24 mb-10">
+                <div class="relative w-32 h-32 flex items-center justify-center mb-8">
+                    <!-- Фоновый пульсирующий неон -->
+                    <div class="absolute inset-0 bg-neon-purple/20 blur-[40px] rounded-full animate-pulse-slow"></div>
+                    
+                    <!-- Геометрия: два вращающихся квадрата (Октаграмма) -->
+                    <div class="absolute inset-0 flex items-center justify-center animate-spin-slow">
+                        <div class="w-16 h-16 border border-neon-purple/60 shadow-[0_0_15px_rgba(168,85,247,0.3)] rounded-sm absolute"></div>
+                        <div class="w-16 h-16 border border-neon-fuchsia/60 shadow-[0_0_15px_rgba(232,121,249,0.3)] rounded-sm absolute rotate-45"></div>
+                    </div>
+                    
+                    <!-- Внешнее пунктирное кольцо -->
+                    <div class="absolute inset-2 border-2 border-dashed border-white/10 rounded-full animate-spin-reverse-slow"></div>
+                    
+                    <!-- Центральное пульсирующее ядро -->
+                    <div class="w-2 h-2 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)] animate-ping"></div>
+                    <i class="ph-fill ph-sparkle text-white/50 absolute text-xl animate-pulse"></i>
+                </div>
+                
+                <h3 class="text-xl font-mystic font-bold text-white mb-2 text-center animate-pulse drop-shadow-md" data-i18n="mx_loading_title">Синхронизация со звездами...</h3>
+                <p class="text-[10px] text-neon-purple/70 uppercase tracking-[0.3em] font-bold text-center" data-i18n="mx_loading_desc">расчет кармических узлов</p>
             </div>
     
             <!-- Контент -->
@@ -9384,7 +9403,8 @@ const characters = [
                 mx_calc_btn: 'РАССЧИТАТЬ СОВМЕСТИМОСТЬ', mx_compat_res: 'Энергетическая совместимость',
                 mx_compat_b1: 'Кармическая связь: почему вы встретились', mx_compat_b2: 'Эмоции и страсть', mx_compat_b3: 'Зоны конфликтов и как их проходить', mx_compat_b4: 'Деньги, быт и главный совет паре',
                 mx_unlock_compat: 'Открыть полный разбор пары',
-                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы'
+                mx_share: 'Поделиться матрицей', mx_story_cta: 'Узнай свою Матрицу Судьбы', mx_loading_title: 'Синхронизация со звездами...',
+                mx_loading_desc: 'расчет кармических узлов',
             },
             'en': { 
                 discuss_spread_prompt: 'Let\'s discuss this spread. What hidden meanings should I pay attention to?',
@@ -9441,7 +9461,9 @@ const characters = [
                 mx_calc_btn: 'CALCULATE COMPATIBILITY', mx_compat_res: 'Energy compatibility',
                 mx_compat_b1: 'Karmic bond: why you met', mx_compat_b2: 'Emotions and passion', mx_compat_b3: 'Conflict zones and how to pass them', mx_compat_b4: 'Money, daily life and key advice',
                 mx_unlock_compat: 'Unlock full couple reading',
-                mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix'
+                mx_share: 'Share my matrix', mx_story_cta: 'Discover your Destiny Matrix',
+                mx_loading_title: 'Synchronizing with the stars...',
+                mx_loading_desc: 'calculating karmic nodes',
             },
             'es': { 
                 discuss_spread_prompt: 'Vamos a discutir esta tirada. ¿A qué significados ocultos debería prestar atención?',
@@ -9498,7 +9520,9 @@ const characters = [
                 mx_calc_btn: 'CALCULAR COMPATIBILIDAD', mx_compat_res: 'Compatibilidad de energía',
                 mx_compat_b1: 'Vínculo kármico: por qué os conocisteis', mx_compat_b2: 'Emociones y pasión', mx_compat_b3: 'Zonas de conflicto y cómo superarlas', mx_compat_b4: 'Dinero, vida diaria y consejo principal',
                 mx_unlock_compat: 'Desbloquear lectura de pareja completa',
-                mx_share: 'Compartir mi matriz', mx_story_cta: 'Descubre tu Matriz del Destino'
+                mx_share: 'Compartir mi matriz', mx_story_cta: 'Descubre tu Matriz del Destino',
+                mx_loading_title: 'Sincronizando con las estrellas...',
+                mx_loading_desc: 'calculando nodos kármicos',
             },
             'fr': { 
                 discuss_spread_prompt: 'Discutons de ce tirage. À quelles significations cachées dois-je prêter attention ?',
@@ -9555,7 +9579,9 @@ const characters = [
                 mx_calc_btn: 'CALCULER LA COMPATIBILITÉ', mx_compat_res: 'Compatibilité énergétique',
                 mx_compat_b1: 'Lien karmique : pourquoi vous vous êtes rencontrés', mx_compat_b2: 'Émotions et passion', mx_compat_b3: 'Zones de conflit et comment les traverser', mx_compat_b4: 'Argent, vie quotidienne et conseil clé',
                 mx_unlock_compat: 'Débloquer la lecture de couple complète',
-                mx_share: 'Partager ma matrice', mx_story_cta: 'Découvre ta Matrice de la Destinée'
+                mx_share: 'Partager ma matrice', mx_story_cta: 'Découvre ta Matrice de la Destinée',
+                mx_loading_title: 'Synchronisation avec les étoiles...',
+                mx_loading_desc: 'calcul des nœuds karmiques',
             },
             'de': { 
                 discuss_spread_prompt: 'Lass uns über diese Legung diskutieren. Auf welche verborgenen Bedeutungen sollte ich achten?',
@@ -9612,7 +9638,9 @@ const characters = [
                 mx_calc_btn: 'KOMPATIBILITÄT BERECHNEN', mx_compat_res: 'Energie-Kompatibilität',
                 mx_compat_b1: 'Karmische Bindung: warum ihr euch getroffen habt', mx_compat_b2: 'Emotionen und Leidenschaft', mx_compat_b3: 'Konfliktzonen und wie man sie überwindet', mx_compat_b4: 'Geld, Alltag und wichtigster Rat',
                 mx_unlock_compat: 'Vollständige Paarlesung freischalten',
-                mx_share: 'Meine Matrix teilen', mx_story_cta: 'Entdecke deine Schicksalsmatrix'
+                mx_share: 'Meine Matrix teilen', mx_story_cta: 'Entdecke deine Schicksalsmatrix',
+                mx_loading_title: 'Synchronisierung mit den Sternen...',
+                mx_loading_desc: 'Berechnung karmischer Knoten',
             }
         };
 
