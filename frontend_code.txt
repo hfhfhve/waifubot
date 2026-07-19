@@ -10314,6 +10314,8 @@ const characters = [
                 }
             });
         }
+
+        const tg = window.Telegram?.WebApp || {};
     
         class AppBridge {
             constructor() {
@@ -11562,16 +11564,19 @@ const characters = [
             const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
             document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('ru-RU', dateOptions);
             
-            const tgUser = tg.initDataUnsafe?.user;
+            // ИСПОЛЬЗУЕМ МОСТ
+            const appUser = bridge.user;
+            const startParam = bridge.startParam;
+            
             const avatarContainer = document.getElementById('profile-avatar-container');
             const nameElement = document.getElementById('profile-name');
         
-            // Предзаполняем данные из Telegram
-            if (tgUser && Object.keys(tgUser).length > 0) {
-                const userName = tgUser.first_name || tgUser.username || 'Странник';
+            // Предзаполняем данные из Telegram/VK
+            if (appUser && Object.keys(appUser).length > 0) {
+                const userName = appUser.first_name || appUser.username || 'Странник';
                 nameElement.textContent = userName;
-                if (tgUser.photo_url) {
-                    avatarContainer.innerHTML = `<img src="${tgUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
+                if (appUser.photo_url) {
+                    avatarContainer.innerHTML = `<img src="${appUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
                 } else {
                     avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
                 }
@@ -11580,7 +11585,6 @@ const characters = [
                 avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
             }
             
-            const startParam = tg.initDataUnsafe?.start_param || null;
             const statusText = document.getElementById('loading-status-text');
             
             try {
@@ -11617,7 +11621,7 @@ const characters = [
                         const createdAtEl = document.getElementById('profile-created-at');
                         if (createdAtEl) {
                             createdAtEl.removeAttribute('data-i18n'); 
-                            createdAtEl.dataset.rawDate = data.created_at; // <-- ДОБАВИТЬ ЭТО
+                            createdAtEl.dataset.rawDate = data.created_at; 
                             const dateStr = dateObj.toLocaleDateString(activeLanguage, { day: 'numeric', month: 'long' });
                             createdAtEl.textContent = `${t('prof_with_us')} ${dateStr}`;
                         }
@@ -11628,20 +11632,17 @@ const characters = [
                     }
                     if (data.language_code) {
                         let lang = data.language_code.toLowerCase().trim().substring(0, 2);
-                        
-                        // Поддерживаемые языки
                         const supported = ['ru', 'en', 'es', 'fr', 'de'];
-                        // Языки, которые мы принудительно перекидываем на русский
-                        const ru_fallbacks = ['uk', 'kk', 'be', 'uz', 'ky', 'tg']; // Украина, Казахстан, Беларусь, Узбекистан, Кыргызстан, Таджикистан
+                        const ru_fallbacks = ['uk', 'kk', 'be', 'uz', 'ky', 'tg']; 
                         
                         if (ru_fallbacks.includes(lang)) {
-                            lang = 'ru'; // Переводим СНГ на русский
+                            lang = 'ru'; 
                         } else if (!supported.includes(lang)) {
-                            lang = 'en'; // Все остальные неизвестные переводим на английский
+                            lang = 'en'; 
                         }
                         
                         activeLanguage = lang;
-                          if (data.natal_chart_data && data.birth_city) {
+                        if (data.natal_chart_data && data.birth_city) {
                             userAstroData = {
                                 chart: data.natal_chart_data,
                                 city: data.birth_city,
@@ -11650,7 +11651,7 @@ const characters = [
                         }
                         updateLanguageDisplay(activeLanguage);
                     } else {
-                        activeLanguage = 'en'; // Если вообще ничего нет, ставим английский
+                        activeLanguage = 'en'; 
                         updateLanguageDisplay('en');
                     }
                     if (data.daily_card) {
@@ -11660,7 +11661,7 @@ const characters = [
                     if (data.birth_date) {
                         const displayEl = document.getElementById('profile-birthdate-display');
                         if (displayEl) {
-                            displayEl.removeAttribute('data-i18n'); // КЛЮЧЕВОЙ ФИКС! Защищает от перезаписи
+                            displayEl.removeAttribute('data-i18n'); 
                             const [y, m, d] = data.birth_date.split('-');
                             displayEl.textContent = `${d}.${m}.${y}`;
                         }
@@ -11674,12 +11675,9 @@ const characters = [
                         if (hiddenCityEl) hiddenCityEl.value = data.birth_city;
                     }
                     
-                    // Заодно подтягиваем правильное имя из БД, а не из Телеграма
                     if (data.first_name) {
                         const nameEl = document.getElementById('profile-name');
                         if (nameEl) nameEl.textContent = data.first_name;
-                        
-                        // Выводим имя в список настроек (чуть ниже покажу, куда вставить ID)
                         const settingsNameEl = document.getElementById('settings-name-display');
                         if (settingsNameEl) settingsNameEl.textContent = data.first_name;
                     }
@@ -11689,34 +11687,30 @@ const characters = [
                 
                 // Генерируем реф. ссылку
                 const botUsername = "tarot_neurobot"; 
-                const refLink = `https://t.me/${botUsername}?start=${tgUser?.id || '0'}`;
+                const refLink = `https://t.me/${botUsername}?start=${appUser?.id || '0'}`;
                 const refInput = document.getElementById('ref-link-input');
                 if (refInput) refInput.value = refLink;
         
-                // Инициализируем селекты дат
                 initDateSelects();
                 initCustomDateSelects();
                 setupDesktopDateInputs();
         
-                // Загружаем магазин и календарь параллельно, дожидаясь их выполнения
                 await Promise.all([
                     loadShopItems(),
                     loadLunarCalendar(),
-                    loadSpreads(), // <--- ДОБАВИТЬ ЭТО!
+                    loadSpreads(), 
                     updateBonusBannerState() 
                 ]);
     
-                // АКТИВИРУЕМ ЛОКАЛИЗАЦИЮ ИНТЕРФЕЙСА ПЕРЕД ПОКАЗОМ ЭКРАНА
                 updateInterfaceTranslations();
-        
-                // Когда ВСЁ готово — убираем лоадер
                 hideAppLoader();
         
             } catch (error) {
                 console.error("Критическая ошибка инициализации:", error);
                 
-                // Показываем алерт ТОЛЬКО тебе, если сломался сам код JS (синтаксис, нет элемента и тд)
-                if (tg.initDataUnsafe?.user?.id === DEV_ID) {
+                // Показываем алерт ТОЛЬКО админам
+                const ADMIN_IDS = [6546116205, 7672744848];
+                if (ADMIN_IDS.includes(bridge.user?.id)) {
                     alert(`АДМИН-ОШИБКА (Фронтенд JS):\n${error.message}`); 
                 }
                 
@@ -11727,27 +11721,19 @@ const characters = [
                 await Promise.all([
                     loadShopItems(),
                     loadLunarCalendar(),
-                    loadSpreads(), // Кэш раскладов заполняется здесь!
+                    loadSpreads(), 
                     updateBonusBannerState() 
                 ]);
     
-                // АКТИВИРУЕМ ЛОКАЛИЗАЦИЮ ИНТЕРФЕЙСА ПЕРЕД ПОКАЗОМ ЭКРАНА
                 updateInterfaceTranslations();
                 
-                // ====== ИСПРАВЛЕННЫЙ АВТОЗАПУСК РАСКЛАДА ПОСЛЕ ОПЛАТЫ ======
                 const pendingSpreadStr = localStorage.getItem('pending_spread_payment');
                 if (pendingSpreadStr) {
                     const pendingData = JSON.parse(pendingSpreadStr);
-                    
-                    // Если энергия пришла — автоматически запускаем!
                     if (userBalance.energy >= pendingData.energyNeeded) {
-                        localStorage.removeItem('pending_spread_payment'); // Очищаем
-                        
-                        // Подготавливаем стол (теперь кэш точно загружен!)
+                        localStorage.removeItem('pending_spread_payment');
                         selectSpread(pendingData.spreadType); 
                         document.getElementById('tarot-user-question').value = pendingData.question;
-                        
-                        // Сразу жмем "Вытянуть карты" за него
                         setTimeout(() => startAutomatedRitual(), 500);
                     }
                 }
