@@ -855,17 +855,18 @@
         </div>
 
         <!-- СОСТОЯНИЕ 2: АНИМАЦИЯ ТАСОВКИ (Как на твоем скрине) -->
-        <div id="tarot-table-shuffling-state" class="hidden flex-1 flex-col items-center justify-center px-6 text-center z-10 relative">
+        <div id="tarot-table-shuffling-state" class="hidden flex-1 flex-col items-center justify-center px-6 z-10 relative w-full">
             <div class="relative w-full h-48 mb-8 flex items-center justify-center perspective-1000">
                 <div class="absolute inset-0 rounded-full bg-neon-purple/20 blur-3xl animate-pulse-slow"></div>
                 
-                <!-- Анимация трех карт -->
-                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-1 z-[1]"></div>
-                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-2 z-[2]"></div>
-                <div class="absolute w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-3 z-[3]"></div>
+                <!-- Анимация трех карт (добавлено inset-0 m-auto для жесткого центрирования на ПК) -->
+                <div class="absolute inset-0 m-auto w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-1 z-[1]"></div>
+                <div class="absolute inset-0 m-auto w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-2 z-[2]"></div>
+                <div class="absolute inset-0 m-auto w-20 h-32 rounded-xl bg-[url('https://tarot.waifubot.website/static/card_back.webp')] bg-cover bg-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-shuffle-3 z-[3]"></div>
             </div>
-            <h3 class="text-2xl font-mystic text-white font-bold mb-2 animate-pulse" data-i18n="shuffling">Тасую колоду...</h3>
-            <p class="text-xs text-white/50 max-w-xs leading-relaxed" data-i18n="shuffling_desc">Это занимает 15–25 секунд.<br>Не закрывай экран — карты уже выстраиваются.</p>
+            <!-- Добавлено w-full text-center -->
+            <h3 class="w-full text-center text-2xl font-mystic text-white font-bold mb-2 animate-pulse" data-i18n="shuffling">Тасую колоду...</h3>
+            <p class="w-full text-center text-xs text-white/50 max-w-xs mx-auto leading-relaxed" data-i18n="shuffling_desc">Это занимает 15–25 секунд.<br>Не закрывай экран — карты уже выстраиваются.</p>
         </div>
 
         <!-- СОСТОЯНИЕ 3: ЭКРАН РЕЗУЛЬТАТА (Как на твоем скрине) -->
@@ -4083,19 +4084,34 @@
 
         let activeSynastryStatus = "partner"; // Внутренний ключ (partner, friend, business)
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const chips = document.querySelectorAll('.synastry-chip');
-            chips.forEach(chip => {
-                chip.addEventListener('click', (e) => {
-                    chips.forEach(c => {
-                        c.classList.remove('bg-neon-rose/20', 'border-neon-rose/50', 'text-white', 'active');
-                        c.classList.add('bg-space-800', 'border-white/10', 'text-white/60');
-                    });
-                    e.target.classList.remove('bg-space-800', 'border-white/10', 'text-white/60');
-                    e.target.classList.add('bg-neon-rose/20', 'border-neon-rose/50', 'text-white', 'active');
-                    activeSynastryStatus = e.target.getAttribute('data-status');
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ЕСЛИ МЫ В ВК: Дожидаемся загрузки настоящего Имени и Аватарки ПЕРЕД запуском
+            if (bridge.isVK && window.vkBridge) {
+                try {
+                    const data = await window.vkBridge.send('VKWebAppGetUserInfo');
+                    bridge.user = {
+                        id: data.id,
+                        first_name: data.first_name,
+                        username: data.screen_name,
+                        language_code: 'ru', // ВК всегда на русском
+                        photo_url: data.photo_100
+                    };
+                } catch(e) { 
+                    console.error("Ошибка загрузки профиля ВК:", e); 
+                }
+            }
+
+            initApp();
+            
+            // Слушатель скролла для ленивой загрузки истории чата
+            const wrapper = document.getElementById('chat-scroll-wrapper');
+            if (wrapper) {
+                wrapper.addEventListener('scroll', () => {
+                    if (wrapper.scrollTop <= 20 && hasMoreHistory && !isFetchingHistory && initialChatLoaded) {
+                        loadChatHistory(true);
+                    }
                 });
-            });
+            }
         });
 
         function openSynastryModal() {
@@ -4934,7 +4950,7 @@
         
             // Предзаполняем данные из Telegram/VK
             if (appUser && Object.keys(appUser).length > 0) {
-                const userName = appUser.first_name || appUser.username || 'Странник';
+                const userName = appUser.first_name || appUser.username || t('home_wanderer') || 'Странник';
                 nameElement.textContent = userName;
                 if (appUser.photo_url) {
                     avatarContainer.innerHTML = `<img src="${appUser.photo_url}" alt="Avatar" class="w-full h-full object-cover">`;
@@ -4942,8 +4958,9 @@
                     avatarContainer.innerHTML = `<span id="profile-avatar-initial">${userName.charAt(0).toUpperCase()}</span>`;
                 }
             } else {
-                nameElement.textContent = t('home_wanderer');
-                avatarContainer.innerHTML = `<span id="profile-avatar-initial">Т</span>`;
+                const defaultName = t('home_wanderer') || 'Странник';
+                nameElement.textContent = defaultName;
+                avatarContainer.innerHTML = `<span id="profile-avatar-initial">${defaultName.charAt(0).toUpperCase()}</span>`;
             }
             
             const statusText = document.getElementById('loading-status-text');
