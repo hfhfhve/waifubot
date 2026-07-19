@@ -6645,6 +6645,7 @@ const characters = [
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Космическое Таро</title>   
   <script src="https://telegram.org/js/telegram-web-app.js"></script> 
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.min.css">
@@ -10314,11 +10315,95 @@ const characters = [
             });
         }
     
-        // Инициализация Telegram WebApp
-        const tg = window.Telegram.WebApp;
-        tg.expand(); 
-        tg.setBackgroundColor('#03030b');
-        tg.setHeaderColor('#03030b');
+        class AppBridge {
+            constructor() {
+                this.isTG = window.Telegram?.WebApp?.initData !== undefined && window.Telegram.WebApp.initData !== '';
+                this.isVK = window.location.search.includes('vk_user_id');
+                this.platform = this.isVK ? 'vk' : 'tg';
+                
+                this.initData = '';
+                this.user = null;
+        
+                if (this.isTG) {
+                    this.tg = window.Telegram.WebApp;
+                    this.initData = this.tg.initData;
+                    this.user = this.tg.initDataUnsafe?.user;
+                    
+                    this.tg.expand();
+                    this.tg.setBackgroundColor('#03030b');
+                    this.tg.setHeaderColor('#03030b');
+                } else if (this.isVK) {
+                    this.initData = window.location.search.substring(1); // Убираем '?' из начала
+                    vkBridge.send('VKWebAppInit');
+                    
+                    // Пытаемся достать данные пользователя (ВК не передает имя в URL, его надо запрашивать)
+                    vkBridge.send('VKWebAppGetUserInfo').then(data => {
+                        this.user = {
+                            id: data.id,
+                            first_name: data.first_name,
+                            username: data.screen_name,
+                            language_code: 'ru', // ВК обычно РУ
+                            photo_url: data.photo_100
+                        };
+                    }).catch(e => console.log("VK User Info Error", e));
+                }
+            }
+        
+            // Универсальный метод отправки запросов на бэкенд
+            getHeaders() {
+                const headers = { "Content-Type": "application/json" };
+                if (this.isTG) {
+                    headers["X-Telegram-Init-Data"] = this.initData;
+                } else if (this.isVK) {
+                    headers["X-VK-Init-Data"] = this.initData;
+                }
+                return headers;
+            }
+        
+            // Универсальная вибрация
+            haptic(style = 'medium') {
+                if (this.isTG) {
+                    this.tg.HapticFeedback.impactOccurred(style);
+                } else if (this.isVK) {
+                    vkBridge.send("VKWebAppTapticImpactOccurred", { style: style === 'medium' ? 'medium' : 'light' });
+                }
+            }
+            
+            hapticSuccess() {
+                if (this.isTG) this.tg.HapticFeedback.notificationOccurred('success');
+                else if (this.isVK) vkBridge.send("VKWebAppTapticNotificationOccurred", { type: 'success' });
+            }
+        
+            hapticError() {
+                if (this.isTG) this.tg.HapticFeedback.notificationOccurred('error');
+                else if (this.isVK) vkBridge.send("VKWebAppTapticNotificationOccurred", { type: 'error' });
+            }
+        
+            // Универсальное открытие ссылок
+            openLink(url) {
+                if (this.isTG) {
+                    this.tg.openLink(url);
+                } else if (this.isVK) {
+                    // ВК запрещает открывать сторонние платежки (Юкассу) внутри своего вебвью, 
+                    // поэтому просим открыть во внешнем браузере
+                    const target = url.includes("yookassa") ? "blank" : "internal";
+                    vkBridge.send("VKWebAppOpenUrl", { "url": url, "target": target });
+                }
+            }
+        
+            // Шеринг ссылки (рефералка)
+            shareLink(url, text) {
+                if (this.isTG) {
+                    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+                    this.tg.openTelegramLink(shareUrl);
+                } else if (this.isVK) {
+                    vkBridge.send("VKWebAppShare", { "link": url });
+                }
+            }
+        }
+        
+        // Создаем глобальный объект моста
+        const bridge = new AppBridge();
     
         const API_URL = "https://tarot.waifubot.website/api"; 
     
@@ -10341,10 +10426,7 @@ const characters = [
                 try {
                     const response = await fetch(`${API_URL}${endpoint}`, {
                         method: method,
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-Telegram-Init-Data": tg.initData || ""
-                        },
+                        headers: bridge.getHeaders(), // <-- ИСПОЛЬЗУЕМ НАШ МОСТ
                         body: method === "GET" ? null : JSON.stringify(data)
                     });
         
@@ -10371,7 +10453,8 @@ const characters = [
                     
                     // Если все 3 попытки (3 секунды) сгорели, а интернета так и нет
                     if (!silent) {
-                        const currentUserId = tg.initDataUnsafe?.user?.id;
+                        // Берем ID через мост (работает и в ТГ, и в ВК)
+                        const currentUserId = bridge.user?.id;
                         const ADMIN_IDS = [6546116205, 7672744848];
                 
                         if (ADMIN_IDS.includes(currentUserId)) {
@@ -10974,18 +11057,32 @@ const characters = [
         }
     
         function selectShopItem(id, amount, stars, rub) {
-            window.currentPurchaseItemId = id; // Запоминаем, что мы сейчас покупаем
+            window.currentPurchaseItemId = id; 
             document.getElementById('purchase-price-rub').textContent = `${rub} ₽`;
-            // ВАЖНО: Вместо "или" пишем ${t('modal_or')}
-            document.getElementById('purchase-price-stars').innerHTML = `${t('modal_or')} ${stars} <i class="ph-fill ph-star"></i>`;
-            document.getElementById('label-stars').textContent = stars;
-            document.getElementById('label-rub').textContent = rub;
-        
-            document.getElementById('btn-pay-stars').onclick = () => {
-                closeAllModals();
-                buyEnergy(id, stars);
-            };
             
+            const starsPriceEl = document.getElementById('purchase-price-stars');
+            const btnPayStars = document.getElementById('btn-pay-stars');
+            
+            // ВКЛЮЧАЕМ ЛОГИКУ СКРЫТИЯ ЗВЕЗД В VK
+            if (bridge.isVK) {
+                if (starsPriceEl) starsPriceEl.classList.add('hidden');
+                if (btnPayStars) btnPayStars.classList.add('hidden');
+            } else {
+                if (starsPriceEl) {
+                    starsPriceEl.classList.remove('hidden');
+                    starsPriceEl.innerHTML = `${t('modal_or')} ${stars} <i class="ph-fill ph-star"></i>`;
+                }
+                if (btnPayStars) {
+                    btnPayStars.classList.remove('hidden');
+                    btnPayStars.onclick = () => {
+                        closeAllModals();
+                        buyEnergy(id, stars);
+                    };
+                }
+                document.getElementById('label-stars').textContent = stars;
+            }
+        
+            document.getElementById('label-rub').textContent = rub;
             document.getElementById('btn-pay-rub').onclick = () => {
                 closeAllModals();
                 buyEnergyRub(id);
@@ -12460,21 +12557,35 @@ const characters = [
         }
 
         function openBuySpreadModal(energyPrice) {
-            // Расчет цены по твоей формуле
             const starsPrice = energyPrice * 8;
             const rubPrice = ((energyPrice * 6) - 0.01).toFixed(2);
-
+        
             document.getElementById('buy-spread-title').textContent = document.getElementById('table-spread-name').textContent;
-            document.getElementById('buy-spread-stars-price').textContent = starsPrice;
             document.getElementById('buy-spread-rub-price').textContent = rubPrice;
-
+        
+            // Прячем кнопку Звезд и их цену, если мы в VK (ищем кнопку прямо по атрибуту onclick)
+            const starsBtn = document.querySelector('button[onclick="payForSpreadStars()"]');
+            const starsContainer = document.getElementById('buy-spread-stars-price');
+        
+            if (bridge.isVK) {
+                if (starsBtn) starsBtn.classList.add('hidden');
+                // Прячем весь синий блочок, если он есть
+                if (starsContainer && starsContainer.parentElement) starsContainer.parentElement.classList.add('hidden');
+            } else {
+                if (starsBtn) starsBtn.classList.remove('hidden');
+                if (starsContainer) {
+                    starsContainer.textContent = starsPrice;
+                    if (starsContainer.parentElement) starsContainer.parentElement.classList.remove('hidden');
+                }
+            }
+        
             // Сохраняем состояние, чтобы продолжить после оплаты
             localStorage.setItem('pending_spread_payment', JSON.stringify({
                 spreadType: currentSpread.type,
                 question: document.getElementById('tarot-user-question').value.trim(),
                 energyNeeded: energyPrice
             }));
-
+        
             openModal('buy-spread');
         }
 
@@ -12932,10 +13043,18 @@ const characters = [
             document.getElementById('mx-center-arcana').textContent = c + ' — ' + mxArcName(c);
             document.getElementById('mx-center-text').textContent = (mxData.teaser && mxData.teaser.center) ? mxData.teaser.center : t('mx_generating');
             const kt = mxData.points.karmic_tail;
-            document.getElementById('mx-karma-arcana').textContent = kt.join(' → ') + ' — ' + mxArcNameMulti(kt);
             document.getElementById('mx-karma-text').textContent = (mxData.teaser && mxData.teaser.karma_hook) ? mxData.teaser.karma_hook : t('mx_generating');
             document.getElementById('mx-price-rub').textContent = mxData.prices.rub + ' ₽';
-            document.getElementById('mx-price-stars').textContent = t('modal_or') + ' ' + mxData.prices.stars + ' ⭐';
+            // Прячем текст "или 799 ⭐" на главном экране Матрицы в VK
+            const priceStarsEl = document.getElementById('mx-price-stars');
+            if (bridge.isVK) {
+                if (priceStarsEl) priceStarsEl.classList.add('hidden');
+            } else {
+                if (priceStarsEl) {
+                    priceStarsEl.classList.remove('hidden');
+                    priceStarsEl.textContent = t('modal_or') + ' ' + mxData.prices.stars + ' ⭐';
+                }
+            }
             if (mxData.is_paid) mxApplyPaid();
         }
         
@@ -13032,9 +13151,25 @@ const characters = [
             if (isCompat && !mxCompat) return;
             if (!isCompat && !mxData) return;
             const prices = isCompat ? mxCompat.prices : mxData.prices;
+            
             document.getElementById('mx-buy-title').textContent = isCompat ? t('mx_buy_title_compat') : t('mx_buy_title_full');
-            document.getElementById('mx-label-stars').textContent = prices.stars;
             document.getElementById('mx-label-rub').textContent = prices.rub;
+        
+            // Скрываем Звезды в VK
+            const starsBtn = document.querySelector('button[onclick="mxPayStars()"]');
+            const starsLabel = document.getElementById('mx-label-stars');
+        
+            if (bridge.isVK) {
+                if (starsBtn) starsBtn.classList.add('hidden');
+                if (starsLabel && starsLabel.parentElement) starsLabel.parentElement.classList.add('hidden');
+            } else {
+                if (starsBtn) starsBtn.classList.remove('hidden');
+                if (starsLabel) {
+                    starsLabel.textContent = prices.stars;
+                    if (starsLabel.parentElement) starsLabel.parentElement.classList.remove('hidden');
+                }
+            }
+            
             openModal('matrix-buy');
         }
         
