@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>SEO-Фабрика — Личный кабинет</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial,Courier;background:#0b0f14;color:#e6edf5;margin:0}
+    a{color:#4f8ef7;text-decoration:none} ul{padding-left:1.2rem} li{margin:.5rem 0}
+    .card{background:#121820;border:1px solid #223041;border-radius:12px;padding:1rem;max-width:900px}
+    h1{margin-top:0}
+    #status{font-weight:700}
+    input,select,textarea{width:100%;padding:.5rem .7rem;background:#121820;border:1px solid #223041;border-radius:8px;color:#e6edf5;box-sizing:border-box}
+    label{display:block;margin-bottom:.5rem}
+    .btn{display:inline-block;background:#4f8ef7;color:#fff;border-radius:8px;padding:.5rem .9rem;border:0;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main style="max-width:1100px;margin:2rem auto;padding:1rem">
+    <h1>⚙️ SEO-Фабрика</h1>
+    <p id="status">Проверка связи с backend…</p>
+    <p>Backend: ваш FastAPI на `waifubot.website:8000`, frontend — этот статический файл. Модели и настройки — из БД (OpenRouter по умолчанию). Страница работает без сборки, просто HTML+JS.</p>
+    <div>
+      <label>BackendURL: <input id="api-url" type="text" /></label>
+      <button class="btn" id="apply-api">Применить backend URL</button>
+    </div>
+
+    <ul>
+      <li><a href="#" id="goto-dashboard">Проекты (dashboard)</a></li>
+      <li><a href="#" id="goto-settings">Настройки</a></li>
+    </ul>
+
+    <section id="page-dashboard" style="display:none"></section>
+    <section id="page-settings" style="display:none">
+      <div class="card">
+        <h2>Настройки</h2>
+        <p>Глобальные настройки и списки моделей — напрямую через backend (`/api/settings`, `/api/settings/models`, `/api/settings/providers`). Форма-«селектор» на странице собирается по тому же принципу, как в dashboard (Jones-вариант — стартуйте от `PROVIDER` модели через fetch, моделей от `GET SETTINGS/models`, POST/PUT соответствия — через `/api/settings`).</p>
+      </div>
+    </section>
+  </main>
+  <script src="./js/main.js"></script>
+</body>
+</html>
