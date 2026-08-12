@@ -385,8 +385,6 @@
       try {
         const proj = await api.getProject(projectId);
         const resp = await api.chatExtractFrame(projectId).catch(() => null);
-        // Try to get existing approved template via tasks
-        // (templates are embedded in tasks; use latest chat frame or skip)
         if (resp && resp.html_body) {
           fillFrameForm(resp);
         }
@@ -448,7 +446,6 @@
         document.getElementById('chatLoading')?.remove();
         box.innerHTML += `<div class="chat-msg assistant">${escHtml(resp.content)}</div>`;
         box.scrollTop = box.scrollHeight;
-        // Если модель вернула каркас — предложить извлечь
         if (msg.toLowerCase().includes('сформировать каркас') || resp.content.includes('```html')) {
           if (confirm('Модель вернула каркас. Открыть его для просмотра?')) {
             const frame = await api.chatExtractFrame(projectId).catch(() => null);
@@ -490,7 +487,6 @@
       const iframe = document.getElementById('framePreviewFrame');
       const html = document.getElementById('frameHtml').value;
       if (!html.trim()) { showFrameMsg('Введите HTML-каркас', 'bad'); return; }
-      // Simple preview with placeholder examples
       let previewHtml = html;
       const placeholders = extractPlaceholders(html);
       placeholders.forEach(p => { previewHtml = previewHtml.split(`{{${p}}}`).join(`Пример ${p}`); });
@@ -557,7 +553,6 @@
     }
 
     function extractPlaceholders(html) {
-      const seen = new Set();
       const m = html.match(/\{\{([^}]+)\}\}/g) || [];
       return [...new Set(m.map(x => x.replace(/[{}]/g, '').trim()))];
     }
@@ -645,7 +640,7 @@
 
     document.getElementById('stopGenBtn').onclick = async () => {
       if (!confirm('Остановить все текущие задачи?')) return;
-      const btn = document.getElementById('stopGenBtn';
+      const btn = document.getElementById('stopGenBtn');
       btn.disabled = true;
       try {
         await api.stopGeneration(projectId);
@@ -676,7 +671,6 @@
           document.getElementById('progressPct').textContent = pct + '%';
           document.getElementById('progressBar').style.width = pct + '%';
 
-          // Если всё завершено — скрыть кнопку стоп
           if (r.pending === 0 && r.running === 0) {
             document.getElementById('stopGenBtn').style.display = 'none';
             document.getElementById('turboActive').style.display = 'none';
@@ -735,7 +729,6 @@
         tbody.innerHTML = pages.map(p => {
           const uniqChk = (p.checks || []).find(c => c.check_name === 'uniqueness');
           const lenChk  = (p.checks || []).find(c => c.check_name === 'volume');
-          const fails   = (p.checks || []).filter(c => !c.passed);
           return `
             <tr>
               <td style="color:var(--muted);">${p.id}</td>
