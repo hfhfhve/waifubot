@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
 </head>
 <body>
@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  <main class="main" style="max-width:820px;">
+  <main class="main" style="max-width:860px;">
     <div class="page-title">Глобальные настройки</div>
     <div class="page-sub">API-ключи, модели, пороги качества и стоп-слова</div>
 
@@ -55,17 +55,42 @@
         <div id="loadingModels" style="color:var(--muted);font-size:13px;">Загрузка списка моделей…</div>
       </div>
 
+      <!-- Custom OpenAI-compatible API -->
+      <div class="fieldset">
+        <legend>🔌 OpenAI-совместимый API (кастомный)</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">DeepSeek, Together AI, Groq, llama.cpp — любой endpoint в формате OpenAI</p>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Base URL (например: https://api.deepseek.com/v1)</label>
+            <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
+          </div>
+          <div class="form-row">
+            <label>API Key</label>
+            <input type="password" id="customApiKey" placeholder="sk-…">
+          </div>
+          <div class="form-row">
+            <label>Модель (slug, например: deepseek-chat)</label>
+            <input type="text" id="customModelName" placeholder="deepseek-chat">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-sm btn-primary" onclick="saveCustomApi()">💾 Сохранить API</button>
+          <button class="btn btn-sm btn-ghost" onclick="testCustomApi()">🔍 Тест соединения</button>
+        </div>
+        <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
+      </div>
+
       <!-- Quality -->
       <div class="fieldset">
         <legend>Пороги качества</legend>
         <div class="form-grid">
           <div class="form-row">
             <label>Порог уникальности (0–1)</label>
-            <input type="number" id="uniqThresh" min="0" max="1" step="0.01" placeholder="0.95">
+            <input type="number" id="uniqThresh" min="0" max="1" step="0.01" placeholder="0.90">
           </div>
           <div class="form-row">
             <label>Мин. длина текста (символов)</label>
-            <input type="number" id="minLen" min="100" placeholder="1300">
+            <input type="number" id="minLen" min="100" placeholder="800">
           </div>
           <div class="form-row">
             <label>Макс. тошнота (классическая)</label>
@@ -77,7 +102,7 @@
           </div>
           <div class="form-row">
             <label>Таймаут запроса (сек)</label>
-            <input type="number" id="timeoutSec" min="10" max="300" placeholder="120">
+            <input type="number" id="timeoutSec" min="10" max="300" placeholder="60">
           </div>
         </div>
       </div>
@@ -97,14 +122,12 @@
     </div>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
   <script>
     let allModels = [];
 
     async function init() {
-      // API base
       document.getElementById('apiBaseInput').value = API_BASE;
-
       try {
         const [settings, models] = await Promise.all([
           api.getSettings(),
@@ -123,27 +146,28 @@
     }
 
     function fillForm(s) {
-      // Модели
       const strongVal = s.strong_model?.value || 'openai/gpt-4o';
       const cheapVal  = s.cheap_model?.value  || 'openai/gpt-4o-mini';
       fillSelect(document.getElementById('strongModel'), allModels, strongVal);
       fillSelect(document.getElementById('cheapModel'),  allModels, cheapVal);
 
-      // Пороги
-      document.getElementById('uniqThresh').value  = s.uniqueness_threshold?.value ?? 0.95;
-      document.getElementById('minLen').value      = s.min_text_length?.value      ?? 1300;
+      document.getElementById('uniqThresh').value  = s.uniqueness_threshold?.value ?? 0.90;
+      document.getElementById('minLen').value      = s.min_text_length?.value      ?? 800;
       document.getElementById('maxNausea').value   = s.max_nausea?.value           ?? 7;
       document.getElementById('maxAttempts').value = s.gen_max_attempts?.value     ?? 2;
-      document.getElementById('timeoutSec').value  = s.gen_timeout_sec?.value      ?? 120;
+      document.getElementById('timeoutSec').value  = s.gen_timeout_sec?.value      ?? 60;
 
-      // Стоп-слова
       const words = s.stop_words?.value || [];
       document.getElementById('stopWords').value = Array.isArray(words) ? words.join('\n') : words;
+
+      // Custom API
+      document.getElementById('customBaseUrl').value  = s.custom_base_url?.value  || '';
+      document.getElementById('customApiKey').value   = s.custom_api_key?.value   || '';
+      document.getElementById('customModelName').value = s.custom_model_name?.value || '';
     }
 
     function fillSelect(sel, models, selected) {
       if (!models.length) {
-        // Fallback список
         models = [
           { id: 'openai/gpt-4o', name: 'OpenAI: GPT-4o' },
           { id: 'openai/gpt-4o-mini', name: 'OpenAI: GPT-4o-mini' },
@@ -151,12 +175,12 @@
           { id: 'anthropic/claude-3.5-haiku', name: 'Anthropic: Claude 3.5 Haiku' },
           { id: 'google/gemini-pro-1.5', name: 'Google: Gemini 1.5 Pro' },
           { id: 'openrouter/auto', name: 'OpenRouter: Auto' },
+          { id: 'custom/deepseek-chat', name: 'Custom API' },
         ];
       }
       sel.innerHTML = models.map(m =>
         `<option value="${escHtml(m.id)}"${m.id === selected ? ' selected' : ''}>${escHtml(m.name || m.id)}</option>`
       ).join('');
-      // Если выбранное значение не в списке — добавить как кастомное
       if (selected && !models.find(m => m.id === selected)) {
         const opt = document.createElement('option');
         opt.value = selected; opt.textContent = selected + ' (кастом)'; opt.selected = true;
@@ -167,15 +191,18 @@
     async function saveSettings() {
       const stopWords = document.getElementById('stopWords').value
         .split('\n').map(s => s.trim()).filter(Boolean);
+      const strongSel = document.getElementById('strongModel').value;
+      const cheapSel  = document.getElementById('cheapModel').value;
+      const getProvider = (slug) => slug.startsWith('custom/') ? 'custom' : 'openrouter';
 
       const payload = {
-        strong_model:          { value: document.getElementById('strongModel').value, provider: 'openrouter' },
-        cheap_model:           { value: document.getElementById('cheapModel').value,  provider: 'openrouter' },
-        uniqueness_threshold:  { value: parseFloat(document.getElementById('uniqThresh').value)   || 0.95 },
-        min_text_length:       { value: parseInt(document.getElementById('minLen').value)          || 1300 },
+        strong_model:          { value: strongSel,   provider: getProvider(strongSel) },
+        cheap_model:           { value: cheapSel,    provider: getProvider(cheapSel)  },
+        uniqueness_threshold:  { value: parseFloat(document.getElementById('uniqThresh').value)   || 0.90 },
+        min_text_length:       { value: parseInt(document.getElementById('minLen').value)          || 800 },
         max_nausea:            { value: parseFloat(document.getElementById('maxNausea').value)    || 7 },
         gen_max_attempts:      { value: parseInt(document.getElementById('maxAttempts').value)     || 2 },
-        gen_timeout_sec:       { value: parseInt(document.getElementById('timeoutSec').value)      || 120 },
+        gen_timeout_sec:       { value: parseInt(document.getElementById('timeoutSec').value)      || 60 },
         stop_words:            { value: stopWords },
       };
 
@@ -191,6 +218,58 @@
       }
     }
 
+    async function saveCustomApi() {
+      const baseUrl = document.getElementById('customBaseUrl').value.trim();
+      const apiKey  = document.getElementById('customApiKey').value.trim();
+      const model   = document.getElementById('customModelName').value.trim();
+      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
+
+      const payload = {
+        custom_base_url:  { value: baseUrl },
+        custom_api_key:   { value: apiKey },
+        custom_model_name: { value: model },
+      };
+      try {
+        await api.updateSettings(payload);
+        showCustomStatus('✅ Сохранено. Модели обновятся при следующем открытии настроек.', 'ok');
+        setTimeout(() => init(), 1000);
+      } catch (e) {
+        showCustomStatus('❌ ' + e.message, 'bad');
+      }
+    }
+
+    async function testCustomApi() {
+      const baseUrl = document.getElementById('customBaseUrl').value.trim();
+      const apiKey  = document.getElementById('customApiKey').value.trim();
+      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
+      const btn = event.target;
+      btn.disabled = true;
+      showCustomStatus('⏳ Тестирование соединения…', '');
+      try {
+        const url = baseUrl.replace(/\/$/, '') + '/models';
+        const resp = await fetch(url, {
+          headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {},
+          signal: AbortSignal.timeout(10000),
+        });
+        if (resp.ok) {
+          showCustomStatus(`✅ Соединение успешно! HTTP ${resp.status}`, 'ok');
+        } else {
+          const body = await resp.text();
+          showCustomStatus(`⚠️ HTTP ${resp.status}: ${body.slice(0, 200)}`, 'bad');
+        }
+      } catch (e) {
+        showCustomStatus(`❌ ${e.message}. Проверьте URL и доступность сервера.`, 'bad');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function showCustomStatus(text, type) {
+      const el = document.getElementById('customApiStatus');
+      el.textContent = text;
+      el.style.color = type === 'ok' ? 'var(--ok)' : type === 'bad' ? 'var(--bad)' : 'var(--muted)';
+    }
+
     function showSaveMsg(text, color) {
       const el = document.getElementById('saveMsg');
       el.textContent = text;
@@ -203,9 +282,8 @@
       const val = document.getElementById('apiBaseInput').value.trim();
       if (!val) return;
       saveApiBase(val);
-      const el = document.getElementById('apiBaseSaved');
-      el.style.display = 'block';
-      setTimeout(() => el.style.display = 'none', 3000);
+      document.getElementById('apiBaseSaved').style.display = 'block';
+      setTimeout(() => document.getElementById('apiBaseSaved').style.display = 'none', 3000);
       setTimeout(() => init(), 500);
     }
 
