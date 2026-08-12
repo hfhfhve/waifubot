@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
   <link rel="stylesheet" href="style.css?v=3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
@@ -75,7 +78,7 @@
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
           <button class="btn btn-sm btn-primary" onclick="saveCustomApi()">💾 Сохранить API</button>
-          <button class="btn btn-sm btn-ghost" onclick="testCustomApi()">🔍 Тест соединения</button>
+          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">🔍 Тест соединения</button>
         </div>
         <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
       </div>
@@ -160,7 +163,6 @@
       const words = s.stop_words?.value || [];
       document.getElementById('stopWords').value = Array.isArray(words) ? words.join('\n') : words;
 
-      // Custom API
       document.getElementById('customBaseUrl').value  = s.custom_base_url?.value  || '';
       document.getElementById('customApiKey').value   = s.custom_api_key?.value   || '';
       document.getElementById('customModelName').value = s.custom_model_name?.value || '';
@@ -231,34 +233,41 @@
       };
       try {
         await api.updateSettings(payload);
-        showCustomStatus('✅ Сохранено. Модели обновятся при следующем открытии настроек.', 'ok');
+        showCustomStatus('✅ Сохранено. Модели обновятся при перезагрузке.', 'ok');
         setTimeout(() => init(), 1000);
       } catch (e) {
         showCustomStatus('❌ ' + e.message, 'bad');
       }
     }
 
-    async function testCustomApi() {
+    async function testCustomApi(btn) {
       const baseUrl = document.getElementById('customBaseUrl').value.trim();
       const apiKey  = document.getElementById('customApiKey').value.trim();
       if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
-      const btn = event.target;
       btn.disabled = true;
       showCustomStatus('⏳ Тестирование соединения…', '');
       try {
         const url = baseUrl.replace(/\/$/, '') + '/models';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         const resp = await fetch(url, {
+          method: 'GET',
           headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {},
-          signal: AbortSignal.timeout(10000),
+          signal: controller.signal,
         });
+        clearTimeout(timeoutId);
+        const body = await resp.text();
         if (resp.ok) {
           showCustomStatus(`✅ Соединение успешно! HTTP ${resp.status}`, 'ok');
         } else {
-          const body = await resp.text();
           showCustomStatus(`⚠️ HTTP ${resp.status}: ${body.slice(0, 200)}`, 'bad');
         }
       } catch (e) {
-        showCustomStatus(`❌ ${e.message}. Проверьте URL и доступность сервера.`, 'bad');
+        if (e.name === 'AbortError') {
+          showCustomStatus('❌ Таймаут (10 сек). Сервер недоступен.', 'bad');
+        } else {
+          showCustomStatus(`❌ ${e.message}. Проверьте URL (CORS, SSL, firewall).`, 'bad');
+        }
       } finally {
         btn.disabled = false;
       }
