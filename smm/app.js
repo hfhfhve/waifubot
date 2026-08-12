@@ -23,22 +23,31 @@ function saveApiBase(url) {
 
 async function req(path, opts = {}) {
   const url = API_BASE.replace(/\/$/, '') + path;
-  const response = await fetch(url, {
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(opts.headers || {}),
-    },
-    ...opts,
-  });
-  if (response.status === 204) return null;
-  const text = await response.text();
-  if (!response.ok) {
-    let msg = text;
-    try { msg = JSON.parse(text)?.detail || text; } catch {}
-    throw new Error(`HTTP ${response.status}: ${msg}`);
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(opts.headers || {}),
+      },
+      ...opts,
+    });
+    if (response.status === 204) return null;
+    const text = await response.text();
+    if (!response.ok) {
+      let msg = text;
+      try { msg = JSON.parse(text)?.detail || text; } catch {}
+      throw new Error(`HTTP ${response.status}: ${msg}`);
+    }
+    try { return JSON.parse(text); } catch { return text; }
+  } catch (e) {
+    // TypeError = network error (CORS, DNS, SSL, fetch failed)
+    if (e instanceof TypeError) {
+      throw new Error(`Не удалось соединиться с бэкендом (${url}). Проверьте URL и доступность сервера.`);
+    }
+    throw e;
   }
-  try { return JSON.parse(text); } catch { return text; }
 }
 
 const api = {
