@@ -1,11 +1,8 @@
 /* SEO-Фабрика — API-клиент (vanilla JS) */
 
 const API_BASE = (() => {
-  // Пытаемся определить базовый URL бэкенда
-  // Если фронт открыт с того же сервера, что и бэкенд — используем относительный путь
   const stored = localStorage.getItem('seo_api_base');
   if (stored) return stored;
-  // Fallback: тот же хост, порт 8000 (стандарт FastAPI)
   return `http://${location.hostname || 'localhost'}:8000/api`;
 })();
 
@@ -55,7 +52,7 @@ const api = {
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
   regeneratePage:      (pageId)        => req(`/pages/${pageId}/regenerate`, { method: 'POST' }),
-  exportProject:       (id)            => `${API_BASE.replace(/\/$/, '-')}/projects/${id}/export`,
+  exportProject:       (id)            => `${API_BASE.replace(/\/$/, '')}/projects/${id}/export`,
   // Чат
   chatHistory:         (id)            => req(`/chat/${id}/history`),
   chatSend:            (id, msg)       => req(`/chat/${id}`, { method: 'POST', body: JSON.stringify({ message: msg }) }),
