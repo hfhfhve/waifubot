@@ -1,13 +1,24 @@
 /* SEO-Фабрика — API-клиент (vanilla JS) */
 
 const API_BASE = (() => {
+  // 1. Пользователь указал вручную в настройках
   const stored = localStorage.getItem('seo_api_base');
-  if (stored) return stored;
-  return `http://${location.hostname || 'localhost'}:8000/api`;
+  if (stored) return stored.replace(/\/$/, '');
+  // 2. Фронт открыт как локальный файл или с того же сервера
+  const h = location.hostname;
+  if (!h || h === 'localhost' || h === '127.0.0.1') {
+    return 'http://localhost:8000/api';
+  }
+  // 3. Фронт на проде — API через поддомен api. или тот же домен с портом 8001
+  if (h === 'waifubot.website' || h.endsWith('.waifubot.website')) {
+    return 'https://api.waifubot.website/api';
+  }
+  // 4. Общий fallback: same-origin /api
+  return `${location.protocol}//${h}/api`;
 })();
 
 function saveApiBase(url) {
-  localStorage.setItem('seo_api_base', url);
+  localStorage.setItem('seo_api_base', url.replace(/\/$/, ''));
 }
 
 async function req(path, opts = {}) {
