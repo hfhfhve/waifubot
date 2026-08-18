@@ -38,13 +38,21 @@ async function req(path, opts = {}) {
     if (!response.ok) {
       let msg = text;
       try { msg = JSON.parse(text)?.detail || text; } catch {}
+      // Диагностика: эндпоинта нет на сервере (устаревший деплой бэкенда)
+      if (response.status === 404 || response.status === 405) {
+        msg = `${msg || 'Not Found'} — эндпоинт недоступен: ${url}. ` +
+              `Вероятно, на сервере запущена старая версия бэкенда — обновите деплой.`;
+      }
       throw new Error(`HTTP ${response.status}: ${msg}`);
     }
     try { return JSON.parse(text); } catch { return text; }
   } catch (e) {
     // TypeError = network error (CORS, DNS, SSL, fetch failed)
     if (e instanceof TypeError) {
-      throw new Error(`Не удалось соединиться с бэкендом (${url}). Проверьте URL и доступность сервера.`);
+      throw new Error(
+        `Не удалось соединиться с бэкендом (${url}). ` +
+        `Проверьте: сервер запущен, URL в настройках верный, SSL-сертификат валиден.`
+      );
     }
     throw e;
   }
@@ -82,6 +90,11 @@ const api = {
   updateSettings:      (settings)      => req('/settings', { method: 'PUT', body: JSON.stringify({ settings }) }),
   getProviders:        ()              => req('/settings/providers'),
   getModels:           ()              => req('/settings/models'),
+  // Тест кастомного OpenAI-совместимого API через бэкенд (обход CORS браузера)
+  testCustomApi:       (baseUrl, key)  => req('/settings/test-custom-api', {
+                                            method: 'POST',
+                                            body: JSON.stringify({ base_url: baseUrl, api_key: key }),
+                                          }),
 };
 
 // ── Utils ──────────────────────────────────────────────

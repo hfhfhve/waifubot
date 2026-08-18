@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
 </head>
 <body>
@@ -23,7 +23,7 @@
 
   <main class="main" style="max-width:860px;">
     <div class="page-title">Глобальные настройки</div>
-    <div class="page-sub">API-ключи, модели, пороги качества и стоп-слова</div>
+    <div class="page-sub">Подключение к бэкенду, модели ИИ и кастомный API. Пороги качества и стоп-слова настраиваются внутри проекта.</div>
 
     <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
       <span class="spinner"></span> Загрузка настроек…
@@ -76,46 +76,11 @@
             <input type="text" id="customModelName" placeholder="deepseek-chat">
           </div>
         </div>
-        <div style="display:flex;gap:10px;align-items:center;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn btn-sm btn-primary" onclick="saveCustomApi()">💾 Сохранить API</button>
           <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">🔍 Тест соединения</button>
         </div>
         <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
-      </div>
-
-      <!-- Quality -->
-      <div class="fieldset">
-        <legend>Пороги качества</legend>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Порог уникальности (0–1)</label>
-            <input type="number" id="uniqThresh" min="0" max="1" step="0.01" placeholder="0.90">
-          </div>
-          <div class="form-row">
-            <label>Мин. длина текста (символов)</label>
-            <input type="number" id="minLen" min="100" placeholder="800">
-          </div>
-          <div class="form-row">
-            <label>Макс. тошнота (классическая)</label>
-            <input type="number" id="maxNausea" min="0" step="0.1" placeholder="7">
-          </div>
-          <div class="form-row">
-            <label>Макс. попыток генерации</label>
-            <input type="number" id="maxAttempts" min="0" max="5" placeholder="2">
-          </div>
-          <div class="form-row">
-            <label>Таймаут запроса (сек)</label>
-            <input type="number" id="timeoutSec" min="10" max="300" placeholder="60">
-          </div>
-        </div>
-      </div>
-
-      <!-- Stop words -->
-      <div class="fieldset">
-        <legend>Стоп-слова и фразы (по одной на строку)</legend>
-        <div class="form-row">
-          <textarea id="stopWords" class="code" style="min-height:160px;" placeholder="уникальный&#10;инновационный&#10;лучший выбор"></textarea>
-        </div>
       </div>
 
       <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -125,7 +90,7 @@
     </div>
   </main>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
   <script>
     let allModels = [];
 
@@ -143,8 +108,8 @@
         document.getElementById('loadingModels').style.display = 'none';
       } catch (e) {
         document.getElementById('loadMsg').innerHTML =
-          `<div class="alert alert-bad">❌ ${e.message}</div>
-           <p style="font-size:13px;color:var(--muted);">Убедитесь, что бэкенд запущен на <code>${API_BASE}</code>, или укажите другой URL выше.</p>`;
+          `<div class="alert alert-bad">❌ ${escHtml(e.message)}</div>
+           <p style="font-size:13px;color:var(--muted);">Убедитесь, что бэкенд запущен на <code>${escHtml(API_BASE)}</code>, или укажите другой URL выше.</p>`;
       }
     }
 
@@ -154,17 +119,8 @@
       fillSelect(document.getElementById('strongModel'), allModels, strongVal);
       fillSelect(document.getElementById('cheapModel'),  allModels, cheapVal);
 
-      document.getElementById('uniqThresh').value  = s.uniqueness_threshold?.value ?? 0.90;
-      document.getElementById('minLen').value      = s.min_text_length?.value      ?? 800;
-      document.getElementById('maxNausea').value   = s.max_nausea?.value           ?? 7;
-      document.getElementById('maxAttempts').value = s.gen_max_attempts?.value     ?? 2;
-      document.getElementById('timeoutSec').value  = s.gen_timeout_sec?.value      ?? 60;
-
-      const words = s.stop_words?.value || [];
-      document.getElementById('stopWords').value = Array.isArray(words) ? words.join('\n') : words;
-
-      document.getElementById('customBaseUrl').value  = s.custom_base_url?.value  || '';
-      document.getElementById('customApiKey').value   = s.custom_api_key?.value   || '';
+      document.getElementById('customBaseUrl').value   = s.custom_base_url?.value   || '';
+      document.getElementById('customApiKey').value    = s.custom_api_key?.value    || '';
       document.getElementById('customModelName').value = s.custom_model_name?.value || '';
     }
 
@@ -191,21 +147,13 @@
     }
 
     async function saveSettings() {
-      const stopWords = document.getElementById('stopWords').value
-        .split('\n').map(s => s.trim()).filter(Boolean);
       const strongSel = document.getElementById('strongModel').value;
       const cheapSel  = document.getElementById('cheapModel').value;
       const getProvider = (slug) => slug.startsWith('custom/') ? 'custom' : 'openrouter';
 
       const payload = {
-        strong_model:          { value: strongSel,   provider: getProvider(strongSel) },
-        cheap_model:           { value: cheapSel,    provider: getProvider(cheapSel)  },
-        uniqueness_threshold:  { value: parseFloat(document.getElementById('uniqThresh').value)   || 0.90 },
-        min_text_length:       { value: parseInt(document.getElementById('minLen').value)          || 800 },
-        max_nausea:            { value: parseFloat(document.getElementById('maxNausea').value)    || 7 },
-        gen_max_attempts:      { value: parseInt(document.getElementById('maxAttempts').value)     || 2 },
-        gen_timeout_sec:       { value: parseInt(document.getElementById('timeoutSec').value)      || 60 },
-        stop_words:            { value: stopWords },
+        strong_model: { value: strongSel, provider: getProvider(strongSel) },
+        cheap_model:  { value: cheapSel,  provider: getProvider(cheapSel)  },
       };
 
       const btn = document.getElementById('saveBtn');
@@ -227,8 +175,8 @@
       if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
 
       const payload = {
-        custom_base_url:  { value: baseUrl },
-        custom_api_key:   { value: apiKey },
+        custom_base_url:   { value: baseUrl },
+        custom_api_key:    { value: apiKey },
         custom_model_name: { value: model },
       };
       try {
@@ -240,34 +188,22 @@
       }
     }
 
+    // Тест идёт через бэкенд-прокси: браузерный CORS больше не мешает
     async function testCustomApi(btn) {
       const baseUrl = document.getElementById('customBaseUrl').value.trim();
       const apiKey  = document.getElementById('customApiKey').value.trim();
       if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
       btn.disabled = true;
-      showCustomStatus('⏳ Тестирование соединения…', '');
+      showCustomStatus('⏳ Тестирование соединения через бэкенд…', '');
       try {
-        const url = baseUrl.replace(/\/$/, '') + '/models';
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        const resp = await fetch(url, {
-          method: 'GET',
-          headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {},
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-        const body = await resp.text();
-        if (resp.ok) {
-          showCustomStatus(`✅ Соединение успешно! HTTP ${resp.status}`, 'ok');
+        const res = await api.testCustomApi(baseUrl, apiKey);
+        if (res && res.ok) {
+          showCustomStatus(res.message || '✅ Соединение успешно!', 'ok');
         } else {
-          showCustomStatus(`⚠️ HTTP ${resp.status}: ${body.slice(0, 200)}`, 'bad');
+          showCustomStatus('⚠️ ' + (res?.message || 'Неизвестный ответ сервера'), 'bad');
         }
       } catch (e) {
-        if (e.name === 'AbortError') {
-          showCustomStatus('❌ Таймаут (10 сек). Сервер недоступен.', 'bad');
-        } else {
-          showCustomStatus(`❌ ${e.message}. Проверьте URL (CORS, SSL, firewall).`, 'bad');
-        }
+        showCustomStatus('❌ ' + e.message, 'bad');
       } finally {
         btn.disabled = false;
       }
