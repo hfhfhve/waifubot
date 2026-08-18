@@ -1,0 +1,71 @@
+name: bundle-cmm
+
+on:
+  push:
+    paths:
+      - 'cmm/**'            # Триггерим при изменениях в папке cmm
+      - '!cmm/BUNDLE.txt'   # Игнорируем сам файл бандла
+  workflow_dispatch:        # Ручной запуск из интерфейса GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect files
+        run: |
+          OUT=cmm/BUNDLE.txt
+          rm -f "$OUT"
+          {
+            echo "# CMM Frontend — снимок репозитория"
+            echo "# commit: ${GITHUB_SHA}"
+            echo "# built:  $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo
+            echo "## Состав"
+          } > "$OUT"
+
+          # Ищем все файлы в папке cmm, исключая бинарники, архивы и служебные папки
+          FILES=$(find cmm -type f \
+            ! -path '*/.git/*' \
+            ! -path '*/.venv/*' \
+            ! -path '*/__pycache__/*' \
+            ! -name 'BUNDLE.txt' \
+            ! -name '.env' \
+            ! -name '*.pyc' \
+            ! -name '*.png' \
+            ! -name '*.jpg' \
+            ! -name '*.jpeg' \
+            ! -name '*.ico' \
+            ! -name '*.zip' \
+            | sort)
+
+          # Записываем оглавление
+          for f in $FILES; do
+            printf '%s  (%s строк)\n' "$f" "$(wc -l < "$f")" >> "$OUT"
+          done
+
+          # Записываем содержимое каждого файла
+          for f in $FILES; do
+            {
+              echo
+              echo "════════════════════════════════════════════════════════"
+              echo "  $f"
+              echo "════════════════════════════════════════════════════════"
+              echo
+              cat "$f"
+            } >> "$OUT"
+          done
+
+          echo "Готово: $(wc -l < "$OUT") строк в бандле"
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add cmm/BUNDLE.txt
+          git diff --staged --quiet || git commit -m "bundle: обновление снимка cmm [skip ci]"
+          git push
