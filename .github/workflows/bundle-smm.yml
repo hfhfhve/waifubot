@@ -1,11 +1,11 @@
-name: bundle-cmm
+name: bundle-smm
 
 on:
   push:
     paths:
-      - 'cmm/**'            # Триггерим при изменениях в папке cmm
-      - '!cmm/BUNDLE.txt'   # Игнорируем сам файл бандла
-  workflow_dispatch:        # Ручной запуск из интерфейса GitHub
+      - 'smm/**'            # Триггерится только при изменениях внутри smm
+      - '!smm/BUNDLE.txt'   # Игнорирует сам бандл
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,30 +16,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Collect files
+      - name: Collect smm frontend files
         run: |
-          OUT=cmm/BUNDLE.txt
+          TARGET_DIR="smm"
+          OUT="${TARGET_DIR}/BUNDLE.txt"
+
           rm -f "$OUT"
           {
-            echo "# CMM Frontend — снимок репозитория"
+            echo "# SMM Frontend — снимок репозитория"
             echo "# commit: ${GITHUB_SHA}"
             echo "# built:  $(date -u '+%Y-%m-%d %H:%M UTC')"
             echo
-            echo "## Состав"
+            echo "## Состав файлов"
           } > "$OUT"
 
-          # Ищем все файлы в папке cmm, исключая бинарники, архивы и служебные папки
-          FILES=$(find cmm -type f \
+          # Ищем файлы только в папке smm, исключая скомпилированный _next и медиа
+          FILES=$(find "$TARGET_DIR" -type f \
             ! -path '*/.git/*' \
-            ! -path '*/.venv/*' \
-            ! -path '*/__pycache__/*' \
+            ! -path '*/_next/*' \
             ! -name 'BUNDLE.txt' \
-            ! -name '.env' \
-            ! -name '*.pyc' \
+            ! -name '.DS_Store' \
+            ! -name '*.map' \
             ! -name '*.png' \
             ! -name '*.jpg' \
             ! -name '*.jpeg' \
+            ! -name '*.webp' \
             ! -name '*.ico' \
+            ! -name '*.svg' \
             ! -name '*.zip' \
             | sort)
 
@@ -48,7 +51,7 @@ jobs:
             printf '%s  (%s строк)\n' "$f" "$(wc -l < "$f")" >> "$OUT"
           done
 
-          # Записываем содержимое каждого файла
+          # Записываем содержимое файлов
           for f in $FILES; do
             {
               echo
@@ -62,10 +65,10 @@ jobs:
 
           echo "Готово: $(wc -l < "$OUT") строк в бандле"
 
-      - name: Commit
+      - name: Commit and Push
         run: |
           git config user.name  "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          git add cmm/BUNDLE.txt
-          git diff --staged --quiet || git commit -m "bundle: обновление снимка cmm [skip ci]"
+          git add smm/BUNDLE.txt
+          git diff --staged --quiet || git commit -m "bundle: обновление снимка smm [skip ci]"
           git push
