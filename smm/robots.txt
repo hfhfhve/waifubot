@@ -1,5 +1,0 @@
-# SEO-Фабрика — статический фронтенд
-# robots.txt
-User-agent: *
-Allow: /
-Sitemap: 
