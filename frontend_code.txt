@@ -7711,7 +7711,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -7728,7 +7728,7 @@ function modelTag(obj) {
 
   <main class="main" style="max-width:860px;">
     <div class="page-title">Глобальные настройки</div>
-    <div class="page-sub">Подключение к бэкенду, модели ИИ и кастомный API. Пороги качества и стоп-слова настраиваются внутри проекта.</div>
+    <div class="page-sub">Подключение к бэкенду, модели ИИ, промпты и кастомный API. Пороги качества и стоп-слова — внутри проекта.</div>
 
     <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
       <span class="spinner"></span> Загрузка настроек…
@@ -7761,6 +7761,19 @@ function modelTag(obj) {
           </div>
         </div>
         <div id="loadingModels" style="color:var(--muted);font-size:13px;">Загрузка списка моделей…</div>
+      </div>
+
+      <div class="fieldset">
+        <legend>Промпты моделей</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Хранятся в таблице <code>settings</code>. Меняются без деплоя кода.</p>
+        <div class="form-row">
+          <label>Сильная модель — системный промпт каркаса</label>
+          <textarea id="strongPrompt" class="code" style="min-height:280px;" placeholder="Промпт для чат-дизайнера"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Дешёвая модель — системный промпт генерации</label>
+          <textarea id="cheapPrompt" class="code" style="min-height:180px;" placeholder="Промпт для заполнения JSON"></textarea>
+        </div>
       </div>
 
       <!-- Custom OpenAI-compatible API -->
@@ -7802,7 +7815,7 @@ function modelTag(obj) {
     </div>
   </main>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
   <script>
     let allModels = [];
 
@@ -7834,6 +7847,8 @@ function modelTag(obj) {
       document.getElementById('customBaseUrl').value   = s.custom_base_url?.value   || '';
       document.getElementById('customApiKey').value    = s.custom_api_key?.value    || '';
       document.getElementById('customModelName').value = s.custom_model_name?.value || '';
+      document.getElementById('strongPrompt').value    = s.strong_system_prompt?.value || '';
+      document.getElementById('cheapPrompt').value     = s.cheap_system_prompt?.value  || '';
     }
 
     function fillSelect(sel, models, selected) {
@@ -7866,6 +7881,8 @@ function modelTag(obj) {
       const payload = {
         strong_model: { value: strongSel, provider: getProvider(strongSel) },
         cheap_model:  { value: cheapSel,  provider: getProvider(cheapSel)  },
+        strong_system_prompt: { value: document.getElementById('strongPrompt').value },
+        cheap_system_prompt:  { value: document.getElementById('cheapPrompt').value },
       };
 
       const btn = document.getElementById('saveBtn');
@@ -7963,6 +7980,7 @@ function modelTag(obj) {
   </script>
 </body>
 </html>
+
 
 
 ==================================================
@@ -8208,6 +8226,17 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   cursor: pointer; text-underline-offset: 3px;
 }
 .btn-link:hover { text-decoration: underline; }
+.btn-link.danger { color: var(--alarm); }
+.pages-toolbar {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--alarm-tint); color: var(--alarm);
+  border: 1px solid #f0c8c8; border-radius: var(--radius);
+  padding: 6px 10px; font-size: 13px;
+}
+.page-actions {
+  white-space: nowrap;
+  display: flex; gap: 8px; align-items: center; justify-content: flex-end;
+}
 
 /* ───────────────────────────────────── формы */
 .form-row { margin-bottom: 16px; }
