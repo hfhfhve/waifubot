@@ -6631,3 +6631,2036 @@ const characters = [
     </script>
 </body>
 </html>
+
+
+==================================================
+Файл: ./smm/app.js
+==================================================
+
+/* SEO-Фабрика — API-клиент (vanilla JS) */
+
+const API_BASE = (() => {
+  // 1. Пользователь указал вручную в настройках — берём оттуда
+  const stored = localStorage.getItem('seo_api_base');
+  if (stored) return stored.replace(/\/$/, '');
+  // 2. Локальная разработка (файл:// или localhost)
+  const h = location.hostname;
+  if (!h || h === 'localhost' || h === '127.0.0.1') {
+    return 'http://localhost:8000/api';
+  }
+  // 3. Продакшн на waifubot.website
+  if (h.endsWith('waifubot.website')) {
+    return 'https://seo.waifubot.website/api';
+  }
+  // 4. Общий fallback: same-origin /api
+  return `${location.protocol}//${h}/api`;
+})();
+
+function saveApiBase(url) {
+  localStorage.setItem('seo_api_base', url.replace(/\/$/, ''));
+}
+
+async function req(path, opts = {}) {
+  const url = API_BASE.replace(/\/$/, '') + path;
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(opts.headers || {}),
+      },
+      ...opts,
+    });
+    if (response.status === 204) return null;
+    const text = await response.text();
+    if (!response.ok) {
+      let msg = text;
+      let detail = null;
+      try { detail = JSON.parse(text)?.detail ?? null; } catch {}
+      if (detail && typeof detail === 'object') {
+        // Бэкенд отдаёт структуру {error, message, problems} — например,
+        // когда каркас обрезан. Не превращаем его в [object Object].
+        msg = detail.message || JSON.stringify(detail);
+      } else if (detail) {
+        msg = detail;
+      }
+      // Диагностика: эндпоинта нет на сервере (устаревший деплой бэкенда)
+      if (response.status === 404 || response.status === 405) {
+        msg = `${msg || 'Not Found'} — эндпоинт недоступен: ${url}. ` +
+              `Вероятно, на сервере запущена старая версия бэкенда — обновите деплой.`;
+      }
+      throw new Error(`HTTP ${response.status}: ${msg}`);
+    }
+    try { return JSON.parse(text); } catch { return text; }
+  } catch (e) {
+    // TypeError = network error (CORS, DNS, SSL, fetch failed)
+    if (e instanceof TypeError) {
+      throw new Error(
+        `Не удалось соединиться с бэкендом (${url}). ` +
+        `Проверьте: сервер запущен, URL в настройках верный, SSL-сертификат валиден.`
+      );
+    }
+    throw e;
+  }
+}
+
+const api = {
+  // Проекты
+  listProjects:        ()              => req('/projects'),
+  getProject:          (id)            => req(`/projects/${id}`),
+  createProject:       (data)          => req('/projects', { method: 'POST', body: JSON.stringify(data) }),
+  updateProject:       (id, data)      => req(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProject:       (id)            => req(`/projects/${id}`, { method: 'DELETE' }),
+  // Шаблоны
+  saveTemplate:        (id, data)      => req(`/projects/${id}/templates`, { method: 'POST', body: JSON.stringify(data) }),
+  approveTemplate:     (id, tid)       => req(`/projects/${id}/templates/${tid}/approve`, { method: 'POST' }),
+  previewTemplate:     (id, tid)       => req(`/projects/${id}/templates/${tid}/preview`, { method: 'POST' }),
+  // Ключи
+  listKeys:            (id)            => req(`/projects/${id}/keys`),
+  addKeys:             (id, data)      => req(`/projects/${id}/keys`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteKey:           (id, keyId)     => req(`/projects/${id}/keys/${keyId}`, { method: 'DELETE' }),
+  // Генерация
+  startGeneration:     (id, parallel)  => req(`/projects/${id}/generate?parallel=${parallel || 1}`, { method: 'POST' }),
+  stopGeneration:      (id)            => req(`/projects/${id}/stop`, { method: 'POST' }),
+  recomputeUniqueness: (id)            => req(`/projects/${id}/recompute-uniqueness`, { method: 'POST' }),
+  listTasks:           (id)            => req(`/projects/${id}/tasks`),
+  // Страницы
+  listPages:           (id)            => req(`/projects/${id}/pages`),
+  getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
+  regeneratePage:      (pageId)        => req(`/pages/${pageId}/regenerate`, { method: 'POST' }),
+  exportProject:       (id)            => `${API_BASE.replace(/\/$/, '')}/projects/${id}/export`,
+  // Чат
+  chatHistory:         (id)            => req(`/chat/${id}/history`),
+  chatSend:            (id, msg)       => req(`/chat/${id}`, { method: 'POST', body: JSON.stringify({ message: msg }) }),
+  chatExtractFrame:    (id)            => req(`/chat/${id}/frame`, { method: 'POST' }),
+  chatMessage:         (id, mid)       => req(`/chat/${id}/message/${mid}`),
+  // Настройки
+  getSettings:         ()              => req('/settings'),
+  updateSettings:      (settings)      => req('/settings', { method: 'PUT', body: JSON.stringify({ settings }) }),
+  getProviders:        ()              => req('/settings/providers'),
+  getModels:           ()              => req('/settings/models'),
+  // Тест кастомного OpenAI-совместимого API через бэкенд (обход CORS браузера)
+  testCustomApi:       (baseUrl, key)  => req('/settings/test-custom-api', {
+                                            method: 'POST',
+                                            body: JSON.stringify({ base_url: baseUrl, api_key: key }),
+                                          }),
+};
+
+// ── Utils ──────────────────────────────────────────────
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+
+function statusLabel(status) {
+  const map = {
+    draft: 'Черновик', active: 'Активен', generating: 'Генерируется…',
+    done: 'Готов', error: 'Ошибка',
+    pending: 'В очереди', queued: 'В очереди', running: 'Выполняется',
+    success: 'Успех', failed: 'Ошибка', cancelled: 'Отменён',
+    ready: 'Готов', approved: 'Утверждён',
+  };
+  return map[status] || status;
+}
+
+function statusBadgeClass(status) {
+  const map = {
+    draft: 'draft', active: 'active', generating: 'generating',
+    done: 'done', error: 'error',
+    pending: 'pending', queued: 'queued', running: 'running',
+    success: 'success', failed: 'failed', cancelled: 'cancelled',
+    ready: 'ready', approved: 'approved',
+  };
+  return map[status] || 'pending';
+}
+
+function badge(status) {
+  return `<span class="badge ${statusBadgeClass(status)}">${statusLabel(status)}</span>`;
+}
+
+// ── Цветовые темы ───────────────────────────────────
+const THEMES = {
+  workshop: { name: 'Наборный цех', note: 'Светлая типографская: бумага, тушь, синяя печать',
+              swatches: ['#ecede7', '#ffffff', '#2536c8', '#15171c', '#c2410c'] },
+  sapphire: { name: 'Сапфир и персик', note: 'Сапфир, оружейный металл и платина, согретые персиком и коричневым',
+              swatches: ['#191e25', '#2a333d', '#5b8def', '#eef1f6', '#f0915a'] },
+};
+
+function getTheme() {
+  try { return localStorage.getItem('seo_theme') || 'workshop'; } catch (e) { return 'workshop'; }
+}
+
+function applyTheme(name) {
+  const t = THEMES[name] ? name : 'workshop';
+  if (t === 'workshop') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('seo_theme', t); } catch (e) {}
+  return t;
+}
+
+// ── Паспорт модели ─────────────────────────────────
+// Показывает, какую модель просили и какая реально ответила.
+function modelTag(obj) {
+  if (!obj) return '';
+  const asked = obj.model || '';
+  const got = obj.model_returned || '';
+  if (!asked && !got) return '<span class="model-tag">модель не записана</span>';
+  const prov = obj.provider ? escHtml(obj.provider) + ' / ' : '';
+  if (got && asked && got !== asked) {
+    return `<span class="model-tag warn" title="Провайдер ответил другой моделью!">⚠ просили ${prov}${escHtml(asked)} → ответила ${escHtml(got)}</span>`;
+  }
+  if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
+  return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
+}
+
+
+==================================================
+Файл: ./smm/index.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>SEO-Фабрика — Проекты</title>
+  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
+  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <a class="logo" href="index.html"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#fff"/><rect x="10" y="1" width="7" height="7" fill="#2536c8"/><rect x="1" y="10" width="7" height="7" fill="#2536c8"/><rect x="10" y="10" width="7" height="7" fill="#fff" opacity=".45"/></svg>SEO<span class="full">-Фабрика</span></a>
+      <nav class="nav">
+        <a href="index.html" class="active">Проекты</a>
+        <a href="settings.html">Настройки</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="eyebrow">Цех — все заказы</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
+      <div>
+        <h1 class="page-title">Проекты</h1>
+        <p class="page-sub" style="margin-bottom:0;">Один проект — один каркас страницы и свой список ключевых запросов. Сильная модель рисует каркас, дешёвые наполняют его текстом.</p>
+      </div>
+      <button class="btn btn-primary" id="newProjectBtn">Создать проект</button>
+    </div>
+
+    <div class="stat-strip" id="statStrip" style="display:none;"></div>
+
+    <div id="createModal" style="display:none;">
+      <div class="modal-overlay" onclick="closeCreateModal(event)">
+        <div class="modal" style="max-width:480px;" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Новый проект</h3>
+            <button class="modal-close" onclick="closeCreateModal()">×</button>
+          </div>
+          <div style="padding:22px;">
+            <div class="form-row"><label>Название проекта *</label><input type="text" id="cpName" placeholder="Таро — 78 карт"></div>
+            <div class="form-row"><label>Домен</label><input type="text" id="cpDomain" placeholder="neotaro.ru"><div class="hint">Используется в sitemap.xml и canonical-ссылках при выгрузке.</div></div>
+            <div class="form-row"><label>Описание (необязательно)</label><input type="text" id="cpDesc" placeholder="Страницы карт Таро"></div>
+            <div id="cpError" style="color:var(--bad);font-size:13px;margin-bottom:10px;display:none;"></div>
+            <button class="btn btn-primary" style="width:100%;" id="cpSubmit">Создать проект</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="projectsContainer">
+      <div class="card" style="text-align:center;padding:40px;color:var(--muted);">
+        <span class="spinner"></span> Загрузка проектов…
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js?v=6"></script>
+  <script>
+    const container = document.getElementById('projectsContainer');
+
+    async function loadProjects() {
+      try {
+        const projects = await api.listProjects();
+        renderProjects(projects);
+      } catch (e) {
+        container.innerHTML = `<div class="alert alert-bad">❌ Ошибка загрузки: ${e.message}. Убедитесь, что бэкенд запущен.</div>`;
+      }
+    }
+
+    function renderStats(projects) {
+      const strip = document.getElementById('statStrip');
+      if (!projects.length) { strip.style.display = 'none'; return; }
+      const pages = projects.reduce((a, p) => a + (p.pages_count || 0), 0);
+      const keys  = projects.reduce((a, p) => a + (p.keys_count  || 0), 0);
+      const live  = projects.filter(p => p.status === 'generating').length;
+      strip.style.display = '';
+      strip.innerHTML = `
+        <div class="stat"><div class="stat-k">Проектов</div><div class="stat-v">${projects.length}</div></div>
+        <div class="stat"><div class="stat-k">Страниц готово</div><div class="stat-v">${pages}</div></div>
+        <div class="stat"><div class="stat-k">Ключевых запросов</div><div class="stat-v">${keys}</div></div>
+        <div class="stat"><div class="stat-k">Генерируется сейчас</div><div class="stat-v">${live}${live ? ' <small>в работе</small>' : ''}</div></div>`;
+    }
+
+    function renderProjects(projects) {
+      renderStats(projects);
+      if (!projects.length) {
+        container.innerHTML = `
+          <div class="card empty">
+            <div class="empty-icon">Пустой цех</div>
+            <p>Здесь появятся ваши проекты. Начните с первого — нужно только название и домен.</p>
+            <button class="btn btn-primary" onclick="openCreateModal()">Создать проект</button>
+          </div>`;
+        return;
+      }
+      const cards = projects.map(p => `
+        <div class="proj-wrap">
+        <button class="proj-del" title="Удалить проект" aria-label="Удалить проект"
+                onclick="deleteProject(event, ${p.id}, '${escHtml(p.name).replace(/'/g, "&#39;")}')">×</button>
+        <a class="card proj-card" href="project.html?id=${p.id}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div class="proj-name">${escHtml(p.name)}</div>
+            ${badge(p.status)}
+          </div>
+          ${p.domain ? `<div class="proj-domain">${escHtml(p.domain)}</div>` : ''}
+          ${p.description ? `<div style="color:var(--muted);font-size:13.5px;">${escHtml(p.description)}</div>` : ''}
+          <div class="proj-meta">
+            <span><span class="num">${p.pages_count ?? 0}</span> страниц</span>
+            <span><span class="num">${p.keys_count ?? 0}</span> ключей</span>
+            <span style="margin-left:auto;">${fmtDate(p.created_at)}</span>
+          </div>
+        </a></div>`).join('');
+      container.innerHTML = `<div class="card-grid">${cards}</div>`;
+    }
+
+    // Удаление проекта целиком: клик по крестику не должен открывать карточку.
+    async function deleteProject(ev, id, name) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const ok = confirm('Удалить проект «' + name + '»?\n\nВместе с ним удалятся каркасы, ключи, все сгенерированные страницы и история чата. Отменить нельзя.');
+      if (!ok) return;
+      const btn = ev.currentTarget;
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      try {
+        await api.deleteProject(id);
+        loadProjects();
+      } catch (e) {
+        alert('Не удалось удалить: ' + e.message);
+        if (btn) { btn.disabled = false; btn.textContent = '×'; }
+      }
+    }
+
+    function openCreateModal() {
+      document.getElementById('createModal').style.display = 'block';
+      setTimeout(() => document.getElementById('cpName').focus(), 50);
+    }
+    function closeCreateModal(e) {
+      if (e && e.target !== document.querySelector('#createModal .modal-overlay')) return;
+      document.getElementById('createModal').style.display = 'none';
+      ['cpName','cpDomain','cpDesc'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('cpError').style.display = 'none';
+    }
+    document.getElementById('newProjectBtn').onclick = openCreateModal;
+
+    document.getElementById('cpSubmit').onclick = async () => {
+      const name   = document.getElementById('cpName').value.trim();
+      const domain = document.getElementById('cpDomain').value.trim();
+      const desc   = document.getElementById('cpDesc').value.trim();
+      const errEl  = document.getElementById('cpError');
+      if (!name) { errEl.textContent = 'Название обязательно'; errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
+      const btn = document.getElementById('cpSubmit');
+      btn.disabled = true; btn.textContent = 'Создание…';
+      try {
+        const p = await api.createProject({ name, domain, description: desc });
+        closeCreateModal();
+        window.location.href = `project.html?id=${p.id}`;
+      } catch (e) {
+        errEl.textContent = e.message;
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Создать проект';
+      }
+    };
+    document.getElementById('cpName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('cpSubmit').click(); });
+
+    loadProjects();
+    setInterval(() => { if (!document.hidden) loadProjects(); }, 15000);
+  </script>
+</body>
+</html>
+
+
+==================================================
+Файл: ./smm/project.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>SEO-Фабрика — Проект</title>
+  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
+  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <a class="logo" href="index.html"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#fff"/><rect x="10" y="1" width="7" height="7" fill="#2536c8"/><rect x="1" y="10" width="7" height="7" fill="#2536c8"/><rect x="10" y="10" width="7" height="7" fill="#fff" opacity=".45"/></svg>SEO<span class="full">-Фабрика</span></a>
+      <nav class="nav">
+        <a href="index.html">Проекты</a>
+        <a href="settings.html">Настройки</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="main">
+    <!-- Project header -->
+    <div id="projHeader" style="display:none;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+            <div class="page-title" id="projName"></div>
+            <span id="projStatus"></span>
+          </div>
+          <div class="page-sub" id="projMeta"></div>
+        </div>
+        <div id="projCounts" style="display:flex;gap:14px;color:var(--muted);font-size:13.5px;"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="frame"><span class="step">01</span>Каркас</button>
+        <button class="tab-btn" data-tab="keys"><span class="step">02</span>Ключи</button>
+        <button class="tab-btn" data-tab="gen"><span class="step">03</span>Генерация</button>
+        <button class="tab-btn" data-tab="pages"><span class="step">04</span>Страницы</button>
+        <button class="tab-btn" data-tab="export"><span class="step">05</span>Выгрузка</button>
+        <button class="tab-btn" data-tab="settings">Правила качества</button>
+      </div>
+
+      <!-- Tab: Каркас -->
+      <div class="tab-content active" id="tab-frame">
+        <div class="card">
+          <h3>Чат-дизайнер (сильная модель)</h3>
+          <p class="card-sub">Опишите, как должна выглядеть страница. Модель предложит каркас — утвердите его.</p>
+          <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-msg system">Загрузка истории чата…</div>
+            </div>
+            <div class="chat-input-row">
+              <textarea id="chatInput" placeholder="Опишите страницу… (Enter — отправить)"></textarea>
+              <button class="btn btn-primary" id="chatSend">Отправить</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" id="extractFrameBtn">Извлечь каркас из последнего ответа</button>
+            <button class="btn btn-ghost btn-sm" id="askFrameBtn">Попросить сформировать каркас</button>
+          </div>
+        </div>
+
+        <!-- Frame review -->
+        <div id="frameReview" style="display:none;" class="card">
+          <h3>Каркас (предпросмотр и редактирование)</h3>
+          <p class="card-sub">Проверьте и при необходимости отредактируйте. Плейсхолдеры: <code>{{имя_поля}}</code></p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div><label>HTML-каркас</label><textarea id="frameHtml" class="code"></textarea></div>
+            <div><label>JSON Schema</label><textarea id="frameSchema" class="code"></textarea></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div><label>Meta title шаблон</label><input type="text" id="frameMetaTitle" placeholder="{{title}} — neotaro.ru"></div>
+            <div><label>Meta description шаблон</label><input type="text" id="frameMetaDesc"></div>
+            <div><label>Keywords</label><input type="text" id="frameMetaKeywords"></div>
+          </div>
+          <div class="form-row"><label>Промпт для дешёвой модели</label><textarea id="frameGenPrompt" style="min-height:100px;" placeholder="Системный промпт. Поддерживает {key}, {extra_data}, {json_schema}, {stop_words}, {fields}"></textarea></div>
+          <div id="framePlaceholders" style="margin-bottom:12px;"></div>
+          <div id="framePreviewPane" style="display:none;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px;">
+            <div style="background:var(--panel-2);padding:6px 12px;font-size:12px;color:var(--muted);">Предпросмотр:</div>
+            <iframe id="framePreviewFrame" style="width:100%;height:340px;border:none;"></iframe>
+          </div>
+          <div id="frameModelInfo" style="margin-bottom:10px;display:none;"></div>
+          <div id="frameIntegrity" style="display:none;"></div>
+          <div id="frameMsg" style="font-size:13px;margin-bottom:10px;display:none;"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-ghost" id="previewFrameBtn">Предпросмотр</button>
+            <button class="btn btn-primary" id="saveFrameBtn">Сохранить каркас</button>
+            <button class="btn btn-ok" id="approveFrameBtn" style="display:none;">Утвердить каркас</button>
+          </div>
+        </div>
+
+        <!-- Existing template -->
+        <div id="existingTemplate" style="display:none;" class="card">
+          <h3>Каркас утверждён</h3>
+          <p class="card-sub">Каркас утверждён. Плейсхолдеры:</p>
+          <div id="approvedPlaceholders" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" id="editFrameBtn">Редактировать</button>
+            <button class="btn btn-ghost btn-sm" id="previewApprovedBtn">Предпросмотр</button>
+          </div>
+          <div id="approvedPreviewPane" style="display:none;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;margin-top:12px;">
+            <div style="background:var(--panel-2);padding:6px 12px;font-size:12px;color:var(--muted);">Предпросмотр:</div>
+            <iframe id="approvedPreviewFrame" style="width:100%;height:340px;border:none;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Ключи -->
+      <div class="tab-content" id="tab-keys">
+        <div class="card">
+          <h3>Массовое добавление ключей</h3>
+          <p class="card-sub">По одному на строку. CSV: <code>ключ;поле=значение</code></p>
+          <div class="form-row"><textarea id="keysTextarea" style="min-height:160px;" placeholder="Шут&#10;Маг;номер=1&#10;Жрица;номер=2"></textarea></div>
+          <div id="keysAddMsg" style="display:none;margin-bottom:10px;"></div>
+          <button class="btn btn-primary" id="addKeysBtn">Добавить ключи</button>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h3 style="margin:0;">Список ключей <span id="keysCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
+            <button class="btn btn-sm btn-ghost" onclick="loadKeys()">↻ Обновить</button>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>#</th><th>Ключ</th><th>Доп. данные</th><th>Статус</th><th></th></tr></thead>
+            <tbody id="keysTableBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Генерация -->
+      <div class="tab-content" id="tab-gen">
+        <div class="card">
+          <h3>Запуск генерации</h3>
+          <p class="card-sub">Запустить генерацию для всех ключей в очереди</p>
+          <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
+          <div class="gen-controls">
+            <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
+            <button class="btn btn-danger" id="stopGenBtn" style="display:none;">⏹ Остановить</button>
+            <div class="toggle-row" style="gap:10px;padding:0;">
+              <label class="toggle" title="Параллельные запросы">
+                <input type="checkbox" id="turboToggle"><span class="toggle-slider"></span>
+              </label>
+              <div>
+                <div class="toggle-label">🚀 Turbo-режим</div>
+                <div class="toggle-desc">Параллельные запросы (быстрее)</div>
+              </div>
+            </div>
+            <div id="parallelCount" style="display:none;align-items:center;gap:8px;">
+              <label style="margin:0;color:var(--text);">Параллельность:</label>
+              <select id="parallelNum" style="width:70px;"><option value="2">2</option><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
+            </div>
+          </div>
+          <div id="progressSection" style="display:none;margin-top:20px;">
+            <div class="progress-info"><span id="progressText">0/0</span><span id="progressPct">0%</span></div>
+            <div class="progress-outer"><div class="progress-inner" id="progressBar" style="width:0%"></div></div>
+            <div class="turbo-badge" id="turboActive" style="display:none;margin-top:8px;">🚀 Turbo-режим активен</div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h3 style="margin:0;">📋 Задачи <span id="tasksCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
+            <div style="color:var(--muted);font-size:13px;" id="totalCost"></div>
+            <button class="btn btn-sm btn-ghost" onclick="loadTasks()">↻ Обновить</button>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>#</th><th>Ключ</th><th>Модель</th><th>Статус</th><th>Попытки</th><th>Стоимость</th><th>Ошибка</th></tr></thead>
+            <tbody id="tasksTableBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач пока нет. Запустите генерацию.</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Страницы -->
+      <div class="tab-content" id="tab-pages">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
+            <h3 style="margin:0;">📄 Страницы <span id="pagesCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div id="pagesToolbar" class="pages-toolbar" style="display:none;">
+                <span>Выбрано: <b id="pagesSelCount">0</b></span>
+                <button class="btn btn-danger btn-sm" id="deleteSelectedPagesBtn" type="button">Удалить выбранные</button>
+              </div>
+              <button class="btn btn-sm btn-ghost" onclick="loadPages()">↻ Обновить</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr>
+              <th style="width:36px;"><input type="checkbox" id="pagesSelectAll" title="Выделить все"></th>
+              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th>Проверки</th><th>Объём</th><th>Уник.</th><th></th>
+            </tr></thead>
+            <tbody id="pagesTableBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Экспорт -->
+      <div class="tab-content" id="tab-export">
+        <div class="card">
+          <h3>Скачать ZIP</h3>
+          <p class="card-sub">Все готовые страницы + sitemap.xml + robots.txt</p>
+          <div id="exportSummary" style="margin-bottom:16px;color:var(--muted);font-size:13.5px;"></div>
+          <a class="btn btn-primary" id="exportBtn" href="#" onclick="doExport();return false;">⬇️ Скачать ZIP</a>
+        </div>
+      </div>
+
+      <!-- Tab: Настройки проекта -->
+      <div class="tab-content" id="tab-settings">
+        <div class="card">
+          <h3>Настройки проекта</h3>
+          <div class="form-grid">
+            <div class="form-row"><label>Дешёвая модель</label><select id="projCheapModel"><option value="">— из глобальных —</option></select></div>
+            <div class="form-row"><label>Сильная модель</label><select id="projStrongModel"><option value="">— из глобальных —</option></select></div>
+            <div class="form-row"><label>Порог уникальности</label><input type="number" id="projUniqThresh" min="0" max="1" step="0.01"></div>
+            <div class="form-row"><label>Мин. длина (симв.)</label><input type="number" id="projMinLen"></div>
+            <div class="form-row full"><label>Стоп-слова</label><textarea id="projStopWords" style="min-height:100px;"></textarea></div>
+          </div>
+          <div id="projSettingsMsg" style="display:none;margin-top:8px;"></div>
+          <button class="btn btn-primary" onclick="saveProjectSettings()">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="card" id="projLoading" style="text-align:center;padding:40px;color:var(--muted);"><span class="spinner"></span> Загрузка проекта…</div>
+    <div id="projError" style="display:none;" class="alert alert-bad"></div>
+  </main>
+
+  <!-- Modal: page preview -->
+  <div id="pageModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeModal(event, 'pageModal')">
+      <div class="modal" style="max-width:900px;" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3 id="pageModalTitle">Просмотр страницы</h3><button class="modal-close" onclick="closeModal(null,'pageModal')"></button></div>
+        <div class="modal-body"><iframe id="pagePreviewFrame" style="width:100%;height:560px;border:none;"></iframe></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=7"></script>
+  <script>
+    const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
+    if (!projectId) location.href = 'index.html';
+    let currentProject = null, tasksInterval = null, allModels = [];
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'gen')    { loadTasks(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
+        if (btn.dataset.tab === 'pages')  loadPages();
+        if (btn.dataset.tab === 'keys')   loadKeys();
+      });
+    });
+
+    async function loadProject() {
+      try {
+        currentProject = await api.getProject(projectId);
+        document.getElementById('projName').textContent = currentProject.name;
+        document.getElementById('projStatus').innerHTML = badge(currentProject.status);
+        document.getElementById('projMeta').textContent = [currentProject.domain, currentProject.description].filter(Boolean).join(' · ');
+        document.getElementById('projCounts').innerHTML = `<span>📄 ${currentProject.pages_count ?? '—'} стр.</span><span>🔑 ${currentProject.keys_count ?? '—'} ключ.</span><span>⚡ ${currentProject.tasks_count ?? '—'} задач</span>`;
+        document.getElementById('projLoading').style.display = 'none';
+        document.getElementById('projHeader').style.display = 'block';
+        loadModels();
+        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages()]);
+        if (currentProject.status === 'generating') startTasksPolling();
+      } catch (e) {
+        document.getElementById('projLoading').style.display = 'none';
+        document.getElementById('projError').textContent = 'Ошибка: ' + e.message;
+        document.getElementById('projError').style.display = 'block';
+      }
+    }
+
+    async function loadModels() {
+      try { const r = await api.getModels(); allModels = r.models || []; fillModelSelects(); } catch {}
+    }
+
+    function fillModelSelects() {
+      const p = currentProject?.settings || {};
+      ['projCheapModel', 'projStrongModel'].forEach((id, i) => {
+        const sel = document.getElementById(id);
+        const current = i === 0 ? p.cheap_model?.value : p.strong_model?.value;
+        const opts = ['<option value="">— из глобальных —</option>'].concat(allModels.map(m => `<option value="${escHtml(m.id)}"${m.id === current ? ' selected' : ''}>${escHtml(m.name || m.id)}</option>`));
+        sel.innerHTML = opts.join('');
+      });
+    }
+
+    let currentTemplate = null;
+    async function loadTemplate() { /* каркас подтягивается только по кнопке «Извлечь каркас» — иначе каждое открытие проекта шлёт лишний POST */ }
+    async function loadChatHistory() {
+      const box = document.getElementById('chatMessages');
+      try {
+        const h = await api.chatHistory(projectId);
+        if (!h.length) { box.innerHTML = '<div class="chat-msg system">Начните диалог.</div>'; return; }
+        box.innerHTML = h.map(m => renderChatMsg(m)).join('');
+        box.scrollTop = box.scrollHeight;
+        // Генерация идёт на сервере, а не в этой вкладке: если ответ ещё
+        // пишется, продолжаем ждать его даже после перезагрузки страницы.
+        const pending = h.filter(m => m.status === 'pending').pop();
+        if (pending) waitForChatAnswer(pending.id);
+      } catch (e) { box.innerHTML = `<div class="chat-msg system">Ошибка: ${e.message}</div>`; }
+    }
+
+    document.getElementById('chatSend').onclick = sendChat;
+    document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+    document.getElementById('askFrameBtn').onclick = () => { document.getElementById('chatInput').value = 'Сформировать каркас'; sendChat(); };
+    document.getElementById('extractFrameBtn').onclick = async () => {
+      const btn = document.getElementById('extractFrameBtn'); btn.disabled = true;
+      try { const f = await api.chatExtractFrame(projectId); if (f && f.detected === false) { showFrameMsg('В последнем ответе модели нет готового каркаса. Нажмите «Сформировать каркас».', 'bad'); } else { fillFrameForm(f); } } catch (e) { showFrameMsg('Ошибка: ' + e.message, 'bad'); } finally { btn.disabled = false; }
+    };
+
+    async function sendChat() {
+      const input = document.getElementById('chatInput'); const msg = input.value.trim(); if (!msg) return; input.value = '';
+      const box = document.getElementById('chatMessages');
+      box.innerHTML += `<div class="chat-msg user">${escHtml(msg)}</div><div class="chat-msg loading" id="chatLoading">⏳</div>`;
+      box.scrollTop = box.scrollHeight; document.getElementById('chatSend').disabled = true;
+      try {
+        // Сервер сразу отвечает id заготовки и пишет ответ в фоне.
+        const r = await api.chatSend(projectId, msg);
+        await waitForChatAnswer(r.id);
+      } catch (e) {
+        document.getElementById('chatLoading')?.remove();
+        box.innerHTML += `<div class="chat-msg assistant" style="color:var(--bad);">❌ ${escHtml(e.message)}</div>`;
+      }
+      finally { document.getElementById('chatSend').disabled = false; box.scrollTop = box.scrollHeight; }
+    }
+
+    // ── Ожидание фонового ответа ────────────────────────────
+    // Ответ живёт в базе, а не в зависшем HTTP-запросе, поэтому смена
+    // темы, перезагрузка и таймаут прокси его больше не теряют.
+    let chatWaitTimer = null;
+
+    function renderChatMsg(m) {
+      if (m.status === 'pending') {
+        return `<div class="chat-msg assistant" id="chatMsg${m.id}"><span class="spinner"></span> ` +
+               `Модель пишет ответ… можно закрыть вкладку, он не потеряется</div>`;
+      }
+      if (m.status === 'error') {
+        return `<div class="chat-msg assistant" id="chatMsg${m.id}" style="color:var(--bad);">` +
+               `❌ Ошибка генерации: ${escHtml(m.error || 'неизвестно')}</div>`;
+      }
+      const tag = m.role === 'assistant' ? `<div style="margin-top:8px;">${modelTag(m)}</div>` : '';
+      return `<div class="chat-msg ${m.role}" id="chatMsg${m.id}">${escHtml(m.content)}${tag}</div>`;
+    }
+
+    async function waitForChatAnswer(messageId) {
+      const box = document.getElementById('chatMessages');
+      if (chatWaitTimer) { clearTimeout(chatWaitTimer); chatWaitTimer = null; }
+      document.getElementById('chatLoading')?.remove();
+      if (!document.getElementById('chatMsg' + messageId)) {
+        box.innerHTML += renderChatMsg({ id: messageId, status: 'pending', role: 'assistant' });
+        box.scrollTop = box.scrollHeight;
+      }
+      const started = Date.now();
+      const LIMIT_MS = 20 * 60 * 1000;
+      let fails = 0;
+
+      const tick = async () => {
+        let m;
+        try {
+          m = await api.chatMessage(projectId, messageId);
+        } catch (e) {
+          // Сеть могла моргнуть — это не повод сразу бросать ожидание.
+          // Но молчать вечно нельзя: три неудачи подряд — показываем причину.
+          fails += 1;
+          if (fails < 3 && Date.now() - started < LIMIT_MS) {
+            chatWaitTimer = setTimeout(tick, 4000);
+            return;
+          }
+          const bad = document.getElementById('chatMsg' + messageId);
+          if (bad) bad.outerHTML = renderChatMsg({
+            id: messageId, role: 'assistant', status: 'error', content: '',
+            error: 'Не удалось получить ответ: ' + ((e && e.message) || e) +
+                   '. Ответ модели, скорее всего, уже сохранён в базе — обновите страницу.',
+          });
+          return;
+        }
+        fails = 0;
+        const el = document.getElementById('chatMsg' + messageId);
+        if (el) el.outerHTML = renderChatMsg(m);
+        box.scrollTop = box.scrollHeight;
+
+        if (m.status === 'pending') {
+          if (Date.now() - started < LIMIT_MS) chatWaitTimer = setTimeout(tick, 3000);
+          return;
+        }
+        if (m.status === 'error') return;
+
+        if (m.model_mismatch) {
+          showFrameMsg(`⚠ Просили ${m.model}, а провайдер ответил моделью ${m.model_returned}!`, 'bad');
+        }
+        if (m.frame_problems && m.frame_problems.length) showIntegrity(m.frame_problems);
+        if ((m.content || '').includes('```html')) {
+          if (confirm('Извлечь каркас?')) {
+            const f = await api.chatExtractFrame(projectId).catch(() => null);
+            if (f && f.detected !== false) fillFrameForm(f);
+          }
+        }
+      };
+      await tick();
+    }
+
+    // ── Контроль обрезанного HTML на клиенте ──────────────────
+    // Зеркало серверного html_integrity(): ловим обрыв ещё до отправки.
+    const VOID_TAGS = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+    const OPTIONAL_CLOSE = new Set(['li','p','td','th','tr','option','dt','dd','thead','tbody','tfoot']);
+
+    function htmlIntegrity(html) {
+      const problems = [];
+      const raw = String(html || '');
+      if (!raw.trim()) return ['HTML пустой'];
+      const lastLt = raw.lastIndexOf('<'), lastGt = raw.lastIndexOf('>');
+      if (lastLt > lastGt) {
+        problems.push('Разметка обрывается посреди тега: ' + raw.slice(lastLt, lastLt + 40));
+        if ((raw.slice(lastLt).split('"').length - 1) % 2 === 1) problems.push('Незакрытая кавычка в атрибуте');
+      }
+      const opens = (raw.match(/\{\{/g) || []).length, closes = (raw.match(/\}\}/g) || []).length;
+      if (opens !== closes) problems.push(`Непарные скобки плейсхолдеров: ${opens} «{{» против ${closes} «}}»`);
+      if (raw.includes('```')) problems.push('Остался markdown-забор ```');
+      const stack = [];
+      let stray = 0;
+      const re = /<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?(\/?)\s*>/g;
+      let m;
+      while ((m = re.exec(raw)) !== null) {
+        const name = m[2].toLowerCase();
+        if (VOID_TAGS.has(name) || m[3]) continue;
+        if (!m[1]) stack.push(name);
+        else if (stack.includes(name)) { while (stack.length) { if (stack.pop() === name) break; } }
+        else stray++;
+      }
+      const unclosed = stack.filter(t => !OPTIONAL_CLOSE.has(t));
+      if (unclosed.length) problems.push(`Не закрыто тегов: ${unclosed.length} (${unclosed.slice(0, 6).map(t => '<' + t + '>').join(', ')})`);
+      if (stray) problems.push(`Закрывающих тегов без пары: ${stray}`);
+      const t = raw.trim();
+      if (!t.endsWith('>') && !t.endsWith('}')) problems.push('Финал не похож на конец разметки');
+      return problems;
+    }
+
+    function showIntegrity(problems) {
+      const box = document.getElementById('frameIntegrity');
+      if (!problems || !problems.length) { box.style.display = 'none'; box.innerHTML = ''; return false; }
+      box.innerHTML = `<div class="integrity-warn"><b>Каркас выглядит обрезанным — модель упёрлась в лимит токенов.</b>` +
+        `<ul style="margin:6px 0 0 18px;">${problems.map(p => `<li>${escHtml(typeof p === 'string' ? p : p.message)}</li>`).join('')}</ul>` +
+        `<div style="margin-top:6px;">Сохранение и утверждение заблокированы. Нажмите «Сформировать каркас» ещё раз или допишите разметку вручную.</div></div>`;
+      box.style.display = 'block';
+      return true;
+    }
+
+    function showFrameModel(frame) {
+      const box = document.getElementById('frameModelInfo');
+      if (!frame || (!frame.model && !frame.model_returned && !frame.provider)) { box.style.display = 'none'; return; }
+      box.innerHTML = '<span style="font-size:12px;color:var(--muted);margin-right:8px;">Каркас сделала:</span>' + modelTag(frame);
+      box.style.display = 'block';
+    }
+
+    document.addEventListener('input', e => {
+      if (e.target && e.target.id === 'frameHtml') showIntegrity(htmlIntegrity(e.target.value));
+    });
+
+    function fillFrameForm(frame) {
+      currentTemplate = frame;
+      showFrameModel(frame);
+      showIntegrity(frame.problems && frame.problems.length ? frame.problems : htmlIntegrity(frame.html_body || ''));
+      document.getElementById('frameHtml').value = frame.html_body || '';
+      document.getElementById('frameSchema').value = JSON.stringify(frame.json_schema || {}, null, 2);
+      document.getElementById('frameMetaTitle').value = frame.seo_meta?.title_template || '';
+      document.getElementById('frameMetaDesc').value = frame.seo_meta?.description_template || '';
+      document.getElementById('frameMetaKeywords').value = frame.seo_meta?.keywords || '';
+      document.getElementById('frameGenPrompt').value = frame.generator_prompt || '';
+      const ph = frame.placeholders || [];
+      document.getElementById('framePlaceholders').innerHTML = ph.length ? '<label>📌 ' + ph.map(p => `<code style="background:var(--panel-2);padding:1px 6px;border-radius:4px;margin-right:4px;">{{${p}}}</code>`).join('') + '</label>' : '';
+      document.getElementById('frameReview').style.display = 'block';
+      document.getElementById('frameReview').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('approveFrameBtn').style.display = 'inline-flex';
+    }
+
+    document.getElementById('previewFrameBtn').onclick = () => {
+      const p = document.getElementById('framePreviewPane'), i = document.getElementById('framePreviewFrame'), h = document.getElementById('frameHtml').value;
+      if (!h.trim()) { showFrameMsg('Введите HTML', 'bad'); return; }
+      let ph = h; extractPlaceholders(h).forEach(x => { ph = ph.split(`{{${x}}}`).join(`Пример ${x}`); });
+      i.srcdoc = ph; p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    };
+
+    document.getElementById('saveFrameBtn').onclick = async () => {
+      const h = document.getElementById('frameHtml').value.trim();
+      if (!h) { showFrameMsg('HTML пуст', 'bad'); return; }
+      const integrity = htmlIntegrity(h);
+      if (integrity.length) {
+        showIntegrity(integrity);
+        showFrameMsg('❌ Каркас обрезан — сохранение отменено. Подробности выше.', 'bad');
+        return;
+      }
+      showIntegrity([]);
+      let s = {}; try { s = JSON.parse(document.getElementById('frameSchema').value || '{}'); } catch { showFrameMsg('JSON Schema не валиден', 'bad'); return; }
+      const p = { name: 'Каркас', html_body: h, placeholders: extractPlaceholders(h),
+        seo_meta: { title_template: document.getElementById('frameMetaTitle').value.trim(), description_template: document.getElementById('frameMetaDesc').value.trim(), keywords: document.getElementById('frameMetaKeywords').value.trim() },
+        json_schema: s, generator_prompt: document.getElementById('frameGenPrompt').value.trim(),
+        // кто сгенерировал этот каркас — сохраняем вместе с ним
+        provider: (currentTemplate && currentTemplate.provider) || '',
+        model: (currentTemplate && currentTemplate.model) || '',
+        model_returned: (currentTemplate && currentTemplate.model_returned) || '' };
+      const btn = document.getElementById('saveFrameBtn'); btn.disabled = true;
+      try { const sv = await api.saveTemplate(projectId, p); currentTemplate = { ...p, id: sv.id }; showFrameMsg('✅ Сохранено! Утвердите.', 'ok'); document.getElementById('approveFrameBtn').style.display = 'inline-flex'; document.getElementById('approveFrameBtn').dataset.templateId = sv.id; }
+      catch (e) { showFrameMsg('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; }
+    };
+
+    document.getElementById('approveFrameBtn').onclick = async () => {
+      const tid = parseInt(document.getElementById('approveFrameBtn').dataset.templateId);
+      if (!tid) { showFrameMsg('Сначала сохраните', 'bad'); return; }
+      try { await api.approveTemplate(projectId, tid); showFrameMsg('🎉 Утверждён!', 'ok'); document.getElementById('approveFrameBtn').style.display = 'none'; loadProject(); }
+      catch (e) { showFrameMsg('❌ ' + e.message, 'bad'); }
+    };
+
+    document.getElementById('editFrameBtn').onclick = () => { document.getElementById('existingTemplate').style.display = 'none'; document.getElementById('frameReview').style.display = 'block'; };
+    function showFrameMsg(t, ty) { const e = document.getElementById('frameMsg'); e.textContent = t; e.style.color = ty === 'ok' ? 'var(--ok)' : 'var(--bad)'; e.style.display = 'block'; setTimeout(() => e.style.display = 'none', 5000); }
+    function extractPlaceholders(h) { return [...new Set((h.match(/\{\{([^}]+)\}\}/g) || []).map(x => x.replace(/[{}]/g, '').trim()))]; }
+
+    async function loadKeys() {
+      const tb = document.getElementById('keysTableBody');
+      try { const ks = await api.listKeys(projectId); document.getElementById('keysCount').textContent = `(${ks.length})`;
+        if (!ks.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">Ключей нет</td></tr>'; return; }
+        tb.innerHTML = ks.map(k => `<tr><td style="color:var(--muted);">${k.id}</td><td style="font-weight:500;">${escHtml(k.key)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(JSON.stringify(k.extra_data||{})).slice(0,60)||'—'}</td><td>${badge(k.status)}</td><td><button class="btn-link" onclick="deleteKey(${k.id})"></button></td></tr>`).join('');
+      } catch (e) { tb.innerHTML = `<tr><td colspan="5" style="color:var(--bad);padding:16px;">${e.message}</td></tr>`; }
+    }
+
+    document.getElementById('addKeysBtn').onclick = async () => {
+      const csv = document.getElementById('keysTextarea').value.trim(); if (!csv) { showKeysMsg('Введите ключи', 'bad'); return; }
+      const btn = document.getElementById('addKeysBtn'); btn.disabled = true;
+      try { const a = await api.addKeys(projectId, { keys: [], csv }); showKeysMsg(`✅ Добавлено: ${a.length}`, 'ok'); document.getElementById('keysTextarea').value = ''; loadKeys(); loadProject(); }
+      catch (e) { showKeysMsg('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; }
+    };
+
+    async function deleteKey(id) { if (!confirm('Удалить?')) return; try { await api.deleteKey(projectId, id); loadKeys(); } catch (e) { alert(e.message); } }
+    function showKeysMsg(t, ty) { document.getElementById('keysAddMsg').innerHTML = `<div class="alert alert-${ty === 'ok' ? 'ok' : 'bad'}">${t}</div>`; document.getElementById('keysAddMsg').style.display = 'block'; setTimeout(() => document.getElementById('keysAddMsg').style.display = 'none', 4000); }
+
+    document.getElementById('turboToggle').addEventListener('change', function() { document.getElementById('parallelCount').style.display = this.checked ? 'flex' : 'none'; });
+
+    document.getElementById('startGenBtn').onclick = async () => {
+      const tb = document.getElementById('turboToggle').checked; const pl = tb ? parseInt(document.getElementById('parallelNum').value) : 1;
+      const btn = document.getElementById('startGenBtn'); btn.disabled = true; btn.textContent = '…';
+      try { const r = await api.startGeneration(projectId, pl);
+        if (r.created === 0) { showGenAlert('Нет ключей в очереди. Добавьте ключи.', 'info'); }
+        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
+      } catch (e) { showGenAlert('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; btn.textContent = '▶ Запустить'; }
+    };
+
+    document.getElementById('stopGenBtn').onclick = async () => {
+      if (!confirm('Остановить все задачи?')) return; const btn = document.getElementById('stopGenBtn'); btn.disabled = true;
+      // ФИКС: остановка больше не падает на бекенде (CHECK-констрейнт status),
+      // но если сеть всё же отвалилась — показываем понятную ошибку и не ломаем UI.
+      try {
+        const r = await api.stopGeneration(projectId);
+        const n = (r && typeof r.cancelled_tasks === 'number') ? r.cancelled_tasks : null;
+        showGenAlert('⏹ Остановлено' + (n !== null ? ` (отменено задач: ${n})` : '') + '.', 'info');
+        document.getElementById('turboActive').style.display = 'none';
+        btn.style.display = 'none';
+        stopTasksPolling && stopTasksPolling();
+        loadTasks();
+        loadPages && loadPages();
+      }
+      catch (e) { showGenAlert('❌ Не удалось остановить: ' + (e && e.message ? e.message : e), 'bad'); }
+      finally { btn.disabled = false; }
+    };
+
+    async function loadTasks() {
+      try { const r = await api.listTasks(projectId);
+        document.getElementById('tasksCount').textContent = `(${r.total})`; document.getElementById('totalCost').textContent = r.total_cost > 0 ? `💰 $${r.total_cost.toFixed(6)}` : '';
+        const done = r.success + r.failed; const pct = r.total ? Math.round(done/r.total*100) : 0;
+        if (r.total > 0) { document.getElementById('progressSection').style.display = 'block'; document.getElementById('progressText').textContent = `${done}/${r.total} (успех ${r.success} · ошибок ${r.failed} · в работе ${r.running})`; document.getElementById('progressBar').style.width = pct + '%'; document.getElementById('progressPct').textContent = pct + '%';
+          if (r.pending === 0 && r.running === 0) { document.getElementById('stopGenBtn').style.display = 'none'; document.getElementById('turboActive').style.display = 'none'; stopTasksPolling(); } else { document.getElementById('stopGenBtn').style.display = 'inline-flex'; }
+        }
+        const tb = document.getElementById('tasksTableBody');
+        if (!r.tasks.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач нет</td></tr>'; return; }
+        tb.innerHTML = r.tasks.map(t => `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);" title="${escHtml(t.error || '')}">${escHtml(t.error || '—')}</td></tr>`).join('');
+      } catch (e) { }
+    }
+
+    function startTasksPolling() { if (tasksInterval) return; tasksInterval = setInterval(() => { if (!document.hidden) loadTasks(); }, 6000); }
+    function stopTasksPolling() { clearInterval(tasksInterval); tasksInterval = null; }
+    function showGenAlert(t, ty) { document.getElementById('genAlert').innerHTML = `<div class="alert alert-${ty}">${t}</div>`; document.getElementById('genAlert').style.display = 'block'; setTimeout(() => document.getElementById('genAlert').style.display = 'none', 6000); }
+
+    async function loadPages() {
+      const tb = document.getElementById('pagesTableBody');
+      try { const ps = await api.listPages(projectId); document.getElementById('pagesCount').textContent = `(${ps.length})`;
+        if (!ps.length) {
+          tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Страниц нет</td></tr>';
+          updateExportSummary(0, 0);
+          syncPagesToolbar();
+          return;
+        }
+        const ready = ps.filter(p => p.status === 'ready').length; updateExportSummary(ps.length, ready);
+        tb.innerHTML = ps.map(p => { const u = (p.checks||[]).find(c => c.check_name === 'uniqueness'); const l = (p.checks||[]).find(c => c.check_name === 'volume');
+          return `<tr data-page-id="${p.id}">
+            <td><input type="checkbox" class="page-check" value="${p.id}"></td>
+            <td style="color:var(--muted);">${p.id}</td>
+            <td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td>
+            <td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td>
+            <td>${badge(p.status)}</td>
+            <td><div class="checks-grid">${(p.checks||[]).map(c => `<span class="check-chip ${c.passed?'passed':'failed'}" title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">${c.check_name}</span>`).join('')||'—'}</div></td>
+            <td style="color:var(--muted);">${l ? l.value + ' сим.' : '—'}</td>
+            <td style="color:${u && parseFloat(u.value) >= 0.90 ? 'var(--ok)' : (u && parseFloat(u.value) >= 0.75 ? 'var(--warn, #d98324)' : 'var(--bad)')};" title="${u && u.nearest_page_id ? 'Ближайшая страница: #' + u.nearest_page_id + (u.signals ? ' | ' + Object.entries(u.signals).map(([k,v]) => k + ':' + v).join(', ') : '') : ''}">${u ? (parseFloat(u.value)*100).toFixed(1)+'%' : '—'}</td>
+            <td class="page-actions">
+              <button class="btn btn-ghost btn-sm" type="button" onclick="previewPage(${p.id})">Предпросмотр</button>
+              <button class="btn btn-ghost btn-sm" type="button" onclick="downloadPage(${p.id}, '${escHtml(p.slug)}')">Скачать</button>
+              ${p.status==='failed'?`<button class="btn btn-ghost btn-sm" type="button" onclick="regenPage(${p.id})">↺ Ещё раз</button>`:''}
+              <button class="btn-link danger" type="button" onclick="deleteOnePage(${p.id})">Удалить</button>
+            </td></tr>`; }).join('');
+        syncPagesToolbar();
+      } catch (e) { tb.innerHTML = `<tr><td colspan="9" style="color:var(--bad);padding:16px;">${e.message}</td></tr>`; syncPagesToolbar(); }
+    }
+
+    function selectedPageIds() {
+      return [...document.querySelectorAll('.page-check:checked')].map(el => parseInt(el.value, 10)).filter(Boolean);
+    }
+    function syncPagesToolbar() {
+      const ids = selectedPageIds();
+      const bar = document.getElementById('pagesToolbar');
+      const all = document.getElementById('pagesSelectAll');
+      const boxes = [...document.querySelectorAll('.page-check')];
+      if (bar) bar.style.display = ids.length ? 'inline-flex' : 'none';
+      const count = document.getElementById('pagesSelCount');
+      if (count) count.textContent = String(ids.length);
+      if (all) all.checked = boxes.length > 0 && boxes.every(b => b.checked);
+    }
+    document.getElementById('pagesSelectAll').addEventListener('change', function() {
+      document.querySelectorAll('.page-check').forEach(el => { el.checked = this.checked; });
+      syncPagesToolbar();
+    });
+    document.getElementById('pagesTableBody').addEventListener('change', e => {
+      if (e.target && e.target.classList.contains('page-check')) syncPagesToolbar();
+    });
+    document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
+
+    async function previewPage(id) {
+      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
+      document.getElementById('pageModal').style.display = 'flex';
+      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
+      try {
+        const p = await api.getPage(projectId, id);
+        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
+        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
+      } catch (e) {
+        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
+      }
+    }
+    async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
+    async function regenPage(id) { try { await api.regeneratePage(id); showGenAlert('↺ Перегенерация поставлена в очередь', 'info'); loadPages(); } catch (e) { alert(e.message); } }
+    async function deleteOnePage(id) {
+      if (!confirm('Удалить эту страницу? Ключ вернётся в очередь — можно сгенерировать заново.')) return;
+      try { await api.deletePage(projectId, id); await loadPages(); loadProject(); } catch (e) { alert(e.message); }
+    }
+    async function deleteSelectedPages() {
+      const ids = selectedPageIds();
+      if (!ids.length) return;
+      if (!confirm(`Удалить выбранные страницы (${ids.length})? Ключи вернутся в очередь.`)) return;
+      try { await api.deletePages(projectId, ids); await loadPages(); loadProject(); } catch (e) { alert(e.message); }
+    }
+    function updateExportSummary(total, ready) { const el = document.getElementById('exportSummary'); if (!el) return; el.textContent = total > 0 ? `Готово: ${ready}/${total}` : 'Нет страниц'; }
+    function doExport() { window.open(`${API_BASE.replace(/\/$/, '')}/projects/${projectId}/export`, '_blank'); }
+
+    async function loadProjectSettings() {
+      fillModelSelects(); const s = currentProject?.settings || {};
+      document.getElementById('projUniqThresh').value = s.uniqueness_threshold?.value ?? '';
+      document.getElementById('projMinLen').value = s.min_text_length?.value ?? '';
+      document.getElementById('projStopWords').value = Array.isArray(s.stop_words?.value) ? s.stop_words.value.join('\n') : '';
+    }
+
+    async function saveProjectSettings() {
+      const u = parseFloat(document.getElementById('projUniqThresh').value); const m = parseInt(document.getElementById('projMinLen').value);
+      const sw = document.getElementById('projStopWords').value.split('\n').map(s => s.trim()).filter(Boolean);
+      const cm = document.getElementById('projCheapModel').value; const sm = document.getElementById('projStrongModel').value;
+      const st = {}; if (!isNaN(u)) st.uniqueness_threshold = { value: u }; if (!isNaN(m)) st.min_text_length = { value: m }; if (sw.length) st.stop_words = { value: sw };
+      if (cm) st.cheap_model = { value: cm, provider: cm.startsWith('custom/') ? 'custom' : 'openrouter' }; if (sm) st.strong_model = { value: sm, provider: sm.startsWith('custom/') ? 'custom' : 'openrouter' };
+      try { await api.updateProject(projectId, { settings: st }); document.getElementById('projSettingsMsg').innerHTML = '<div class="alert alert-ok">✅ Сохранено</div>'; document.getElementById('projSettingsMsg').style.display = 'block'; setTimeout(() => document.getElementById('projSettingsMsg').style.display = 'none', 3000); }
+      catch (e) { document.getElementById('projSettingsMsg').innerHTML = `<div class="alert alert-bad">❌ ${e.message}</div>`; document.getElementById('projSettingsMsg').style.display = 'block'; }
+    }
+
+    function closeModal(e, id) { if (e && e.target !== document.querySelector(`#${id} .modal-overlay`)) return; document.getElementById(id).style.display = 'none'; }
+    loadProject();
+  </script>
+</body>
+</html>
+
+
+
+==================================================
+Файл: ./smm/settings.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>SEO-Фабрика — Настройки</title>
+  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
+  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <a class="logo" href="index.html"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#fff"/><rect x="10" y="1" width="7" height="7" fill="#2536c8"/><rect x="1" y="10" width="7" height="7" fill="#2536c8"/><rect x="10" y="10" width="7" height="7" fill="#fff" opacity=".45"/></svg>SEO<span class="full">-Фабрика</span></a>
+      <nav class="nav">
+        <a href="index.html">Проекты</a>
+        <a href="settings.html" class="active">Настройки</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="main" style="max-width:860px;">
+    <div class="page-title">Глобальные настройки</div>
+    <div class="page-sub">Подключение к бэкенду, модели ИИ и кастомный API. Пороги качества и стоп-слова настраиваются внутри проекта.</div>
+
+    <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
+      <span class="spinner"></span> Загрузка настроек…
+    </div>
+
+    <div id="settingsForm" style="display:none;">
+
+      <!-- API Base -->
+      <div class="fieldset">
+        <legend>Подключение к бэкенду</legend>
+        <div class="form-row">
+          <label>URL бэкенда (API)</label>
+          <input type="text" id="apiBaseInput" placeholder="http://localhost:8000/api">
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="saveApiBaseFromUI()">Сохранить URL</button>
+        <div id="apiBaseSaved" style="color:var(--ok);font-size:13px;margin-top:6px;display:none;">Сохранено!</div>
+      </div>
+
+      <!-- Models -->
+      <div class="fieldset">
+        <legend>Модели ИИ</legend>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Сильная модель (чат-дизайнер)</label>
+            <select id="strongModel"></select>
+          </div>
+          <div class="form-row">
+            <label>Дешёвая модель (генерация)</label>
+            <select id="cheapModel"></select>
+          </div>
+        </div>
+        <div id="loadingModels" style="color:var(--muted);font-size:13px;">Загрузка списка моделей…</div>
+      </div>
+
+      <!-- Custom OpenAI-compatible API -->
+      <div class="fieldset">
+        <legend>OpenAI-совместимый API (кастомный)</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">DeepSeek, Together AI, Groq, llama.cpp — любой endpoint в формате OpenAI</p>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Base URL (например: https://api.deepseek.com/v1)</label>
+            <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
+          </div>
+          <div class="form-row">
+            <label>API Key</label>
+            <input type="password" id="customApiKey" placeholder="sk-…">
+          </div>
+          <div class="form-row">
+            <label>Модель (slug, например: deepseek-chat)</label>
+            <input type="text" id="customModelName" placeholder="deepseek-chat">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="saveCustomApi()">Сохранить API</button>
+          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Тест соединения</button>
+        </div>
+        <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
+      </div>
+
+      <!-- Цветовое оформление -->
+      <div class="fieldset">
+        <legend>Цветовое оформление</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Применяется сразу и запоминается в браузере.</p>
+        <div class="theme-choice" id="themeChoice"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <div id="saveMsg" style="font-size:13px;align-self:center;display:none;"></div>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveSettings()">Сохранить настройки</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js?v=6"></script>
+  <script>
+    let allModels = [];
+
+    async function init() {
+      document.getElementById('apiBaseInput').value = API_BASE;
+      try {
+        const [settings, models] = await Promise.all([
+          api.getSettings(),
+          api.getModels().catch(() => ({ models: [] })),
+        ]);
+        allModels = models.models || [];
+        fillForm(settings.settings || {});
+        document.getElementById('loadMsg').style.display = 'none';
+        document.getElementById('settingsForm').style.display = 'block';
+        document.getElementById('loadingModels').style.display = 'none';
+      } catch (e) {
+        document.getElementById('loadMsg').innerHTML =
+          `<div class="alert alert-bad">❌ ${escHtml(e.message)}</div>
+           <p style="font-size:13px;color:var(--muted);">Убедитесь, что бэкенд запущен на <code>${escHtml(API_BASE)}</code>, или укажите другой URL выше.</p>`;
+      }
+    }
+
+    function fillForm(s) {
+      const strongVal = s.strong_model?.value || 'openai/gpt-4o';
+      const cheapVal  = s.cheap_model?.value  || 'openai/gpt-4o-mini';
+      fillSelect(document.getElementById('strongModel'), allModels, strongVal);
+      fillSelect(document.getElementById('cheapModel'),  allModels, cheapVal);
+
+      document.getElementById('customBaseUrl').value   = s.custom_base_url?.value   || '';
+      document.getElementById('customApiKey').value    = s.custom_api_key?.value    || '';
+      document.getElementById('customModelName').value = s.custom_model_name?.value || '';
+    }
+
+    function fillSelect(sel, models, selected) {
+      if (!models.length) {
+        models = [
+          { id: 'openai/gpt-4o', name: 'OpenAI: GPT-4o' },
+          { id: 'openai/gpt-4o-mini', name: 'OpenAI: GPT-4o-mini' },
+          { id: 'anthropic/claude-3.5-sonnet', name: 'Anthropic: Claude 3.5 Sonnet' },
+          { id: 'anthropic/claude-3.5-haiku', name: 'Anthropic: Claude 3.5 Haiku' },
+          { id: 'google/gemini-pro-1.5', name: 'Google: Gemini 1.5 Pro' },
+          { id: 'openrouter/auto', name: 'OpenRouter: Auto' },
+          { id: 'custom/deepseek-chat', name: 'Custom API' },
+        ];
+      }
+      sel.innerHTML = models.map(m =>
+        `<option value="${escHtml(m.id)}"${m.id === selected ? ' selected' : ''}>${escHtml(m.name || m.id)}</option>`
+      ).join('');
+      if (selected && !models.find(m => m.id === selected)) {
+        const opt = document.createElement('option');
+        opt.value = selected; opt.textContent = selected + ' (кастом)'; opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    async function saveSettings() {
+      const strongSel = document.getElementById('strongModel').value;
+      const cheapSel  = document.getElementById('cheapModel').value;
+      const getProvider = (slug) => slug.startsWith('custom/') ? 'custom' : 'openrouter';
+
+      const payload = {
+        strong_model: { value: strongSel, provider: getProvider(strongSel) },
+        cheap_model:  { value: cheapSel,  provider: getProvider(cheapSel)  },
+      };
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true; btn.textContent = 'Сохранение…';
+      try {
+        await api.updateSettings(payload);
+        showSaveMsg('✅ Настройки сохранены!', 'var(--ok)');
+      } catch (e) {
+        showSaveMsg('❌ ' + e.message, 'var(--bad)');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Сохранить настройки';
+      }
+    }
+
+    async function saveCustomApi() {
+      const baseUrl = document.getElementById('customBaseUrl').value.trim();
+      const apiKey  = document.getElementById('customApiKey').value.trim();
+      const model   = document.getElementById('customModelName').value.trim();
+      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
+
+      const payload = {
+        custom_base_url:   { value: baseUrl },
+        custom_api_key:    { value: apiKey },
+        custom_model_name: { value: model },
+      };
+      try {
+        await api.updateSettings(payload);
+        showCustomStatus('✅ Сохранено. Модели обновятся при перезагрузке.', 'ok');
+        setTimeout(() => init(), 1000);
+      } catch (e) {
+        showCustomStatus('❌ ' + e.message, 'bad');
+      }
+    }
+
+    // Тест идёт через бэкенд-прокси: браузерный CORS больше не мешает
+    async function testCustomApi(btn) {
+      const baseUrl = document.getElementById('customBaseUrl').value.trim();
+      const apiKey  = document.getElementById('customApiKey').value.trim();
+      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
+      btn.disabled = true;
+      showCustomStatus('⏳ Тестирование соединения через бэкенд…', '');
+      try {
+        const res = await api.testCustomApi(baseUrl, apiKey);
+        if (res && res.ok) {
+          showCustomStatus(res.message || '✅ Соединение успешно!', 'ok');
+        } else {
+          showCustomStatus('⚠️ ' + (res?.message || 'Неизвестный ответ сервера'), 'bad');
+        }
+      } catch (e) {
+        showCustomStatus('❌ ' + e.message, 'bad');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function showCustomStatus(text, type) {
+      const el = document.getElementById('customApiStatus');
+      el.textContent = text;
+      el.style.color = type === 'ok' ? 'var(--ok)' : type === 'bad' ? 'var(--bad)' : 'var(--muted)';
+    }
+
+    function showSaveMsg(text, color) {
+      const el = document.getElementById('saveMsg');
+      el.textContent = text;
+      el.style.color = color;
+      el.style.display = 'inline';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    function saveApiBaseFromUI() {
+      const val = document.getElementById('apiBaseInput').value.trim();
+      if (!val) return;
+      saveApiBase(val);
+      document.getElementById('apiBaseSaved').style.display = 'block';
+      setTimeout(() => document.getElementById('apiBaseSaved').style.display = 'none', 3000);
+      setTimeout(() => init(), 500);
+    }
+
+    // ── Переключение цветового оформления ───────────────────
+    function renderThemes() {
+      const cur = getTheme();
+      document.getElementById('themeChoice').innerHTML = Object.entries(THEMES).map(([id, t]) => `
+        <button type="button" class="theme-card ${id === cur ? 'active' : ''}" data-theme-id="${id}">
+          <b>${escHtml(t.name)}</b>
+          <span>${escHtml(t.note)}</span>
+          <div class="swatches">${t.swatches.map(c => `<i style="background:${c}"></i>`).join('')}</div>
+        </button>`).join('');
+      document.querySelectorAll('#themeChoice .theme-card').forEach(el => {
+        el.onclick = () => { applyTheme(el.dataset.themeId); renderThemes(); };
+      });
+    }
+
+    renderThemes();
+    init();
+  </script>
+</body>
+</html>
+
+
+==================================================
+Файл: ./smm/404.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Страница не найдена — SEO-Фабрика</title>
+  <link rel="stylesheet" href="style.css?v=6">
+  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+  <main class="main" style="max-width:560px;padding-top:14vh;">
+    <div class="eyebrow">Ошибка 404</div>
+    <h1 class="page-title">Такой страницы здесь нет</h1>
+    <p class="page-sub">Ссылка устарела или проект был удалён. Вернитесь к списку проектов.</p>
+    <a class="btn btn-primary" href="index.html">Открыть проекты</a>
+  </main>
+</body>
+</html>
+
+
+==================================================
+Файл: ./smm/style.css
+==================================================
+
+/* ==========================================================================
+   SEO-Фабрика — дизайн-система «Наборный цех»
+   Светлый цех + чёрные чернила + синяя светокопия.
+   Подпись проекта: сегментные шкалы (.gauge) и цеховые номера этапов.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── палитра ── */
+  --ink:        #15171c;
+  --ink-soft:   #5a6069;
+  --ink-faint:  #8f959d;
+  --cloth:      #ecede7;   /* фон цеха */
+  --sheet:      #ffffff;   /* лист */
+  --sheet-2:    #f5f6f2;
+  --rule:       #dcdcd3;
+  --rule-soft:  #e8e9e2;
+  --blueprint:  #2536c8;   /* акцент */
+  --blueprint-2:#1a27a0;
+  --blueprint-tint: #eceefc;
+  --signal:     #c2410c;   /* сигнал тревоги */
+  --good:       #12734a;
+  --good-tint:  #e2f2e9;
+  --alarm:      #b91c1c;
+  --alarm-tint: #fbe9e9;
+  --hold:       #92620a;
+  --hold-tint:  #f8efdb;
+
+  /* ── легаси-алиасы (используются в инлайн-стилях страниц) ── */
+  --bg: var(--cloth);
+  --panel: var(--sheet);
+  --panel-2: var(--sheet-2);
+  --text: var(--ink);
+  --muted: var(--ink-soft);
+  --line: var(--rule);
+  --line-50: var(--rule-soft);
+  --accent: var(--blueprint);
+  --accent-2: var(--blueprint-2);
+  --ok: var(--good);
+  --ok-15: var(--good-tint);
+  --bad: var(--alarm);
+  --bad-15: var(--alarm-tint);
+  --warn: var(--hold);
+
+  /* ── типографика ── */
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Public Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'IBM Plex Mono', 'Cascadia Code', Consolas, monospace;
+
+  /* ── геометрия ── */
+  --radius: 4px;
+  --radius-sm: 3px;
+  --shadow: 0 1px 0 rgba(21,23,28,.04), 0 8px 24px -18px rgba(21,23,28,.35);
+  --shadow-lift: 0 2px 0 rgba(21,23,28,.05), 0 18px 40px -24px rgba(21,23,28,.45);
+  --pad: clamp(16px, 3vw, 28px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+html, body { min-height: 100%; }
+body {
+  background: var(--cloth);
+  color: var(--ink);
+  font: 400 15px/1.55 var(--body);
+  font-feature-settings: 'ss01', 'cv05';
+  letter-spacing: -.005em;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--blueprint); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible {
+  outline: 2px solid var(--blueprint);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+::selection { background: #d9ddf9; }
+
+/* ─────────────────────────────────────── шапка */
+.header {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--ink);
+  color: #f2f2ee;
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 var(--pad);
+  height: 58px;
+  display: flex; align-items: center; gap: 28px;
+}
+.logo {
+  font: 700 17px/1 var(--display);
+  letter-spacing: -.02em;
+  color: #fff;
+  display: inline-flex; align-items: center; gap: 9px;
+}
+.logo:hover { text-decoration: none; color: #fff; }
+.nav { display: flex; gap: 4px; font-size: 13.5px; margin-left: auto; }
+.nav a {
+  color: rgba(255,255,255,.62);
+  padding: 7px 13px; border-radius: 999px;
+  font-weight: 500; letter-spacing: .01em;
+  transition: background .16s, color .16s;
+}
+.nav a:hover { color: #fff; background: rgba(255,255,255,.09); text-decoration: none; }
+.nav a.active { color: var(--ink); background: #fff; }
+
+/* ───────────────────────────────────── каркас */
+.main {
+  max-width: 1200px; margin: 0 auto;
+  padding: clamp(24px, 4vw, 44px) var(--pad) 96px;
+}
+.page-title {
+  font: 700 clamp(28px, 4vw, 40px)/1.05 var(--display);
+  letter-spacing: -.03em;
+  margin-bottom: 8px;
+}
+.page-sub {
+  color: var(--ink-soft); font-size: 15px;
+  max-width: 62ch; margin-bottom: 28px;
+}
+.eyebrow {
+  font: 600 11px/1 var(--mono);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+/* ───────────────────────────────────── листы */
+.card {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: clamp(18px, 2.4vw, 26px);
+  box-shadow: var(--shadow);
+}
+.card + .card { margin-top: 18px; }
+.card h3 {
+  font: 700 17px/1.25 var(--display);
+  letter-spacing: -.015em;
+  margin-bottom: 4px;
+}
+.card .card-sub { color: var(--ink-soft); font-size: 13.5px; margin-bottom: 16px; }
+.card-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+}
+
+/* карточка проекта — цеховая карточка заказа */
+.proj-card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 22px 22px 18px;
+  color: var(--ink);
+  overflow: hidden;
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+.proj-card::before {
+  content: ''; position: absolute; inset: 0 auto 0 0; width: 3px;
+  background: var(--blueprint); opacity: 0; transition: opacity .18s;
+}
+.proj-card:hover {
+  text-decoration: none;
+  border-color: #c9cabf;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+.proj-card:hover::before { opacity: 1; }
+.proj-name {
+  font: 700 19px/1.2 var(--display);
+  letter-spacing: -.02em; color: var(--ink);
+}
+.proj-domain {
+  font: 500 12.5px/1 var(--mono);
+  color: var(--blueprint); letter-spacing: -.01em;
+}
+.proj-meta {
+  display: flex; gap: 8px 16px; flex-wrap: wrap;
+  align-items: center;
+  color: var(--ink-soft); font-size: 12.5px;
+  margin-top: 10px; padding-top: 12px;
+  border-top: 1px dashed var(--rule);
+}
+.proj-meta .num { font: 500 13px/1 var(--mono); color: var(--ink); }
+
+/* ───────────────────────────────────── кнопки */
+.btn {
+  font: 600 14px/1 var(--body);
+  letter-spacing: -.005em;
+  padding: 11px 18px;
+  border: 1px solid transparent; border-radius: var(--radius);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .16s, color .16s, border-color .16s, transform .08s;
+  white-space: nowrap;
+}
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--blueprint); }
+.btn-ghost { background: var(--sheet); border-color: var(--rule); color: var(--ink); }
+.btn-ghost:hover:not(:disabled) { border-color: var(--ink); background: var(--sheet-2); }
+.btn-danger { background: var(--alarm); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #971616; }
+.btn-ok { background: var(--good); color: #fff; }
+.btn-ok:hover:not(:disabled) { background: #0d5c3a; }
+.btn-sm { padding: 7px 13px; font-size: 13px; }
+.btn-link {
+  background: none; border: none; padding: 0;
+  font: 500 13px/1.4 var(--body); color: var(--blueprint);
+  cursor: pointer; text-underline-offset: 3px;
+}
+.btn-link:hover { text-decoration: underline; }
+
+/* ───────────────────────────────────── формы */
+.form-row { margin-bottom: 16px; }
+label {
+  display: block;
+  font: 600 11.5px/1 var(--mono);
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 7px;
+}
+input[type=text], input[type=password], input[type=number], select, textarea {
+  width: 100%;
+  font: 400 14.5px/1.4 var(--body);
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  transition: border-color .16s, box-shadow .16s;
+}
+input::placeholder, textarea::placeholder { color: #b3b8bd; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--blueprint);
+  box-shadow: 0 0 0 3px rgba(37,54,200,.12);
+}
+textarea {
+  resize: vertical; min-height: 92px;
+  font: 400 13px/1.6 var(--mono);
+}
+textarea.code { min-height: 240px; background: var(--sheet-2); }
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'><path d='M1 1l4.5 4.5L10 1' stroke='%235a6069' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 13px center;
+  padding-right: 34px;
+}
+input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--blueprint); }
+.checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.checkbox-row label {
+  margin: 0; color: var(--ink); font: 400 14px/1.4 var(--body);
+  letter-spacing: normal; text-transform: none;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+.fieldset {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--sheet);
+  padding: 22px; margin-bottom: 18px;
+}
+.fieldset legend {
+  font: 600 11.5px/1 var(--mono);
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink); padding: 0 9px;
+}
+.hint { font-size: 12.5px; color: var(--ink-faint); margin-top: 6px; }
+
+/* ───────────────────────────────────── этапы (табы) */
+.tabs {
+  display: flex; gap: 2px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 24px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  position: relative;
+  background: none; border: none; cursor: pointer;
+  font: 600 14px/1 var(--body);
+  color: var(--ink-faint);
+  padding: 14px 16px 15px;
+  display: inline-flex; align-items: center; gap: 9px;
+  white-space: nowrap;
+  transition: color .16s;
+}
+.tab-btn .step {
+  font: 600 11px/1 var(--mono);
+  color: var(--ink-faint);
+  background: var(--sheet-2); border: 1px solid var(--rule);
+  border-radius: 3px; padding: 3px 5px;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); }
+.tab-btn.active::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+  height: 2px; background: var(--ink);
+}
+.tab-btn.active .step { background: var(--ink); border-color: var(--ink); color: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: rise .22s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+
+/* ───────────────────────────────────── таблицы */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--sheet);
+}
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead { background: var(--sheet-2); }
+thead th {
+  text-align: left;
+  font: 600 11px/1 var(--mono);
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+tbody td { padding: 11px 15px; border-bottom: 1px solid var(--rule-soft); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8f9fb; }
+td .num, .mono { font: 500 13px/1 var(--mono); }
+
+/* ───────────────────────────────────── статусы */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 11.5px/1 var(--mono);
+  letter-spacing: .04em;
+  padding: 5px 9px; border-radius: 3px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.badge::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+}
+.badge.pending, .badge.draft, .badge.cancelled {
+  background: var(--sheet-2); border-color: var(--rule); color: var(--ink-soft);
+}
+.badge.queued { background: var(--hold-tint); border-color: #ecdcb4; color: var(--hold); }
+.badge.running, .badge.generating {
+  background: var(--blueprint-tint); border-color: #d3d8f7; color: var(--blueprint);
+}
+.badge.running::before, .badge.generating::before { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+.badge.success, .badge.ready, .badge.done, .badge.active, .badge.approved {
+  background: var(--good-tint); border-color: #c6e3d4; color: var(--good);
+}
+.badge.failed, .badge.error { background: var(--alarm-tint); border-color: #f2cfcf; color: var(--alarm); }
+
+/* ───────────────────────────────────── подпись: шкала */
+.gauge {
+  display: inline-flex; gap: 2px; vertical-align: middle;
+}
+.gauge i {
+  width: 5px; height: 14px; border-radius: 1px;
+  background: var(--rule);
+}
+.gauge i.on { background: var(--good); }
+.gauge.warn i.on { background: var(--hold); }
+.gauge.bad i.on { background: var(--alarm); }
+.gauge-row { display: inline-flex; align-items: center; gap: 9px; }
+.gauge-val { font: 600 13px/1 var(--mono); letter-spacing: -.02em; }
+
+/* прогресс */
+.progress-info {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font: 500 12.5px/1 var(--mono); color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.progress-outer {
+  height: 10px; background: var(--sheet-2);
+  border: 1px solid var(--rule); border-radius: 999px; overflow: hidden;
+}
+.progress-inner {
+  height: 100%; border-radius: 999px;
+  background: repeating-linear-gradient(115deg, var(--ink) 0 9px, #3a3f49 9px 18px);
+  background-size: 200% 100%;
+  transition: width .45s cubic-bezier(.4,0,.2,1);
+  animation: crawl 1.4s linear infinite;
+}
+@keyframes crawl { to { background-position: -36px 0; } }
+
+/* ───────────────────────────────────── сообщения */
+.alert {
+  font-size: 13.5px; line-height: 1.5;
+  padding: 13px 15px;
+  border: 1px solid var(--rule); border-left-width: 3px;
+  border-radius: var(--radius);
+  background: var(--sheet);
+  margin-bottom: 14px;
+}
+.alert-ok   { border-left-color: var(--good);  background: var(--good-tint);  color: #0d5c3a; }
+.alert-bad  { border-left-color: var(--alarm); background: var(--alarm-tint); color: #8f1414; }
+.alert-info { border-left-color: var(--blueprint); background: var(--blueprint-tint); color: var(--blueprint-2); }
+
+.checks-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.check-chip {
+  font: 500 12px/1 var(--mono);
+  padding: 6px 9px; border-radius: 3px;
+  border: 1px solid var(--rule);
+}
+.check-chip.passed { background: var(--good-tint); border-color: #c6e3d4; color: var(--good); }
+.check-chip.failed { background: var(--alarm-tint); border-color: #f2cfcf; color: var(--alarm); }
+
+/* ───────────────────────────────────── модалки */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(21,23,28,.45);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fade .16s ease both;
+}
+@keyframes fade { from { opacity: 0; } }
+.modal {
+  background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 6px;
+  box-shadow: 0 40px 80px -30px rgba(21,23,28,.6);
+  width: 100%; max-width: 1080px; max-height: 92vh;
+  display: flex; flex-direction: column;
+  animation: pop .2s cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.99); } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.modal-header h3 { font: 700 16px/1.2 var(--display); letter-spacing: -.015em; }
+.modal-body { overflow-y: auto; flex: 1; }
+.modal-body iframe { width: 100%; height: 640px; border: none; background: #fff; display: block; }
+.modal-close {
+  background: none; border: 1px solid transparent; cursor: pointer;
+  color: var(--ink-faint); font-size: 15px; line-height: 1;
+  width: 30px; height: 30px; border-radius: var(--radius);
+}
+.modal-close:hover { color: var(--ink); background: var(--sheet-2); border-color: var(--rule); }
+
+/* ───────────────────────────────────── бриф (чат) */
+.chat-container { display: flex; flex-direction: column; height: 560px; }
+.chat-messages {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 4px 2px 16px;
+}
+.chat-msg {
+  max-width: 76%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 14.5px; line-height: 1.55;
+  white-space: pre-wrap; word-break: break-word;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--ink); color: #fff;
+  border-bottom-right-radius: 3px;
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: var(--sheet-2); border: 1px solid var(--rule);
+  border-bottom-left-radius: 3px;
+}
+.chat-msg.system {
+  align-self: center; max-width: 100%;
+  background: none; padding: 2px;
+  font: 500 12px/1.5 var(--mono);
+  color: var(--ink-faint); text-align: center;
+}
+.chat-msg.loading {
+  align-self: flex-start;
+  background: var(--sheet-2); border: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+.chat-input-row {
+  display: flex; gap: 10px; align-items: flex-end;
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+.chat-input-row textarea {
+  flex: 1; min-height: 46px; max-height: 140px; resize: none;
+  font: 400 14.5px/1.5 var(--body);
+}
+.chat-input-row .btn-primary { flex-shrink: 0; }
+
+/* ───────────────────────────────────── пульт генерации */
+.gen-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.gen-status-msg { font-size: 13.5px; margin-top: 10px; }
+.turbo-badge {
+  font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--signal); background: #fdeee7; border: 1px solid #f6d3c4;
+  padding: 5px 8px; border-radius: 3px;
+}
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 14px 0;
+}
+.toggle-label { font-size: 14.5px; font-weight: 600; }
+.toggle-desc { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; max-width: 52ch; }
+.toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider {
+  position: absolute; inset: 0; cursor: pointer;
+  background: #cfd1c8; border-radius: 999px; transition: background .18s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  transition: transform .18s;
+}
+.toggle input:checked + .toggle-slider { background: var(--ink); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+.toggle input:focus-visible + .toggle-slider { outline: 2px solid var(--blueprint); outline-offset: 2px; }
+
+/* ───────────────────────────────────── пустота и ожидание */
+.empty { text-align: center; padding: 56px 24px; color: var(--ink-soft); }
+.empty .empty-icon {
+  font: 700 13px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 14px;
+}
+.empty p { margin-bottom: 20px; font-size: 14.5px; }
+.spinner {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid var(--rule); border-top-color: var(--ink);
+  border-radius: 50%; vertical-align: -2px;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ───────────────────────────────────── сводка цифр */
+.stat-strip {
+  display: grid; gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  background: var(--rule);
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 22px;
+}
+.stat { background: var(--sheet); padding: 16px 18px; }
+.stat-k {
+  font: 600 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 8px;
+}
+.stat-v { font: 700 26px/1 var(--display); letter-spacing: -.03em; }
+.stat-v small { font: 500 13px/1 var(--mono); color: var(--ink-faint); letter-spacing: 0; }
+
+/* ───────────────────────────────────── адаптив */
+@media (max-width: 760px) {
+  .header-inner { height: 54px; gap: 12px; }
+  .logo span.full { display: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .chat-msg { max-width: 90%; }
+  .chat-container { height: 66vh; }
+  .modal-body iframe { height: 70vh; }
+  .toggle-row { align-items: flex-start; }
+  .tab-btn { padding: 12px 11px; font-size: 13px; }
+  .tab-btn .step { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* ======================================================================
+   ТЕМА 2 — «Сапфир и персик»
+   Синий сапфир + серый оружейный металл + платина, смягчённые
+   персиково-оранжевым и коричневым. Холодный футуризм плюс
+   теплые земляные тона в акцентах.
+   Переключается в Настройках, хранится в localStorage.
+   ====================================================================== */
+html[data-theme="sapphire"] {
+  color-scheme: dark;
+
+  /* платина — текст */
+  --ink:        #eef1f6;
+  --ink-soft:   #aab4c2;
+  --ink-faint:  #7c8797;
+
+  /* оружейный металл — плоскости */
+  --cloth:      #191e25;
+  --sheet:      #222a33;
+  --sheet-2:    #2a333d;
+  --rule:       #38434f;
+  --rule-soft:  #2f3944;
+
+  /* сапфир — акцент */
+  --blueprint:  #5b8def;
+  --blueprint-2:#84a9f7;
+  --blueprint-tint: #1d2b45;
+
+  /* персиково-оранжевый и коричневый — теплые сигналы */
+  --signal:     #f0915a;
+  --good:       #58c795;
+  --good-tint:  #17322a;
+  --alarm:      #f07f7f;
+  --alarm-tint: #3a2325;
+  --hold:       #d9a05b;
+  --hold-tint:  #362a1b;
+
+  --shadow: 0 1px 0 rgba(0,0,0,.35), 0 10px 30px -18px rgba(0,0,0,.85);
+  --shadow-lift: 0 2px 0 rgba(0,0,0,.4), 0 22px 48px -24px rgba(0,0,0,.95);
+}
+
+/* Шапка и кнопки: тёплый персиковый как второй акцент */
+html[data-theme="sapphire"] .header {
+  background: linear-gradient(180deg, #202832 0%, #1a2129 100%);
+  border-bottom-color: var(--rule);
+}
+html[data-theme="sapphire"] .btn-primary {
+  background: linear-gradient(180deg, var(--blueprint) 0%, #3f6fd0 100%);
+  border-color: #3f6fd0;
+  color: #f7fafe;
+}
+html[data-theme="sapphire"] .btn-primary:hover { filter: brightness(1.08); }
+html[data-theme="sapphire"] input,
+html[data-theme="sapphire"] textarea,
+html[data-theme="sapphire"] select {
+  background: #1c232b;
+  color: var(--ink);
+  border-color: var(--rule);
+}
+html[data-theme="sapphire"] .eyebrow,
+html[data-theme="sapphire"] .num { color: var(--signal); }
+html[data-theme="sapphire"] iframe { background: #fff; }
+
+/* Кнопка удаления проекта на карточке */
+.proj-wrap { position: relative; }
+.proj-del {
+  position: absolute; top: 10px; right: 10px;
+  width: 26px; height: 26px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--rule); border-radius: var(--radius-sm);
+  background: var(--sheet); color: var(--ink-faint);
+  font-size: 15px; cursor: pointer; opacity: 0; transition: .15s;
+  z-index: 3;
+}
+.proj-wrap:hover .proj-del { opacity: 1; }
+.proj-del:hover { color: #fff; background: var(--alarm); border-color: var(--alarm); }
+.proj-del:focus-visible { opacity: 1; outline: 2px solid var(--blueprint); }
+
+/* Паспорт модели и предупреждения о целостности */
+.model-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11.5px;
+  padding: 2px 7px; border-radius: var(--radius-sm);
+  border: 1px solid var(--rule); background: var(--sheet-2); color: var(--ink-soft);
+}
+.model-tag.ok { border-color: var(--good); color: var(--good); background: var(--good-tint); }
+.model-tag.warn { border-color: var(--alarm); color: var(--alarm); background: var(--alarm-tint); }
+.integrity-warn {
+  border: 1px solid var(--alarm); background: var(--alarm-tint); color: var(--alarm);
+  padding: 10px 12px; border-radius: var(--radius); font-size: 13px; margin: 8px 0;
+}
+.theme-choice { display: flex; gap: 12px; flex-wrap: wrap; }
+.theme-card {
+  flex: 1 1 220px; text-align: left; cursor: pointer;
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--sheet); padding: 12px; transition: .15s;
+}
+.theme-card:hover { border-color: var(--blueprint); }
+.theme-card.active { border-color: var(--blueprint); box-shadow: 0 0 0 2px var(--blueprint-tint); }
+.theme-card b { display: block; font-family: var(--display); font-size: 14px; margin-bottom: 2px; }
+.theme-card span { font-size: 12px; color: var(--ink-soft); }
+.swatches { display: flex; gap: 4px; margin-top: 8px; }
+.swatches i { width: 22px; height: 22px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); }
