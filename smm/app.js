@@ -89,6 +89,8 @@ const api = {
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
+  deletePage:          (id, pid)       => req(`/projects/${id}/pages/${pid}`, { method: 'DELETE' }),
+  deletePages:         (id, ids)       => req(`/projects/${id}/pages/delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
   regeneratePage:      (pageId)        => req(`/pages/${pageId}/regenerate`, { method: 'POST' }),
   exportProject:       (id)            => `${API_BASE.replace(/\/$/, '')}/projects/${id}/export`,
   // Чат
@@ -179,3 +181,4 @@ function modelTag(obj) {
   if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
   return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
 }
+
