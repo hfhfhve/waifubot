@@ -213,6 +213,17 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   cursor: pointer; text-underline-offset: 3px;
 }
 .btn-link:hover { text-decoration: underline; }
+.btn-link.danger { color: var(--alarm); }
+.pages-toolbar {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--alarm-tint); color: var(--alarm);
+  border: 1px solid #f0c8c8; border-radius: var(--radius);
+  padding: 6px 10px; font-size: 13px;
+}
+.page-actions {
+  white-space: nowrap;
+  display: flex; gap: 8px; align-items: center; justify-content: flex-end;
+}
 
 /* ───────────────────────────────────── формы */
 .form-row { margin-bottom: 16px; }
