@@ -1,16 +1,16 @@
 # SMM Frontend — снимок репозитория
-# commit: 642e65d72e3409c66c7f517e0a546f4d818c0314
-# built:  2026-08-21 20:00 UTC
+# commit: ca8186b648ac5a564772d5c98cf8b2d1b72f2cc6
+# built:  2026-08-21 22:23 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
-smm/app.js  (181 строк)
+smm/app.js  (184 строк)
 smm/index.html  (175 строк)
-smm/project.html  (619 строк)
+smm/project.html  (688 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (261 строк)
-smm/style.css  (674 строк)
+smm/style.css  (685 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -136,6 +136,8 @@ const api = {
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
+  deletePage:          (id, pid)       => req(`/projects/${id}/pages/${pid}`, { method: 'DELETE' }),
+  deletePages:         (id, ids)       => req(`/projects/${id}/pages/delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
   regeneratePage:      (pageId)        => req(`/pages/${pageId}/regenerate`, { method: 'POST' }),
   exportProject:       (id)            => `${API_BASE.replace(/\/$/, '')}/projects/${id}/export`,
   // Чат
@@ -226,6 +228,7 @@ function modelTag(obj) {
   if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
   return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
 }
+
 
 ════════════════════════════════════════════════════════
   smm/index.html
@@ -420,7 +423,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -590,13 +593,22 @@ function modelTag(obj) {
       <!-- Tab: Страницы -->
       <div class="tab-content" id="tab-pages">
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
             <h3 style="margin:0;">📄 Страницы <span id="pagesCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
-            <button class="btn btn-sm btn-ghost" onclick="loadPages()">↻ Обновить</button>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div id="pagesToolbar" class="pages-toolbar" style="display:none;">
+                <span>Выбрано: <b id="pagesSelCount">0</b></span>
+                <button class="btn btn-danger btn-sm" id="deleteSelectedPagesBtn" type="button">Удалить выбранные</button>
+              </div>
+              <button class="btn btn-sm btn-ghost" onclick="loadPages()">↻ Обновить</button>
+            </div>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th>Проверки</th><th>Объём</th><th>Уник.</th><th></th></tr></thead>
-            <tbody id="pagesTableBody"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
+            <table><thead><tr>
+              <th style="width:36px;"><input type="checkbox" id="pagesSelectAll" title="Выделить все"></th>
+              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th>Проверки</th><th>Объём</th><th>Уник.</th><th></th>
+            </tr></thead>
+            <tbody id="pagesTableBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
           </div>
         </div>
       </div>
@@ -643,7 +655,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -991,20 +1003,79 @@ function modelTag(obj) {
     async function loadPages() {
       const tb = document.getElementById('pagesTableBody');
       try { const ps = await api.listPages(projectId); document.getElementById('pagesCount').textContent = `(${ps.length})`;
-        if (!ps.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Страниц нет</td></tr>'; updateExportSummary(0, 0); return; }
+        if (!ps.length) {
+          tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Страниц нет</td></tr>';
+          updateExportSummary(0, 0);
+          syncPagesToolbar();
+          return;
+        }
         const ready = ps.filter(p => p.status === 'ready').length; updateExportSummary(ps.length, ready);
         tb.innerHTML = ps.map(p => { const u = (p.checks||[]).find(c => c.check_name === 'uniqueness'); const l = (p.checks||[]).find(c => c.check_name === 'volume');
-          return `<tr><td style="color:var(--muted);">${p.id}</td><td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td><td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td><td>${badge(p.status)}</td>
+          return `<tr data-page-id="${p.id}">
+            <td><input type="checkbox" class="page-check" value="${p.id}"></td>
+            <td style="color:var(--muted);">${p.id}</td>
+            <td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td>
+            <td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td>
+            <td>${badge(p.status)}</td>
             <td><div class="checks-grid">${(p.checks||[]).map(c => `<span class="check-chip ${c.passed?'passed':'failed'}" title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">${c.check_name}</span>`).join('')||'—'}</div></td>
             <td style="color:var(--muted);">${l ? l.value + ' сим.' : '—'}</td>
             <td style="color:${u && parseFloat(u.value) >= 0.90 ? 'var(--ok)' : (u && parseFloat(u.value) >= 0.75 ? 'var(--warn, #d98324)' : 'var(--bad)')};" title="${u && u.nearest_page_id ? 'Ближайшая страница: #' + u.nearest_page_id + (u.signals ? ' | ' + Object.entries(u.signals).map(([k,v]) => k + ':' + v).join(', ') : '') : ''}">${u ? (parseFloat(u.value)*100).toFixed(1)+'%' : '—'}</td>
-            <td style="white-space:nowrap;"><button class="btn-link" onclick="previewPage(${p.id})"></button><button class="btn-link" onclick="downloadPage(${p.id}, '${escHtml(p.slug)}')"></button>${p.status==='failed'?`<button class="btn-link" onclick="regenPage(${p.id})">↺</button>`:''}</td></tr>`; }).join('');
-      } catch (e) { tb.innerHTML = `<tr><td colspan="8" style="color:var(--bad);padding:16px;">${e.message}</td></tr>`; }
+            <td class="page-actions">
+              <button class="btn btn-ghost btn-sm" type="button" onclick="previewPage(${p.id})">Предпросмотр</button>
+              <button class="btn btn-ghost btn-sm" type="button" onclick="downloadPage(${p.id}, '${escHtml(p.slug)}')">Скачать</button>
+              ${p.status==='failed'?`<button class="btn btn-ghost btn-sm" type="button" onclick="regenPage(${p.id})">↺ Ещё раз</button>`:''}
+              <button class="btn-link danger" type="button" onclick="deleteOnePage(${p.id})">Удалить</button>
+            </td></tr>`; }).join('');
+        syncPagesToolbar();
+      } catch (e) { tb.innerHTML = `<tr><td colspan="9" style="color:var(--bad);padding:16px;">${e.message}</td></tr>`; syncPagesToolbar(); }
     }
 
-    async function previewPage(id) { document.getElementById('pageModalTitle').textContent = 'Страница #' + id; document.getElementById('pageModal').style.display = 'flex'; document.getElementById('pagePreviewFrame').srcdoc = '<body style="background:#000;color:#fff;font-family:monospace;padding:20px;">…</body>'; try { const p = await api.getPage(projectId, id); document.getElementById('pageModalTitle').textContent = `👁 ${p.key||'—'} — ${p.slug}`; document.getElementById('pagePreviewFrame').srcdoc = p.html || ''; } catch (e) { document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:red;padding:20px;font-family:monospace;">${e.message}</body>`; } }
+    function selectedPageIds() {
+      return [...document.querySelectorAll('.page-check:checked')].map(el => parseInt(el.value, 10)).filter(Boolean);
+    }
+    function syncPagesToolbar() {
+      const ids = selectedPageIds();
+      const bar = document.getElementById('pagesToolbar');
+      const all = document.getElementById('pagesSelectAll');
+      const boxes = [...document.querySelectorAll('.page-check')];
+      if (bar) bar.style.display = ids.length ? 'inline-flex' : 'none';
+      const count = document.getElementById('pagesSelCount');
+      if (count) count.textContent = String(ids.length);
+      if (all) all.checked = boxes.length > 0 && boxes.every(b => b.checked);
+    }
+    document.getElementById('pagesSelectAll').addEventListener('change', function() {
+      document.querySelectorAll('.page-check').forEach(el => { el.checked = this.checked; });
+      syncPagesToolbar();
+    });
+    document.getElementById('pagesTableBody').addEventListener('change', e => {
+      if (e.target && e.target.classList.contains('page-check')) syncPagesToolbar();
+    });
+    document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
+
+    async function previewPage(id) {
+      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
+      document.getElementById('pageModal').style.display = 'flex';
+      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
+      try {
+        const p = await api.getPage(projectId, id);
+        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
+        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
+      } catch (e) {
+        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
+      }
+    }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
     async function regenPage(id) { try { await api.regeneratePage(id); showGenAlert('↺ Перегенерация поставлена в очередь', 'info'); loadPages(); } catch (e) { alert(e.message); } }
+    async function deleteOnePage(id) {
+      if (!confirm('Удалить эту страницу? Ключ вернётся в очередь — можно сгенерировать заново.')) return;
+      try { await api.deletePage(projectId, id); await loadPages(); loadProject(); } catch (e) { alert(e.message); }
+    }
+    async function deleteSelectedPages() {
+      const ids = selectedPageIds();
+      if (!ids.length) return;
+      if (!confirm(`Удалить выбранные страницы (${ids.length})? Ключи вернутся в очередь.`)) return;
+      try { await api.deletePages(projectId, ids); await loadPages(); loadProject(); } catch (e) { alert(e.message); }
+    }
     function updateExportSummary(total, ready) { const el = document.getElementById('exportSummary'); if (!el) return; el.textContent = total > 0 ? `Готово: ${ready}/${total}` : 'Нет страниц'; }
     function doExport() { window.open(`${API_BASE.replace(/\/$/, '')}/projects/${projectId}/export`, '_blank'); }
 
@@ -1030,6 +1101,7 @@ function modelTag(obj) {
   </script>
 </body>
 </html>
+
 
 ════════════════════════════════════════════════════════
   smm/robots.txt
@@ -1526,6 +1598,17 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   cursor: pointer; text-underline-offset: 3px;
 }
 .btn-link:hover { text-decoration: underline; }
+.btn-link.danger { color: var(--alarm); }
+.pages-toolbar {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--alarm-tint); color: var(--alarm);
+  border: 1px solid #f0c8c8; border-radius: var(--radius);
+  padding: 6px 10px; font-size: 13px;
+}
+.page-actions {
+  white-space: nowrap;
+  display: flex; gap: 8px; align-items: center; justify-content: flex-end;
+}
 
 /* ───────────────────────────────────── формы */
 .form-row { margin-bottom: 16px; }
