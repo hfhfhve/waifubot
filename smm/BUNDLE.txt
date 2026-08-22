@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: 0147f10e258c9c85e437a747f1e4005c52dd1d1b
+# commit: 89982fedad45d9934930a2a55f754433ff159e9e
 # built:  2026-08-22 15:11 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
-smm/app.js  (192 строк)
+smm/app.js  (197 строк)
 smm/index.html  (176 строк)
 smm/project.html  (746 строк)
 smm/robots.txt  (5 строк)
@@ -134,6 +134,11 @@ const api = {
   stopGeneration:      (id)            => req(`/projects/${id}/stop`, { method: 'POST' }),
   recomputeUniqueness: (id)            => req(`/projects/${id}/recompute-uniqueness`, { method: 'POST' }),
   listTasks:           (id)            => req(`/projects/${id}/tasks`),
+  // Повтор упавших задач: ids=[] — повторить все ошибки проекта
+  retryTasks:          (id, ids, parallel) => req(`/projects/${id}/tasks/retry?parallel=${parallel || 3}`, {
+                                            method: 'POST',
+                                            body: JSON.stringify({ ids: ids || [] }),
+                                          }),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
