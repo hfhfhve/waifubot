@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -137,7 +137,8 @@
       <div class="tab-content" id="tab-gen">
         <div class="card">
           <h3>Запуск генерации</h3>
-          <p class="card-sub">Запустить генерацию для всех ключей в очереди</p>
+          <p class="card-sub">Первый прогон — дешёвая модель. Повтор ошибок — сильная из настроек.</p>
+          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модели подгрузятся…</div>
           <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
           <div class="gen-controls">
             <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
@@ -243,7 +244,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -255,7 +256,7 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'gen')    { loadTasks(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
+        if (btn.dataset.tab === 'gen')    { loadTasks(); refreshGenModelHint(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
         if (btn.dataset.tab === 'pages')  loadPages();
         if (btn.dataset.tab === 'keys')   loadKeys();
       });
@@ -271,7 +272,7 @@
         document.getElementById('projLoading').style.display = 'none';
         document.getElementById('projHeader').style.display = 'block';
         loadModels();
-        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages()]);
+        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages(), refreshGenModelHint()]);
         if (currentProject.status === 'generating') startTasksPolling();
       } catch (e) {
         document.getElementById('projLoading').style.display = 'none';
@@ -677,6 +678,19 @@
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
+    async function refreshGenModelHint() {
+      const el = document.getElementById('genModelHint');
+      if (!el) return;
+      try {
+        const s = await api.getSettings();
+        const cheap = s.cheap_model?.value || '—';
+        const strong = s.strong_model?.value || '—';
+        el.textContent = 'Сейчас: первый прогон → ' + cheap + '  ·  повтор ошибок → ' + strong;
+      } catch (e) {
+        el.textContent = 'Не удалось прочитать модели из настроек.';
+      }
+    }
+
     async function retryTask(id, btn) {
       if (btn) { btn.disabled = true; btn.textContent = '…'; }
       try {
