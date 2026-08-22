@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 89982fedad45d9934930a2a55f754433ff159e9e
-# built:  2026-08-22 15:11 UTC
+# commit: b02d5ddd6e8a51e440b817b093ed7ebdd0e636c8
+# built:  2026-08-22 15:12 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
@@ -1199,7 +1199,7 @@ Sitemap:
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -1327,7 +1327,7 @@ Sitemap:
     </div>
   </main>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
   <script>
     let allModels = [];
 
