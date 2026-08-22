@@ -6731,6 +6731,8 @@ const api = {
                                             method: 'POST',
                                             body: JSON.stringify({ ids: ids || [] }),
                                           }),
+  // Лог попыток задачи: что модель ответила на попытке 1, 2, 3
+  taskAttempts:        (id, taskId)    => req(`/projects/${id}/tasks/${taskId}/attempts`),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
@@ -6831,7 +6833,7 @@ function modelTag(obj) {
     return `<span class="model-tag warn" title="Провайдер ответил другой моделью!">⚠ просили ${prov}${escHtml(asked)} → ответила ${escHtml(got)}</span>`;
   }
   if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
-  return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
+  return `<span class="model-tag" title="Провайдер ��е вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
 }
 
 
@@ -7268,7 +7270,27 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=11"></script>
+  <!-- Modal: лог попыток задачи -->
+  <div id="taskLogModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeModal(event, 'taskLogModal')">
+      <div class="modal" style="max-width:900px;" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3 id="taskLogTitle">Лог задачи</h3><button class="modal-close" onclick="closeModal(null,'taskLogModal')"></button></div>
+        <div class="modal-body">
+          <div id="taskLogTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <div id="taskLogError" class="alert alert-bad" style="display:none;"></div>
+          <div id="taskLogFields"></div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);">Ответ модели на этой попытке</div>
+          <pre id="taskLogRaw" style="max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,0,0,.25);padding:10px;border-radius:6px;"></pre>
+          <details style="margin-top:10px;">
+            <summary style="cursor:pointer;color:var(--muted);font-size:12px;">Показать промпт, который ушёл модели</summary>
+            <pre id="taskLogPrompt" style="max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,0,0,.25);padding:10px;border-radius:6px;"></pre>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=13"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -7573,7 +7595,7 @@ function modelTag(obj) {
       const tb = document.getElementById('turboToggle').checked; const pl = tb ? parseInt(document.getElementById('parallelNum').value) : 1;
       const btn = document.getElementById('startGenBtn'); btn.disabled = true; btn.textContent = '…';
       try { const r = await api.startGeneration(projectId, pl);
-        // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
+        // БЫЛО: любое created === 0 объя��лялось «нет ключей», даже когда ключей 78,
         // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
         if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
         else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${r.workers || pl} параллельно)` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
@@ -7616,9 +7638,12 @@ function modelTag(obj) {
         }
         tb.innerHTML = r.tasks.map(t => {
           const canRetry = t.status === 'failed' || t.status === 'cancelled';
-          const act = canRetry
-            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button>`
+          const retryBtn = canRetry
+            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button> `
             : '';
+          // Лог доступен всегда: по базе открывается последняя попытка,
+          // внутри можно переключиться на попытку 1, 2 или 3.
+          const act = retryBtn + `<button class="btn btn-ghost btn-sm" type="button" onclick="openTaskLog(${t.id})">🔍 Лог</button>`;
           const err = t.error ? escHtml(t.error) : '—';
           return `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);max-width:340px;" title="${escHtml(t.error || '')}">${err}</td><td style="white-space:nowrap;">${act}</td></tr>`;
         }).join('');
@@ -7689,16 +7714,20 @@ function modelTag(obj) {
     });
     document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
 
+    // Предпросмотр открывается отдельной вкладкой браузера — страница видна
+    // целиком, с нормальным скроллом и мобильным режимом. window.open вызывается
+    // СРАЗУ по клику, иначе браузер считает это всплывающей рекламой и блокирует.
     async function previewPage(id) {
-      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
-      document.getElementById('pageModal').style.display = 'flex';
-      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
+      const w = window.open('', '_blank');
+      if (!w) { alert('Браузер заблокировал новую вкладку. Разреши всплывающие окна для этого сайта.'); return; }
+      const write = (html) => { try { w.document.open(); w.document.write(html); w.document.close(); } catch (err) {} };
+      write('<!doctype html><meta charset="utf-8"><title>Загрузка…</title><body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка страницы #' + id + '…</body>');
       try {
         const p = await api.getPage(projectId, id);
-        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
-        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
+        write(p.html || '<!doctype html><meta charset="utf-8"><body style="padding:20px;font-family:sans-serif;">Пустая страница</body>');
+        try { w.document.title = `${p.key || ''} — ${p.slug || id}`; } catch (err) {}
       } catch (e) {
-        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
+        write(`<!doctype html><meta charset="utf-8"><body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`);
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
@@ -7713,6 +7742,60 @@ function modelTag(obj) {
       } catch (e) {
         el.textContent = 'Не удалось прочитать модели из настроек.';
       }
+    }
+
+    // ---------- Лог попыток задачи ----------
+    let taskLogData = null;
+
+    async function openTaskLog(taskId) {
+      const tabs = document.getElementById('taskLogTabs');
+      const errBox = document.getElementById('taskLogError');
+      document.getElementById('taskLogTitle').textContent = `Лог задачи #${taskId}`;
+      tabs.innerHTML = '<span style="color:var(--muted);">Загрузка…</span>';
+      errBox.style.display = 'none';
+      document.getElementById('taskLogFields').innerHTML = '';
+      document.getElementById('taskLogRaw').textContent = '';
+      document.getElementById('taskLogPrompt').textContent = '';
+      document.getElementById('taskLogModal').style.display = 'block';
+      try {
+        taskLogData = await api.taskAttempts(projectId, taskId);
+      } catch (e) {
+        tabs.innerHTML = '';
+        errBox.style.display = 'block';
+        errBox.className = 'alert alert-bad';
+        errBox.textContent = 'Не удалось загрузить лог: ' + (e.message || e);
+        return;
+      }
+      const list = taskLogData.attempts || [];
+      tabs.innerHTML = list.length
+        ? list.map((a, i) => `<button class="btn btn-sm btn-ghost" type="button" data-att="${i}" onclick="showAttempt(${i})">Попытка ${a.n} ${a.ok ? '✅' : '❌'}</button>`).join('')
+        : '<span style="color:var(--muted);">Попыток не записано</span>';
+      document.getElementById('taskLogPrompt').textContent = taskLogData.prompt || '—';
+      // По базе показываем последнюю попытку.
+      if (list.length) showAttempt(list.length - 1);
+    }
+
+    function showAttempt(i) {
+      if (!taskLogData) return;
+      const list = taskLogData.attempts || [];
+      const a = list[i];
+      if (!a) return;
+      document.querySelectorAll('#taskLogTabs button').forEach(b => {
+        const on = parseInt(b.dataset.att, 10) === i;
+        b.className = 'btn btn-sm ' + (on ? 'btn-primary' : 'btn-ghost');
+      });
+      const errBox = document.getElementById('taskLogError');
+      errBox.style.display = 'block';
+      errBox.className = a.ok ? 'alert alert-ok' : 'alert alert-bad';
+      errBox.textContent = a.ok ? 'Эта попытка прошла валидацию' : (a.error || 'Ошибка не записана');
+      const lens = a.field_lengths || {};
+      const names = Object.keys(lens);
+      const head = `<div style="color:var(--muted);font-size:12px;margin:8px 0;">Модель: ${escHtml(a.model || '—')} · символов в ответе: ${a.chars || 0}${names.length ? ` · полей: ${names.length}` : ''}</div>`;
+      const body = names.length
+        ? names.map(n => `<span style="display:inline-block;margin:2px 8px 2px 0;font-size:12px;color:var(--muted);">${escHtml(n)}: ${lens[n]}</span>`).join('')
+        : '';
+      document.getElementById('taskLogFields').innerHTML = head + body;
+      document.getElementById('taskLogRaw').textContent = a.raw || '(ответ не сохранён)';
     }
 
     async function retryTask(id, btn) {
