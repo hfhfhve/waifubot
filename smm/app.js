@@ -109,6 +109,11 @@ const api = {
                                             method: 'POST',
                                             body: JSON.stringify({ base_url: baseUrl, api_key: key }),
                                           }),
+  // Сохранённые кастомные ключи: их может быть несколько одновременно
+  listCustomEndpoints:  ()             => req('/settings/custom-endpoints'),
+  addCustomEndpoint:    (data)         => req('/settings/custom-endpoints', { method: 'POST', body: JSON.stringify(data) }),
+  deleteCustomEndpoint: (id)           => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' }),
+  testCustomEndpoint:   (id)           => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' }),
 };
 
 // ── Utils ──────────────────────────────────────────────
