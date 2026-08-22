@@ -92,6 +92,8 @@ const api = {
                                             method: 'POST',
                                             body: JSON.stringify({ ids: ids || [] }),
                                           }),
+  // Лог попыток задачи: что модель ответила на попытке 1, 2, 3
+  taskAttempts:        (id, taskId)    => req(`/projects/${id}/tasks/${taskId}/attempts`),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
@@ -192,6 +194,6 @@ function modelTag(obj) {
     return `<span class="model-tag warn" title="Провайдер ответил другой моделью!">⚠ просили ${prov}${escHtml(asked)} → ответила ${escHtml(got)}</span>`;
   }
   if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
-  return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
+  return `<span class="model-tag" title="Провайдер ��е вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
 }
 
