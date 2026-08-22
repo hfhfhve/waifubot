@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -131,9 +131,18 @@
     </div>
   </main>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
   <script>
     let allModels = [];
+
+    // Страховка от старого app.js в кэше браузера: если новых методов нет —
+    // добавляем их здесь, чтобы страница не падала с "is not a function".
+    if (typeof api.listCustomEndpoints !== 'function') {
+      api.listCustomEndpoints  = ()   => req('/settings/custom-endpoints');
+      api.addCustomEndpoint    = (d)  => req('/settings/custom-endpoints', { method: 'POST', body: JSON.stringify(d) });
+      api.deleteCustomEndpoint = (id) => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' });
+      api.testCustomEndpoint   = (id) => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' });
+    }
 
     async function init() {
       document.getElementById('apiBaseInput').value = API_BASE;
