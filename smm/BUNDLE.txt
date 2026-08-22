@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 5556035b79f3c0bfd98007d2bccc985e51fcc432
-# built:  2026-08-22 14:12 UTC
+# commit: 2c7763e5524799370d687dd9e3d24087bdc26957
+# built:  2026-08-22 14:27 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
@@ -9,7 +9,7 @@ smm/app.js  (187 строк)
 smm/index.html  (175 строк)
 smm/project.html  (699 строк)
 smm/robots.txt  (5 строк)
-smm/settings.html  (305 строк)
+smm/settings.html  (345 строк)
 smm/style.css  (693 строк)
 
 ════════════════════════════════════════════════════════
@@ -1131,6 +1131,7 @@ Sitemap:
   smm/settings.html
 ════════════════════════════════════════════════════════
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -1225,9 +1226,14 @@ Sitemap:
 
       <!-- Custom OpenAI-compatible API -->
       <div class="fieldset">
-        <legend>OpenAI-совместимый API (кастомный)</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">DeepSeek, Together AI, Groq, llama.cpp — любой endpoint в формате OpenAI</p>
+        <legend>Кастомные API-ключи (OpenAI-совместимые)</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Можно хранить сколько нужно ключей одновременно — новый больше не затирает старый. Модели каждого ключа появятся в списках моделей выше.</p>
+        <div id="endpointList" style="margin-bottom:14px;color:var(--muted);font-size:13px;">Загрузка…</div>
         <div class="form-grid">
+          <div class="form-row">
+            <label>Название (например: Gateway или DeepSeek)</label>
+            <input type="text" id="customName" placeholder="Мой шлюз">
+          </div>
           <div class="form-row">
             <label>Base URL (например: https://api.deepseek.com/v1)</label>
             <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
@@ -1236,13 +1242,9 @@ Sitemap:
             <label>API Key</label>
             <input type="password" id="customApiKey" placeholder="sk-…">
           </div>
-          <div class="form-row">
-            <label>Модель (slug, например: deepseek-chat)</label>
-            <input type="text" id="customModelName" placeholder="deepseek-chat">
-          </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-          <button class="btn btn-sm btn-primary" onclick="saveCustomApi()">Сохранить API</button>
+          <button class="btn btn-sm btn-primary" onclick="addCustomEndpoint()">Добавить ключ</button>
           <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Тест соединения</button>
         </div>
         <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
@@ -1269,11 +1271,13 @@ Sitemap:
     async function init() {
       document.getElementById('apiBaseInput').value = API_BASE;
       try {
-        const [settings, models] = await Promise.all([
+        const [settings, models, eps] = await Promise.all([
           api.getSettings(),
           api.getModels().catch(() => ({ models: [] })),
+          api.listCustomEndpoints().catch(() => ({ endpoints: [] })),
         ]);
         allModels = models.models || [];
+        renderEndpoints(eps.endpoints || []);
         fillForm(settings.settings || {});
         document.getElementById('loadMsg').style.display = 'none';
         document.getElementById('settingsForm').style.display = 'block';
@@ -1291,9 +1295,8 @@ Sitemap:
       fillSelect(document.getElementById('strongModel'), allModels, strongVal);
       fillSelect(document.getElementById('cheapModel'),  allModels, cheapVal);
 
-      document.getElementById('customBaseUrl').value   = s.custom_base_url?.value   || '';
-      document.getElementById('customApiKey').value    = s.custom_api_key?.value    || '';
-      document.getElementById('customModelName').value = s.custom_model_name?.value || '';
+      // Поля кастомного API теперь только для ДОБАВЛЕНИЯ нового ключа,
+      // поэтому специально оставляем их пустыми.
       document.getElementById('strongPrompt').value    = s.strong_system_prompt?.value || '';
       document.getElementById('cheapPrompt').value     = s.cheap_system_prompt?.value  || '';
       document.getElementById('strongMaxTokens').value = s.strong_max_tokens?.value ?? 16000;
@@ -1327,7 +1330,7 @@ Sitemap:
     async function saveSettings() {
       const strongSel = document.getElementById('strongModel').value;
       const cheapSel  = document.getElementById('cheapModel').value;
-      const getProvider = (slug) => slug.startsWith('custom/') ? 'custom' : 'openrouter';
+      const getProvider = (slug) => /^custom[:/]/.test(slug) ? 'custom' : 'openrouter';
 
       const payload = {
         strong_model: { value: strongSel, provider: getProvider(strongSel) },
@@ -1352,23 +1355,60 @@ Sitemap:
       }
     }
 
-    async function saveCustomApi() {
+    // ── Сохранённые кастомные ключи ────────────────────────
+    function renderEndpoints(list) {
+      const el = document.getElementById('endpointList');
+      if (!list.length) { el.textContent = 'Сохранённых ключей пока нет.'; return; }
+      el.innerHTML = list.map(ep => `
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(128,128,128,.22);">
+          <b>${escHtml(ep.name)}</b>
+          <span style="font-size:12px;">${escHtml(ep.base_url)}</span>
+          <span style="font-size:12px;">ключ: ${escHtml(ep.key_tail || 'нет')}</span>
+          <span style="margin-left:auto;display:flex;gap:6px;">
+            <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
+            <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
+          </span>
+        </div>`).join('');
+    }
+
+    async function addCustomEndpoint() {
+      const name    = document.getElementById('customName').value.trim();
       const baseUrl = document.getElementById('customBaseUrl').value.trim();
       const apiKey  = document.getElementById('customApiKey').value.trim();
-      const model   = document.getElementById('customModelName').value.trim();
       if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
-
-      const payload = {
-        custom_base_url:   { value: baseUrl },
-        custom_api_key:    { value: apiKey },
-        custom_model_name: { value: model },
-      };
       try {
-        await api.updateSettings(payload);
-        showCustomStatus('✅ Сохранено. Модели обновятся при перезагрузке.', 'ok');
-        setTimeout(() => init(), 1000);
+        await api.addCustomEndpoint({ name, base_url: baseUrl, api_key: apiKey });
+        document.getElementById('customName').value = '';
+        document.getElementById('customBaseUrl').value = '';
+        document.getElementById('customApiKey').value = '';
+        showCustomStatus('✅ Ключ сохранён, подгружаю его модели…', 'ok');
+        await init();
       } catch (e) {
         showCustomStatus('❌ ' + e.message, 'bad');
+      }
+    }
+
+    async function deleteEndpoint(id) {
+      if (!confirm('Удалить этот ключ? Его модели исчезнут из списков.')) return;
+      try {
+        const r = await api.deleteCustomEndpoint(id);
+        showCustomStatus(r && r.warning ? '⚠️ ' + r.warning : '✅ Ключ удалён', r && r.warning ? 'bad' : 'ok');
+        await init();
+      } catch (e) {
+        showCustomStatus('❌ ' + e.message, 'bad');
+      }
+    }
+
+    async function testEndpoint(id, btn) {
+      btn.disabled = true;
+      showCustomStatus('⏳ Проверяю ключ…', '');
+      try {
+        const r = await api.testCustomEndpoint(id);
+        showCustomStatus(r.message || (r.ok ? '✅ OK' : '⚠️ Ошибка'), r.ok ? 'ok' : 'bad');
+      } catch (e) {
+        showCustomStatus('❌ ' + e.message, 'bad');
+      } finally {
+        btn.disabled = false;
       }
     }
 
