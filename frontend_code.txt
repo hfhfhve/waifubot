@@ -7161,8 +7161,8 @@ function modelTag(obj) {
       <div class="tab-content" id="tab-gen">
         <div class="card">
           <h3>Запуск генерации</h3>
-          <p class="card-sub">Первый прогон — дешёвая модель. Повтор ошибок — сильная из настроек.</p>
-          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модели подгрузятся…</div>
+          <p class="card-sub">И первый прогон, и повтор ошибок — модель для страниц из настроек.</p>
+          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модель подгрузится…</div>
           <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
           <div class="gen-controls">
             <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
@@ -7706,10 +7706,10 @@ function modelTag(obj) {
       const el = document.getElementById('genModelHint');
       if (!el) return;
       try {
-        const s = await api.getSettings();
+        const raw = await api.getSettings();
+        const s = raw.settings || raw;
         const cheap = s.cheap_model?.value || '—';
-        const strong = s.strong_model?.value || '—';
-        el.textContent = 'Сейчас: первый прогон → ' + cheap + '  ·  повтор ошибок → ' + strong;
+        el.textContent = 'Страницы сейчас генерятся моделью: ' + cheap;
       } catch (e) {
         el.textContent = 'Не удалось прочитать модели из настроек.';
       }
@@ -7798,7 +7798,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -7839,11 +7839,11 @@ function modelTag(obj) {
         <legend>Модели ИИ</legend>
         <div class="form-grid">
           <div class="form-row">
-            <label>Сильная модель (чат-дизайнер)</label>
+            <label>Сильная модель — каркас и повтор ошибок</label>
             <select id="strongModel"></select>
           </div>
           <div class="form-row">
-            <label>Дешёвая модель (генерация)</label>
+            <label>Дешёвая модель — первый прогон страниц</label>
             <select id="cheapModel"></select>
           </div>
         </div>
@@ -7926,7 +7926,7 @@ function modelTag(obj) {
     </div>
   </main>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
   <script>
     let allModels = [];
 
