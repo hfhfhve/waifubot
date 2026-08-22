@@ -137,8 +137,8 @@
       <div class="tab-content" id="tab-gen">
         <div class="card">
           <h3>Запуск генерации</h3>
-          <p class="card-sub">Первый прогон — дешёвая модель. Повтор ошибок — сильная из настроек.</p>
-          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модели подгрузятся…</div>
+          <p class="card-sub">И первый прогон, и повтор ошибок — модель для страниц из настроек.</p>
+          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модель подгрузится…</div>
           <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
           <div class="gen-controls">
             <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
@@ -682,10 +682,10 @@
       const el = document.getElementById('genModelHint');
       if (!el) return;
       try {
-        const s = await api.getSettings();
+        const raw = await api.getSettings();
+        const s = raw.settings || raw;
         const cheap = s.cheap_model?.value || '—';
-        const strong = s.strong_model?.value || '—';
-        el.textContent = 'Сейчас: первый прогон → ' + cheap + '  ·  повтор ошибок → ' + strong;
+        el.textContent = 'Страницы сейчас генерятся моделью: ' + cheap;
       } catch (e) {
         el.textContent = 'Не удалось прочитать модели из настроек.';
       }
