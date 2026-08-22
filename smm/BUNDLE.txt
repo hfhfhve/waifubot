@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 881906e772388c6819ec26c777b39fe8b401a691
-# built:  2026-08-22 13:49 UTC
+# commit: 5556035b79f3c0bfd98007d2bccc985e51fcc432
+# built:  2026-08-22 14:12 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
@@ -572,7 +572,7 @@ function modelTag(obj) {
             </div>
             <div id="parallelCount" style="display:none;align-items:center;gap:8px;">
               <label style="margin:0;color:var(--text);">Параллельность:</label>
-              <select id="parallelNum" style="width:70px;"><option value="2">2</option><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
+              <select id="parallelNum" style="width:70px;"><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select>
             </div>
           </div>
           <div id="progressSection" style="display:none;margin-top:20px;">
@@ -967,7 +967,7 @@ function modelTag(obj) {
         // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
         // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
         if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
-        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
+        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${r.workers || pl} параллельно)` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
       } catch (e) { showGenAlert('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; btn.textContent = '▶ Запустить'; }
     };
 
