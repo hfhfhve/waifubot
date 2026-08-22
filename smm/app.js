@@ -87,6 +87,11 @@ const api = {
   stopGeneration:      (id)            => req(`/projects/${id}/stop`, { method: 'POST' }),
   recomputeUniqueness: (id)            => req(`/projects/${id}/recompute-uniqueness`, { method: 'POST' }),
   listTasks:           (id)            => req(`/projects/${id}/tasks`),
+  // Повтор упавших задач: ids=[] — повторить все ошибки проекта
+  retryTasks:          (id, ids, parallel) => req(`/projects/${id}/tasks/retry?parallel=${parallel || 3}`, {
+                                            method: 'POST',
+                                            body: JSON.stringify({ ids: ids || [] }),
+                                          }),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
