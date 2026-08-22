@@ -6726,6 +6726,11 @@ const api = {
   stopGeneration:      (id)            => req(`/projects/${id}/stop`, { method: 'POST' }),
   recomputeUniqueness: (id)            => req(`/projects/${id}/recompute-uniqueness`, { method: 'POST' }),
   listTasks:           (id)            => req(`/projects/${id}/tasks`),
+  // Повтор упавших задач: ids=[] — повторить все ошибки проекта
+  retryTasks:          (id, ids, parallel) => req(`/projects/${id}/tasks/retry?parallel=${parallel || 3}`, {
+                                            method: 'POST',
+                                            body: JSON.stringify({ ids: ids || [] }),
+                                          }),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
@@ -6835,6 +6840,7 @@ function modelTag(obj) {
 Файл: ./smm/index.html
 ==================================================
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6844,7 +6850,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проекты</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -6896,7 +6902,7 @@ function modelTag(obj) {
     </div>
   </main>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=9"></script>
   <script>
     const container = document.getElementById('projectsContainer');
 
@@ -7026,7 +7032,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -7155,7 +7161,8 @@ function modelTag(obj) {
       <div class="tab-content" id="tab-gen">
         <div class="card">
           <h3>Запуск генерации</h3>
-          <p class="card-sub">Запустить генерацию для всех ключей в очереди</p>
+          <p class="card-sub">Первый прогон — дешёвая модель. Повтор ошибок — сильная из настроек.</p>
+          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модели подгрузятся…</div>
           <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
           <div class="gen-controls">
             <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
@@ -7184,11 +7191,14 @@ function modelTag(obj) {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <h3 style="margin:0;">📋 Задачи <span id="tasksCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
             <div style="color:var(--muted);font-size:13px;" id="totalCost"></div>
-            <button class="btn btn-sm btn-ghost" onclick="loadTasks()">↻ Обновить</button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-primary" id="retryAllBtn" style="display:none;" onclick="retryAllFailed()">↺ Повторить все ошибки</button>
+              <button class="btn btn-sm btn-ghost" onclick="loadTasks()">↻ Обновить</button>
+            </div>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>#</th><th>Ключ</th><th>Модель</th><th>Статус</th><th>Попытки</th><th>Стоимость</th><th>Ошибка</th></tr></thead>
-            <tbody id="tasksTableBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач пока нет. Запустите генерацию.</td></tr></tbody></table>
+            <table><thead><tr><th>#</th><th>Ключ</th><th>Модель</th><th>Статус</th><th>Попытки</th><th>Стоимость</th><th>Ошибка</th><th></th></tr></thead>
+            <tbody id="tasksTableBody"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Задач пока нет. Запустите генерацию.</td></tr></tbody></table>
           </div>
         </div>
       </div>
@@ -7258,7 +7268,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=11"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -7270,7 +7280,7 @@ function modelTag(obj) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'gen')    { loadTasks(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
+        if (btn.dataset.tab === 'gen')    { loadTasks(); refreshGenModelHint(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
         if (btn.dataset.tab === 'pages')  loadPages();
         if (btn.dataset.tab === 'keys')   loadKeys();
       });
@@ -7286,7 +7296,7 @@ function modelTag(obj) {
         document.getElementById('projLoading').style.display = 'none';
         document.getElementById('projHeader').style.display = 'block';
         loadModels();
-        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages()]);
+        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages(), refreshGenModelHint()]);
         if (currentProject.status === 'generating') startTasksPolling();
       } catch (e) {
         document.getElementById('projLoading').style.display = 'none';
@@ -7596,8 +7606,22 @@ function modelTag(obj) {
           if (r.pending === 0 && r.running === 0) { document.getElementById('stopGenBtn').style.display = 'none'; document.getElementById('turboActive').style.display = 'none'; stopTasksPolling(); } else { document.getElementById('stopGenBtn').style.display = 'inline-flex'; }
         }
         const tb = document.getElementById('tasksTableBody');
-        if (!r.tasks.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач нет</td></tr>'; return; }
-        tb.innerHTML = r.tasks.map(t => `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);" title="${escHtml(t.error || '')}">${escHtml(t.error || '—')}</td></tr>`).join('');
+        if (!r.tasks.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Задач нет</td></tr>'; return; }
+        // Кнопка "Повторить все ошибки" появляется, только если ошибки есть.
+        const failedCount = r.tasks.filter(t => t.status === 'failed' || t.status === 'cancelled').length;
+        const raBtn = document.getElementById('retryAllBtn');
+        if (raBtn) {
+          raBtn.style.display = failedCount ? 'inline-flex' : 'none';
+          raBtn.textContent = `↺ Повторить все ошибки (${failedCount})`;
+        }
+        tb.innerHTML = r.tasks.map(t => {
+          const canRetry = t.status === 'failed' || t.status === 'cancelled';
+          const act = canRetry
+            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button>`
+            : '';
+          const err = t.error ? escHtml(t.error) : '—';
+          return `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);max-width:340px;" title="${escHtml(t.error || '')}">${err}</td><td style="white-space:nowrap;">${act}</td></tr>`;
+        }).join('');
       } catch (e) { }
     }
 
@@ -7678,6 +7702,49 @@ function modelTag(obj) {
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
+    async function refreshGenModelHint() {
+      const el = document.getElementById('genModelHint');
+      if (!el) return;
+      try {
+        const s = await api.getSettings();
+        const cheap = s.cheap_model?.value || '—';
+        const strong = s.strong_model?.value || '—';
+        el.textContent = 'Сейчас: первый прогон → ' + cheap + '  ·  повтор ошибок → ' + strong;
+      } catch (e) {
+        el.textContent = 'Не удалось прочитать модели из настроек.';
+      }
+    }
+
+    async function retryTask(id, btn) {
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      try {
+        const r = await api.retryTasks(projectId, [id]);
+        if (!r.retried) { showGenAlert(r.reason || 'Нечего повторять.', 'info', true); }
+        else { showGenAlert('↺ Задача поставлена в очередь заново.', 'ok'); startTasksPolling(); }
+        loadTasks();
+      } catch (e) {
+        showGenAlert('❌ ' + e.message, 'bad', true);
+        if (btn) { btn.disabled = false; btn.textContent = '↺ Ещё раз'; }
+      }
+    }
+
+    async function retryAllFailed() {
+      const btn = document.getElementById('retryAllBtn');
+      const pl = document.getElementById('turboToggle').checked
+        ? parseInt(document.getElementById('parallelNum').value, 10) : 3;
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      try {
+        const r = await api.retryTasks(projectId, [], pl);
+        if (!r.retried) { showGenAlert(r.reason || 'Нет задач с ошибкой.', 'info', true); }
+        else { showGenAlert(`↺ Перезапущено задач: ${r.retried} (параллельно ×${r.workers}).`, 'ok'); startTasksPolling(); }
+        loadTasks();
+      } catch (e) {
+        showGenAlert('❌ ' + e.message, 'bad', true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     async function regenPage(id) { try { await api.regeneratePage(id); showGenAlert('↺ Перегенерация поставлена в очередь', 'info'); loadPages(); } catch (e) { alert(e.message); } }
     async function deleteOnePage(id) {
       if (!confirm('Удалить эту страницу? Ключ вернётся в очередь — можно сгенерировать заново.')) return;
@@ -7731,7 +7798,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -7748,7 +7815,7 @@ function modelTag(obj) {
 
   <main class="main" style="max-width:860px;">
     <div class="page-title">Глобальные настройки</div>
-    <div class="page-sub">Подключение к бэкенду, модели ИИ, промпты и кастомный API. Пороги качества и стоп-слова — внутри проекта.</div>
+    <div class="page-sub">Бэкенд, модели ИИ, промпты и API-ключи. Пороги качества и стоп-слова — внутри проекта.</div>
 
     <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
       <span class="spinner"></span> Загрузка настроек…
@@ -7816,28 +7883,33 @@ function modelTag(obj) {
 
       <!-- Custom OpenAI-compatible API -->
       <div class="fieldset">
-        <legend>Кастомные API-ключи (OpenAI-совместимые)</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Можно хранить сколько нужно ключей одновременно — новый больше не затирает старый. Модели каждого ключа появятся в списках моделей выше.</p>
-        <div id="endpointList" style="margin-bottom:14px;color:var(--muted);font-size:13px;">Загрузка…</div>
+        <legend>Кастомные API-ключи</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Ключей может быть сколько угодно — новый не затирает старый. Модели каждого ключа появляются в списках моделей выше.</p>
+
+        <div id="endpointList" style="margin-bottom:20px;"></div>
+
         <div class="form-grid">
           <div class="form-row">
-            <label>Название (например: Gateway или DeepSeek)</label>
+            <label>Название</label>
             <input type="text" id="customName" placeholder="Мой шлюз">
+            <div class="hint">Чтобы отличать ключи друг от друга</div>
           </div>
           <div class="form-row">
-            <label>Base URL (например: https://api.deepseek.com/v1)</label>
+            <label>Base URL</label>
             <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
+            <div class="hint">Адрес OpenAI-совместимого API</div>
           </div>
-          <div class="form-row">
-            <label>API Key</label>
+          <div class="form-row full">
+            <label>API-ключ</label>
             <input type="password" id="customApiKey" placeholder="sk-…">
           </div>
         </div>
+
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn btn-sm btn-primary" onclick="addCustomEndpoint()">Добавить ключ</button>
-          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Тест соединения</button>
+          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Проверить перед добавлением</button>
         </div>
-        <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
+        <div id="customApiStatus" style="font-size:13px;margin-top:10px;"></div>
       </div>
 
       <!-- Цветовое оформление -->
@@ -7854,7 +7926,7 @@ function modelTag(obj) {
     </div>
   </main>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
   <script>
     let allModels = [];
 
@@ -7957,16 +8029,20 @@ function modelTag(obj) {
     // ── Сохранённые кастомные ключи ────────────────────────
     function renderEndpoints(list) {
       const el = document.getElementById('endpointList');
-      if (!list.length) { el.textContent = 'Сохранённых ключей пока нет.'; return; }
+      if (!list.length) {
+        el.innerHTML = '<div style="color:var(--muted);font-size:13px;">Ключей пока нет — добавьте первый ниже.</div>';
+        return;
+      }
       el.innerHTML = list.map(ep => `
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(128,128,128,.22);">
-          <b>${escHtml(ep.name)}</b>
-          <span style="font-size:12px;">${escHtml(ep.base_url)}</span>
-          <span style="font-size:12px;">ключ: ${escHtml(ep.key_tail || 'нет')}</span>
-          <span style="margin-left:auto;display:flex;gap:6px;">
-            <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
-            <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
-          </span>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;
+                    border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);">
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:600;line-height:1.3;">${escHtml(ep.name)}</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px;
+                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(ep.base_url)} · ключ ${escHtml(ep.key_tail || 'не задан')}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
+          <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
         </div>`).join('');
     }
 
