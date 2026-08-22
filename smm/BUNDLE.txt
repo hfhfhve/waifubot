@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 14afd581a2d24cc0a14fcfadd1367d8efb4099a7
-# built:  2026-08-22 14:42 UTC
+# commit: 0147f10e258c9c85e437a747f1e4005c52dd1d1b
+# built:  2026-08-22 15:11 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
 smm/app.js  (192 строк)
 smm/index.html  (176 строк)
-smm/project.html  (699 строк)
+smm/project.html  (746 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (363 строк)
 smm/style.css  (693 строк)
@@ -433,7 +433,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -591,11 +591,14 @@ function modelTag(obj) {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <h3 style="margin:0;">📋 Задачи <span id="tasksCount" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
             <div style="color:var(--muted);font-size:13px;" id="totalCost"></div>
-            <button class="btn btn-sm btn-ghost" onclick="loadTasks()">↻ Обновить</button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-primary" id="retryAllBtn" style="display:none;" onclick="retryAllFailed()">↺ Повторить все ошибки</button>
+              <button class="btn btn-sm btn-ghost" onclick="loadTasks()">↻ Обновить</button>
+            </div>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>#</th><th>Ключ</th><th>Модель</th><th>Статус</th><th>Попытки</th><th>Стоимость</th><th>Ошибка</th></tr></thead>
-            <tbody id="tasksTableBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач пока нет. Запустите генерацию.</td></tr></tbody></table>
+            <table><thead><tr><th>#</th><th>Ключ</th><th>Модель</th><th>Статус</th><th>Попытки</th><th>Стоимость</th><th>Ошибка</th><th></th></tr></thead>
+            <tbody id="tasksTableBody"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Задач пока нет. Запустите генерацию.</td></tr></tbody></table>
           </div>
         </div>
       </div>
@@ -665,7 +668,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -1003,8 +1006,22 @@ function modelTag(obj) {
           if (r.pending === 0 && r.running === 0) { document.getElementById('stopGenBtn').style.display = 'none'; document.getElementById('turboActive').style.display = 'none'; stopTasksPolling(); } else { document.getElementById('stopGenBtn').style.display = 'inline-flex'; }
         }
         const tb = document.getElementById('tasksTableBody');
-        if (!r.tasks.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Задач нет</td></tr>'; return; }
-        tb.innerHTML = r.tasks.map(t => `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);" title="${escHtml(t.error || '')}">${escHtml(t.error || '—')}</td></tr>`).join('');
+        if (!r.tasks.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Задач нет</td></tr>'; return; }
+        // Кнопка "Повторить все ошибки" появляется, только если ошибки есть.
+        const failedCount = r.tasks.filter(t => t.status === 'failed' || t.status === 'cancelled').length;
+        const raBtn = document.getElementById('retryAllBtn');
+        if (raBtn) {
+          raBtn.style.display = failedCount ? 'inline-flex' : 'none';
+          raBtn.textContent = `↺ Повторить все ошибки (${failedCount})`;
+        }
+        tb.innerHTML = r.tasks.map(t => {
+          const canRetry = t.status === 'failed' || t.status === 'cancelled';
+          const act = canRetry
+            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button>`
+            : '';
+          const err = t.error ? escHtml(t.error) : '—';
+          return `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);max-width:340px;" title="${escHtml(t.error || '')}">${err}</td><td style="white-space:nowrap;">${act}</td></tr>`;
+        }).join('');
       } catch (e) { }
     }
 
@@ -1085,6 +1102,36 @@ function modelTag(obj) {
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
+    async function retryTask(id, btn) {
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      try {
+        const r = await api.retryTasks(projectId, [id]);
+        if (!r.retried) { showGenAlert(r.reason || 'Нечего повторять.', 'info', true); }
+        else { showGenAlert('↺ Задача поставлена в очередь заново.', 'ok'); startTasksPolling(); }
+        loadTasks();
+      } catch (e) {
+        showGenAlert('❌ ' + e.message, 'bad', true);
+        if (btn) { btn.disabled = false; btn.textContent = '↺ Ещё раз'; }
+      }
+    }
+
+    async function retryAllFailed() {
+      const btn = document.getElementById('retryAllBtn');
+      const pl = document.getElementById('turboToggle').checked
+        ? parseInt(document.getElementById('parallelNum').value, 10) : 3;
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      try {
+        const r = await api.retryTasks(projectId, [], pl);
+        if (!r.retried) { showGenAlert(r.reason || 'Нет задач с ошибкой.', 'info', true); }
+        else { showGenAlert(`↺ Перезапущено задач: ${r.retried} (параллельно ×${r.workers}).`, 'ok'); startTasksPolling(); }
+        loadTasks();
+      } catch (e) {
+        showGenAlert('❌ ' + e.message, 'bad', true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     async function regenPage(id) { try { await api.regeneratePage(id); showGenAlert('↺ Перегенерация поставлена в очередь', 'info'); loadPages(); } catch (e) { alert(e.message); } }
     async function deleteOnePage(id) {
       if (!confirm('Удалить эту страницу? Ключ вернётся в очередь — можно сгенерировать заново.')) return;
