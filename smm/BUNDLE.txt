@@ -1,15 +1,15 @@
 # SMM Frontend — снимок репозитория
-# commit: d3406d77140149b3a9beddd42ed21373bf2d6a74
-# built:  2026-08-22 14:27 UTC
+# commit: ee15fdecb62d3446884748e73b21cb67d5d4a1c7
+# built:  2026-08-22 14:34 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
 smm/app.js  (192 строк)
-smm/index.html  (175 строк)
+smm/index.html  (176 строк)
 smm/project.html  (699 строк)
 smm/robots.txt  (5 строк)
-smm/settings.html  (345 строк)
+smm/settings.html  (354 строк)
 smm/style.css  (693 строк)
 
 ════════════════════════════════════════════════════════
@@ -242,6 +242,7 @@ function modelTag(obj) {
   smm/index.html
 ════════════════════════════════════════════════════════
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -251,7 +252,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проекты</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -303,7 +304,7 @@ function modelTag(obj) {
     </div>
   </main>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=9"></script>
   <script>
     const container = document.getElementById('projectsContainer');
 
@@ -432,7 +433,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -664,7 +665,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=9"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -1146,7 +1147,7 @@ Sitemap:
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -1269,9 +1270,18 @@ Sitemap:
     </div>
   </main>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
   <script>
     let allModels = [];
+
+    // Страховка от старого app.js в кэше браузера: если новых методов нет —
+    // добавляем их здесь, чтобы страница не падала с "is not a function".
+    if (typeof api.listCustomEndpoints !== 'function') {
+      api.listCustomEndpoints  = ()   => req('/settings/custom-endpoints');
+      api.addCustomEndpoint    = (d)  => req('/settings/custom-endpoints', { method: 'POST', body: JSON.stringify(d) });
+      api.deleteCustomEndpoint = (id) => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' });
+      api.testCustomEndpoint   = (id) => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' });
+    }
 
     async function init() {
       document.getElementById('apiBaseInput').value = API_BASE;
