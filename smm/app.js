@@ -1,3 +1,4 @@
+
 /* SEO-Фабрика — API-клиент (vanilla JS) */
 
 const API_BASE = (() => {
@@ -125,7 +126,9 @@ function statusLabel(status) {
   const map = {
     draft: 'Черновик', active: 'Активен', generating: 'Генерируется…',
     done: 'Готов', error: 'Ошибка',
-    pending: 'В очереди', queued: 'В очереди', running: 'Выполняется',
+    // pending и queued раньше оба подписывались как «В очереди», и было не понять,
+    // ждёт ли ключ запуска или по нему уже создана задача.
+    pending: 'В очереди', queued: 'Взят в задачу', running: 'Выполняется',
     success: 'Успех', failed: 'Ошибка', cancelled: 'Отменён',
     ready: 'Готов', approved: 'Утверждён',
   };
