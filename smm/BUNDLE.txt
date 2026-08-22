@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: 2c7763e5524799370d687dd9e3d24087bdc26957
+# commit: d3406d77140149b3a9beddd42ed21373bf2d6a74
 # built:  2026-08-22 14:27 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
-smm/app.js  (187 строк)
+smm/app.js  (192 строк)
 smm/index.html  (175 строк)
 smm/project.html  (699 строк)
 smm/robots.txt  (5 строк)
@@ -156,6 +156,11 @@ const api = {
                                             method: 'POST',
                                             body: JSON.stringify({ base_url: baseUrl, api_key: key }),
                                           }),
+  // Сохранённые кастомные ключи: их может быть несколько одновременно
+  listCustomEndpoints:  ()             => req('/settings/custom-endpoints'),
+  addCustomEndpoint:    (data)         => req('/settings/custom-endpoints', { method: 'POST', body: JSON.stringify(data) }),
+  deleteCustomEndpoint: (id)           => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' }),
+  testCustomEndpoint:   (id)           => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' }),
 };
 
 // ── Utils ──────────────────────────────────────────────
