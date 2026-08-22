@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: ee15fdecb62d3446884748e73b21cb67d5d4a1c7
-# built:  2026-08-22 14:34 UTC
+# commit: 14afd581a2d24cc0a14fcfadd1367d8efb4099a7
+# built:  2026-08-22 14:42 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
@@ -9,7 +9,7 @@ smm/app.js  (192 строк)
 smm/index.html  (176 строк)
 smm/project.html  (699 строк)
 smm/robots.txt  (5 строк)
-smm/settings.html  (354 строк)
+smm/settings.html  (363 строк)
 smm/style.css  (693 строк)
 
 ════════════════════════════════════════════════════════
@@ -1164,7 +1164,7 @@ Sitemap:
 
   <main class="main" style="max-width:860px;">
     <div class="page-title">Глобальные настройки</div>
-    <div class="page-sub">Подключение к бэкенду, модели ИИ, промпты и кастомный API. Пороги качества и стоп-слова — внутри проекта.</div>
+    <div class="page-sub">Бэкенд, модели ИИ, промпты и API-ключи. Пороги качества и стоп-слова — внутри проекта.</div>
 
     <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
       <span class="spinner"></span> Загрузка настроек…
@@ -1232,28 +1232,33 @@ Sitemap:
 
       <!-- Custom OpenAI-compatible API -->
       <div class="fieldset">
-        <legend>Кастомные API-ключи (OpenAI-совместимые)</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Можно хранить сколько нужно ключей одновременно — новый больше не затирает старый. Модели каждого ключа появятся в списках моделей выше.</p>
-        <div id="endpointList" style="margin-bottom:14px;color:var(--muted);font-size:13px;">Загрузка…</div>
+        <legend>Кастомные API-ключи</legend>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Ключей может быть сколько угодно — новый не затирает старый. Модели каждого ключа появляются в списках моделей выше.</p>
+
+        <div id="endpointList" style="margin-bottom:20px;"></div>
+
         <div class="form-grid">
           <div class="form-row">
-            <label>Название (например: Gateway или DeepSeek)</label>
+            <label>Название</label>
             <input type="text" id="customName" placeholder="Мой шлюз">
+            <div class="hint">Чтобы отличать ключи друг от друга</div>
           </div>
           <div class="form-row">
-            <label>Base URL (например: https://api.deepseek.com/v1)</label>
+            <label>Base URL</label>
             <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
+            <div class="hint">Адрес OpenAI-совместимого API</div>
           </div>
-          <div class="form-row">
-            <label>API Key</label>
+          <div class="form-row full">
+            <label>API-ключ</label>
             <input type="password" id="customApiKey" placeholder="sk-…">
           </div>
         </div>
+
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn btn-sm btn-primary" onclick="addCustomEndpoint()">Добавить ключ</button>
-          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Тест соединения</button>
+          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Проверить перед добавлением</button>
         </div>
-        <div id="customApiStatus" style="font-size:13px;margin-top:8px;"></div>
+        <div id="customApiStatus" style="font-size:13px;margin-top:10px;"></div>
       </div>
 
       <!-- Цветовое оформление -->
@@ -1373,16 +1378,20 @@ Sitemap:
     // ── Сохранённые кастомные ключи ────────────────────────
     function renderEndpoints(list) {
       const el = document.getElementById('endpointList');
-      if (!list.length) { el.textContent = 'Сохранённых ключей пока нет.'; return; }
+      if (!list.length) {
+        el.innerHTML = '<div style="color:var(--muted);font-size:13px;">Ключей пока нет — добавьте первый ниже.</div>';
+        return;
+      }
       el.innerHTML = list.map(ep => `
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(128,128,128,.22);">
-          <b>${escHtml(ep.name)}</b>
-          <span style="font-size:12px;">${escHtml(ep.base_url)}</span>
-          <span style="font-size:12px;">ключ: ${escHtml(ep.key_tail || 'нет')}</span>
-          <span style="margin-left:auto;display:flex;gap:6px;">
-            <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
-            <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
-          </span>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;
+                    border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);">
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:600;line-height:1.3;">${escHtml(ep.name)}</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px;
+                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(ep.base_url)} · ключ ${escHtml(ep.key_tail || 'не задан')}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
+          <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
         </div>`).join('');
     }
 
