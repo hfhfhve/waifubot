@@ -153,7 +153,7 @@
             </div>
             <div id="parallelCount" style="display:none;align-items:center;gap:8px;">
               <label style="margin:0;color:var(--text);">Параллельность:</label>
-              <select id="parallelNum" style="width:70px;"><option value="2">2</option><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
+              <select id="parallelNum" style="width:70px;"><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select>
             </div>
           </div>
           <div id="progressSection" style="display:none;margin-top:20px;">
@@ -548,7 +548,7 @@
         // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
         // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
         if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
-        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
+        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${r.workers || pl} параллельно)` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
       } catch (e) { showGenAlert('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; btn.textContent = '▶ Запустить'; }
     };
 
