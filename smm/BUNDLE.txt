@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: aa551c389f34659eb5d6c2f480840d066d5539eb
+# commit: 5c97ec988cac4ab36168ea66fe610d72a13fc06f
 # built:  2026-08-22 19:25 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
-smm/app.js  (197 строк)
+smm/app.js  (199 строк)
 smm/index.html  (176 строк)
 smm/project.html  (837 строк)
 smm/robots.txt  (5 строк)
@@ -139,6 +139,8 @@ const api = {
                                             method: 'POST',
                                             body: JSON.stringify({ ids: ids || [] }),
                                           }),
+  // Лог попыток задачи: что модель ответила на попытке 1, 2, 3
+  taskAttempts:        (id, taskId)    => req(`/projects/${id}/tasks/${taskId}/attempts`),
   // Страницы
   listPages:           (id)            => req(`/projects/${id}/pages`),
   getPage:             (id, pid)       => req(`/projects/${id}/pages/${pid}`),
@@ -239,7 +241,7 @@ function modelTag(obj) {
     return `<span class="model-tag warn" title="Провайдер ответил другой моделью!">⚠ просили ${prov}${escHtml(asked)} → ответила ${escHtml(got)}</span>`;
   }
   if (got) return `<span class="model-tag ok" title="Подтверждено ответом API">✓ ${prov}${escHtml(got)}</span>`;
-  return `<span class="model-tag" title="Провайдер не вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
+  return `<span class="model-tag" title="Провайдер ��е вернул имя модели">${prov}${escHtml(asked)} (не подтверждено)</span>`;
 }
 
 
