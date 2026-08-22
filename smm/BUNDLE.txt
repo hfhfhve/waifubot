@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 42e04e29fc75eac1d2280a0afaf8c27121caf0d1
-# built:  2026-08-22 16:46 UTC
+# commit: aa551c389f34659eb5d6c2f480840d066d5539eb
+# built:  2026-08-22 19:25 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
 smm/app.js  (197 строк)
 smm/index.html  (176 строк)
-smm/project.html  (760 строк)
+smm/project.html  (837 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (363 строк)
 smm/style.css  (693 строк)
@@ -567,8 +567,8 @@ function modelTag(obj) {
       <div class="tab-content" id="tab-gen">
         <div class="card">
           <h3>Запуск генерации</h3>
-          <p class="card-sub">Первый прогон — дешёвая модель. Повтор ошибок — сильная из настроек.</p>
-          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модели подгрузятся…</div>
+          <p class="card-sub">И первый прогон, и повтор ошибок — модель для страниц из настроек.</p>
+          <div id="genModelHint" class="hint" style="margin-bottom:12px;">Модель подгрузится…</div>
           <div id="genAlert" style="display:none;margin-bottom:14px;"></div>
           <div class="gen-controls">
             <button class="btn btn-primary" id="startGenBtn">▶ Запустить</button>
@@ -674,7 +674,27 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=11"></script>
+  <!-- Modal: лог попыток задачи -->
+  <div id="taskLogModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeModal(event, 'taskLogModal')">
+      <div class="modal" style="max-width:900px;" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3 id="taskLogTitle">Лог задачи</h3><button class="modal-close" onclick="closeModal(null,'taskLogModal')"></button></div>
+        <div class="modal-body">
+          <div id="taskLogTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <div id="taskLogError" class="alert alert-bad" style="display:none;"></div>
+          <div id="taskLogFields"></div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);">Ответ модели на этой попытке</div>
+          <pre id="taskLogRaw" style="max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,0,0,.25);padding:10px;border-radius:6px;"></pre>
+          <details style="margin-top:10px;">
+            <summary style="cursor:pointer;color:var(--muted);font-size:12px;">Показать промпт, который ушёл модели</summary>
+            <pre id="taskLogPrompt" style="max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;background:rgba(0,0,0,.25);padding:10px;border-radius:6px;"></pre>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=12"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -1022,9 +1042,12 @@ function modelTag(obj) {
         }
         tb.innerHTML = r.tasks.map(t => {
           const canRetry = t.status === 'failed' || t.status === 'cancelled';
-          const act = canRetry
-            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button>`
+          const retryBtn = canRetry
+            ? `<button class="btn btn-ghost btn-sm" type="button" onclick="retryTask(${t.id}, this)">↺ Ещё раз</button> `
             : '';
+          // Лог доступен всегда: по базе открывается последняя попытка,
+          // внутри можно переключиться на попытку 1, 2 или 3.
+          const act = retryBtn + `<button class="btn btn-ghost btn-sm" type="button" onclick="openTaskLog(${t.id})">🔍 Лог</button>`;
           const err = t.error ? escHtml(t.error) : '—';
           return `<tr><td style="color:var(--muted);">${t.id}</td><td style="font-weight:500;">${escHtml(t.key || '#' + t.key_item_id)}</td><td style="font-size:12px;color:var(--muted);">${escHtml(t.provider)}/${escHtml(t.model)}</td><td>${badge(t.status)}</td><td style="text-align:center;">${t.attempts}</td><td style="color:var(--muted);">$${(t.cost||0).toFixed(6)}</td><td style="font-size:12px;color:var(--bad);max-width:340px;" title="${escHtml(t.error || '')}">${err}</td><td style="white-space:nowrap;">${act}</td></tr>`;
         }).join('');
@@ -1112,13 +1135,67 @@ function modelTag(obj) {
       const el = document.getElementById('genModelHint');
       if (!el) return;
       try {
-        const s = await api.getSettings();
+        const raw = await api.getSettings();
+        const s = raw.settings || raw;
         const cheap = s.cheap_model?.value || '—';
-        const strong = s.strong_model?.value || '—';
-        el.textContent = 'Сейчас: первый прогон → ' + cheap + '  ·  повтор ошибок → ' + strong;
+        el.textContent = 'Страницы сейчас генерятся моделью: ' + cheap;
       } catch (e) {
         el.textContent = 'Не удалось прочитать модели из настроек.';
       }
+    }
+
+    // ---------- Лог попыток задачи ----------
+    let taskLogData = null;
+
+    async function openTaskLog(taskId) {
+      const tabs = document.getElementById('taskLogTabs');
+      const errBox = document.getElementById('taskLogError');
+      document.getElementById('taskLogTitle').textContent = `Лог задачи #${taskId}`;
+      tabs.innerHTML = '<span style="color:var(--muted);">Загрузка…</span>';
+      errBox.style.display = 'none';
+      document.getElementById('taskLogFields').innerHTML = '';
+      document.getElementById('taskLogRaw').textContent = '';
+      document.getElementById('taskLogPrompt').textContent = '';
+      document.getElementById('taskLogModal').style.display = 'block';
+      try {
+        taskLogData = await api.taskAttempts(projectId, taskId);
+      } catch (e) {
+        tabs.innerHTML = '';
+        errBox.style.display = 'block';
+        errBox.className = 'alert alert-bad';
+        errBox.textContent = 'Не удалось загрузить лог: ' + (e.message || e);
+        return;
+      }
+      const list = taskLogData.attempts || [];
+      tabs.innerHTML = list.length
+        ? list.map((a, i) => `<button class="btn btn-sm btn-ghost" type="button" data-att="${i}" onclick="showAttempt(${i})">Попытка ${a.n} ${a.ok ? '✅' : '❌'}</button>`).join('')
+        : '<span style="color:var(--muted);">Попыток не записано</span>';
+      document.getElementById('taskLogPrompt').textContent = taskLogData.prompt || '—';
+      // По базе показываем последнюю попытку.
+      if (list.length) showAttempt(list.length - 1);
+    }
+
+    function showAttempt(i) {
+      if (!taskLogData) return;
+      const list = taskLogData.attempts || [];
+      const a = list[i];
+      if (!a) return;
+      document.querySelectorAll('#taskLogTabs button').forEach(b => {
+        const on = parseInt(b.dataset.att, 10) === i;
+        b.className = 'btn btn-sm ' + (on ? 'btn-primary' : 'btn-ghost');
+      });
+      const errBox = document.getElementById('taskLogError');
+      errBox.style.display = 'block';
+      errBox.className = a.ok ? 'alert alert-ok' : 'alert alert-bad';
+      errBox.textContent = a.ok ? 'Эта попытка прошла валидацию' : (a.error || 'Ошибка не записана');
+      const lens = a.field_lengths || {};
+      const names = Object.keys(lens);
+      const head = `<div style="color:var(--muted);font-size:12px;margin:8px 0;">Модель: ${escHtml(a.model || '—')} · символов в ответе: ${a.chars || 0}${names.length ? ` · полей: ${names.length}` : ''}</div>`;
+      const body = names.length
+        ? names.map(n => `<span style="display:inline-block;margin:2px 8px 2px 0;font-size:12px;color:var(--muted);">${escHtml(n)}: ${lens[n]}</span>`).join('')
+        : '';
+      document.getElementById('taskLogFields').innerHTML = head + body;
+      document.getElementById('taskLogRaw').textContent = a.raw || '(ответ не сохранён)';
     }
 
     async function retryTask(id, btn) {
@@ -1254,11 +1331,11 @@ Sitemap:
         <legend>Модели ИИ</legend>
         <div class="form-grid">
           <div class="form-row">
-            <label>Сильная модель — каркас и повтор ошибок</label>
+            <label>Сильная модель — только чат и каркас</label>
             <select id="strongModel"></select>
           </div>
           <div class="form-row">
-            <label>Дешёвая модель — первый прогон страниц</label>
+            <label>Модель для страниц — генерация и повтор</label>
             <select id="cheapModel"></select>
           </div>
         </div>
