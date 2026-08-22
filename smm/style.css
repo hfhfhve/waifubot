@@ -420,7 +420,7 @@ td .num, .mono { font: 500 13px/1 var(--mono); }
 .check-chip.passed { background: var(--good-tint); border-color: #c6e3d4; color: var(--good); }
 .check-chip.failed { background: var(--alarm-tint); border-color: #f2cfcf; color: var(--alarm); }
 
-/* ───────────────────────────────────── модалки */
+/* ───────────────────────────────────── модал��и */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 100;
   background: rgba(21,23,28,.45);
@@ -468,6 +468,14 @@ td .num, .mono { font: 500 13px/1 var(--mono); }
   font-size: 14.5px; line-height: 1.55;
   white-space: pre-wrap; word-break: break-word;
 }
+.chat-time {
+  display: block;
+  font: 500 11px/1.3 var(--mono);
+  letter-spacing: .04em;
+  opacity: .62;
+  margin-bottom: 6px;
+}
+.chat-msg.user .chat-time { color: rgba(255,255,255,.72); }
 .chat-msg.user {
   align-self: flex-end;
   background: var(--ink); color: #fff;
