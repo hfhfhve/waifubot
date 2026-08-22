@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 9c758a83381325d59eb9564fd83e91e3e3d2e3b9
-# built:  2026-08-22 12:17 UTC
+# commit: 881906e772388c6819ec26c777b39fe8b401a691
+# built:  2026-08-22 13:49 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
-smm/app.js  (184 строк)
+smm/app.js  (187 строк)
 smm/index.html  (175 строк)
-smm/project.html  (688 строк)
+smm/project.html  (699 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (305 строк)
 smm/style.css  (693 строк)
@@ -44,6 +44,7 @@ smm/style.css  (693 строк)
 ════════════════════════════════════════════════════════
   smm/app.js
 ════════════════════════════════════════════════════════
+
 
 /* SEO-Фабрика — API-клиент (vanilla JS) */
 
@@ -172,7 +173,9 @@ function statusLabel(status) {
   const map = {
     draft: 'Черновик', active: 'Активен', generating: 'Генерируется…',
     done: 'Готов', error: 'Ошибка',
-    pending: 'В очереди', queued: 'В очереди', running: 'Выполняется',
+    // pending и queued раньше оба подписывались как «В очереди», и было не понять,
+    // ждёт ли ключ запуска или по нему уже создана задача.
+    pending: 'В очереди', queued: 'Взят в задачу', running: 'Выполняется',
     success: 'Успех', failed: 'Ошибка', cancelled: 'Отменён',
     ready: 'Готов', approved: 'Утверждён',
   };
@@ -413,6 +416,7 @@ function modelTag(obj) {
 ════════════════════════════════════════════════════════
   smm/project.html
 ════════════════════════════════════════════════════════
+
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -960,8 +964,10 @@ function modelTag(obj) {
       const tb = document.getElementById('turboToggle').checked; const pl = tb ? parseInt(document.getElementById('parallelNum').value) : 1;
       const btn = document.getElementById('startGenBtn'); btn.disabled = true; btn.textContent = '…';
       try { const r = await api.startGeneration(projectId, pl);
-        if (r.created === 0) { showGenAlert('Нет ключей в очереди. Добавьте ключи.', 'info'); }
-        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
+        // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
+        // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
+        if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
+        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
       } catch (e) { showGenAlert('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; btn.textContent = '▶ Запустить'; }
     };
 
@@ -998,7 +1004,15 @@ function modelTag(obj) {
 
     function startTasksPolling() { if (tasksInterval) return; tasksInterval = setInterval(() => { if (!document.hidden) loadTasks(); }, 6000); }
     function stopTasksPolling() { clearInterval(tasksInterval); tasksInterval = null; }
-    function showGenAlert(t, ty) { document.getElementById('genAlert').innerHTML = `<div class="alert alert-${ty}">${t}</div>`; document.getElementById('genAlert').style.display = 'block'; setTimeout(() => document.getElementById('genAlert').style.display = 'none', 6000); }
+    let genAlertTimer = null;
+    function showGenAlert(t, ty, sticky) {
+      const box = document.getElementById('genAlert');
+      box.innerHTML = `<div class="alert alert-${ty}">${t}</div>`;
+      box.style.display = 'block';
+      clearTimeout(genAlertTimer);
+      // sticky: объяснение причины не должно исчезать через 6 секунд.
+      if (!sticky) genAlertTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
+    }
 
     async function loadPages() {
       const tb = document.getElementById('pagesTableBody');
