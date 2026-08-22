@@ -7761,6 +7761,20 @@ function modelTag(obj) {
           </div>
         </div>
         <div id="loadingModels" style="color:var(--muted);font-size:13px;">Загрузка списка моделей…</div>
+        <div class="form-grid" style="margin-top:16px;">
+          <div class="form-row">
+            <label>Сильная модель — max_tokens</label>
+            <input type="number" id="strongMaxTokens" min="256" step="256" placeholder="16000">
+          </div>
+          <div class="form-row">
+            <label>Дешёвая модель — max_tokens</label>
+            <input type="number" id="cheapMaxTokens" min="256" step="256" placeholder="8000">
+          </div>
+          <div class="form-row">
+            <label>Таймаут запроса, сек</label>
+            <input type="number" id="genTimeoutSec" min="30" step="10" placeholder="60">
+          </div>
+        </div>
       </div>
 
       <div class="fieldset">
@@ -7849,6 +7863,9 @@ function modelTag(obj) {
       document.getElementById('customModelName').value = s.custom_model_name?.value || '';
       document.getElementById('strongPrompt').value    = s.strong_system_prompt?.value || '';
       document.getElementById('cheapPrompt').value     = s.cheap_system_prompt?.value  || '';
+      document.getElementById('strongMaxTokens').value = s.strong_max_tokens?.value ?? 16000;
+      document.getElementById('cheapMaxTokens').value  = s.cheap_max_tokens?.value ?? 8000;
+      document.getElementById('genTimeoutSec').value   = s.gen_timeout_sec?.value ?? 60;
     }
 
     function fillSelect(sel, models, selected) {
@@ -7883,6 +7900,9 @@ function modelTag(obj) {
         cheap_model:  { value: cheapSel,  provider: getProvider(cheapSel)  },
         strong_system_prompt: { value: document.getElementById('strongPrompt').value },
         cheap_system_prompt:  { value: document.getElementById('cheapPrompt').value },
+        strong_max_tokens: { value: parseInt(document.getElementById('strongMaxTokens').value, 10) || 16000 },
+        cheap_max_tokens:  { value: parseInt(document.getElementById('cheapMaxTokens').value, 10) || 8000 },
+        gen_timeout_sec:   { value: parseInt(document.getElementById('genTimeoutSec').value, 10) || 60 },
       };
 
       const btn = document.getElementById('saveBtn');
