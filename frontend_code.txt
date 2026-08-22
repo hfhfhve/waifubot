@@ -7008,6 +7008,7 @@ function modelTag(obj) {
 Файл: ./smm/project.html
 ==================================================
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7017,7 +7018,7 @@ function modelTag(obj) {
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>SEO-Фабрика — Проект</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
   <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
@@ -7249,7 +7250,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=7"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -7264,7 +7265,6 @@ function modelTag(obj) {
         if (btn.dataset.tab === 'gen')    { loadTasks(); if (currentProject && currentProject.status === 'generating') startTasksPolling(); } else { stopTasksPolling(); }
         if (btn.dataset.tab === 'pages')  loadPages();
         if (btn.dataset.tab === 'keys')   loadKeys();
-        if (btn.dataset.tab === 'settings') loadProjectSettings();
       });
     });
 
@@ -7278,7 +7278,7 @@ function modelTag(obj) {
         document.getElementById('projLoading').style.display = 'none';
         document.getElementById('projHeader').style.display = 'block';
         loadModels();
-        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages(), loadProjectSettings()]);
+        await Promise.all([loadChatHistory(), loadTemplate(), loadKeys(), loadTasks(), loadPages()]);
         if (currentProject.status === 'generating') startTasksPolling();
       } catch (e) {
         document.getElementById('projLoading').style.display = 'none';
@@ -7328,7 +7328,7 @@ function modelTag(obj) {
     async function sendChat() {
       const input = document.getElementById('chatInput'); const msg = input.value.trim(); if (!msg) return; input.value = '';
       const box = document.getElementById('chatMessages');
-      box.innerHTML += `<div class="chat-msg user"><div class="chat-time">${escHtml(fmtDate(new Date().toISOString()))}</div>${escHtml(msg)}</div><div class="chat-msg loading" id="chatLoading">⏳</div>`;
+      box.innerHTML += `<div class="chat-msg user">${escHtml(msg)}</div><div class="chat-msg loading" id="chatLoading">⏳</div>`;
       box.scrollTop = box.scrollHeight; document.getElementById('chatSend').disabled = true;
       try {
         // Сервер сразу отвечает id заготовки и пишет ответ в фоне.
@@ -7346,20 +7346,17 @@ function modelTag(obj) {
     // темы, перезагрузка и таймаут прокси его больше не теряют.
     let chatWaitTimer = null;
 
-    function chatTime(iso) {
-      return iso ? `<div class="chat-time">${escHtml(fmtDate(iso))}</div>` : '';
-    }
     function renderChatMsg(m) {
       if (m.status === 'pending') {
-        return `<div class="chat-msg assistant" id="chatMsg${m.id}">${chatTime(m.created_at)}<span class="spinner"></span> ` +
+        return `<div class="chat-msg assistant" id="chatMsg${m.id}"><span class="spinner"></span> ` +
                `Модель пишет ответ… можно закрыть вкладку, он не потеряется</div>`;
       }
       if (m.status === 'error') {
         return `<div class="chat-msg assistant" id="chatMsg${m.id}" style="color:var(--bad);">` +
-               `${chatTime(m.created_at)}❌ Ошибка генерации: ${escHtml(m.error || 'неизвестно')}</div>`;
+               `❌ Ошибка генерации: ${escHtml(m.error || 'неизвестно')}</div>`;
       }
       const tag = m.role === 'assistant' ? `<div style="margin-top:8px;">${modelTag(m)}</div>` : '';
-      return `<div class="chat-msg ${m.role}" id="chatMsg${m.id}">${chatTime(m.created_at)}${escHtml(m.content)}${tag}</div>`;
+      return `<div class="chat-msg ${m.role}" id="chatMsg${m.id}">${escHtml(m.content)}${tag}</div>`;
     }
 
     async function waitForChatAnswer(messageId) {
@@ -7558,8 +7555,10 @@ function modelTag(obj) {
       const tb = document.getElementById('turboToggle').checked; const pl = tb ? parseInt(document.getElementById('parallelNum').value) : 1;
       const btn = document.getElementById('startGenBtn'); btn.disabled = true; btn.textContent = '…';
       try { const r = await api.startGeneration(projectId, pl);
-        if (r.created === 0) { showGenAlert('Нет ключей в очереди. Добавьте ключи.', 'info'); }
-        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
+        // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
+        // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
+        if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
+        else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${pl})` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
       } catch (e) { showGenAlert('❌ ' + e.message, 'bad'); } finally { btn.disabled = false; btn.textContent = '▶ Запустить'; }
     };
 
@@ -7596,7 +7595,15 @@ function modelTag(obj) {
 
     function startTasksPolling() { if (tasksInterval) return; tasksInterval = setInterval(() => { if (!document.hidden) loadTasks(); }, 6000); }
     function stopTasksPolling() { clearInterval(tasksInterval); tasksInterval = null; }
-    function showGenAlert(t, ty) { document.getElementById('genAlert').innerHTML = `<div class="alert alert-${ty}">${t}</div>`; document.getElementById('genAlert').style.display = 'block'; setTimeout(() => document.getElementById('genAlert').style.display = 'none', 6000); }
+    let genAlertTimer = null;
+    function showGenAlert(t, ty, sticky) {
+      const box = document.getElementById('genAlert');
+      box.innerHTML = `<div class="alert alert-${ty}">${t}</div>`;
+      box.style.display = 'block';
+      clearTimeout(genAlertTimer);
+      // sticky: объяснение причины не должно исчезать через 6 секунд.
+      if (!sticky) genAlertTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
+    }
 
     async function loadPages() {
       const tb = document.getElementById('pagesTableBody');
@@ -7677,24 +7684,11 @@ function modelTag(obj) {
     function updateExportSummary(total, ready) { const el = document.getElementById('exportSummary'); if (!el) return; el.textContent = total > 0 ? `Готово: ${ready}/${total}` : 'Нет страниц'; }
     function doExport() { window.open(`${API_BASE.replace(/\/$/, '')}/projects/${projectId}/export`, '_blank'); }
 
-    const DEFAULT_PROJ = {
-      uniqueness: 0.90,
-      minLen: 3500,
-      stopWords: [
-        'уникальный', 'инновационный', 'профессиональный', 'лучший выбор',
-        'идеальное решение', 'широкий ассортимент', 'высокое качество',
-        'индивидуальный подход', 'низкие цены', 'лучшее качество', 'надёжный партнёр',
-      ],
-    };
     async function loadProjectSettings() {
-      fillModelSelects();
-      const s = currentProject?.settings || {};
-      const uniq = s.uniqueness_threshold?.value;
-      const minLen = s.min_text_length?.value;
-      const stops = Array.isArray(s.stop_words?.value) ? s.stop_words.value : null;
-      document.getElementById('projUniqThresh').value = (uniq === 0 || uniq) ? uniq : DEFAULT_PROJ.uniqueness;
-      document.getElementById('projMinLen').value = (minLen === 0 || minLen) ? minLen : DEFAULT_PROJ.minLen;
-      document.getElementById('projStopWords').value = (stops ? stops : DEFAULT_PROJ.stopWords).join('\n');
+      fillModelSelects(); const s = currentProject?.settings || {};
+      document.getElementById('projUniqThresh').value = s.uniqueness_threshold?.value ?? '';
+      document.getElementById('projMinLen').value = s.min_text_length?.value ?? '';
+      document.getElementById('projStopWords').value = Array.isArray(s.stop_words?.value) ? s.stop_words.value.join('\n') : '';
     }
 
     async function saveProjectSettings() {
