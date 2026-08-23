@@ -739,16 +739,24 @@
     });
     document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
 
+    // Предпросмотр открывается в отдельной вкладке.
+    // Вкладку открываем СРАЗУ по клику (до запроса), иначе браузер её заблокирует.
     async function previewPage(id) {
-      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
-      document.getElementById('pageModal').style.display = 'flex';
-      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
+      const w = window.open('', '_blank');
+      if (!w) { alert('Браузер заблокировал новую вкладку. Разреши всплывающие окна для этого сайта.'); return; }
+      w.document.write('<!doctype html><meta charset="utf-8"><title>Загрузка…</title><body style="font:15px/1.5 sans-serif;padding:24px;color:#555;">Загрузка предпросмотра…</body>');
+      w.document.close();
       try {
         const p = await api.getPage(projectId, id);
-        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
-        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
+        const html = p.html || '<!doctype html><meta charset="utf-8"><body style="font:15px/1.5 sans-serif;padding:24px;">Пустая страница</body>';
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        try { w.document.title = `${p.key || p.slug || id}`; } catch (_) {}
       } catch (e) {
-        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
+        w.document.open();
+        w.document.write(`<!doctype html><meta charset="utf-8"><body style="font:15px/1.5 sans-serif;padding:24px;color:#b91c1c;">Не удалось загрузить страницу: ${escHtml(e.message)}</body>`);
+        w.document.close();
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
