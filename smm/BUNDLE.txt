@@ -1,16 +1,16 @@
 # SMM Frontend — снимок репозитория
-# commit: 5c97ec988cac4ab36168ea66fe610d72a13fc06f
-# built:  2026-08-22 19:25 UTC
+# commit: cc6dffbd992ba198ef76e0b928865ad1274e12e6
+# built:  2026-08-23 00:03 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
 smm/app.js  (199 строк)
 smm/index.html  (176 строк)
-smm/project.html  (837 строк)
+smm/project.html  (887 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (363 строк)
-smm/style.css  (693 строк)
+smm/style.css  (716 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -430,7 +430,6 @@ function modelTag(obj) {
   smm/project.html
 ════════════════════════════════════════════════════════
 
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -627,7 +626,7 @@ function modelTag(obj) {
           <div class="table-wrap">
             <table><thead><tr>
               <th style="width:36px;"><input type="checkbox" id="pagesSelectAll" title="Выделить все"></th>
-              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th>Проверки</th><th>Объём</th><th>Уник.</th><th></th>
+              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th style="width:230px;">Качество</th><th>Объём</th><th>Уник.</th><th></th>
             </tr></thead>
             <tbody id="pagesTableBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
           </div>
@@ -1068,6 +1067,58 @@ function modelTag(obj) {
       if (!sticky) genAlertTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
     }
 
+    // --- компактная ячейка качества ----------------------------------
+    // Было: 27 плашек в столбик — строка растягивалась на пол-экрана,
+    // кнопки уезжали за край. Стало: балл + счётчик + только упавшие
+    // проверки. Полный список — по клику на "все проверки".
+    function qaLetter(s) {
+      if (s >= 88) return ['A', 'var(--good)'];
+      if (s >= 78) return ['B', 'var(--good)'];
+      if (s >= 68) return ['C', 'var(--hold)'];
+      if (s >= 55) return ['D', 'var(--hold)'];
+      return ['F', 'var(--alarm)'];
+    }
+
+    function checksCell(p) {
+      const checks = (p && p.checks) || [];
+      const failed = checks.filter(c => !c.passed);
+      const raw = p ? p.quality_score : null;
+      const s = (raw === null || raw === undefined) ? null : Number(raw);
+
+      let head;
+      if (s !== null && !isNaN(s)) {
+        const lt = qaLetter(s);
+        head = `<div class="qa-score" style="color:${lt[1]};">${s.toFixed(0)}`
+             + `<span class="qa-letter">${lt[0]}</span></div>`;
+      } else {
+        head = `<div class="qa-score qa-none" title="Балл не посчитан:`
+             + ` страница создана до обновления — нажми «Ещё раз»">—</div>`;
+      }
+
+      const cnt = checks.length
+        ? `<span class="qa-count ${failed.length ? 'bad' : 'ok'}">`
+          + `${checks.length - failed.length}/${checks.length}</span>`
+        : '';
+
+      // Показываем только то, что упало — максимум три.
+      const bad = failed.slice(0, 3).map(c =>
+        `<span class="check-chip failed" title="${escHtml(String(c.value))}">`
+        + `${escHtml(c.check_name)}</span>`).join('');
+      const more = failed.length > 3
+        ? `<span class="qa-more">+${failed.length - 3}</span>` : '';
+
+      const all = checks.map(c =>
+        `<span class="check-chip ${c.passed ? 'passed' : 'failed'}"`
+        + ` title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">`
+        + `${escHtml(c.check_name)}</span>`).join('') || '—';
+
+      return `<div class="qa-cell">`
+        + `<div class="qa-head">${head}${cnt}</div>`
+        + (bad ? `<div class="qa-bad">${bad}${more}</div>` : '')
+        + `<details class="qa-det"><summary>все проверки</summary>`
+        + `<div class="checks-grid">${all}</div></details></div>`;
+    }
+
     async function loadPages() {
       const tb = document.getElementById('pagesTableBody');
       try { const ps = await api.listPages(projectId); document.getElementById('pagesCount').textContent = `(${ps.length})`;
@@ -1085,7 +1136,7 @@ function modelTag(obj) {
             <td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td>
             <td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td>
             <td>${badge(p.status)}</td>
-            <td><div class="checks-grid">${(p.checks||[]).map(c => `<span class="check-chip ${c.passed?'passed':'failed'}" title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">${c.check_name}</span>`).join('')||'—'}</div></td>
+            <td>${checksCell(p)}</td>
             <td style="color:var(--muted);">${l ? l.value + ' сим.' : '—'}</td>
             <td style="color:${u && parseFloat(u.value) >= 0.90 ? 'var(--ok)' : (u && parseFloat(u.value) >= 0.75 ? 'var(--warn, #d98324)' : 'var(--bad)')};" title="${u && u.nearest_page_id ? 'Ближайшая страница: #' + u.nearest_page_id + (u.signals ? ' | ' + Object.entries(u.signals).map(([k,v]) => k + ':' + v).join(', ') : '') : ''}">${u ? (parseFloat(u.value)*100).toFixed(1)+'%' : '—'}</td>
             <td class="page-actions">
@@ -1266,7 +1317,6 @@ function modelTag(obj) {
   </script>
 </body>
 </html>
-
 
 ════════════════════════════════════════════════════════
   smm/robots.txt
@@ -1873,8 +1923,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   padding: 6px 10px; font-size: 13px;
 }
 .page-actions {
-  white-space: nowrap;
-  display: flex; gap: 8px; align-items: center; justify-content: flex-end;
+  display: flex; gap: 6px; align-items: center;
+  justify-content: flex-end; flex-wrap: wrap;
+  min-width: 210px;
 }
 
 /* ───────────────────────────────────── формы */
@@ -2063,7 +2114,29 @@ td .num, .mono { font: 500 13px/1 var(--mono); }
 .alert-bad  { border-left-color: var(--alarm); background: var(--alarm-tint); color: #8f1414; }
 .alert-info { border-left-color: var(--blueprint); background: var(--blueprint-tint); color: var(--blueprint-2); }
 
-.checks-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.checks-grid { display: flex; flex-wrap: wrap; gap: 4px; max-width: 420px; }
+
+/* ── компактная ячейка качества ── */
+.qa-cell { min-width: 150px; max-width: 230px; }
+.qa-head { display: flex; align-items: baseline; gap: 8px; }
+.qa-score { font: 700 19px/1 inherit; letter-spacing: -.5px; }
+.qa-score.qa-none { color: var(--muted); font-weight: 500; font-size: 15px; }
+.qa-letter { font-size: 11px; font-weight: 600; opacity: .75; margin-left: 3px; }
+.qa-count { font: 500 12px/1 var(--mono); color: var(--muted); }
+.qa-count.bad { color: var(--alarm); }
+.qa-count.ok  { color: var(--good); }
+.qa-bad { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.qa-more { font: 500 11px/1 var(--mono); color: var(--muted); padding: 5px 4px; }
+.qa-det { margin-top: 6px; }
+.qa-det > summary {
+  cursor: pointer; font-size: 11.5px; color: var(--muted);
+  user-select: none; list-style: none;
+}
+.qa-det > summary::-webkit-details-marker { display: none; }
+.qa-det > summary::before { content: "\25b8 "; }
+.qa-det[open] > summary::before { content: "\25be "; }
+.qa-det[open] > summary { margin-bottom: 6px; }
+.qa-det .checks-grid { max-width: 100%; }
 .check-chip {
   font: 500 12px/1 var(--mono);
   padding: 6px 9px; border-radius: 3px;
