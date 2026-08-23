@@ -7024,7 +7024,6 @@ function modelTag(obj) {
 Файл: ./smm/project.html
 ==================================================
 
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7221,7 +7220,7 @@ function modelTag(obj) {
           <div class="table-wrap">
             <table><thead><tr>
               <th style="width:36px;"><input type="checkbox" id="pagesSelectAll" title="Выделить все"></th>
-              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th>Проверки</th><th>Объём</th><th>Уник.</th><th></th>
+              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th style="width:230px;">Качество</th><th>Объём</th><th>Уник.</th><th></th>
             </tr></thead>
             <tbody id="pagesTableBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
           </div>
@@ -7290,7 +7289,7 @@ function modelTag(obj) {
     </div>
   </div>
 
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=12"></script>
   <script>
     const projectId = parseInt(new URLSearchParams(location.search).get('id')) || 0;
     if (!projectId) location.href = 'index.html';
@@ -7595,7 +7594,7 @@ function modelTag(obj) {
       const tb = document.getElementById('turboToggle').checked; const pl = tb ? parseInt(document.getElementById('parallelNum').value) : 1;
       const btn = document.getElementById('startGenBtn'); btn.disabled = true; btn.textContent = '…';
       try { const r = await api.startGeneration(projectId, pl);
-        // БЫЛО: любое created === 0 объя��лялось «нет ключей», даже когда ключей 78,
+        // БЫЛО: любое created === 0 объявлялось «нет ключей», даже когда ключей 78,
         // а реальная причина была в неутверждённом каркасе. Теперь берём reason с бека.
         if (r.created === 0) { showGenAlert(r.reason || 'Задачи не созданы: нет свободных ключей или не утверждён каркас.', 'info', true); }
         else { showGenAlert(`✅ Запущено ${r.created} задач${tb ? ` (Turbo ×${r.workers || pl} параллельно)` : ''}.${r.revived_keys ? ` Возвращено в очередь зависших ключей: ${r.revived_keys}.` : ''}`, 'ok'); document.getElementById('stopGenBtn').style.display = 'inline-flex'; if (tb) document.getElementById('turboActive').style.display = 'inline-flex'; startTasksPolling(); loadTasks(); }
@@ -7662,6 +7661,58 @@ function modelTag(obj) {
       if (!sticky) genAlertTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
     }
 
+    // --- компактная ячейка качества ----------------------------------
+    // Было: 27 плашек в столбик — строка растягивалась на пол-экрана,
+    // кнопки уезжали за край. Стало: балл + счётчик + только упавшие
+    // проверки. Полный список — по клику на "все проверки".
+    function qaLetter(s) {
+      if (s >= 88) return ['A', 'var(--good)'];
+      if (s >= 78) return ['B', 'var(--good)'];
+      if (s >= 68) return ['C', 'var(--hold)'];
+      if (s >= 55) return ['D', 'var(--hold)'];
+      return ['F', 'var(--alarm)'];
+    }
+
+    function checksCell(p) {
+      const checks = (p && p.checks) || [];
+      const failed = checks.filter(c => !c.passed);
+      const raw = p ? p.quality_score : null;
+      const s = (raw === null || raw === undefined) ? null : Number(raw);
+
+      let head;
+      if (s !== null && !isNaN(s)) {
+        const lt = qaLetter(s);
+        head = `<div class="qa-score" style="color:${lt[1]};">${s.toFixed(0)}`
+             + `<span class="qa-letter">${lt[0]}</span></div>`;
+      } else {
+        head = `<div class="qa-score qa-none" title="Балл не посчитан:`
+             + ` страница создана до обновления — нажми «Ещё раз»">—</div>`;
+      }
+
+      const cnt = checks.length
+        ? `<span class="qa-count ${failed.length ? 'bad' : 'ok'}">`
+          + `${checks.length - failed.length}/${checks.length}</span>`
+        : '';
+
+      // Показываем только то, что упало — максимум три.
+      const bad = failed.slice(0, 3).map(c =>
+        `<span class="check-chip failed" title="${escHtml(String(c.value))}">`
+        + `${escHtml(c.check_name)}</span>`).join('');
+      const more = failed.length > 3
+        ? `<span class="qa-more">+${failed.length - 3}</span>` : '';
+
+      const all = checks.map(c =>
+        `<span class="check-chip ${c.passed ? 'passed' : 'failed'}"`
+        + ` title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">`
+        + `${escHtml(c.check_name)}</span>`).join('') || '—';
+
+      return `<div class="qa-cell">`
+        + `<div class="qa-head">${head}${cnt}</div>`
+        + (bad ? `<div class="qa-bad">${bad}${more}</div>` : '')
+        + `<details class="qa-det"><summary>все проверки</summary>`
+        + `<div class="checks-grid">${all}</div></details></div>`;
+    }
+
     async function loadPages() {
       const tb = document.getElementById('pagesTableBody');
       try { const ps = await api.listPages(projectId); document.getElementById('pagesCount').textContent = `(${ps.length})`;
@@ -7679,7 +7730,7 @@ function modelTag(obj) {
             <td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td>
             <td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td>
             <td>${badge(p.status)}</td>
-            <td><div class="checks-grid">${(p.checks||[]).map(c => `<span class="check-chip ${c.passed?'passed':'failed'}" title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">${c.check_name}</span>`).join('')||'—'}</div></td>
+            <td>${checksCell(p)}</td>
             <td style="color:var(--muted);">${l ? l.value + ' сим.' : '—'}</td>
             <td style="color:${u && parseFloat(u.value) >= 0.90 ? 'var(--ok)' : (u && parseFloat(u.value) >= 0.75 ? 'var(--warn, #d98324)' : 'var(--bad)')};" title="${u && u.nearest_page_id ? 'Ближайшая страница: #' + u.nearest_page_id + (u.signals ? ' | ' + Object.entries(u.signals).map(([k,v]) => k + ':' + v).join(', ') : '') : ''}">${u ? (parseFloat(u.value)*100).toFixed(1)+'%' : '—'}</td>
             <td class="page-actions">
@@ -7714,20 +7765,16 @@ function modelTag(obj) {
     });
     document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
 
-    // Предпросмотр открывается отдельной вкладкой браузера — страница видна
-    // целиком, с нормальным скроллом и мобильным режимом. window.open вызывается
-    // СРАЗУ по клику, иначе браузер считает это всплывающей рекламой и блокирует.
     async function previewPage(id) {
-      const w = window.open('', '_blank');
-      if (!w) { alert('Браузер заблокировал новую вкладку. Разреши всплывающие окна для этого сайта.'); return; }
-      const write = (html) => { try { w.document.open(); w.document.write(html); w.document.close(); } catch (err) {} };
-      write('<!doctype html><meta charset="utf-8"><title>Загрузка…</title><body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка страницы #' + id + '…</body>');
+      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
+      document.getElementById('pageModal').style.display = 'flex';
+      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
       try {
         const p = await api.getPage(projectId, id);
-        write(p.html || '<!doctype html><meta charset="utf-8"><body style="padding:20px;font-family:sans-serif;">Пустая страница</body>');
-        try { w.document.title = `${p.key || ''} — ${p.slug || id}`; } catch (err) {}
+        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
+        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
       } catch (e) {
-        write(`<!doctype html><meta charset="utf-8"><body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`);
+        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
@@ -7864,7 +7911,6 @@ function modelTag(obj) {
   </script>
 </body>
 </html>
-
 
 
 ==================================================
