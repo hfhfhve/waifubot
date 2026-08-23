@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: cc6dffbd992ba198ef76e0b928865ad1274e12e6
-# built:  2026-08-23 00:03 UTC
+# commit: 44f0c5caa39c9e09f49a5a493db5f526d9a1ca09
+# built:  2026-08-23 19:49 UTC
 
 ## Состав файлов
 smm/404.html  (18 строк)
 smm/a  (1 строк)
 smm/app.js  (199 строк)
 smm/index.html  (176 строк)
-smm/project.html  (887 строк)
+smm/project.html  (961 строк)
 smm/robots.txt  (5 строк)
 smm/settings.html  (363 строк)
 smm/style.css  (716 строк)
@@ -624,9 +624,9 @@ function modelTag(obj) {
             </div>
           </div>
           <div class="table-wrap">
-            <table><thead><tr>
+            <table class="pages-table"><thead><tr>
               <th style="width:36px;"><input type="checkbox" id="pagesSelectAll" title="Выделить все"></th>
-              <th>#</th><th>Ключ</th><th>Slug</th><th>Статус</th><th style="width:230px;">Качество</th><th>Объём</th><th>Уник.</th><th></th>
+              <th class="col-id">#</th><th>Ключ</th><th>Адрес</th><th>Статус</th><th class="col-qa">Балл</th><th>Объём</th><th>Уник.</th><th class="col-act"></th>
             </tr></thead>
             <tbody id="pagesTableBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Загрузка…</td></tr></tbody></table>
           </div>
@@ -1079,8 +1079,11 @@ function modelTag(obj) {
       return ['F', 'var(--alarm)'];
     }
 
+    const PAGE_CHECKS = {};
+
     function checksCell(p) {
       const checks = (p && p.checks) || [];
+      PAGE_CHECKS[p.id] = checks;
       const failed = checks.filter(c => !c.passed);
       const raw = p ? p.quality_score : null;
       const s = (raw === null || raw === undefined) ? null : Number(raw);
@@ -1100,23 +1103,60 @@ function modelTag(obj) {
           + `${checks.length - failed.length}/${checks.length}</span>`
         : '';
 
-      // Показываем только то, что упало — максимум три.
-      const bad = failed.slice(0, 3).map(c =>
-        `<span class="check-chip failed" title="${escHtml(String(c.value))}">`
-        + `${escHtml(c.check_name)}</span>`).join('');
-      const more = failed.length > 3
-        ? `<span class="qa-more">+${failed.length - 3}</span>` : '';
-
-      const all = checks.map(c =>
-        `<span class="check-chip ${c.passed ? 'passed' : 'failed'}"`
-        + ` title="${escHtml(c.check_name)}: ${escHtml(String(c.value))}">`
-        + `${escHtml(c.check_name)}</span>`).join('') || '—';
+      const nFail = failed.length
+        ? `<span class="qa-failn">${failed.length} не прошло</span>` : '';
 
       return `<div class="qa-cell">`
         + `<div class="qa-head">${head}${cnt}</div>`
-        + (bad ? `<div class="qa-bad">${bad}${more}</div>` : '')
-        + `<details class="qa-det"><summary>все проверки</summary>`
-        + `<div class="checks-grid">${all}</div></details></div>`;
+        + nFail
+        + (checks.length
+            ? `<button type="button" class="qa-open" data-id="${p.id}">проверки</button>`
+            : '')
+        + `</div>`;
+    }
+
+    function closeQaPopover() {
+      const pop = document.getElementById('qaPopover');
+      if (pop) pop.hidden = true;
+    }
+
+    function openQaPopover(btn) {
+      const pop = document.getElementById('qaPopover');
+      const grid = document.getElementById('qaPopoverGrid');
+      const title = document.getElementById('qaPopoverTitle');
+      if (!pop || !grid) return;
+      const id = btn.getAttribute('data-id');
+      const checks = PAGE_CHECKS[id] || [];
+      const failed = checks.filter(c => !c.passed).length;
+      title.textContent = failed
+        ? `Проверки · ${failed} не прошло`
+        : `Проверки · все ${checks.length} ок`;
+      grid.innerHTML = checks.map(c => {
+        const name = escHtml(c.check_name || '');
+        const val = escHtml(String(c.value == null ? '' : c.value));
+        const okk = !!c.passed;
+        return `<div class="qa-pop-row ${okk ? 'ok' : 'bad'}">`
+          + `<span class="qa-pop-name">${name}</span>`
+          + `<span class="qa-pop-val">${val || (okk ? 'ок' : '—')}</span>`
+          + `</div>`;
+      }).join('') || '<div class="qa-pop-empty">Проверок нет</div>';
+      pop.hidden = false;
+      const r = btn.getBoundingClientRect();
+      const w = Math.min(420, window.innerWidth - 24);
+      let left = r.left;
+      if (left + w > window.innerWidth - 12) left = window.innerWidth - w - 12;
+      if (left < 12) left = 12;
+      pop.style.width = w + 'px';
+      pop.style.left = left + 'px';
+      pop.style.top = (r.bottom + 6) + 'px';
+      pop.style.bottom = 'auto';
+      requestAnimationFrame(() => {
+        const pr = pop.getBoundingClientRect();
+        if (pr.bottom > window.innerHeight - 8) {
+          pop.style.top = 'auto';
+          pop.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        }
+      });
     }
 
     async function loadPages() {
@@ -1134,13 +1174,13 @@ function modelTag(obj) {
             <td><input type="checkbox" class="page-check" value="${p.id}"></td>
             <td style="color:var(--muted);">${p.id}</td>
             <td style="font-weight:500;">${escHtml(p.key||'—')}<div style="margin-top:4px;">${modelTag(p)}</div></td>
-            <td style="font-size:12px;font-family:monospace;">${escHtml(p.slug)}</td>
+            <td class="col-slug" title="${escHtml(p.slug)}">${escHtml(p.slug)}</td>
             <td>${badge(p.status)}</td>
             <td>${checksCell(p)}</td>
             <td style="color:var(--muted);">${l ? l.value + ' сим.' : '—'}</td>
             <td style="color:${u && parseFloat(u.value) >= 0.90 ? 'var(--ok)' : (u && parseFloat(u.value) >= 0.75 ? 'var(--warn, #d98324)' : 'var(--bad)')};" title="${u && u.nearest_page_id ? 'Ближайшая страница: #' + u.nearest_page_id + (u.signals ? ' | ' + Object.entries(u.signals).map(([k,v]) => k + ':' + v).join(', ') : '') : ''}">${u ? (parseFloat(u.value)*100).toFixed(1)+'%' : '—'}</td>
             <td class="page-actions">
-              <button class="btn btn-ghost btn-sm" type="button" onclick="previewPage(${p.id})">Предпросмотр</button>
+              <button class="btn btn-ghost btn-sm" type="button" onclick="previewPage(${p.id})">Открыть</button>
               <button class="btn btn-ghost btn-sm" type="button" onclick="downloadPage(${p.id}, '${escHtml(p.slug)}')">Скачать</button>
               ${p.status==='failed'?`<button class="btn btn-ghost btn-sm" type="button" onclick="regenPage(${p.id})">↺ Ещё раз</button>`:''}
               <button class="btn-link danger" type="button" onclick="deleteOnePage(${p.id})">Удалить</button>
@@ -1169,18 +1209,47 @@ function modelTag(obj) {
     document.getElementById('pagesTableBody').addEventListener('change', e => {
       if (e.target && e.target.classList.contains('page-check')) syncPagesToolbar();
     });
+    document.getElementById('pagesTableBody').addEventListener('click', e => {
+      const btn = e.target && e.target.closest && e.target.closest('.qa-open');
+      if (!btn) return;
+      e.stopPropagation();
+      const pop = document.getElementById('qaPopover');
+      if (pop && !pop.hidden && pop.getAttribute('data-for') === btn.getAttribute('data-id')) {
+        closeQaPopover(); return;
+      }
+      if (pop) pop.setAttribute('data-for', btn.getAttribute('data-id'));
+      openQaPopover(btn);
+    });
+    document.addEventListener('click', e => {
+      const pop = document.getElementById('qaPopover');
+      if (!pop || pop.hidden) return;
+      if (pop.contains(e.target)) return;
+      if (e.target.closest && e.target.closest('.qa-open')) return;
+      closeQaPopover();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQaPopover(); });
+    window.addEventListener('scroll', closeQaPopover, true);
+    window.addEventListener('resize', closeQaPopover);
     document.getElementById('deleteSelectedPagesBtn').onclick = () => deleteSelectedPages();
 
+    // Предпросмотр открывается в отдельной вкладке.
+    // Вкладку открываем СРАЗУ по клику (до запроса), иначе браузер её заблокирует.
     async function previewPage(id) {
-      document.getElementById('pageModalTitle').textContent = 'Страница #' + id;
-      document.getElementById('pageModal').style.display = 'flex';
-      document.getElementById('pagePreviewFrame').srcdoc = '<body style="font-family:sans-serif;padding:20px;color:#555;">Загрузка предпросмотра…</body>';
+      const w = window.open('', '_blank');
+      if (!w) { alert('Браузер заблокировал новую вкладку. Разреши всплывающие окна для этого сайта.'); return; }
+      w.document.write('<!doctype html><meta charset="utf-8"><title>Загрузка…</title><body style="font:15px/1.5 sans-serif;padding:24px;color:#555;">Загрузка предпросмотра…</body>');
+      w.document.close();
       try {
         const p = await api.getPage(projectId, id);
-        document.getElementById('pageModalTitle').textContent = `${p.key||'—'} — ${p.slug}`;
-        document.getElementById('pagePreviewFrame').srcdoc = p.html || '<body style="padding:20px;font-family:sans-serif;">Пустая страница</body>';
+        const html = p.html || '<!doctype html><meta charset="utf-8"><body style="font:15px/1.5 sans-serif;padding:24px;">Пустая страница</body>';
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        try { w.document.title = `${p.key || p.slug || id}`; } catch (_) {}
       } catch (e) {
-        document.getElementById('pagePreviewFrame').srcdoc = `<body style="color:#b91c1c;padding:20px;font-family:sans-serif;">${escHtml(e.message)}</body>`;
+        w.document.open();
+        w.document.write(`<!doctype html><meta charset="utf-8"><body style="font:15px/1.5 sans-serif;padding:24px;color:#b91c1c;">Не удалось загрузить страницу: ${escHtml(e.message)}</body>`);
+        w.document.close();
       }
     }
     async function downloadPage(id, slug) { const p = await api.getPage(projectId, id); const b = new Blob([p.html || ''], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (slug||id)+'.html'; a.click(); URL.revokeObjectURL(a.href); }
@@ -1315,6 +1384,11 @@ function modelTag(obj) {
     function closeModal(e, id) { if (e && e.target !== document.querySelector(`#${id} .modal-overlay`)) return; document.getElementById(id).style.display = 'none'; }
     loadProject();
   </script>
+
+  <div id="qaPopover" class="qa-pop" hidden>
+    <div class="qa-pop-head" id="qaPopoverTitle">Проверки</div>
+    <div class="qa-pop-grid" id="qaPopoverGrid"></div>
+  </div>
 </body>
 </html>
 
