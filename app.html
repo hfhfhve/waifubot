@@ -3666,58 +3666,75 @@
         function renderChats(chats) {
             const container = document.getElementById('chats-list-container');
             const lang = currentLang;
-
-            // HTML нашего призрака-радара
+        
             const emptyStateHtml = `
                 <div class="flex flex-col items-center justify-center pt-24 pb-10 animate-fade-up">
                     <div class="relative w-24 h-24 flex items-center justify-center mb-6">
                         <div class="radar-ring"></div>
                         <div class="radar-ring delay"></div>
-                        
                         <div class="relative z-10 w-16 h-16 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-white/10 flex items-center justify-center shadow-[0_0_30px_rgba(236,72,153,0.3)] backdrop-blur-md" style="animation: floatFab 3s ease-in-out infinite;">
                             <i class="fa-solid fa-ghost text-3xl text-pink-400 opacity-80"></i>
                         </div>
                     </div>
-                    
                     <h3 class="text-lg font-black text-white mb-2 tracking-wide text-center">${translations[lang]?.empty_chats_title || "Здесь пока слишком тихо..."}</h3>
                     <p class="text-xs text-gray-400 text-center max-w-[220px] leading-relaxed mb-6">
                         ${translations[lang]?.no_chats || "Выбери персонажа на главной и начни свою первую историю!"}
                     </p>
-                    
                     <button onclick="showTab('home')" class="px-6 py-3 bg-gradient-to-r from-pink-600/20 to-purple-700/20 hover:bg-white/10 active:scale-95 rounded-2xl font-bold text-white text-sm transition-all border border-pink-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
                         <i class="fa-solid fa-compass text-pink-400"></i> ${translations[lang]?.btn_to_catalog || "В каталог"}
                     </button>
                 </div>
             `;
-
-            // Если пришел пустой массив с бэкенда
+        
             if (!chats || chats.length === 0) {
                 container.innerHTML = emptyStateHtml;
                 return;
             }
-
+        
             const hasMoreChats = chats.length > 15;
             const chatsToShow = chats.slice(0, 15);
-
+        
             let html = chatsToShow.map(chat => {
                 let isCustom = false;
-                let char = (window.activeCharactersList || characters).find(c => c.id === chat.character_id || c.id.replace('char:', '') === chat.character_id);
+                
+                // 🔥 ФИКС 1: Очищаем оба ID от префикса 'char:' перед сравнением
+                const cleanChatId = chat.character_id.replace('char:', '');
+                
+                let char = (window.activeCharactersList || characters).find(c => 
+                    c.id.replace('char:', '') === cleanChatId
+                );
                 
                 if (!char && window.customCharactersList) {
                     char = window.customCharactersList.find(c => c.id === chat.character_id);
-                    isCustom = true;
+                    if (char) isCustom = true;
+                }
+        
+                // 🔥 ФИКС 2: Проверяем персонажей из сообщества
+                if (!char && window.communityCharactersList) {
+                    char = window.communityCharactersList.find(c => c.id === chat.character_id);
+                    if (char) isCustom = true;
+                }
+        
+                // 🔥 ФИКС 3: Если персонаж удален или не прогрузился - делаем заглушку, а не прячем чат!
+                if (!char) {
+                    char = {
+                        id: chat.character_id,
+                        name: "Удаленный персонаж",
+                        image: "https://placehold.co/400x600/111/fff?text=?",
+                        online: false
+                    };
+                    isCustom = true; // Чтобы парсинг имени прошел без ошибок
                 }
                 
-                // Если персонаж удален - возвращаем пустую строку
-                if (!char) return '';
-                
                 const localTime = formatChatDate(chat.created_at_ts, lang);
+                
                 const defaultName = isCustom 
                     ? ((char.intro_messages && char.intro_messages['name_' + lang]) ? char.intro_messages['name_' + lang] : char.name) 
                     : (char['name_' + lang] || char.name);
-                const displayName = chat.custom_name || defaultName;
+                    
+                const displayName = chat.custom_name || defaultName || "Unknown";
                 const safeDisplayName = displayName.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                const safeLastMessage = chat.last_message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const safeLastMessage = (chat.last_message || "").replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 
                 const statusHtml = char.online ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>` : '';
                 const prefix = chat.role === 'user' ? '<span class="text-pink-500 font-bold">Вы:</span> ' : '';
@@ -3725,7 +3742,7 @@
                 const safeName = displayName.replace(/'/g, "\\'");
         
                 return `
-                <div onclick="openChatHistoryModal('${char.id}', '${chat.session_id}', '${safeName}', '${char.image}')" class="bg-[#1a1a1a] rounded-2xl... p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
+                <div onclick="openChatHistoryModal('${char.id}', '${chat.session_id}', '${safeName}', '${char.image}')" class="bg-[#1a1a1a] rounded-2xl p-3 flex items-center gap-4 border border-white/5 active:scale-98 transition-transform cursor-pointer hover:bg-white/5 group">
                     <div class="relative shrink-0">
                         <div class="w-14 h-14 rounded-full overflow-hidden border border-white/10">
                             <img src="${char.image || 'https://placehold.co/400x600/111/fff?text=No+Photo'}" class="w-full h-full object-cover">
@@ -3750,14 +3767,13 @@
                 `;
             }).join('');
         
-            // ВОТ ТУТ ЛОВИМ БАГ: если после маппинга получилась пустота (персонажи удалены)
             if (html.trim() === '') {
                 container.innerHTML = emptyStateHtml;
                 return;
             }
-
+        
             if (hasMoreChats) {
-                const limitText = translations[lang]?.chatsLimitMessage || "Showing only the last 15 chats";
+                const limitText = translations[lang]?.chatsLimitMessage || "Показаны последние 15 чатов";
                 html += `
                 <div class="text-center text-[11px] text-gray-500/70 font-medium mt-4 pb-6 px-4 uppercase tracking-wider">
                     <i class="fa-solid fa-clock-rotate-left mr-1.5 opacity-70"></i> ${limitText}
