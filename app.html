@@ -3696,31 +3696,36 @@
         
             let html = chatsToShow.map(chat => {
                 let isCustom = false;
-                
-                // 🔥 ФИКС 1: Очищаем оба ID от префикса 'char:' перед сравнением
                 const cleanChatId = chat.character_id.replace('char:', '');
                 
-                let char = (window.activeCharactersList || characters).find(c => 
+                // 1. Ищем в списке АКТИВНЫХ персонажей (присланных с бэкенда)
+                let char = (window.activeCharactersList || []).find(c => 
                     c.id.replace('char:', '') === cleanChatId
                 );
                 
+                // 2. 🔥 ГЛАВНЫЙ ФИКС: Ищем в полном каталоге data.js (спасает базовых персов, которые скрыты/отключены)
+                if (!char && typeof characters !== 'undefined') {
+                    char = characters.find(c => c.id.replace('char:', '') === cleanChatId);
+                }
+        
+                // 3. Ищем в кастомных (которые пришли с бэкенда)
                 if (!char && window.customCharactersList) {
-                    char = window.customCharactersList.find(c => c.id === chat.character_id);
+                    char = window.customCharactersList.find(c => c.id === chat.character_id || c.id.replace('char:', '') === cleanChatId);
                     if (char) isCustom = true;
                 }
         
-                // 🔥 ФИКС 2: Проверяем персонажей из сообщества
+                // 4. Ищем в комьюнити (которые успели подгрузиться)
                 if (!char && window.communityCharactersList) {
-                    char = window.communityCharactersList.find(c => c.id === chat.character_id);
+                    char = window.communityCharactersList.find(c => c.id === chat.character_id || c.id.replace('char:', '') === cleanChatId);
                     if (char) isCustom = true;
                 }
         
-                // 🔥 ФИКС 3: Если персонаж удален или не прогрузился - делаем заглушку, а не прячем чат!
+                // 5. Если персонаж РЕАЛЬНО удален отовсюду - ставим аккуратную заглушку
                 if (!char) {
                     char = {
                         id: chat.character_id,
-                        name: "Удаленный персонаж",
-                        image: "https://placehold.co/400x600/111/fff?text=?",
+                        name: "Неизвестный персонаж",
+                        image: "https://placehold.co/400x600/1a1a1a/555?text=?",
                         online: false
                     };
                     isCustom = true; // Чтобы парсинг имени прошел без ошибок
@@ -3728,6 +3733,7 @@
                 
                 const localTime = formatChatDate(chat.created_at_ts, lang);
                 
+                // Достаем имя в зависимости от типа персонажа
                 const defaultName = isCustom 
                     ? ((char.intro_messages && char.intro_messages['name_' + lang]) ? char.intro_messages['name_' + lang] : char.name) 
                     : (char['name_' + lang] || char.name);
