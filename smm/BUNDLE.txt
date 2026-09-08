@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: e2d8f37ccf13cbef4ec4455c502d388d3a86da9c
-# built:  2026-09-08 19:21 UTC
+# commit: 6b772f8a7c2fd7ba74613008c521d7b9199507ad
+# built:  2026-09-08 19:36 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -1195,7 +1195,7 @@ if (document.readyState === 'loading') {
 <meta name="viewport" content="width=1280">
 <title>Проекты — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -1342,7 +1342,7 @@ if (document.readyState === 'loading') {
   </main>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=21"></script>
 <script>
 (function () {
 'use strict';
@@ -1534,7 +1534,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body class="is-app">
 
@@ -2866,7 +2866,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=21"></script>
 
 <script>
 /* ==========================================================================
