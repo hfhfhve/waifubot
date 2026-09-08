@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: cd76baa3f5e0344e2f8fe3efc3822635cc287524
-# built:  2026-09-08 19:52 UTC
+# commit: 00bd9b5b765b1e9cb96356634a9cf3d5ee8e43aa
+# built:  2026-09-08 19:57 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -22,7 +22,7 @@ smm/style.css  (2308 строк)
 <meta charset="utf-8">
 <meta name="viewport" content="width=1280">
 <title>Страница не найдена — SEO-Фабрика</title>
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=20">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
