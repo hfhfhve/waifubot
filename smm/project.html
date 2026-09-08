@@ -12,7 +12,7 @@
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body class="is-app">
 
@@ -786,8 +786,9 @@
               <div class="gate-body">
                 <div class="gate-title">Качество <span class="pill ok">работает</span></div>
                 <div class="gate-desc">
-                  Измерения сводятся в один балл от 0 до 100. Веса измерений
-                  будет пересчитывать блок 8 по реальной индексации.
+                  Измерения сводятся в один балл от 0 до 100. Тошнота, водность и
+                  читаемость из балла убраны — Google их не использует, и их вес
+                  перешёл на уникальность, плотность фактов и перелинковку.
                 </div>
                 <div class="gate-checks" id="lvl4Checks"></div>
               </div>
@@ -795,6 +796,52 @@
                 <div class="gate-stat-v" id="lvl4Val">—</div>
                 <div class="gate-stat-k">средний балл</div>
               </div>
+            </div>
+          </div>
+
+          <div class="panel" id="gateCfg">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Настройка гейта <span class="pill neutral" id="gateOffPill">—</span></div>
+                <div class="panel-sub">
+                  Пороги и список проверок. Всё, что Google официально не использует,
+                  выключено — такие проверки только валили нормальные страницы.
+                </div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-sm" id="gateReset">По умолчанию</button>
+                <button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="up-row">
+                <div class="field">
+                  <div class="field-label">Минимум символов (0 — из настроек)</div>
+                  <input class="input input-sm" id="gateMinChars" type="number" min="0" step="100" value="0">
+                </div>
+                <div class="field">
+                  <div class="field-label">Уникальность, % не ниже</div>
+                  <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Самоповторы, не выше</div>
+                  <input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08">
+                </div>
+                <div class="field">
+                  <div class="field-label">Похожие блоки, не выше</div>
+                  <input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6">
+                </div>
+                <div class="field">
+                  <div class="field-label">Пропуск, балл ≥</div>
+                  <input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Перегенерация, балл ≥</div>
+                  <input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60">
+                </div>
+              </div>
+              <div id="gateChecks"></div>
+              <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
 
@@ -1344,7 +1391,7 @@
   </div>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=23"></script>
 
 <script>
 /* ==========================================================================
@@ -1484,7 +1531,7 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
-  if (view === 'gate')  renderGate();
+  if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
   if (view === 'rules') fillRules();
   if (view === 'export') renderExport();
@@ -2416,9 +2463,12 @@ function renderGate() {
   setText('#lvl4Val', avg === null ? '—' : avg.toFixed(0));
 
   /* развилка */
-  const pass = scored.filter(p => p.quality_score >= 80).length;
-  const redo = scored.filter(p => p.quality_score >= 60 && p.quality_score < 80).length;
-  const drop = scored.filter(p => p.quality_score < 60).length;
+  const gcfg = (typeof GATE_CFG !== 'undefined' && GATE_CFG && GATE_CFG.config) || {};
+  const passAt = Number(gcfg.pass_score) || 80;
+  const redoAt = Number(gcfg.redo_score) || 60;
+  const pass = scored.filter(p => p.quality_score >= passAt).length;
+  const redo = scored.filter(p => p.quality_score >= redoAt && p.quality_score < passAt).length;
+  const drop = scored.filter(p => p.quality_score < redoAt).length;
   setText('#forkPass', scored.length ? fmtNum(pass) : '—');
   setText('#forkRedo', scored.length ? fmtNum(redo) : '—');
   setText('#forkDrop', scored.length ? fmtNum(drop) : '—');
