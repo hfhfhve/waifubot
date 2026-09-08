@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 69533ee68dd4661f38e5a3d45e54d6320e78a5a6
-# built:  2026-09-08 20:01 UTC
+# commit: 96e822859daa5f127cabafb5e566a5953eda8200
+# built:  2026-09-08 20:09 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -10,7 +10,7 @@ smm/index.html  (327 строк)
 smm/project.html  (2901 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (532 строк)
-smm/style.css  (2308 строк)
+smm/style.css  (2426 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -965,7 +965,7 @@ function showShortcuts() {
 <meta name="viewport" content="width=1280">
 <title>Проекты — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -1112,7 +1112,7 @@ function showShortcuts() {
   </main>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=22"></script>
 <script>
 (function () {
 'use strict';
@@ -1304,7 +1304,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body class="is-app">
 
@@ -2636,7 +2636,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=22"></script>
 
 <script>
 /* ==========================================================================
@@ -7050,3 +7050,121 @@ body.is-app { overflow: hidden; }
 .pick-need { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .pick-title { display: block; }
 .pick-desc { display: block; }
+
+
+/* ==========================================================================
+   28 · ПРОКРУТКА ЭКРАНА ПРОЕКТА (фикс)
+
+   Было: body.is-app с overflow:hidden запретил прокрутку страницы,
+   а своего скролл-контейнера ни у .app, ни у .canvas не было —
+   колесо ничего не листало, а липкая thead цеплялась за высоту
+   шапки и наезжала на содержимое выше.
+   Стало: единственный скролл-контейнер — .canvas (его же дёргает go()),
+   рельса и шапка стоят на месте.
+   ========================================================================== */
+
+body.is-app { height: 100vh; overflow: hidden; }
+
+.app {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rail {
+  position: static;      /* sticky больше не нужен: страница целиком не едет */
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+.rail-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.rail-foot { flex: 0 0 auto; }
+
+.shell { height: 100vh; min-height: 0; }
+.topbar { flex: 0 0 auto; }
+
+.canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Шапка таблицы липнет к верху своего скролла, а не к высоте topbar */
+.tbl-scroll { overflow: auto; max-height: 70vh; }
+.tbl thead th { top: 0; }
+
+/* видимая полоса прокрутки */
+.canvas::-webkit-scrollbar,
+.rail-nav::-webkit-scrollbar,
+.tbl-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.canvas::-webkit-scrollbar-thumb,
+.rail-nav::-webkit-scrollbar-thumb,
+.tbl-scroll::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ==========================================================================
+   29 · ЗАГРУЗЧИК ТАБЛИЦЫ (экран «Данные», источник CSV)
+   ========================================================================== */
+
+.up-drop {
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  padding: 28px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+}
+.up-drop:hover,
+.up-drop.is-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.up-drop-t { font-size: 14px; font-weight: 620; color: var(--text); margin-bottom: 4px; }
+.up-drop-s { font-size: 12.5px; color: var(--muted); }
+
+.up-file { display: none; }
+
+.up-row {
+  display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+  margin-top: 14px;
+}
+.up-row .field { margin-bottom: 0; }
+
+.up-name { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+.up-prev { margin-top: 4px; }
+
+.up-prev-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+.up-prev-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.up-prev-tbl th,
+.up-prev-tbl td {
+  border: 1px solid var(--line-soft);
+  padding: 6px 9px;
+  text-align: left;
+  max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.up-prev-tbl th {
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 650;
+  position: sticky; top: 0;
+}
