@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 96e822859daa5f127cabafb5e566a5953eda8200
-# built:  2026-09-08 20:09 UTC
+# commit: 839120a919955913fc7da7be031cf7b4f1efbda6
+# built:  2026-09-08 20:36 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (899 строк)
+smm/app.js  (1302 строк)
 smm/index.html  (327 строк)
-smm/project.html  (2901 строк)
+smm/project.html  (2951 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (532 строк)
 smm/style.css  (2426 строк)
@@ -160,9 +160,8 @@ async function req(path, opts = {}) {
 
 const API_SOON = new Set([
   'analyzeData', 'getPassport', 'savePassport',   // Блок 1 — оркестратор
-  'uploadTable', 'previewTable', 'linkSheet',      // вход — таблица данных
+  'linkSheet',                                     // вход — Google Sheets (ещё нет)
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
-  'getGateConfig', 'saveGateConfig',               // Блок 5 — настройка гейта
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
   'listWaves', 'createWave', 'publishWave',        // Блок 7 — волны
   'getFeedback', 'connectSearchConsole',           // Блок 8 — обратная связь
@@ -226,7 +225,7 @@ const api = {
   getPassport:  (id)     => req(`/projects/${id}/passport`),
   savePassport: (id, d)  => req(`/projects/${id}/passport`, { method: 'PUT', body: JSON.stringify(d) }),
 
-  /* ---- ВХОД — таблица данных (ещё нет) ---- */
+  /* ---- ВХОД — таблица данных (upload/preview — готовы) ---- */
   uploadTable:  (id, fd) => req(`/projects/${id}/table`, { method: 'POST', body: fd, headers: {} }),
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
   linkSheet:    (id, u)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify({ url: u }) }),
@@ -448,13 +447,19 @@ const CHECK_INFO = {
   self_repetition:        ['Самоповторы', '5.3'],
   intra_page_similarity:  ['Повторы блоков внутри', '5.3'],
   volume:                 ['Объём текста', '5.4'],
-  nausea:                 ['Тошнота', '5.4'],
-  nausea_academic:        ['Академическая тошнота', '5.4'],
-  stop_words:             ['Стоп-слова', '5.4'],
-  water:                  ['Водность', '5.4'],
-  readability:            ['Читаемость', '5.4'],
+  stop_phrases:           ['Стоп-слова (справка)', '5.4'],
   h2_body:                ['Текст под H2', '5.4'],
+  h2_count:               ['Число H2', '5.4'],
+  h2_has_text:            ['Текст под каждым H2', '5.4'],
   structure:              ['Структура', '5.4'],
+  meta_title:             ['Длина title', '5.1'],
+  meta_description:       ['Длина description', '5.1'],
+  h1_single:              ['Ровно один H1', '5.1'],
+  html_complete:          ['HTML не оборван', '5.1'],
+  empty_holes:            ['Заглушки и пустые блоки', '5.1'],
+  slug_collision:         ['Совпадение slug', '5.1'],
+  schema:                 ['JSON по каркасу', '5.1'],
+  right_entity:           ['Страница про свой ключ', '5.3'],
 };
 
 function checkTitle(name) { return (CHECK_INFO[name] || [name])[0]; }
@@ -954,6 +959,404 @@ function showShortcuts() {
   });
 }
 
+/* --------------------------------------------------------------------------
+   ВХОД · ТАБЛИЦА ДАННЫХ (CSV / TSV / Excel)
+   Работает на экране «Данные» через api.uploadTable / api.previewTable.
+   Шаг 1 — разбор файла без записи (apply=false),
+   шаг 2 — заливка строк выбранной колонкой-ключом.
+   -------------------------------------------------------------------------- */
+
+function initTableUpload() {
+  const host = document.getElementById('srcPaste');
+  const sources = document.getElementById('dataSources');
+  if (!host || !sources) return;                  // мы не на странице проекта
+  if (document.getElementById('srcTable')) return;
+
+  const PID = new URLSearchParams(location.search).get('id');
+
+  const box = document.createElement('div');
+  box.id = 'srcTable';
+  box.className = 'mt-3';
+  box.hidden = true;
+  box.innerHTML = `
+    <div class="up-drop" id="tblDrop">
+      <div class="up-drop-t">Перетащите файл сюда или нажмите</div>
+      <div class="up-drop-s">CSV, TSV, XLSX · до 12 МБ · первая строка — заголовки колонок</div>
+    </div>
+    <input type="file" class="up-file" id="tblFile" accept=".csv,.tsv,.txt,.xlsx,.xlsm">
+    <div class="up-row">
+      <div class="field">
+        <div class="field-label">Колонка-ключ</div>
+        <select class="select input-sm" id="tblKeyCol" disabled>
+          <option value="">первая колонка</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Режим</div>
+        <select class="select input-sm" id="tblMode">
+          <option value="add">Добавить к текущим</option>
+          <option value="replace">Заменить все строки</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="tblUpload" disabled>Загрузить строки</button>
+      <span class="up-name" id="tblName"></span>
+    </div>
+    <div class="up-prev" id="tblPrev"></div>`;
+  host.insertAdjacentElement('afterend', box);
+
+  const drop   = box.querySelector('#tblDrop');
+  const input  = box.querySelector('#tblFile');
+  const keySel = box.querySelector('#tblKeyCol');
+  const mode   = box.querySelector('#tblMode');
+  const btn    = box.querySelector('#tblUpload');
+  const nameEl = box.querySelector('#tblName');
+  const prev   = box.querySelector('#tblPrev');
+
+  let picked = null;        // выбранный файл
+  let busy = false;
+  let loadedSaved = false;
+
+  /* Карта колонок + первые строки. */
+  function renderPreview(meta) {
+    if (!meta || !(meta.columns || []).length) { prev.innerHTML = ''; return; }
+    const cols = meta.columns;
+    const varied = cols.filter(c => (c.variability || 0) >= 0.5).length;
+    const rows = meta.sample || [];
+
+    const head = `
+      <div class="metrics mt-3">
+        <div class="metric"><div class="metric-k">Строк</div>
+          <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
+        <div class="metric"><div class="metric-k">Колонок</div>
+          <div class="metric-v">${cols.length}</div></div>
+        <div class="metric"><div class="metric-k">Различаются</div>
+          <div class="metric-v">${varied}</div>
+          <div class="metric-note">чем больше разных колонок, тем выше потолок уникальности</div></div>
+        <div class="metric"><div class="metric-k">Ключ</div>
+          <div class="metric-v lg">${escHtml(meta.key_column || '—')}</div></div>
+      </div>`;
+
+    const map = `<div class="cols mt-3">` + cols.map(c => {
+      const pct = Math.round((c.variability || 0) * 100);
+      const tone = pct >= 50 ? 'ok' : (pct >= 15 ? 'warn' : 'bad');
+      return `<div class="col-card">
+        <div class="col-name"><span>${escHtml(c.name)}</span>
+          <span class="pill ${tone}">${pct}%</span></div>
+        <div class="col-note">${escHtml(c.sample || 'пусто')}</div>
+        <div class="col-nums">заполнено ${Math.round((c.fill_rate || 0) * 100)}% · уникальных ${fmtNum(c.unique || 0)}</div>
+        <div class="bar"><i class="bar-fill" style="width:${pct}%"></i></div>
+      </div>`;
+    }).join('') + `</div>`;
+
+    const names = cols.map(c => c.name);
+    const table = !rows.length ? '' : `
+      <div class="hr-label">Первые строки</div>
+      <div class="up-prev-wrap">
+        <table class="up-prev-tbl">
+          <thead><tr>${names.map(n =>
+            `<th>${escHtml(n)}${n === meta.key_column ? ' · ключ' : ''}</th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r =>
+            `<tr>${names.map(n => `<td>${escHtml(String(r[n] == null ? '' : r[n]))}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+
+    prev.innerHTML = head + map + table;
+  }
+
+  /* Отправка файла. apply=false — только разобрать и показать. */
+  async function send(apply) {
+    if (!picked || !PID || busy) return null;
+    busy = true;
+    btn.disabled = true;
+    const label = btn.textContent;
+    if (apply) btn.textContent = 'Загружаю…';
+    else prev.innerHTML = `<div class="muted mt-3">Разбираю файл…</div>`;
+    try {
+      const fd = new FormData();
+      fd.append('file', picked);
+      fd.append('key_column', apply ? (keySel.value || '') : '');
+      fd.append('replace', apply && mode.value === 'replace' ? 'true' : 'false');
+      fd.append('apply', apply ? 'true' : 'false');
+      const meta = await api.uploadTable(PID, fd);
+      renderPreview(meta);
+      return meta;
+    } catch (e) {
+      prev.innerHTML = `<div class="note bad mt-3"><div class="note-body">${escHtml(e.message || 'Ошибка загрузки')}</div></div>`;
+      toast.err('Таблица данных', e);
+      return null;
+    } finally {
+      busy = false;
+      btn.textContent = label;
+      btn.disabled = !picked;
+    }
+  }
+
+  async function choose(file) {
+    if (!file) return;
+    picked = file;
+    nameEl.textContent = `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} КБ`;
+    btn.disabled = false;
+    const meta = await send(false);
+    keySel.innerHTML = '';
+    keySel.disabled = true;
+    if (meta && (meta.columns || []).length) {
+      meta.columns.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.name;
+        o.textContent = `${c.name} · уник. ${c.unique}`;
+        keySel.appendChild(o);
+      });
+      keySel.value = meta.key_column || meta.columns[0].name;
+      keySel.disabled = false;
+      keySel.onchange = () => {
+        const c = meta.columns.find(x => x.name === keySel.value);
+        if (c && (c.variability || 0) < 1) {
+          toast.info('Ключ с повторами',
+            `В колонке «${c.name}» есть одинаковые значения — дубли будут пропущены`);
+        }
+      };
+    }
+  }
+
+  /* Выбор файла: клик и drag-n-drop */
+  drop.onclick = () => input.click();
+  input.onchange = () => choose(input.files && input.files[0]);
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.add('is-over');
+  }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.remove('is-over');
+  }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) choose(f);
+  });
+
+  /* Заливка строк */
+  btn.onclick = async () => {
+    if (mode.value === 'replace') {
+      const ok = await confirmDialog({
+        title: 'Заменить все строки?',
+        text: 'Текущие строки удалятся вместе с их задачами и страницами.',
+        confirm: 'Заменить',
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    const meta = await send(true);
+    if (!meta) return;
+    const msg = `Добавлено ${fmtNum(meta.created || 0)} из ${fmtNum(meta.rows_total || 0)}` +
+      (meta.skipped_duplicates ? `, дублей ${meta.skipped_duplicates}` : '') +
+      (meta.skipped_empty ? `, без ключа ${meta.skipped_empty}` : '');
+    toast.ok('Строки загружены', msg);
+    const reload = document.getElementById('keysReload');
+    if (reload) reload.click();                   // перерисовать таблицу строк
+  };
+
+  /* У карточки CSV теперь реальная форма, а не заглушка. */
+  const csvCard = sources.querySelector('.pick-card[data-src="csv"]');
+  if (csvCard) {
+    const need = csvCard.querySelector('.pick-need');
+    if (need) need.remove();
+    const soon = csvCard.querySelector('.pill.soon');
+    if (soon) { soon.className = 'pill ok'; soon.textContent = 'Готово'; }
+  }
+
+  sources.addEventListener('click', async e => {
+    const card = e.target.closest && e.target.closest('.pick-card');
+    if (!card) return;
+    const isCsv = card.dataset.src === 'csv';
+    box.hidden = !isCsv;
+    if (!isCsv) return;
+    // своим обработчиком страница показала заглушку — убираем её
+    const stub = document.getElementById('srcStub');
+    if (stub) stub.hidden = true;
+    const paste = document.getElementById('srcPaste');
+    if (paste) paste.hidden = true;
+    if (!loadedSaved && PID) {
+      loadedSaved = true;
+      try {
+        const saved = await api.previewTable(PID);
+        if (saved && (saved.columns || []).length) renderPreview(saved);
+      } catch (_) { /* превью необязательно */ }
+    }
+  });
+}
+
+/* --------------------------------------------------------------------------
+   ГЕЙТ КАЧЕСТВА — пороги и отключение проверок.
+
+   Главное: часть проверок Google не использует вообще — тошнота,
+   водность, индексы читаемости, meta keywords. Они выключены на
+   бэкенде и показаны здесь с пометкой, чтобы было видно почему.
+   -------------------------------------------------------------------------- */
+
+let GATE_CFG = null;
+let gateBound = false;
+
+const GATE_GOOGLE = {
+  uses:     ['ok',      'Google учитывает'],
+  indirect: ['warn',    'влияет косвенно'],
+  ignores:  ['neutral', 'Google не смотрит'],
+};
+
+function gatePid() { return new URLSearchParams(location.search).get('id'); }
+
+async function initGateConfig(force) {
+  const host = document.getElementById('gateChecks');
+  const pid = gatePid();
+  if (!host || !pid) return;
+  if (GATE_CFG && !force) { renderGateConfig(); return; }
+
+  host.innerHTML = '<div class="stub-text">Загружаем настройки гейта…</div>';
+  try {
+    GATE_CFG = await api.getGateConfig(pid);
+  } catch (e) {
+    GATE_CFG = null;
+    host.innerHTML = '<div class="stub-text">' +
+      escHtml(e.message || 'Настройки гейта не загрузились') + '</div>';
+    return;
+  }
+  bindGateConfig();
+  renderGateConfig();
+}
+
+function renderGateConfig() {
+  if (!GATE_CFG) return;
+  const cfg = GATE_CFG.config || {};
+  const put = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+
+  put('gateMinChars', cfg.min_chars || 0);
+  put('gateUniq', Math.round((Number(cfg.uniqueness_min) || 0) * 100));
+  put('gateSelfRep', cfg.self_repetition_max);
+  put('gateIntra', cfg.intra_page_max);
+  put('gatePass', cfg.pass_score);
+  put('gateRedo', cfg.redo_score);
+
+  const checks = GATE_CFG.checks || [];
+  const off = checks.filter(c => !c.enabled).length;
+  const pill = document.getElementById('gateOffPill');
+  if (pill) pill.textContent = off ? ('выключено ' + off) : 'все включены';
+
+  const groups = [
+    ['5.1', '5.1 · Блокировки'],
+    ['5.2', '5.2 · Факты'],
+    ['5.3', '5.3 · Уникальность'],
+    ['5.4', '5.4 · Качество текста'],
+  ];
+
+  const html = groups.map(([lvl, title]) => {
+    const items = checks.filter(c => c.level === lvl);
+    if (!items.length) return '';
+    return `<div class="hr-label">${escHtml(title)}</div>` +
+      `<div class="checks-list">` + items.map(c => {
+        const g = GATE_GOOGLE[c.google] || GATE_GOOGLE.indirect;
+        const total = (c.ok || 0) + (c.fail || 0);
+        const stat = total ? `${c.ok}/${total}` : '—';
+        return `<label class="check-row" title="${escAttr(c.key)}">` +
+          `<span class="check-name">` +
+            `<input type="checkbox" class="check" data-gate-key="${escAttr(c.key)}"` +
+              `${c.enabled ? ' checked' : ''}${c.locked ? ' disabled' : ''}> ` +
+            `${escHtml(c.label)} <span class="pill ${g[0]}">${escHtml(g[1])}</span>` +
+            (c.locked ? ` <span class="pill neutral">обязательная</span>` : '') +
+            `<span class="muted" style="display:block;margin-top:2px;">${escHtml(c.note || '')}</span>` +
+          `</span>` +
+          `<span class="check-val">${stat}</span>` +
+        `</label>`;
+      }).join('') + `</div>`;
+  }).join('');
+
+  document.getElementById('gateChecks').innerHTML = html;
+
+  const note = document.getElementById('gateNote');
+  if (note) {
+    note.innerHTML =
+      '<b>Что убрано и почему.</b> Тошнота (классическая и академическая), водность, ' +
+      'индекс читаемости Флеша и meta keywords выключены: Google прямо говорит, что ' +
+      'понятия оптимальной плотности слов не существует, алгоритмов на базовых индексах ' +
+      'читаемости нет, а тег keywords игнорируется с 2009 года. Отключённые проверки ' +
+      'не считаются при генерации и вычищаются из уже готовых страниц при сохранении.';
+  }
+
+  /* подписи развилки — из тех же настроек */
+  const ranges = document.querySelectorAll('#view-gate .fork-range');
+  if (ranges.length === 3) {
+    ranges[0].textContent = '≥ ' + cfg.pass_score;
+    ranges[1].textContent = cfg.redo_score + ' — ' + cfg.pass_score;
+    ranges[2].textContent = '< ' + cfg.redo_score;
+  }
+}
+
+function bindGateConfig() {
+  if (gateBound) return;
+  gateBound = true;
+
+  const save = document.getElementById('gateSave');
+  if (save) save.onclick = () => saveGateConfigUI(save);
+
+  const reset = document.getElementById('gateReset');
+  if (reset) reset.onclick = () => {
+    if (!GATE_CFG) return;
+    const def = GATE_CFG.defaults || {};
+    GATE_CFG.config = Object.assign({}, def);
+    const offDef = def.disabled || [];
+    GATE_CFG.checks = (GATE_CFG.checks || []).map(c =>
+      Object.assign({}, c, { enabled: offDef.indexOf(c.key) === -1 }));
+    renderGateConfig();
+    toast.info('Значения по умолчанию', 'Нажмите «Сохранить», чтобы применить');
+  };
+}
+
+async function saveGateConfigUI(btn) {
+  const pid = gatePid();
+  if (!pid || !GATE_CFG) return;
+
+  const num = (id, def) => {
+    const el = document.getElementById(id);
+    const v = el ? parseFloat(String(el.value).replace(',', '.')) : NaN;
+    return Number.isFinite(v) ? v : def;
+  };
+
+  const disabled = Array.from(document.querySelectorAll('[data-gate-key]'))
+    .filter(el => !el.checked && !el.disabled)
+    .map(el => el.getAttribute('data-gate-key'));
+
+  const body = {
+    min_chars: Math.round(num('gateMinChars', 0)),
+    uniqueness_min: Math.max(0, Math.min(95, num('gateUniq', 80))) / 100,
+    self_repetition_max: num('gateSelfRep', 0.08),
+    intra_page_max: num('gateIntra', 0.6),
+    pass_score: Math.round(num('gatePass', 80)),
+    redo_score: Math.round(num('gateRedo', 60)),
+    disabled: disabled,
+    apply_to_existing: true,
+  };
+
+  const run = async () => {
+    try {
+      const res = await api.saveGateConfig(pid, body);
+      const parts = [];
+      if (res && res.cleaned) parts.push('очищено страниц: ' + res.cleaned);
+      if (res && res.restored) parts.push('стали готовыми: ' + res.restored);
+      toast.ok('Гейт сохранён', parts.join(', ') || 'Настройки применены');
+      await initGateConfig(true);
+      if (typeof loadPages === 'function') await loadPages(true);
+      if (typeof renderGate === 'function') renderGate();
+    } catch (e) {
+      toast.err('Не удалось сохранить гейт', e);
+    }
+  };
+
+  if (btn && typeof withBusy === 'function') await withBusy(btn, run);
+  else await run();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTableUpload);
+} else {
+  initTableUpload();
+}
+
 ════════════════════════════════════════════════════════
   smm/index.html
 ════════════════════════════════════════════════════════
@@ -1304,7 +1707,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body class="is-app">
 
@@ -2078,8 +2481,9 @@ load();
               <div class="gate-body">
                 <div class="gate-title">Качество <span class="pill ok">работает</span></div>
                 <div class="gate-desc">
-                  Измерения сводятся в один балл от 0 до 100. Веса измерений
-                  будет пересчитывать блок 8 по реальной индексации.
+                  Измерения сводятся в один балл от 0 до 100. Тошнота, водность и
+                  читаемость из балла убраны — Google их не использует, и их вес
+                  перешёл на уникальность, плотность фактов и перелинковку.
                 </div>
                 <div class="gate-checks" id="lvl4Checks"></div>
               </div>
@@ -2087,6 +2491,52 @@ load();
                 <div class="gate-stat-v" id="lvl4Val">—</div>
                 <div class="gate-stat-k">средний балл</div>
               </div>
+            </div>
+          </div>
+
+          <div class="panel" id="gateCfg">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Настройка гейта <span class="pill neutral" id="gateOffPill">—</span></div>
+                <div class="panel-sub">
+                  Пороги и список проверок. Всё, что Google официально не использует,
+                  выключено — такие проверки только валили нормальные страницы.
+                </div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-sm" id="gateReset">По умолчанию</button>
+                <button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="up-row">
+                <div class="field">
+                  <div class="field-label">Минимум символов (0 — из настроек)</div>
+                  <input class="input input-sm" id="gateMinChars" type="number" min="0" step="100" value="0">
+                </div>
+                <div class="field">
+                  <div class="field-label">Уникальность, % не ниже</div>
+                  <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Самоповторы, не выше</div>
+                  <input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08">
+                </div>
+                <div class="field">
+                  <div class="field-label">Похожие блоки, не выше</div>
+                  <input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6">
+                </div>
+                <div class="field">
+                  <div class="field-label">Пропуск, балл ≥</div>
+                  <input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Перегенерация, балл ≥</div>
+                  <input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60">
+                </div>
+              </div>
+              <div id="gateChecks"></div>
+              <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
 
@@ -2636,7 +3086,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=23"></script>
 
 <script>
 /* ==========================================================================
@@ -2776,7 +3226,7 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
-  if (view === 'gate')  renderGate();
+  if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
   if (view === 'rules') fillRules();
   if (view === 'export') renderExport();
@@ -3708,9 +4158,12 @@ function renderGate() {
   setText('#lvl4Val', avg === null ? '—' : avg.toFixed(0));
 
   /* развилка */
-  const pass = scored.filter(p => p.quality_score >= 80).length;
-  const redo = scored.filter(p => p.quality_score >= 60 && p.quality_score < 80).length;
-  const drop = scored.filter(p => p.quality_score < 60).length;
+  const gcfg = (typeof GATE_CFG !== 'undefined' && GATE_CFG && GATE_CFG.config) || {};
+  const passAt = Number(gcfg.pass_score) || 80;
+  const redoAt = Number(gcfg.redo_score) || 60;
+  const pass = scored.filter(p => p.quality_score >= passAt).length;
+  const redo = scored.filter(p => p.quality_score >= redoAt && p.quality_score < passAt).length;
+  const drop = scored.filter(p => p.quality_score < redoAt).length;
   setText('#forkPass', scored.length ? fmtNum(pass) : '—');
   setText('#forkRedo', scored.length ? fmtNum(redo) : '—');
   setText('#forkDrop', scored.length ? fmtNum(drop) : '—');
@@ -4212,7 +4665,7 @@ Disallow: /
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=22">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -4446,7 +4899,7 @@ Disallow: /
   </main>
 </div>
 
-<script src="app.js?v=21"></script>
+<script src="app.js?v=22"></script>
 <script>
 (function () {
 'use strict';
