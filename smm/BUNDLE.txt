@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: 00bd9b5b765b1e9cb96356634a9cf3d5ee8e43aa
-# built:  2026-09-08 19:57 UTC
+# commit: d0b1c790de8012c85c57c2785a07a67112a596cd
+# built:  2026-09-08 20:00 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (1129 строк)
+smm/app.js  (899 строк)
 smm/index.html  (327 строк)
 smm/project.html  (2901 строк)
 smm/robots.txt  (4 строк)
@@ -160,7 +160,7 @@ async function req(path, opts = {}) {
 
 const API_SOON = new Set([
   'analyzeData', 'getPassport', 'savePassport',   // Блок 1 — оркестратор
-  'linkSheet',                                     // вход — Google Sheets (ещё нет)
+  'uploadTable', 'previewTable', 'linkSheet',      // вход — таблица данных
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
   'getGateConfig', 'saveGateConfig',               // Блок 5 — настройка гейта
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
@@ -226,7 +226,7 @@ const api = {
   getPassport:  (id)     => req(`/projects/${id}/passport`),
   savePassport: (id, d)  => req(`/projects/${id}/passport`, { method: 'PUT', body: JSON.stringify(d) }),
 
-  /* ---- ВХОД — таблица данных (upload/preview — готовы) ---- */
+  /* ---- ВХОД — таблица данных (ещё нет) ---- */
   uploadTable:  (id, fd) => req(`/projects/${id}/table`, { method: 'POST', body: fd, headers: {} }),
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
   linkSheet:    (id, u)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify({ url: u }) }),
@@ -952,236 +952,6 @@ function showShortcuts() {
       `<div class="check-row ok"><span class="check-name">${escHtml(r[1])}</span>` +
       `<span class="check-val"><kbd>${escHtml(r[0])}</kbd></span></div>`).join('') + `</div>`,
   });
-}
-
-/* --------------------------------------------------------------------------
-   ВХОД · ТАБЛИЦА ДАННЫХ (CSV / TSV / Excel)
-   Работает на экране «Данные» через api.uploadTable / api.previewTable.
-   Шаг 1 — разбор файла без записи (apply=false),
-   шаг 2 — заливка строк выбранной колонкой-ключом.
-   -------------------------------------------------------------------------- */
-
-function initTableUpload() {
-  const host = document.getElementById('srcPaste');
-  const sources = document.getElementById('dataSources');
-  if (!host || !sources) return;                  // мы не на странице проекта
-  if (document.getElementById('srcTable')) return;
-
-  const PID = new URLSearchParams(location.search).get('id');
-
-  const box = document.createElement('div');
-  box.id = 'srcTable';
-  box.className = 'mt-3';
-  box.hidden = true;
-  box.innerHTML = `
-    <div class="up-drop" id="tblDrop">
-      <div class="up-drop-t">Перетащите файл сюда или нажмите</div>
-      <div class="up-drop-s">CSV, TSV, XLSX · до 12 МБ · первая строка — заголовки колонок</div>
-    </div>
-    <input type="file" class="up-file" id="tblFile" accept=".csv,.tsv,.txt,.xlsx,.xlsm">
-    <div class="up-row">
-      <div class="field">
-        <div class="field-label">Колонка-ключ</div>
-        <select class="select input-sm" id="tblKeyCol" disabled>
-          <option value="">первая колонка</option>
-        </select>
-      </div>
-      <div class="field">
-        <div class="field-label">Режим</div>
-        <select class="select input-sm" id="tblMode">
-          <option value="add">Добавить к текущим</option>
-          <option value="replace">Заменить все строки</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" id="tblUpload" disabled>Загрузить строки</button>
-      <span class="up-name" id="tblName"></span>
-    </div>
-    <div class="up-prev" id="tblPrev"></div>`;
-  host.insertAdjacentElement('afterend', box);
-
-  const drop   = box.querySelector('#tblDrop');
-  const input  = box.querySelector('#tblFile');
-  const keySel = box.querySelector('#tblKeyCol');
-  const mode   = box.querySelector('#tblMode');
-  const btn    = box.querySelector('#tblUpload');
-  const nameEl = box.querySelector('#tblName');
-  const prev   = box.querySelector('#tblPrev');
-
-  let picked = null;        // выбранный файл
-  let busy = false;
-  let loadedSaved = false;
-
-  /* Карта колонок + первые строки. */
-  function renderPreview(meta) {
-    if (!meta || !(meta.columns || []).length) { prev.innerHTML = ''; return; }
-    const cols = meta.columns;
-    const varied = cols.filter(c => (c.variability || 0) >= 0.5).length;
-    const rows = meta.sample || [];
-
-    const head = `
-      <div class="metrics mt-3">
-        <div class="metric"><div class="metric-k">Строк</div>
-          <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
-        <div class="metric"><div class="metric-k">Колонок</div>
-          <div class="metric-v">${cols.length}</div></div>
-        <div class="metric"><div class="metric-k">Различаются</div>
-          <div class="metric-v">${varied}</div>
-          <div class="metric-note">чем больше разных колонок, тем выше потолок уникальности</div></div>
-        <div class="metric"><div class="metric-k">Ключ</div>
-          <div class="metric-v lg">${escHtml(meta.key_column || '—')}</div></div>
-      </div>`;
-
-    const map = `<div class="cols mt-3">` + cols.map(c => {
-      const pct = Math.round((c.variability || 0) * 100);
-      const tone = pct >= 50 ? 'ok' : (pct >= 15 ? 'warn' : 'bad');
-      return `<div class="col-card">
-        <div class="col-name"><span>${escHtml(c.name)}</span>
-          <span class="pill ${tone}">${pct}%</span></div>
-        <div class="col-note">${escHtml(c.sample || 'пусто')}</div>
-        <div class="col-nums">заполнено ${Math.round((c.fill_rate || 0) * 100)}% · уникальных ${fmtNum(c.unique || 0)}</div>
-        <div class="bar"><i class="bar-fill" style="width:${pct}%"></i></div>
-      </div>`;
-    }).join('') + `</div>`;
-
-    const names = cols.map(c => c.name);
-    const table = !rows.length ? '' : `
-      <div class="hr-label">Первые строки</div>
-      <div class="up-prev-wrap">
-        <table class="up-prev-tbl">
-          <thead><tr>${names.map(n =>
-            `<th>${escHtml(n)}${n === meta.key_column ? ' · ключ' : ''}</th>`).join('')}</tr></thead>
-          <tbody>${rows.map(r =>
-            `<tr>${names.map(n => `<td>${escHtml(String(r[n] == null ? '' : r[n]))}</td>`).join('')}</tr>`).join('')}</tbody>
-        </table>
-      </div>`;
-
-    prev.innerHTML = head + map + table;
-  }
-
-  /* Отправка файла. apply=false — только разобрать и показать. */
-  async function send(apply) {
-    if (!picked || !PID || busy) return null;
-    busy = true;
-    btn.disabled = true;
-    const label = btn.textContent;
-    if (apply) btn.textContent = 'Загружаю…';
-    else prev.innerHTML = `<div class="muted mt-3">Разбираю файл…</div>`;
-    try {
-      const fd = new FormData();
-      fd.append('file', picked);
-      fd.append('key_column', apply ? (keySel.value || '') : '');
-      fd.append('replace', apply && mode.value === 'replace' ? 'true' : 'false');
-      fd.append('apply', apply ? 'true' : 'false');
-      const meta = await api.uploadTable(PID, fd);
-      renderPreview(meta);
-      return meta;
-    } catch (e) {
-      prev.innerHTML = `<div class="note bad mt-3"><div class="note-body">${escHtml(e.message || 'Ошибка загрузки')}</div></div>`;
-      toast.err('Таблица данных', e);
-      return null;
-    } finally {
-      busy = false;
-      btn.textContent = label;
-      btn.disabled = !picked;
-    }
-  }
-
-  async function choose(file) {
-    if (!file) return;
-    picked = file;
-    nameEl.textContent = `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} КБ`;
-    btn.disabled = false;
-    const meta = await send(false);
-    keySel.innerHTML = '';
-    keySel.disabled = true;
-    if (meta && (meta.columns || []).length) {
-      meta.columns.forEach(c => {
-        const o = document.createElement('option');
-        o.value = c.name;
-        o.textContent = `${c.name} · уник. ${c.unique}`;
-        keySel.appendChild(o);
-      });
-      keySel.value = meta.key_column || meta.columns[0].name;
-      keySel.disabled = false;
-      keySel.onchange = () => {
-        const c = meta.columns.find(x => x.name === keySel.value);
-        if (c && (c.variability || 0) < 1) {
-          toast.info('Ключ с повторами',
-            `В колонке «${c.name}» есть одинаковые значения — дубли будут пропущены`);
-        }
-      };
-    }
-  }
-
-  /* Выбор файла: клик и drag-n-drop */
-  drop.onclick = () => input.click();
-  input.onchange = () => choose(input.files && input.files[0]);
-  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.classList.add('is-over');
-  }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.classList.remove('is-over');
-  }));
-  drop.addEventListener('drop', e => {
-    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) choose(f);
-  });
-
-  /* Заливка строк */
-  btn.onclick = async () => {
-    if (mode.value === 'replace') {
-      const ok = await confirmDialog({
-        title: 'Заменить все строки?',
-        text: 'Текущие строки удалятся вместе с их задачами и страницами.',
-        confirm: 'Заменить',
-        danger: true,
-      });
-      if (!ok) return;
-    }
-    const meta = await send(true);
-    if (!meta) return;
-    const msg = `Добавлено ${fmtNum(meta.created || 0)} из ${fmtNum(meta.rows_total || 0)}` +
-      (meta.skipped_duplicates ? `, дублей ${meta.skipped_duplicates}` : '') +
-      (meta.skipped_empty ? `, без ключа ${meta.skipped_empty}` : '');
-    toast.ok('Строки загружены', msg);
-    const reload = document.getElementById('keysReload');
-    if (reload) reload.click();                   // перерисовать таблицу строк
-  };
-
-  /* У карточки CSV теперь реальная форма, а не заглушка. */
-  const csvCard = sources.querySelector('.pick-card[data-src="csv"]');
-  if (csvCard) {
-    const need = csvCard.querySelector('.pick-need');
-    if (need) need.remove();
-    const soon = csvCard.querySelector('.pill.soon');
-    if (soon) { soon.className = 'pill ok'; soon.textContent = 'Готово'; }
-  }
-
-  sources.addEventListener('click', async e => {
-    const card = e.target.closest && e.target.closest('.pick-card');
-    if (!card) return;
-    const isCsv = card.dataset.src === 'csv';
-    box.hidden = !isCsv;
-    if (!isCsv) return;
-    // своим обработчиком страница показала заглушку — убираем её
-    const stub = document.getElementById('srcStub');
-    if (stub) stub.hidden = true;
-    const paste = document.getElementById('srcPaste');
-    if (paste) paste.hidden = true;
-    if (!loadedSaved && PID) {
-      loadedSaved = true;
-      try {
-        const saved = await api.previewTable(PID);
-        if (saved && (saved.columns || []).length) renderPreview(saved);
-      } catch (_) { /* превью необязательно */ }
-    }
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initTableUpload);
-} else {
-  initTableUpload();
 }
 
 ════════════════════════════════════════════════════════
