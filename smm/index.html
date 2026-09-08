@@ -1,176 +1,327 @@
-
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="ru" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>SEO-Фабрика — Проекты</title>
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
-  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Проекты — SEO-Фабрика</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=20">
+<script>
+  try {
+    var t = localStorage.getItem('seo_theme');
+    if (t !== 'light' && t !== 'dark') t = 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
 </head>
-<body>
-  <div class="header">
-    <div class="header-inner">
-      <a class="logo" href="index.html"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#fff"/><rect x="10" y="1" width="7" height="7" fill="#2536c8"/><rect x="1" y="10" width="7" height="7" fill="#2536c8"/><rect x="10" y="10" width="7" height="7" fill="#fff" opacity=".45"/></svg>SEO<span class="full">-Фабрика</span></a>
-      <nav class="nav">
-        <a href="index.html" class="active">Проекты</a>
-        <a href="settings.html">Настройки</a>
-      </nav>
-    </div>
-  </div>
+<body class="is-plain">
 
-  <main class="main">
-    <div class="eyebrow">Цех — все заказы</div>
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
-      <div>
-        <h1 class="page-title">Проекты</h1>
-        <p class="page-sub" style="margin-bottom:0;">Один проект — один каркас страницы и свой список ключевых запросов. Сильная модель рисует каркас, дешёвые наполняют его текстом.</p>
-      </div>
-      <button class="btn btn-primary" id="newProjectBtn">Создать проект</button>
+<div class="plain-shell">
+
+  <!-- ================= верхняя панель ================= -->
+  <header class="topbar plain-topbar">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18V6l7 6 7-6v12"/></svg>
+      </span>
+      <span>
+        <span class="brand-name">SEO-Фабрика</span>
+        <span class="brand-sub">массовая генерация страниц</span>
+      </span>
     </div>
 
-    <div class="stat-strip" id="statStrip" style="display:none;"></div>
+    <span class="topbar-spacer"></span>
 
-    <div id="createModal" style="display:none;">
-      <div class="modal-overlay" onclick="closeCreateModal(event)">
-        <div class="modal" style="max-width:480px;" onclick="event.stopPropagation()">
-          <div class="modal-header">
-            <h3>Новый проект</h3>
-            <button class="modal-close" onclick="closeCreateModal()">×</button>
-          </div>
-          <div style="padding:22px;">
-            <div class="form-row"><label>Название проекта *</label><input type="text" id="cpName" placeholder="Таро — 78 карт"></div>
-            <div class="form-row"><label>Домен</label><input type="text" id="cpDomain" placeholder="neotaro.ru"><div class="hint">Используется в sitemap.xml и canonical-ссылках при выгрузке.</div></div>
-            <div class="form-row"><label>Описание (необязательно)</label><input type="text" id="cpDesc" placeholder="Страницы карт Таро"></div>
-            <div id="cpError" style="color:var(--bad);font-size:13px;margin-bottom:10px;display:none;"></div>
-            <button class="btn btn-primary" style="width:100%;" id="cpSubmit">Создать проект</button>
-          </div>
+    <button class="kbd-hint" id="cmdkBtn" type="button">
+      <span data-ico-sm="search"></span> Поиск и команды <kbd>⌘</kbd><kbd>K</kbd>
+    </button>
+
+    <div class="topbar-tools">
+      <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему (T)"><span data-theme-ico></span></button>
+      <button class="icon-btn" id="helpBtn" type="button" title="Горячие клавиши (?)"><span data-ico="keyboard"></span></button>
+      <a class="icon-btn" href="settings.html" title="Глобальные настройки"><span data-ico="gear"></span></a>
+    </div>
+  </header>
+
+  <!-- ================= контент ================= -->
+  <main class="canvas">
+    <div class="wrap">
+
+      <div class="view-head">
+        <div class="view-head-body">
+          <div class="view-eyebrow"><i class="dot"></i> Рабочее место</div>
+          <h1 class="view-title">Проекты</h1>
+          <p class="view-sub">
+            Один проект — одна таблица данных, один каркас страницы и один набор правил качества.
+          </p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-primary btn-lg" id="newProjBtn" type="button">
+            <span data-ico="plus"></span> Новый проект
+          </button>
         </div>
       </div>
-    </div>
 
-    <div id="projectsContainer">
-      <div class="card" style="text-align:center;padding:40px;color:var(--muted);">
-        <span class="spinner"></span> Загрузка проектов…
-      </div>
+      <div class="metrics" id="homeMetrics"></div>
+
+      <!-- форма создания -->
+      <section class="panel accent" id="newProjPanel" hidden>
+        <div class="panel-head">
+          <div class="panel-head-body">
+            <div class="panel-title">Новый проект</div>
+            <div class="panel-sub">Название обязательно. Описание продукта потом прочитает оркестратор.</div>
+          </div>
+          <div class="panel-tools">
+            <button class="icon-btn" id="newProjClose" type="button" title="Закрыть"><span data-ico="x"></span></button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <label class="field">
+              <span class="field-label">Название <span class="req">*</span></span>
+              <input class="input" id="npName" placeholder="Карты Таро — страницы значений" autocomplete="off">
+              <span class="field-hint">Видно только вам в интерфейсе.</span>
+            </label>
+            <label class="field">
+              <span class="field-label">Домен</span>
+              <input class="input" id="npDomain" placeholder="neotaro.ru" autocomplete="off">
+              <span class="field-hint">Из него соберутся canonical и sitemap.</span>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field-label">Описание продукта</span>
+            <textarea class="textarea" id="npDesc" rows="3"
+              placeholder="Кто клиент, что продаёте, чем страницы полезны человеку"></textarea>
+            <span class="field-hint">Это один из трёх входов будущего оркестратора.</span>
+          </label>
+        </div>
+        <div class="panel-foot">
+          <button class="btn btn-primary" id="npCreate" type="button"><span data-ico="check"></span> Создать проект</button>
+          <button class="btn btn-quiet" id="npCancel" type="button">Отмена</button>
+        </div>
+      </section>
+
+      <!-- список -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-head-body">
+            <div class="panel-title">Все проекты <span class="pill neutral" id="projCountPill">0</span></div>
+            <div class="panel-sub">Нажмите на карточку, чтобы открыть рабочие экраны.</div>
+          </div>
+          <div class="panel-tools">
+            <input class="input input-sm" id="projFilter" placeholder="Фильтр по названию…" autocomplete="off">
+            <button class="icon-btn bordered" id="projReload" type="button" title="Обновить (R)"><span data-ico="refresh"></span></button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="pgrid" id="projGrid"></div>
+        </div>
+      </section>
+
+      <!-- подсказка по порядку работы -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-head-body">
+            <div class="panel-title">Как устроен путь от таблицы до публикации</div>
+            <div class="panel-sub">Восемь блоков. Серые — ещё заглушки в интерфейсе.</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="flow">
+            <div class="flow-node"><div class="flow-n">1 · Оркестратор</div><div class="flow-t">Решает, стоит ли вообще делать страницы <span class="pill soon">заглушка</span></div></div>
+            <span class="flow-arrow" data-ico-sm="chevron"></span>
+            <div class="flow-node"><div class="flow-n">2 · Каркас</div><div class="flow-t">Сильная модель рисует HTML и схему полей</div></div>
+            <span class="flow-arrow" data-ico-sm="chevron"></span>
+            <div class="flow-node"><div class="flow-n">3–4 · Заполнение</div><div class="flow-t">Дешёвая модель на каждую строку таблицы</div></div>
+            <span class="flow-arrow" data-ico-sm="chevron"></span>
+            <div class="flow-node"><div class="flow-n">5 · Гейт</div><div class="flow-t">Блокировки, факты, уникальность, балл 0–100</div></div>
+            <span class="flow-arrow" data-ico-sm="chevron"></span>
+            <div class="flow-node"><div class="flow-n">6–8 · Выход</div><div class="flow-t">Обвязка, волны, обратная связь <span class="pill soon">заглушка</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="plain-foot">
+        <span class="nav-state" id="wireDot"></span>
+        <span id="wireText">Проверка связи…</span>
+        <span class="selbar-sep"></span>
+        <a class="link-btn" href="settings.html">Адрес бэкенда и модели</a>
+      </footer>
+
     </div>
   </main>
+</div>
 
-  <script src="app.js?v=9"></script>
-  <script>
-    const container = document.getElementById('projectsContainer');
+<script src="app.js?v=20"></script>
+<script>
+(function () {
+'use strict';
 
-    async function loadProjects() {
-      try {
-        const projects = await api.listProjects();
-        renderProjects(projects);
-      } catch (e) {
-        container.innerHTML = `<div class="alert alert-bad">❌ Ошибка загрузки: ${e.message}. Убедитесь, что бэкенд запущен.</div>`;
-      }
-    }
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+let PROJECTS = [];
 
-    function renderStats(projects) {
-      const strip = document.getElementById('statStrip');
-      if (!projects.length) { strip.style.display = 'none'; return; }
-      const pages = projects.reduce((a, p) => a + (p.pages_count || 0), 0);
-      const keys  = projects.reduce((a, p) => a + (p.keys_count  || 0), 0);
-      const live  = projects.filter(p => p.status === 'generating').length;
-      strip.style.display = '';
-      strip.innerHTML = `
-        <div class="stat"><div class="stat-k">Проектов</div><div class="stat-v">${projects.length}</div></div>
-        <div class="stat"><div class="stat-k">Страниц готово</div><div class="stat-v">${pages}</div></div>
-        <div class="stat"><div class="stat-k">Ключевых запросов</div><div class="stat-v">${keys}</div></div>
-        <div class="stat"><div class="stat-k">Генерируется сейчас</div><div class="stat-v">${live}${live ? ' <small>в работе</small>' : ''}</div></div>`;
-    }
+function hydrateIcons(root) {
+  const r = root || document;
+  r.querySelectorAll('[data-ico]:not([data-ico-done])').forEach(el => {
+    el.innerHTML = ico(el.dataset.ico, 17); el.setAttribute('data-ico-done', '1');
+  });
+  r.querySelectorAll('[data-ico-sm]:not([data-ico-done])').forEach(el => {
+    el.innerHTML = ico(el.dataset.icoSm, 14); el.setAttribute('data-ico-done', '1');
+  });
+  r.querySelectorAll('[data-theme-ico]').forEach(el => {
+    el.innerHTML = ico(getTheme() === 'dark' ? 'sun' : 'moon', 16);
+  });
+}
 
-    function renderProjects(projects) {
-      renderStats(projects);
-      if (!projects.length) {
-        container.innerHTML = `
-          <div class="card empty">
-            <div class="empty-icon">Пустой цех</div>
-            <p>Здесь появятся ваши проекты. Начните с первого — нужно только название и домен.</p>
-            <button class="btn btn-primary" onclick="openCreateModal()">Создать проект</button>
-          </div>`;
-        return;
-      }
-      const cards = projects.map(p => `
-        <div class="proj-wrap">
-        <button class="proj-del" title="Удалить проект" aria-label="Удалить проект"
-                onclick="deleteProject(event, ${p.id}, '${escHtml(p.name).replace(/'/g, "&#39;")}')">×</button>
-        <a class="card proj-card" href="project.html?id=${p.id}">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-            <div class="proj-name">${escHtml(p.name)}</div>
-            ${badge(p.status)}
-          </div>
-          ${p.domain ? `<div class="proj-domain">${escHtml(p.domain)}</div>` : ''}
-          ${p.description ? `<div style="color:var(--muted);font-size:13.5px;">${escHtml(p.description)}</div>` : ''}
-          <div class="proj-meta">
-            <span><span class="num">${p.pages_count ?? 0}</span> страниц</span>
-            <span><span class="num">${p.keys_count ?? 0}</span> ключей</span>
-            <span style="margin-left:auto;">${fmtDate(p.created_at)}</span>
-          </div>
-        </a></div>`).join('');
-      container.innerHTML = `<div class="card-grid">${cards}</div>`;
-    }
+async function load() {
+  $('#projGrid').innerHTML =
+    `<div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div>`;
+  try {
+    PROJECTS = await api.listProjects() || [];
+  } catch (e) {
+    $('#projGrid').innerHTML =
+      `<div class="empty span-all">` +
+        `<div class="empty-art">${ico('alert', 26)}</div>` +
+        `<div class="empty-title">Бэкенд не ответил</div>` +
+        `<div class="empty-text">${escHtml(e.message)}</div>` +
+        `<div class="empty-act"><a class="btn btn-primary" href="settings.html">Проверить адрес</a>` +
+        `<button class="btn" onclick="location.reload()">Повторить</button></div>` +
+      `</div>`;
+    $('#homeMetrics').innerHTML = '';
+    return;
+  }
+  renderMetrics();
+  render();
+}
 
-    // Удаление проекта целиком: клик по крестику не должен открывать карточку.
-    async function deleteProject(ev, id, name) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const ok = confirm('Удалить проект «' + name + '»?\n\nВместе с ним удалятся каркасы, ключи, все сгенерированные страницы и история чата. Отменить нельзя.');
+function renderMetrics() {
+  const n = PROJECTS.length;
+  const live = PROJECTS.filter(p => p.status === 'generating').length;
+  const done = PROJECTS.filter(p => p.status === 'done').length;
+  const err  = PROJECTS.filter(p => p.status === 'error').length;
+  $('#homeMetrics').innerHTML =
+    `<div class="metric"><div class="metric-k">Проектов</div><div class="metric-v">${fmtNum(n)}</div></div>` +
+    `<div class="metric ${live ? 'accent' : ''}"><div class="metric-k">Генерируются</div><div class="metric-v">${live}</div></div>` +
+    `<div class="metric ok"><div class="metric-k">Завершены</div><div class="metric-v">${done}</div></div>` +
+    `<div class="metric ${err ? 'bad' : ''}"><div class="metric-k">С ошибками</div><div class="metric-v">${err}</div></div>`;
+}
+
+function render() {
+  const q = ($('#projFilter').value || '').toLowerCase();
+  const rows = PROJECTS.filter(p =>
+    !q || (p.name || '').toLowerCase().includes(q) || (p.domain || '').toLowerCase().includes(q));
+  $('#projCountPill').textContent = fmtNum(PROJECTS.length);
+  const grid = $('#projGrid');
+
+  if (!PROJECTS.length) {
+    grid.innerHTML =
+      `<div class="empty span-all">` +
+        `<div class="empty-art">${ico('table', 26)}</div>` +
+        `<div class="empty-title">Пока ни одного проекта</div>` +
+        `<div class="empty-text">Начните с названия и домена — данные и каркас добавите внутри.</div>` +
+        `<div class="empty-act"><button class="btn btn-primary" id="emptyNew">Создать первый проект</button></div>` +
+      `</div>`;
+    const b = $('#emptyNew'); if (b) b.onclick = openForm;
+    return;
+  }
+  if (!rows.length) {
+    grid.innerHTML = `<div class="empty span-all"><div class="empty-title">Ничего не найдено</div>` +
+      `<div class="empty-text">Попробуйте другой фильтр.</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = rows.map(p =>
+    `<a class="pcard" href="project.html?id=${encodeURIComponent(p.id)}">` +
+      `<div class="pcard-top">` +
+        `<span class="pcard-ico">${ico('pages', 17)}</span>` +
+        `${pill(p.status)}` +
+      `</div>` +
+      `<div class="pcard-name">${escHtml(p.name || 'Без названия')}</div>` +
+      `<div class="pcard-domain">${escHtml(p.domain || 'без домена')}</div>` +
+      `<div class="pcard-foot">` +
+        `<span>${ico('clock', 13)} ${escHtml(relTime(p.updated_at || p.created_at))}</span>` +
+        `<button class="icon-btn sm danger" data-del="${p.id}" title="Удалить проект">${ico('trash', 15)}</button>` +
+      `</div>` +
+    `</a>`).join('');
+
+  grid.querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = async ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      const p = PROJECTS.find(x => String(x.id) === b.dataset.del);
+      const ok = await confirmDialog({
+        title: 'Удалить проект «' + (p ? p.name : '') + '»?',
+        text: 'Исчезнут все страницы, задачи и каркас. Действие необратимо.',
+        confirm: 'Удалить', danger: true,
+      });
       if (!ok) return;
-      const btn = ev.currentTarget;
-      if (btn) { btn.disabled = true; btn.textContent = '…'; }
-      try {
-        await api.deleteProject(id);
-        loadProjects();
-      } catch (e) {
-        alert('Не удалось удалить: ' + e.message);
-        if (btn) { btn.disabled = false; btn.textContent = '×'; }
-      }
-    }
-
-    function openCreateModal() {
-      document.getElementById('createModal').style.display = 'block';
-      setTimeout(() => document.getElementById('cpName').focus(), 50);
-    }
-    function closeCreateModal(e) {
-      if (e && e.target !== document.querySelector('#createModal .modal-overlay')) return;
-      document.getElementById('createModal').style.display = 'none';
-      ['cpName','cpDomain','cpDesc'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('cpError').style.display = 'none';
-    }
-    document.getElementById('newProjectBtn').onclick = openCreateModal;
-
-    document.getElementById('cpSubmit').onclick = async () => {
-      const name   = document.getElementById('cpName').value.trim();
-      const domain = document.getElementById('cpDomain').value.trim();
-      const desc   = document.getElementById('cpDesc').value.trim();
-      const errEl  = document.getElementById('cpError');
-      if (!name) { errEl.textContent = 'Название обязательно'; errEl.style.display = 'block'; return; }
-      errEl.style.display = 'none';
-      const btn = document.getElementById('cpSubmit');
-      btn.disabled = true; btn.textContent = 'Создание…';
-      try {
-        const p = await api.createProject({ name, domain, description: desc });
-        closeCreateModal();
-        window.location.href = `project.html?id=${p.id}`;
-      } catch (e) {
-        errEl.textContent = e.message;
-        errEl.style.display = 'block';
-      } finally {
-        btn.disabled = false; btn.textContent = 'Создать проект';
-      }
+      try { await api.deleteProject(b.dataset.del); toast.ok('Проект удалён'); load(); }
+      catch (e) { toast.err('Не удалось удалить', e); }
     };
-    document.getElementById('cpName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('cpSubmit').click(); });
+  });
+}
 
-    loadProjects();
-    setInterval(() => { if (!document.hidden) loadProjects(); }, 15000);
-  </script>
+function openForm() {
+  $('#newProjPanel').hidden = false;
+  $('#npName').focus();
+  $('#newProjPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function closeForm() { $('#newProjPanel').hidden = true; }
+
+async function create(btn) {
+  const name = $('#npName').value.trim();
+  if (!name) { toast.warn('Нужно название'); $('#npName').focus(); return; }
+  await withBusy(btn, async () => {
+    try {
+      const p = await api.createProject({
+        name: name,
+        domain: $('#npDomain').value.trim(),
+        description: $('#npDesc').value.trim(),
+      });
+      toast.ok('Проект создан', 'Открываем…');
+      location.href = 'project.html?id=' + encodeURIComponent(p.id);
+    } catch (e) { toast.err('Не удалось создать', e); }
+  });
+}
+
+/* --- связь --- */
+wire.onChange(w => {
+  const dot = $('#wireDot'), txt = $('#wireText');
+  if (w.ok === null) { dot.className = 'nav-state'; txt.textContent = 'Проверка связи…'; return; }
+  dot.className = 'nav-state ' + (w.ok ? 'ok' : 'bad');
+  txt.textContent = w.ok ? 'Бэкенд отвечает' : 'Нет связи с бэкендом: ' + (w.lastError || '');
+});
+
+hydrateIcons();
+$('#newProjBtn').onclick = openForm;
+$('#newProjClose').onclick = closeForm;
+$('#npCancel').onclick = closeForm;
+$('#npCreate').onclick = e => create(e.currentTarget);
+$('#npName').addEventListener('keydown', e => { if (e.key === 'Enter') create($('#npCreate')); });
+$('#projFilter').oninput = render;
+$('#projReload').onclick = load;
+$('#themeBtn').onclick = () => toggleTheme();
+$('#helpBtn').onclick = () => showShortcuts();
+$('#cmdkBtn').onclick = () => cmdk.open();
+
+cmdk.register([
+  { group: 'Действия', label: 'Создать проект', icon: 'plus', run: openForm },
+  { group: 'Действия', label: 'Обновить список', icon: 'refresh', hint: 'R', run: load },
+  { group: 'Прочее', label: 'Глобальные настройки', icon: 'gear', run: () => location.href = 'settings.html' },
+  { group: 'Прочее', label: 'Переключить тему', icon: 'moon', hint: 'T', run: () => toggleTheme() },
+]);
+
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return;
+  if (e.key.toLowerCase() === 'n') { e.preventDefault(); openForm(); }
+  if (e.key.toLowerCase() === 'r') { e.preventDefault(); load(); }
+});
+
+load();
+
+})();
+</script>
+
 </body>
 </html>
