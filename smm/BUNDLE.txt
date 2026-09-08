@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: fb48b765f8f6e59fa50b4d0ba560d6970b9ad131
-# built:  2026-09-08 20:00 UTC
+# commit: 69533ee68dd4661f38e5a3d45e54d6320e78a5a6
+# built:  2026-09-08 20:01 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -1304,7 +1304,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body class="is-app">
 
@@ -2636,7 +2636,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=21"></script>
+<script src="app.js?v=20"></script>
 
 <script>
 /* ==========================================================================
