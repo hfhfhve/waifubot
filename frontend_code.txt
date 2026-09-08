@@ -7244,7 +7244,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body class="is-app">
 
@@ -8576,7 +8576,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=22"></script>
 
 <script>
 /* ==========================================================================
