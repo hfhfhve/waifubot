@@ -1,363 +1,532 @@
-
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="ru" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>SEO-Фабрика — Настройки</title>
-  <link rel="stylesheet" href="style.css?v=11">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='45' height='45' fill='%2315171c'/><rect x='55' width='45' height='45' fill='%232536c8'/><rect y='55' width='45' height='45' fill='%232536c8'/><rect x='55' y='55' width='45' height='45' fill='%2315171c' opacity='.35'/></svg>">
-  <script>(function(){try{var t=localStorage.getItem("seo_theme");if(t&&t!=="workshop")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Настройки — SEO-Фабрика</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=20">
+<script>
+  try {
+    var t = localStorage.getItem('seo_theme');
+    if (t !== 'light' && t !== 'dark') t = 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
 </head>
-<body>
-  <div class="header">
-    <div class="header-inner">
-      <a class="logo" href="index.html"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#fff"/><rect x="10" y="1" width="7" height="7" fill="#2536c8"/><rect x="1" y="10" width="7" height="7" fill="#2536c8"/><rect x="10" y="10" width="7" height="7" fill="#fff" opacity=".45"/></svg>SEO<span class="full">-Фабрика</span></a>
-      <nav class="nav">
-        <a href="index.html">Проекты</a>
-        <a href="settings.html" class="active">Настройки</a>
-      </nav>
+<body class="is-plain">
+
+<div class="plain-shell">
+
+  <header class="topbar plain-topbar">
+    <div class="crumbs">
+      <a href="index.html">Проекты</a>
+      <span class="sep">/</span>
+      <span class="cur">Настройки</span>
     </div>
-  </div>
-
-  <main class="main" style="max-width:860px;">
-    <div class="page-title">Глобальные настройки</div>
-    <div class="page-sub">Бэкенд, модели ИИ, промпты и API-ключи. Пороги качества и стоп-слова — внутри проекта.</div>
-
-    <div id="loadMsg" class="card" style="text-align:center;padding:36px;color:var(--muted);">
-      <span class="spinner"></span> Загрузка настроек…
+    <span class="topbar-spacer"></span>
+    <div class="topbar-tools">
+      <button class="icon-btn" id="themeBtn" type="button" title="Сменить тему (T)"><span data-theme-ico></span></button>
+      <button class="icon-btn" id="helpBtn" type="button" title="Горячие клавиши (?)"><span data-ico="keyboard"></span></button>
+      <a class="btn btn-quiet btn-sm" href="index.html"><span data-ico-sm="home"></span> К проектам</a>
     </div>
+  </header>
 
-    <div id="settingsForm" style="display:none;">
+  <main class="canvas">
+    <div class="wrap">
 
-      <!-- API Base -->
-      <div class="fieldset">
-        <legend>Подключение к бэкенду</legend>
-        <div class="form-row">
-          <label>URL бэкенда (API)</label>
-          <input type="text" id="apiBaseInput" placeholder="http://localhost:8000/api">
+      <div class="view-head">
+        <div class="view-head-body">
+          <div class="view-eyebrow"><i class="dot"></i> Общие для всех проектов</div>
+          <h1 class="view-title">Настройки</h1>
+          <p class="view-sub">Здесь значения по умолчанию. Любой проект может переопределить их у себя в «Правилах».</p>
         </div>
-        <button class="btn btn-sm btn-ghost" onclick="saveApiBaseFromUI()">Сохранить URL</button>
-        <div id="apiBaseSaved" style="color:var(--ok);font-size:13px;margin-top:6px;display:none;">Сохранено!</div>
-      </div>
-
-      <!-- Models -->
-      <div class="fieldset">
-        <legend>Модели ИИ</legend>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Сильная модель — только чат и каркас</label>
-            <select id="strongModel"></select>
-          </div>
-          <div class="form-row">
-            <label>Модель для страниц — генерация и повтор</label>
-            <select id="cheapModel"></select>
-          </div>
-        </div>
-        <div id="loadingModels" style="color:var(--muted);font-size:13px;">Загрузка списка моделей…</div>
-        <div class="form-grid" style="margin-top:16px;">
-          <div class="form-row">
-            <label>Сильная модель — max_tokens</label>
-            <input type="number" id="strongMaxTokens" min="256" step="256" placeholder="16000">
-          </div>
-          <div class="form-row">
-            <label>Дешёвая модель — max_tokens</label>
-            <input type="number" id="cheapMaxTokens" min="256" step="256" placeholder="8000">
-          </div>
-          <div class="form-row">
-            <label>Таймаут запроса, сек</label>
-            <input type="number" id="genTimeoutSec" min="30" step="10" placeholder="60">
-          </div>
-          <div class="form-row">
-            <label>Сообщений истории в чат</label>
-            <input type="number" id="chatHistoryLimit" min="0" max="50" step="1" placeholder="20">
-          </div>
+        <div class="view-actions">
+          <button class="btn btn-primary btn-lg" id="saveAllBtn" type="button"><span data-ico="check"></span> Сохранить всё</button>
         </div>
       </div>
 
-      <div class="fieldset">
-        <legend>Промпты моделей</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Хранятся в таблице <code>settings</code>. Меняются без деплоя кода.</p>
-        <div class="form-row">
-          <label>Сильная модель — системный промпт каркаса</label>
-          <textarea id="strongPrompt" class="code" style="min-height:280px;" placeholder="Промпт для чат-дизайнера"></textarea>
-        </div>
-        <div class="form-row">
-          <label>Дешёвая модель — системный промпт генерации</label>
-          <textarea id="cheapPrompt" class="code" style="min-height:180px;" placeholder="Промпт для заполнения JSON"></textarea>
+      <div class="set-layout">
+
+        <!-- ======== боковое меню ======== -->
+        <nav class="set-nav">
+          <a class="set-nav-item is-active" href="#s-wire"><span data-ico-sm="link"></span> Связь с бэкендом</a>
+          <a class="set-nav-item" href="#s-models"><span data-ico-sm="spark"></span> Модели</a>
+          <a class="set-nav-item" href="#s-quality"><span data-ico-sm="shield"></span> Качество</a>
+          <a class="set-nav-item" href="#s-endpoints"><span data-ico-sm="code"></span> Свои API</a>
+          <a class="set-nav-item" href="#s-look"><span data-ico-sm="moon"></span> Внешний вид</a>
+          <a class="set-nav-item" href="#s-raw"><span data-ico-sm="list"></span> Все значения</a>
+        </nav>
+
+        <!-- ======== контент ======== -->
+        <div class="set-content">
+
+          <!-- СВЯЗЬ -->
+          <section class="panel" id="s-wire">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Связь с бэкендом</div>
+                <div class="panel-sub">Адрес API хранится только в этом браузере.</div>
+              </div>
+              <div class="panel-tools" id="wirePill"></div>
+            </div>
+            <div class="panel-body">
+              <div class="field field-inline">
+                <label class="field">
+                  <span class="field-label">Адрес API</span>
+                  <input class="input" id="apiBase" placeholder="https://seo.waifubot.website/api" autocomplete="off" spellcheck="false">
+                  <span class="field-hint">Например: <code>http://localhost:8000/api</code></span>
+                </label>
+                <button class="btn" id="pingBtn" type="button"><span data-ico-sm="radar"></span> Проверить</button>
+              </div>
+              <div id="wireResult"></div>
+            </div>
+            <div class="panel-foot">
+              <button class="btn btn-primary" id="saveBaseBtn" type="button">Сохранить адрес и перезагрузить</button>
+              <span class="grow"></span>
+              <span class="faint" style="font-size:12px;">Ключи провайдеров живут на сервере, не в браузере.</span>
+            </div>
+          </section>
+
+          <!-- МОДЕЛИ -->
+          <section class="panel" id="s-models">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Модели по умолчанию</div>
+                <div class="panel-sub">Сильная рисует каркас один раз. Дешёвая заполняет каждую строку — именно она съедает бюджет.</div>
+              </div>
+              <div class="panel-tools">
+                <button class="icon-btn bordered" id="modelsReload" type="button" title="Обновить список"><span data-ico="refresh"></span></button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid">
+                <label class="field">
+                  <span class="field-label">Сильная модель — каркас</span>
+                  <select class="select" id="strongModel"></select>
+                  <span class="field-hint">Вызывается 1–2 раза на проект.</span>
+                </label>
+                <label class="field">
+                  <span class="field-label">Дешёвая модель — заполнение</span>
+                  <select class="select" id="cheapModel"></select>
+                  <span class="field-hint">Вызывается на каждую строку таблицы.</span>
+                </label>
+              </div>
+              <div class="note info">
+                <span class="note-ico" data-ico="info"></span>
+                <div class="note-body" id="providersNote">Список провайдеров загружается…</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- КАЧЕСТВО -->
+          <section class="panel" id="s-quality">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Пороги гейта</div>
+                <div class="panel-sub">Страница ниже порога не попадает в выгрузку.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <label class="field">
+                <span class="field-label">Порог уникальности</span>
+                <div class="range-row">
+                  <input class="range" id="uniqRange" type="range" min="0.5" max="1" step="0.01" value="0.88">
+                  <span class="range-out" id="uniqOut">0.88</span>
+                </div>
+                <span class="field-hint">0.88 — рабочее значение. Выше 0.95 почти всё уйдёт в брак.</span>
+              </label>
+              <div class="form-grid">
+                <label class="field">
+                  <span class="field-label">Минимум символов текста</span>
+                  <input class="input" id="minLen" type="number" min="300" step="100" value="1800">
+                </label>
+                <label class="field">
+                  <span class="field-label">Максимальная тошнота</span>
+                  <input class="input" id="maxNausea" type="number" min="3" step="0.5" value="7">
+                </label>
+              </div>
+              <label class="field">
+                <span class="field-label">Стоп-слова — по одному на строку</span>
+                <textarea class="textarea" id="stopWords" rows="4" placeholder="уникальный&#10;лучший&#10;в современном мире"></textarea>
+                <span class="field-hint">Срабатывает на уровне 5.4 — снижает балл, а не блокирует.</span>
+              </label>
+
+              <div class="hr-label">Факты и эмбеддинги</div>
+              <div class="stub">
+                <div class="stub-head">
+                  <span class="pill soon">Заглушка</span>
+                  <span class="stub-title">Уровень 5.2 и смысловая уникальность</span>
+                </div>
+                <div class="stub-text">Появятся два поля: минимальная доля подтверждённых фактов и порог косинусной близости.</div>
+                <ul class="stub-list">
+                  <li>Доля фактов из строки, дошедших до текста — порог 0.60</li>
+                  <li>Доля чисел из текста, подтверждённых строкой — порог 0.55</li>
+                  <li>Косинусная близость на эмбеддингах — позже, по вашему решению</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- СВОИ API -->
+          <section class="panel" id="s-endpoints">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Свои API-точки</div>
+                <div class="panel-sub">Любой сервер, совместимый с OpenAI-форматом. Модели оттуда получают префикс <code>custom/</code>.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid">
+                <label class="field">
+                  <span class="field-label">Название</span>
+                  <input class="input" id="epName" placeholder="Мой сервер" autocomplete="off">
+                </label>
+                <label class="field">
+                  <span class="field-label">Base URL</span>
+                  <input class="input" id="epUrl" placeholder="https://api.example.com/v1" autocomplete="off" spellcheck="false">
+                </label>
+              </div>
+              <div class="field field-inline">
+                <label class="field">
+                  <span class="field-label">API-ключ</span>
+                  <input class="input" id="epKey" type="password" placeholder="sk-…" autocomplete="off">
+                </label>
+                <div class="btn-row">
+                  <button class="btn" id="epTestBtn" type="button"><span data-ico-sm="radar"></span> Проверить</button>
+                  <button class="btn btn-dark" id="epAddBtn" type="button"><span data-ico-sm="plus"></span> Добавить</button>
+                </div>
+              </div>
+              <div id="epTestResult"></div>
+              <div class="hr-label">Подключённые точки</div>
+              <div id="epList"></div>
+            </div>
+          </section>
+
+          <!-- ВНЕШНИЙ ВИД -->
+          <section class="panel" id="s-look">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Внешний вид</div>
+                <div class="panel-sub">Тема применяется сразу и запоминается в браузере. Горячая клавиша — <kbd>T</kbd>.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="theme-pick" id="themePick"></div>
+            </div>
+          </section>
+
+          <!-- ВСЕ ЗНАЧЕНИЯ -->
+          <section class="panel" id="s-raw">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Все значения с сервера</div>
+                <div class="panel-sub">То, что бэкенд вернул по <code>/settings</code>. Полезно для разбора проблем.</div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-quiet btn-sm" id="copyRawBtn" type="button"><span data-ico-sm="copy"></span> Копировать JSON</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="kv" id="rawList"></div>
+            </div>
+          </section>
+
         </div>
       </div>
 
-      <!-- Custom OpenAI-compatible API -->
-      <div class="fieldset">
-        <legend>Кастомные API-ключи</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Ключей может быть сколько угодно — новый не затирает старый. Модели каждого ключа появляются в списках моделей выше.</p>
-
-        <div id="endpointList" style="margin-bottom:20px;"></div>
-
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Название</label>
-            <input type="text" id="customName" placeholder="Мой шлюз">
-            <div class="hint">Чтобы отличать ключи друг от друга</div>
-          </div>
-          <div class="form-row">
-            <label>Base URL</label>
-            <input type="text" id="customBaseUrl" placeholder="https://api.deepseek.com/v1">
-            <div class="hint">Адрес OpenAI-совместимого API</div>
-          </div>
-          <div class="form-row full">
-            <label>API-ключ</label>
-            <input type="password" id="customApiKey" placeholder="sk-…">
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-          <button class="btn btn-sm btn-primary" onclick="addCustomEndpoint()">Добавить ключ</button>
-          <button class="btn btn-sm btn-ghost" id="testCustomApiBtn" onclick="testCustomApi(this)">Проверить перед добавлением</button>
-        </div>
-        <div id="customApiStatus" style="font-size:13px;margin-top:10px;"></div>
-      </div>
-
-      <!-- Цветовое оформление -->
-      <div class="fieldset">
-        <legend>Цветовое оформление</legend>
-        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Применяется сразу и запоминается в браузере.</p>
-        <div class="theme-choice" id="themeChoice"></div>
-      </div>
-
-      <div style="display:flex;gap:10px;justify-content:flex-end;">
-        <div id="saveMsg" style="font-size:13px;align-self:center;display:none;"></div>
-        <button class="btn btn-primary" id="saveBtn" onclick="saveSettings()">Сохранить настройки</button>
-      </div>
     </div>
   </main>
+</div>
 
-  <script src="app.js?v=11"></script>
-  <script>
-    let allModels = [];
+<script src="app.js?v=20"></script>
+<script>
+(function () {
+'use strict';
 
-    // Страховка от старого app.js в кэше браузера: если новых методов нет —
-    // добавляем их здесь, чтобы страница не падала с "is not a function".
-    if (typeof api.listCustomEndpoints !== 'function') {
-      api.listCustomEndpoints  = ()   => req('/settings/custom-endpoints');
-      api.addCustomEndpoint    = (d)  => req('/settings/custom-endpoints', { method: 'POST', body: JSON.stringify(d) });
-      api.deleteCustomEndpoint = (id) => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' });
-      api.testCustomEndpoint   = (id) => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' });
-    }
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+let SET = {}, MODELS = [], RAW = null;
 
-    async function init() {
-      document.getElementById('apiBaseInput').value = API_BASE;
-      try {
-        const [settings, models, eps] = await Promise.all([
-          api.getSettings(),
-          api.getModels().catch(() => ({ models: [] })),
-          api.listCustomEndpoints().catch(() => ({ endpoints: [] })),
-        ]);
-        allModels = models.models || [];
-        renderEndpoints(eps.endpoints || []);
-        fillForm(settings.settings || {});
-        document.getElementById('loadMsg').style.display = 'none';
-        document.getElementById('settingsForm').style.display = 'block';
-        document.getElementById('loadingModels').style.display = 'none';
-      } catch (e) {
-        document.getElementById('loadMsg').innerHTML =
-          `<div class="alert alert-bad">❌ ${escHtml(e.message)}</div>
-           <p style="font-size:13px;color:var(--muted);">Убедитесь, что бэкенд запущен на <code>${escHtml(API_BASE)}</code>, или укажите другой URL выше.</p>`;
-      }
-    }
+function hydrateIcons(root) {
+  const r = root || document;
+  r.querySelectorAll('[data-ico]:not([data-ico-done])').forEach(el => {
+    el.innerHTML = ico(el.dataset.ico, 17); el.setAttribute('data-ico-done', '1');
+  });
+  r.querySelectorAll('[data-ico-sm]:not([data-ico-done])').forEach(el => {
+    el.innerHTML = ico(el.dataset.icoSm, 14); el.setAttribute('data-ico-done', '1');
+  });
+  r.querySelectorAll('[data-theme-ico]').forEach(el => {
+    el.innerHTML = ico(getTheme() === 'dark' ? 'sun' : 'moon', 16);
+  });
+}
 
-    function fillForm(s) {
-      const strongVal = s.strong_model?.value || 'openai/gpt-4o';
-      const cheapVal  = s.cheap_model?.value  || 'openai/gpt-4o-mini';
-      fillSelect(document.getElementById('strongModel'), allModels, strongVal);
-      fillSelect(document.getElementById('cheapModel'),  allModels, cheapVal);
+const val = k => {
+  const v = SET[k];
+  if (v && typeof v === 'object' && 'value' in v) return v.value;
+  return v;
+};
 
-      // Поля кастомного API теперь только для ДОБАВЛЕНИЯ нового ключа,
-      // поэтому специально оставляем их пустыми.
-      document.getElementById('strongPrompt').value    = s.strong_system_prompt?.value || '';
-      document.getElementById('cheapPrompt').value     = s.cheap_system_prompt?.value  || '';
-      document.getElementById('strongMaxTokens').value = s.strong_max_tokens?.value ?? 16000;
-      document.getElementById('cheapMaxTokens').value  = s.cheap_max_tokens?.value ?? 8000;
-      document.getElementById('genTimeoutSec').value   = s.gen_timeout_sec?.value ?? 60;
-      document.getElementById('chatHistoryLimit').value = s.chat_history_limit?.value ?? 20;
-    }
-
-    function fillSelect(sel, models, selected) {
-      if (!models.length) {
-        models = [
-          { id: 'openai/gpt-4o', name: 'OpenAI: GPT-4o' },
-          { id: 'openai/gpt-4o-mini', name: 'OpenAI: GPT-4o-mini' },
-          { id: 'anthropic/claude-3.5-sonnet', name: 'Anthropic: Claude 3.5 Sonnet' },
-          { id: 'anthropic/claude-3.5-haiku', name: 'Anthropic: Claude 3.5 Haiku' },
-          { id: 'google/gemini-pro-1.5', name: 'Google: Gemini 1.5 Pro' },
-          { id: 'openrouter/auto', name: 'OpenRouter: Auto' },
-          { id: 'custom/deepseek-chat', name: 'Custom API' },
-        ];
-      }
-      sel.innerHTML = models.map(m =>
-        `<option value="${escHtml(m.id)}"${m.id === selected ? ' selected' : ''}>${escHtml(m.name || m.id)}</option>`
-      ).join('');
-      if (selected && !models.find(m => m.id === selected)) {
-        const opt = document.createElement('option');
-        opt.value = selected; opt.textContent = selected + ' (кастом)'; opt.selected = true;
-        sel.appendChild(opt);
-      }
-    }
-
-    async function saveSettings() {
-      const strongSel = document.getElementById('strongModel').value;
-      const cheapSel  = document.getElementById('cheapModel').value;
-      const getProvider = (slug) => /^custom[:/]/.test(slug) ? 'custom' : 'openrouter';
-
-      const payload = {
-        strong_model: { value: strongSel, provider: getProvider(strongSel) },
-        cheap_model:  { value: cheapSel,  provider: getProvider(cheapSel)  },
-        strong_system_prompt: { value: document.getElementById('strongPrompt').value },
-        cheap_system_prompt:  { value: document.getElementById('cheapPrompt').value },
-        strong_max_tokens: { value: parseInt(document.getElementById('strongMaxTokens').value, 10) || 16000 },
-        cheap_max_tokens:  { value: parseInt(document.getElementById('cheapMaxTokens').value, 10) || 8000 },
-        gen_timeout_sec:   { value: parseInt(document.getElementById('genTimeoutSec').value, 10) || 60 },
-        chat_history_limit: { value: Math.min(50, Math.max(0, parseInt(document.getElementById('chatHistoryLimit').value, 10) || 20)) },
-      };
-
-      const btn = document.getElementById('saveBtn');
-      btn.disabled = true; btn.textContent = 'Сохранение…';
-      try {
-        await api.updateSettings(payload);
-        showSaveMsg('✅ Настройки сохранены!', 'var(--ok)');
-      } catch (e) {
-        showSaveMsg('❌ ' + e.message, 'var(--bad)');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Сохранить настройки';
-      }
-    }
-
-    // ── Сохранённые кастомные ключи ────────────────────────
-    function renderEndpoints(list) {
-      const el = document.getElementById('endpointList');
-      if (!list.length) {
-        el.innerHTML = '<div style="color:var(--muted);font-size:13px;">Ключей пока нет — добавьте первый ниже.</div>';
-        return;
-      }
-      el.innerHTML = list.map(ep => `
-        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;
-                    border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);">
-          <div style="min-width:0;flex:1;">
-            <div style="font-weight:600;line-height:1.3;">${escHtml(ep.name)}</div>
-            <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px;
-                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(ep.base_url)} · ключ ${escHtml(ep.key_tail || 'не задан')}</div>
-          </div>
-          <button class="btn btn-sm btn-ghost" onclick="testEndpoint(${ep.id}, this)">Тест</button>
-          <button class="btn btn-sm btn-ghost" onclick="deleteEndpoint(${ep.id})">Удалить</button>
-        </div>`).join('');
-    }
-
-    async function addCustomEndpoint() {
-      const name    = document.getElementById('customName').value.trim();
-      const baseUrl = document.getElementById('customBaseUrl').value.trim();
-      const apiKey  = document.getElementById('customApiKey').value.trim();
-      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
-      try {
-        await api.addCustomEndpoint({ name, base_url: baseUrl, api_key: apiKey });
-        document.getElementById('customName').value = '';
-        document.getElementById('customBaseUrl').value = '';
-        document.getElementById('customApiKey').value = '';
-        showCustomStatus('✅ Ключ сохранён, подгружаю его модели…', 'ok');
-        await init();
-      } catch (e) {
-        showCustomStatus('❌ ' + e.message, 'bad');
-      }
-    }
-
-    async function deleteEndpoint(id) {
-      if (!confirm('Удалить этот ключ? Его модели исчезнут из списков.')) return;
-      try {
-        const r = await api.deleteCustomEndpoint(id);
-        showCustomStatus(r && r.warning ? '⚠️ ' + r.warning : '✅ Ключ удалён', r && r.warning ? 'bad' : 'ok');
-        await init();
-      } catch (e) {
-        showCustomStatus('❌ ' + e.message, 'bad');
-      }
-    }
-
-    async function testEndpoint(id, btn) {
-      btn.disabled = true;
-      showCustomStatus('⏳ Проверяю ключ…', '');
-      try {
-        const r = await api.testCustomEndpoint(id);
-        showCustomStatus(r.message || (r.ok ? '✅ OK' : '⚠️ Ошибка'), r.ok ? 'ok' : 'bad');
-      } catch (e) {
-        showCustomStatus('❌ ' + e.message, 'bad');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    // Тест идёт через бэкенд-прокси: браузерный CORS больше не мешает
-    async function testCustomApi(btn) {
-      const baseUrl = document.getElementById('customBaseUrl').value.trim();
-      const apiKey  = document.getElementById('customApiKey').value.trim();
-      if (!baseUrl) { showCustomStatus('Введите Base URL', 'bad'); return; }
-      btn.disabled = true;
-      showCustomStatus('⏳ Тестирование соединения через бэкенд…', '');
-      try {
-        const res = await api.testCustomApi(baseUrl, apiKey);
-        if (res && res.ok) {
-          showCustomStatus(res.message || '✅ Соединение успешно!', 'ok');
-        } else {
-          showCustomStatus('⚠️ ' + (res?.message || 'Неизвестный ответ сервера'), 'bad');
-        }
-      } catch (e) {
-        showCustomStatus('❌ ' + e.message, 'bad');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    function showCustomStatus(text, type) {
-      const el = document.getElementById('customApiStatus');
-      el.textContent = text;
-      el.style.color = type === 'ok' ? 'var(--ok)' : type === 'bad' ? 'var(--bad)' : 'var(--muted)';
-    }
-
-    function showSaveMsg(text, color) {
-      const el = document.getElementById('saveMsg');
-      el.textContent = text;
-      el.style.color = color;
-      el.style.display = 'inline';
-      setTimeout(() => el.style.display = 'none', 4000);
-    }
-
-    function saveApiBaseFromUI() {
-      const val = document.getElementById('apiBaseInput').value.trim();
-      if (!val) return;
-      saveApiBase(val);
-      document.getElementById('apiBaseSaved').style.display = 'block';
-      setTimeout(() => document.getElementById('apiBaseSaved').style.display = 'none', 3000);
-      setTimeout(() => init(), 500);
-    }
-
-    // ── Переключение цветового оформления ───────────────────
-    function renderThemes() {
-      const cur = getTheme();
-      document.getElementById('themeChoice').innerHTML = Object.entries(THEMES).map(([id, t]) => `
-        <button type="button" class="theme-card ${id === cur ? 'active' : ''}" data-theme-id="${id}">
-          <b>${escHtml(t.name)}</b>
-          <span>${escHtml(t.note)}</span>
-          <div class="swatches">${t.swatches.map(c => `<i style="background:${c}"></i>`).join('')}</div>
-        </button>`).join('');
-      document.querySelectorAll('#themeChoice .theme-card').forEach(el => {
-        el.onclick = () => { applyTheme(el.dataset.themeId); renderThemes(); };
-      });
-    }
-
+/* ---------- темы ---------- */
+function renderThemes() {
+  const cur = getTheme();
+  $('#themePick').innerHTML = Object.entries(THEMES).map(([id, t]) =>
+    `<button class="theme-card ${id === cur ? 'is-on' : ''}" data-theme-set="${id}" type="button">` +
+      `<span class="theme-swatches">` +
+        t.swatches.map(c => `<i style="background:${c}"></i>`).join('') +
+      `</span>` +
+      `<span class="theme-name">${escHtml(t.name)}</span>` +
+      `<span class="theme-desc">${escHtml(t.desc || '')}</span>` +
+    `</button>`).join('');
+  $$('[data-theme-set]').forEach(b => b.onclick = () => {
+    applyTheme(b.dataset.themeSet);
     renderThemes();
-    init();
-  </script>
+    hydrateIcons();
+  });
+}
+
+/* ---------- загрузка ---------- */
+async function load() {
+  $('#apiBase').value = API_BASE;
+
+  try {
+    RAW = await api.getSettings();
+    SET = (RAW && RAW.settings) ? RAW.settings : (RAW || {});
+  } catch (e) {
+    $('#wireResult').innerHTML =
+      `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+      `<div class="note-body"><b>Настройки не загрузились.</b> ${escHtml(e.message)}</div></div>`;
+    SET = {};
+  }
+
+  const u = Number(val('uniqueness_threshold')) || 0.88;
+  $('#uniqRange').value = u;
+  $('#uniqOut').textContent = u.toFixed(2);
+  $('#minLen').value = Number(val('min_text_length')) || 1800;
+  $('#maxNausea').value = Number(val('max_nausea')) || 7;
+  const sw = val('stop_words');
+  $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
+
+  renderRaw();
+  loadModels();
+  loadProviders();
+  loadEndpoints();
+}
+
+function renderRaw() {
+  const keys = Object.keys(SET);
+  if (!keys.length) {
+    $('#rawList').innerHTML = `<div class="empty" style="padding:18px 0;">` +
+      `<div class="empty-title">Пусто</div>` +
+      `<div class="empty-text">Сервер не вернул ни одного значения.</div></div>`;
+    return;
+  }
+  $('#rawList').innerHTML = keys.sort().map(k => {
+    let v = val(k);
+    if (Array.isArray(v)) v = v.length ? v.join(', ') : '—';
+    if (v === null || v === undefined || v === '') v = '—';
+    if (typeof v === 'object') v = JSON.stringify(v);
+    return `<div class="kv-row">` +
+      `<span class="kv-k">${escHtml(k)}</span>` +
+      `<span class="kv-v">${escHtml(String(v))}</span>` +
+    `</div>`;
+  }).join('');
+}
+
+async function loadModels() {
+  const fill = (sel, cur) => {
+    const list = MODELS.map(m => typeof m === 'string' ? m : (m.id || m.name)).filter(Boolean);
+    if (cur && !list.includes(cur)) list.unshift(cur);
+    sel.innerHTML = list.length
+      ? list.map(m => `<option value="${escAttr(m)}" ${m === cur ? 'selected' : ''}>${escHtml(m)}</option>`).join('')
+      : `<option value="">Нет связи со списком моделей</option>`;
+  };
+  try {
+    const res = await api.getModels();
+    MODELS = Array.isArray(res) ? res : (res.models || []);
+  } catch (e) { MODELS = []; }
+  fill($('#strongModel'), val('strong_model'));
+  fill($('#cheapModel'), val('cheap_model'));
+}
+
+async function loadProviders() {
+  try {
+    const res = await api.getProviders();
+    const list = Array.isArray(res) ? res : (res.providers || []);
+    $('#providersNote').innerHTML = list.length
+      ? 'Доступные провайдеры: ' + list.map(p =>
+          `<span class="tag">${escHtml(typeof p === 'string' ? p : (p.name || p.id))}</span>`).join(' ')
+      : 'Сервер не вернул ни одного провайдера — проверьте ключи в <code>.env</code>.';
+  } catch (e) {
+    $('#providersNote').textContent = 'Список провайдеров недоступен: ' + e.message;
+  }
+}
+
+async function loadEndpoints() {
+  $('#epList').innerHTML = `<div class="sk sk-row"></div>`;
+  let list = [];
+  try {
+    const res = await api.listCustomEndpoints();
+    list = Array.isArray(res) ? res : (res.endpoints || []);
+  } catch (e) {
+    $('#epList').innerHTML =
+      `<div class="stub"><div class="stub-text">Список не загрузился: ${escHtml(e.message)}</div></div>`;
+    return;
+  }
+  if (!list.length) {
+    $('#epList').innerHTML = `<div class="empty" style="padding:16px 0;">` +
+      `<div class="empty-title">Ни одной своей точки</div>` +
+      `<div class="empty-text">Можно работать только на встроенных провайдерах.</div></div>`;
+    return;
+  }
+  $('#epList').innerHTML = list.map(ep =>
+    `<div class="ep-row">` +
+      `<span class="ep-ico">${ico('code', 16)}</span>` +
+      `<div class="ep-body">` +
+        `<div class="ep-name">${escHtml(ep.name || 'Без названия')}</div>` +
+        `<div class="ep-url">${escHtml(ep.base_url || ep.url || '')}</div>` +
+      `</div>` +
+      `<div class="row-tools">` +
+        `<button class="btn btn-sm" data-ep-test="${ep.id}">Проверить</button>` +
+        `<button class="icon-btn sm danger" data-ep-del="${ep.id}" title="Удалить">${ico('trash', 15)}</button>` +
+      `</div>` +
+    `</div>`).join('');
+
+  $$('[data-ep-test]').forEach(b => b.onclick = async () => {
+    await withBusy(b, async () => {
+      try {
+        const r = await api.testCustomEndpoint(b.dataset.epTest);
+        if (r && r.ok === false) toast.bad('Точка не ответила', r.error || '');
+        else toast.ok('Точка работает', r && r.models ? 'Моделей: ' + r.models.length : '');
+      } catch (e) { toast.err('Проверка не вышла', e); }
+    });
+  });
+  $$('[data-ep-del]').forEach(b => b.onclick = async () => {
+    const ok = await confirmDialog({
+      title: 'Удалить точку?',
+      text: 'Модели с префиксом custom/ из неё станут недоступны.',
+      confirm: 'Удалить', danger: true,
+    });
+    if (!ok) return;
+    try { await api.deleteCustomEndpoint(b.dataset.epDel); toast.ok('Удалено'); loadEndpoints(); }
+    catch (e) { toast.err('Не удалось удалить', e); }
+  });
+}
+
+/* ---------- действия ---------- */
+
+async function ping(btn) {
+  await withBusy(btn, async () => {
+    $('#wireResult').innerHTML = '';
+    try {
+      const t0 = performance.now();
+      await api.getSettings();
+      const ms = Math.round(performance.now() - t0);
+      $('#wirePill').innerHTML = `<span class="pill ok"><i class="dot"></i>отвечает</span>`;
+      $('#wireResult').innerHTML =
+        `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
+        `<div class="note-body"><b>Связь есть.</b> Ответ за ${ms} мс.</div></div>`;
+    } catch (e) {
+      $('#wirePill').innerHTML = `<span class="pill bad"><i class="dot"></i>нет связи</span>`;
+      $('#wireResult').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body"><b>Бэкенд не ответил.</b> ${escHtml(e.message)}</div></div>`;
+    }
+  });
+}
+
+async function saveAll(btn) {
+  const prov = m => m && m.startsWith('custom/') ? 'custom' : 'openrouter';
+  const sm = $('#strongModel').value, cm = $('#cheapModel').value;
+  const payload = {
+    uniqueness_threshold: { value: Number($('#uniqRange').value) },
+    min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
+    max_nausea: { value: Number($('#maxNausea').value) || 7 },
+    stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
+  };
+  if (sm) payload.strong_model = { value: sm, provider: prov(sm) };
+  if (cm) payload.cheap_model  = { value: cm, provider: prov(cm) };
+
+  await withBusy(btn, async () => {
+    try {
+      const res = await api.updateSettings(payload);
+      SET = (res && res.settings) ? res.settings : Object.assign({}, SET, payload);
+      renderRaw();
+      toast.ok('Настройки сохранены');
+    } catch (e) { toast.err('Не удалось сохранить', e); }
+  });
+}
+
+async function testEp(btn) {
+  const url = $('#epUrl').value.trim(), key = $('#epKey').value.trim();
+  if (!url) { toast.warn('Нужен Base URL'); return; }
+  await withBusy(btn, async () => {
+    try {
+      const r = await api.testCustomApi(url, key);
+      const models = (r && r.models) || [];
+      $('#epTestResult').innerHTML = (r && r.ok === false)
+        ? `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+          `<div class="note-body">${escHtml(r.error || 'Сервер ответил ошибкой.')}</div></div>`
+        : `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
+          `<div class="note-body"><b>Сервер ответил.</b> ` +
+          (models.length ? 'Моделей видно: ' + models.length : 'Список моделей пуст.') +
+          `</div></div>`;
+    } catch (e) {
+      $('#epTestResult').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body">${escHtml(e.message)}</div></div>`;
+    }
+  });
+}
+
+async function addEp(btn) {
+  const name = $('#epName').value.trim(), url = $('#epUrl').value.trim(), key = $('#epKey').value.trim();
+  if (!name || !url) { toast.warn('Нужны название и Base URL'); return; }
+  await withBusy(btn, async () => {
+    try {
+      await api.addCustomEndpoint({ name: name, base_url: url, api_key: key });
+      toast.ok('Точка добавлена');
+      $('#epName').value = ''; $('#epUrl').value = ''; $('#epKey').value = '';
+      $('#epTestResult').innerHTML = '';
+      loadEndpoints(); loadModels();
+    } catch (e) { toast.err('Не удалось добавить', e); }
+  });
+}
+
+/* ---------- привязка ---------- */
+hydrateIcons();
+renderThemes();
+
+$('#themeBtn').onclick = () => { toggleTheme(); renderThemes(); hydrateIcons(); };
+$('#helpBtn').onclick = () => showShortcuts();
+$('#pingBtn').onclick = e => ping(e.currentTarget);
+$('#saveAllBtn').onclick = e => saveAll(e.currentTarget);
+$('#saveBaseBtn').onclick = () => {
+  saveApiBase($('#apiBase').value.trim());
+  toast.ok('Адрес сохранён', 'Перезагружаем…');
+  setTimeout(() => location.reload(), 700);
+};
+$('#modelsReload').onclick = () => loadModels();
+$('#epTestBtn').onclick = e => testEp(e.currentTarget);
+$('#epAddBtn').onclick = e => addEp(e.currentTarget);
+$('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
+$('#copyRawBtn').onclick = () => copyText(JSON.stringify(SET, null, 2), 'JSON настроек');
+
+$$('.set-nav-item').forEach(a => a.onclick = () => {
+  $$('.set-nav-item').forEach(x => x.classList.toggle('is-active', x === a));
+});
+
+cmdk.register([
+  { group: 'Действия', label: 'Сохранить настройки', icon: 'check', run: () => saveAll($('#saveAllBtn')) },
+  { group: 'Действия', label: 'Проверить связь', icon: 'radar', run: () => ping($('#pingBtn')) },
+  { group: 'Прочее', label: 'К списку проектов', icon: 'home', run: () => location.href = 'index.html' },
+  { group: 'Прочее', label: 'Переключить тему', icon: 'moon', hint: 'T', run: () => { toggleTheme(); renderThemes(); } },
+]);
+
+load();
+
+})();
+</script>
+
 </body>
 </html>
-
