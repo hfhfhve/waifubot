@@ -106,7 +106,6 @@ const API_SOON = new Set([
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
   'listWaves', 'createWave', 'publishWave',        // Блок 7 — волны
-  'getFeedback', 'connectSearchConsole',           // Блок 8 — обратная связь
 ]);
 
 const api = {
@@ -189,9 +188,11 @@ const api = {
   createWave:  (id, d)  => req(`/projects/${id}/waves`, { method: 'POST', body: JSON.stringify(d) }),
   publishWave: (id, w)  => req(`/projects/${id}/waves/${w}/publish`, { method: 'POST' }),
 
-  /* ---- БЛОК 8 — Обратная связь (ещё нет) ---- */
-  getFeedback:          (id) => req(`/projects/${id}/feedback`),
-  connectSearchConsole: (id) => req(`/projects/${id}/feedback/connect`, { method: 'POST' }),
+  /* ---- БЛОК 8 — Search Console (готово) ---- */
+  getGsc:   (id)       => req(`/projects/${id}/gsc`),
+  saveGsc:  (id, d)    => req(`/projects/${id}/gsc`, { method: 'PUT', body: JSON.stringify(d) }),
+  syncGsc:  (id, days) => req(`/projects/${id}/gsc/sync?days=${encodeURIComponent(days || 28)}`, { method: 'POST' }),
+  testGsc:  (key)      => req('/settings/gsc-test', { method: 'POST', body: JSON.stringify({ key: key || '' }) }),
 };
 
 /** Готов ли этот метод на бэкенде. */
