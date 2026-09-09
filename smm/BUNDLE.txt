@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: 4e5861cfd1fc135c4390a0e84e7382fe51222643
+# commit: ac0b8e766d8a28f4e25813fbf9323297a0e882f4
 # built:  2026-09-09 17:56 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (1301 строк)
+smm/app.js  (1438 строк)
 smm/index.html  (327 строк)
 smm/project.html  (3056 строк)
 smm/robots.txt  (4 строк)
@@ -159,7 +159,6 @@ async function req(path, opts = {}) {
    -------------------------------------------------------------------------- */
 
 const API_SOON = new Set([
-  'linkSheet',                                     // вход — Google Sheets (ещё нет)
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
   'listWaves', 'createWave', 'publishWave',        // Блок 7 — волны
@@ -199,7 +198,7 @@ const api = {
   deletePage:     (id, pid) => req(`/projects/${id}/pages/${pid}`, { method: 'DELETE' }),
   deletePages:    (id, ids) => req(`/projects/${id}/pages/delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
   regeneratePage: (pid)     => req(`/pages/${pid}/regenerate`, { method: 'POST' }),
-  exportUrl:      (id)      => `${API_BASE.replace(/\/+$/, '')}/projects/${id}/export`,
+  exportUrl:      (id, only) => `${API_BASE.replace(/\/+$/, '')}/projects/${id}/export` + (only ? `?only=${encodeURIComponent(only)}` : ''),
 
   /* ---- Чат ---- */
   chatHistory:      (id)      => req(`/chat/${id}/history`),
@@ -227,7 +226,7 @@ const api = {
   /* ---- ВХОД — таблица данных (upload/preview — готовы) ---- */
   uploadTable:  (id, fd) => req(`/projects/${id}/table`, { method: 'POST', body: fd, headers: {} }),
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
-  linkSheet:    (id, u)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify({ url: u }) }),
+  linkSheet:    (id, d)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify(d) }),
 
   /* ---- БЛОК 2 — Библиотеки и проектировщик (ещё нет) ---- */
   listLibraries: ()      => req('/libraries'),
@@ -1003,6 +1002,43 @@ function initTableUpload() {
     <div class="up-prev" id="tblPrev"></div>`;
   host.insertAdjacentElement('afterend', box);
 
+  /* Живая таблица: тот же разбор, только источник — ссылка на лист. */
+  const sheetBox = document.createElement('div');
+  sheetBox.id = 'srcSheet';
+  sheetBox.className = 'mt-3';
+  sheetBox.hidden = true;
+  sheetBox.innerHTML = `
+    <div class="field">
+      <div class="field-label">Ссылка на Google Sheets</div>
+      <input class="input" id="shUrl" placeholder="https://docs.google.com/spreadsheets/d/…">
+      <div class="field-hint">
+        В таблице: «Поделиться» → «Всем, у кого есть ссылка» → роль «Читатель».
+        Ключи и доступы Google не нужны — лист читается напрямую.
+        Ссылка запоминается: потом достаточно нажать «Загрузить строки».
+      </div>
+    </div>
+    <div class="up-row">
+      <div class="field">
+        <div class="field-label">Колонка-ключ</div>
+        <select class="select input-sm" id="shKeyCol" disabled>
+          <option value="">первая колонка</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Режим</div>
+        <select class="select input-sm" id="shMode">
+          <option value="sync">Обновлять факты у своих строк</option>
+          <option value="add">Только добавлять новые</option>
+          <option value="replace">Заменить все строки</option>
+        </select>
+      </div>
+      <button class="btn" id="shCheck">Проверить лист</button>
+      <button class="btn btn-primary" id="shSync" disabled>Загрузить строки</button>
+      <span class="up-name" id="shName"></span>
+    </div>
+    <div class="up-prev" id="shPrev"></div>`;
+  box.insertAdjacentElement('afterend', sheetBox);
+
   const drop   = box.querySelector('#tblDrop');
   const input  = box.querySelector('#tblFile');
   const keySel = box.querySelector('#tblKeyCol');
@@ -1014,10 +1050,12 @@ function initTableUpload() {
   let picked = null;        // выбранный файл
   let busy = false;
   let loadedSaved = false;
+  let savedMeta = null;
 
   /* Карта колонок + первые строки. */
-  function renderPreview(meta) {
-    if (!meta || !(meta.columns || []).length) { prev.innerHTML = ''; return; }
+  function renderPreview(meta, into) {
+    const out = into || prev;
+    if (!meta || !(meta.columns || []).length) { out.innerHTML = ''; return; }
     const cols = meta.columns;
     const varied = cols.filter(c => (c.variability || 0) >= 0.5).length;
     const rows = meta.sample || [];
@@ -1059,7 +1097,7 @@ function initTableUpload() {
         </table>
       </div>`;
 
-    prev.innerHTML = head + map + table;
+    out.innerHTML = head + map + table;
   }
 
   /* Отправка файла. apply=false — только разобрать и показать. */
@@ -1152,32 +1190,131 @@ function initTableUpload() {
     if (reload) reload.click();                   // перерисовать таблицу строк
   };
 
-  /* У карточки CSV теперь реальная форма, а не заглушка. */
-  const csvCard = sources.querySelector('.pick-card[data-src="csv"]');
-  if (csvCard) {
-    const need = csvCard.querySelector('.pick-need');
+  /* ---- Живая таблица ---- */
+
+  const shUrl   = sheetBox.querySelector('#shUrl');
+  const shKey   = sheetBox.querySelector('#shKeyCol');
+  const shMode  = sheetBox.querySelector('#shMode');
+  const shCheck = sheetBox.querySelector('#shCheck');
+  const shSync  = sheetBox.querySelector('#shSync');
+  const shName  = sheetBox.querySelector('#shName');
+  const shPrev  = sheetBox.querySelector('#shPrev');
+
+  let shBusy = false;
+
+  function shFillKeys(meta) {
+    const cols = (meta && meta.columns) || [];
+    if (!cols.length) return;
+    shKey.innerHTML = '';
+    cols.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.name;
+      o.textContent = `${c.name} · уник. ${c.unique}`;
+      shKey.appendChild(o);
+    });
+    shKey.value = meta.key_column || cols[0].name;
+    shKey.disabled = false;
+  }
+
+  /* apply=false — только прочитать лист и показать карту колонок. */
+  async function shSend(apply) {
+    const url = (shUrl.value || '').trim();
+    if (!url || !PID || shBusy) return null;
+    shBusy = true;
+    shCheck.disabled = true;
+    shSync.disabled = true;
+    const label = shSync.textContent;
+    if (apply) shSync.textContent = 'Загружаю…';
+    else shPrev.innerHTML = `<div class="muted mt-3">Читаю лист…</div>`;
+    try {
+      const meta = await api.linkSheet(PID, {
+        url,
+        key_column: apply ? (shKey.value || '') : '',
+        apply,
+        replace: apply && shMode.value === 'replace',
+        sync: shMode.value === 'sync',
+      });
+      renderPreview(meta, shPrev);
+      shFillKeys(meta);
+      shName.textContent = `в листе ${fmtNum(meta.rows_total || 0)} ` +
+        plural(meta.rows_total || 0, 'строка', 'строки', 'строк');
+      return meta;
+    } catch (e) {
+      shPrev.innerHTML = `<div class="note bad mt-3"><div class="note-body">${escHtml(e.message || 'Не удалось прочитать лист')}</div></div>`;
+      toast.err('Google Sheets', e);
+      return null;
+    } finally {
+      shBusy = false;
+      shCheck.disabled = false;
+      shSync.textContent = label;
+      shSync.disabled = !(shUrl.value || '').trim();
+    }
+  }
+
+  shUrl.oninput = () => { shSync.disabled = !(shUrl.value || '').trim(); };
+  shCheck.onclick = () => shSend(false);
+  shSync.onclick = async () => {
+    if (shMode.value === 'replace') {
+      const ok = await confirmDialog({
+        title: 'Заменить все строки?',
+        text: 'Текущие строки удалятся вместе с их задачами и страницами.',
+        confirm: 'Заменить',
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    const meta = await shSend(true);
+    if (!meta) return;
+    const msg = `Добавлено ${fmtNum(meta.created || 0)}` +
+      (meta.updated ? `, обновлено ${fmtNum(meta.updated)}` : '') +
+      (meta.skipped_duplicates ? `, без изменений ${fmtNum(meta.skipped_duplicates)}` : '') +
+      (meta.skipped_empty ? `, без ключа ${fmtNum(meta.skipped_empty)}` : '');
+    toast.ok('Лист синхронизирован', msg);
+    const reload = document.getElementById('keysReload');
+    if (reload) reload.click();
+  };
+
+  /* У карточек CSV и Sheets теперь реальная форма, а не заглушка. */
+  ['csv', 'sheet'].forEach(src => {
+    const card = sources.querySelector(`.pick-card[data-src="${src}"]`);
+    if (!card) return;
+    const need = card.querySelector('.pick-need');
     if (need) need.remove();
-    const soon = csvCard.querySelector('.pill.soon');
+    const soon = card.querySelector('.pill.soon');
     if (soon) { soon.className = 'pill ok'; soon.textContent = 'Готово'; }
+  });
+
+  /* Сохранённая карта колонок тянется один раз и годится обоим источникам. */
+  async function loadSaved() {
+    if (loadedSaved) return savedMeta;
+    loadedSaved = true;
+    try { savedMeta = await api.previewTable(PID); }
+    catch (_) { savedMeta = null; }               // превью необязательно
+    return savedMeta;
   }
 
   sources.addEventListener('click', async e => {
     const card = e.target.closest && e.target.closest('.pick-card');
     if (!card) return;
-    const isCsv = card.dataset.src === 'csv';
+    const src = card.dataset.src;
+    const isCsv = src === 'csv';
+    const isSheet = src === 'sheet';
     box.hidden = !isCsv;
-    if (!isCsv) return;
+    sheetBox.hidden = !isSheet;
+    if (!isCsv && !isSheet) return;
     // своим обработчиком страница показала заглушку — убираем её
     const stub = document.getElementById('srcStub');
     if (stub) stub.hidden = true;
     const paste = document.getElementById('srcPaste');
     if (paste) paste.hidden = true;
-    if (!loadedSaved && PID) {
-      loadedSaved = true;
-      try {
-        const saved = await api.previewTable(PID);
-        if (saved && (saved.columns || []).length) renderPreview(saved);
-      } catch (_) { /* превью необязательно */ }
+    if (!PID) return;
+    const saved = await loadSaved();
+    if (!saved || !(saved.columns || []).length) return;
+    renderPreview(saved, isSheet ? shPrev : prev);
+    if (isSheet) {
+      if (!shUrl.value && saved.sheet_url) shUrl.value = saved.sheet_url;
+      if (saved.source === 'sheet') shFillKeys(saved);
+      shSync.disabled = !(shUrl.value || '').trim();
     }
   });
 }
