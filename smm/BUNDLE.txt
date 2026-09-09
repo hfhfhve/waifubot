@@ -1,5 +1,5 @@
 # SMM Frontend — снимок репозитория
-# commit: 883ae53c9c034162e382d43ab3b4eb559be72c58
+# commit: 29730911af68e589cea17f230dcf31e84b661cee
 # built:  2026-09-09 20:25 UTC
 
 ## Состав файлов
@@ -1564,7 +1564,7 @@ if (document.readyState === 'loading') {
 <meta name="viewport" content="width=1280">
 <title>Проекты — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=28">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -1711,7 +1711,7 @@ if (document.readyState === 'loading') {
   </main>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=24"></script>
 <script>
 (function () {
 'use strict';
