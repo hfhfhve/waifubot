@@ -1,5 +1,5 @@
 # SMM Frontend — снимок репозитория
-# commit: 418c68319b5ebdac60f53f0dc13c5d4f2df63379
+# commit: 8f441a065a1aa059c280a48e1c02621e2f3ceac1
 # built:  2026-09-09 19:04 UTC
 
 ## Состав файлов
@@ -7,7 +7,7 @@ smm/404.html  (27 строк)
 smm/a  (1 строк)
 smm/app.js  (1439 строк)
 smm/index.html  (327 строк)
-smm/project.html  (3055 строк)
+smm/project.html  (3267 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (532 строк)
 smm/style.css  (2426 строк)
@@ -2439,9 +2439,9 @@ load();
                 </div>
 
                 <div class="gen-side">
-                  <div class="kv"><span class="kv-k">Потрачено</span><b id="genCost">$0</b></div>
-                  <div class="kv"><span class="kv-k">Модель</span><b id="genModel">—</b></div>
-                  <div class="kv"><span class="kv-k">Потоков</span><b id="genWorkers">—</b></div>
+                  <div class="kv-row"><span class="kv-k">Потрачено</span><b class="kv-v" id="genCost">$0</b></div>
+                  <div class="kv-row"><span class="kv-k">Модель</span><b class="kv-v" id="genModel">—</b></div>
+                  <div class="kv-row"><span class="kv-k">Потоков</span><b class="kv-v" id="genWorkers">—</b></div>
                 </div>
               </div>
 
@@ -2993,32 +2993,81 @@ load();
               </p>
             </div>
             <div class="view-actions">
-              <button class="btn is-stub btn-lg" id="connectGscBtn">
-                <span data-ico-sm="link"></span> Подключить Search Console
+              <div class="seg seg-sm" id="gscDays">
+                <button data-days="7">7 дней</button>
+                <button data-days="28" class="is-on">28 дней</button>
+                <button data-days="90">90 дней</button>
+              </div>
+              <button class="btn btn-dark btn-lg" id="connectGscBtn">
+                <span data-ico-sm="refresh"></span> Синхронизировать
               </button>
             </div>
           </div>
 
           <div class="metrics">
             <div class="metric">
-              <div class="metric-k">В индексе</div>
-              <div class="metric-v ph">���</div>
-              <div class="metric-note">из опубликованных</div>
+              <div class="metric-k">Показы</div>
+              <div class="metric-v ph" id="gscImpr">—</div>
+              <div class="metric-note" id="gscPeriod">ещё не синхронизировано</div>
             </div>
             <div class="metric">
-              <div class="metric-k">С показами</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">хоть один показ за 7 дней</div>
+              <div class="metric-k">Клики</div>
+              <div class="metric-v ph" id="gscClicks">—</div>
+              <div class="metric-note">переходы из поиска</div>
             </div>
             <div class="metric">
               <div class="metric-k">Средняя позиция</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">по всем запросам</div>
+              <div class="metric-v ph" id="gscPos">—</div>
+              <div class="metric-note">взвешено по показам</div>
             </div>
             <div class="metric">
-              <div class="metric-k">Мёртвые страницы</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">нуль показов за 30 дней</div>
+              <div class="metric-k">Живые страницы</div>
+              <div class="metric-v ph" id="gscAlive">—</div>
+              <div class="metric-note" id="gscDead">хотя бы один показ за период</div>
+            </div>
+          </div>
+
+          <div class="panel" id="gscSetup">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Подключение</div>
+                <div class="panel-sub">Ключ задаётся один раз в настройках, ресурс — здесь</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="gscKeyNote"></div>
+              <div class="up-row mt-3">
+                <select class="select input-sm" id="gscSite">
+                  <option value="">— ресурс не выбран —</option>
+                </select>
+                <button class="btn" id="gscLoadSites"><span data-ico-sm="radar"></span> Загрузить ресурсы</button>
+                <button class="btn btn-primary" id="gscSaveSite">Сохранить ресурс</button>
+              </div>
+              <div class="field-hint mt-2">
+                Ресурс — это сайт в Search Console: <b>sc-domain:example.com</b> для домена
+                или <b>https://example.com/</b> для префикса. Страницы сопоставляются по домену проекта из «Правил».
+              </div>
+              <div id="gscState" class="mt-3"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Страницы в поиске</div>
+                <div class="panel-sub">Клики, показы и позиция по каждому URL проекта</div>
+              </div>
+            </div>
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr>
+                  <th>Страница</th>
+                  <th style="width:110px;">Клики</th>
+                  <th style="width:110px;">Показы</th>
+                  <th style="width:120px;">Позиция</th>
+                </tr></thead>
+                <tbody id="gscBody"></tbody>
+              </table>
             </div>
           </div>
 
@@ -3047,16 +3096,15 @@ load();
                 </div>
               </div>
 
-              <div class="stub mt-3">
-                <div class="stub-head">
-                  <span class="pill soon">Заглушка</span>
-                  <span class="stub-title">Что нужно для работы</span>
+              <div class="note info mt-3">
+                <span class="note-ico" data-ico="info"></span>
+                <div class="note-body">
+                  <b>Порядок подключения.</b>
+                  1. Настройки → Search Console: вставьте JSON сервисного аккаунта Google.
+                  2. В самой Search Console добавьте e-mail этого аккаунта в пользователи ресурса.
+                  3. Здесь выберите ресурс и нажмите «Синхронизировать».
+                  Автоматического сбора по расписанию пока нет — снимается по кнопке.
                 </div>
-                <ul class="stub-list">
-                  <li>OAuth-доступ к Search Console и выбор сайта</li>
-                  <li>Сопоставление URL ↔ страница проекта (через canonical из блока 6)</li>
-                  <li>Еженедельная задача сбора и таблица истории по страницам</li>
-                </ul>
               </div>
             </div>
           </div>
@@ -3220,7 +3268,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=25"></script>
+<script src="app.js?v=26"></script>
 
 <script>
 /* ==========================================================================
@@ -3346,6 +3394,125 @@ function paintProjectHead() {
 }
 
 /* ======================================================================
+   SEARCH CONSOLE (блок 8)
+   ====================================================================== */
+
+async function initGsc(force) {
+  if (S.gsc && !force) { renderGsc(); return; }
+  try { S.gsc = await api.getGsc(PID); }
+  catch (e) { toast.err('Search Console не загрузился', e); return; }
+  renderGsc();
+}
+
+function gscDays() {
+  const on = $('#gscDays .is-on');
+  return on ? (Number(on.dataset.days) || 28) : 28;
+}
+
+function renderGsc() {
+  const g = S.gsc || {};
+  const sum = g.summary || {};
+
+  const note = $('#gscKeyNote');
+  if (note) {
+    note.innerHTML = g.key_ready
+      ? `<div class="note ok"><span class="note-ico" data-ico="ok"></span><div class="note-body">` +
+        `<b>Ключ на месте.</b> Сервисный аккаунт задан в настройках.</div></div>`
+      : `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
+        `<b>Ключа нет.</b> Откройте <a href="settings.html#s-gsc">Настройки → Search Console</a> ` +
+        `и вставьте JSON сервисного аккаунта.</div></div>`;
+    hydrateIcons(note);
+  }
+
+  const sel = $('#gscSite');
+  if (sel && g.site_url) {
+    const has = Array.from(sel.options).some(o => o.value === g.site_url);
+    if (!has) sel.insertAdjacentHTML('beforeend',
+      `<option value="${escAttr(g.site_url)}">${escHtml(g.site_url)}</option>`);
+    sel.value = g.site_url;
+  }
+
+  const set = (id, v) => {
+    const el = $(id);
+    if (!el) return;
+    el.classList.toggle('ph', v == null);
+    el.textContent = v == null ? '—' : v;
+  };
+  set('#gscImpr',   sum.impressions == null ? null : fmtNum(sum.impressions));
+  set('#gscClicks', sum.clicks == null ? null : fmtNum(sum.clicks));
+  set('#gscPos',    sum.position == null ? null : String(sum.position));
+  set('#gscAlive',  sum.pages_alive == null ? null : sum.pages_alive + ' из ' + (sum.pages_total || 0));
+
+  if ($('#gscPeriod')) $('#gscPeriod').textContent = sum.period || 'ещё не синхронизировано';
+  if ($('#gscDead')) $('#gscDead').textContent = sum.pages_dead
+    ? 'без показов: ' + fmtNum(sum.pages_dead)
+    : 'хотя бы один показ за период';
+
+  const st = $('#gscState');
+  if (st) {
+    const bits = [];
+    if (g.site_url) bits.push('Ресурс: <b>' + escHtml(g.site_url) + '</b>');
+    if (!g.domain) bits.push('<span class="bad">у проекта не задан домен — URL не с чем сопоставлять</span>');
+    if (sum.synced_at) bits.push('Снято: ' + escHtml(String(sum.synced_at).replace('T', ' ').slice(0, 16)));
+    if (sum.rows_from_google != null) bits.push('строк от Google: ' + fmtNum(sum.rows_from_google) +
+      ', совпало страниц: ' + fmtNum(sum.pages_matched || 0));
+    st.innerHTML = bits.length ? '<div class="muted">' + bits.join(' · ') + '</div>' : '';
+  }
+
+  const body = $('#gscBody');
+  const rows = g.pages || [];
+  if (body) {
+    body.innerHTML = rows.length
+      ? rows.map(r =>
+          `<tr><td>${escHtml(r.slug || '')}</td>` +
+          `<td>${fmtNum(r.clicks || 0)}</td>` +
+          `<td>${fmtNum(r.impressions || 0)}</td>` +
+          `<td>${r.position == null ? '—' : r.position}</td></tr>`).join('')
+      : `<tr><td colspan="4" class="muted">Данных пока нет. Выберите ресурс и нажмите «Синхронизировать».</td></tr>`;
+  }
+}
+
+async function loadGscSites(btn) {
+  await withBusy(btn, async () => {
+    try {
+      const r = await api.testGsc('');
+      const sites = r.sites || [];
+      const sel = $('#gscSite');
+      sel.innerHTML = `<option value="">— ресурс не выбран —</option>` +
+        sites.map(s => `<option value="${escAttr(s.site_url)}">${escHtml(s.site_url)}` +
+          (s.level ? ` · ${escHtml(s.level)}` : '') + `</option>`).join('');
+      if (S.gsc && S.gsc.site_url) sel.value = S.gsc.site_url;
+      if (sites.length) toast.ok('Ключ рабочий', 'Доступно ресурсов: ' + sites.length);
+      else toast.warn('Ресурсов нет',
+        'Добавьте ' + (r.client_email || 'аккаунт') + ' в пользователи ресурса Search Console.');
+    } catch (e) { toast.err('Не получилось', e); }
+  });
+}
+
+async function saveGscSite(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.gsc = await api.saveGsc(PID, { site_url: $('#gscSite').value });
+      renderGsc();
+      toast.ok('Ресурс сохранён', $('#gscSite').value || 'ресурс снят');
+    } catch (e) { toast.err('Не сохранилось', e); }
+  });
+}
+
+async function runGscSync(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.gsc = await api.syncGsc(PID, gscDays());
+      renderGsc();
+      const s = S.gsc.summary || {};
+      toast.ok('Данные сняты',
+        'Показов ' + fmtNum(s.impressions || 0) + ', кликов ' + fmtNum(s.clicks || 0) + '.');
+      if (s.hint) toast.warn('Не с чем сопоставлять', s.hint);
+    } catch (e) { toast.err('Синхронизация не прошла', e); }
+  });
+}
+
+/* ======================================================================
    РОУТЕР
    ====================================================================== */
 
@@ -3366,6 +3533,7 @@ function go(view) {
   if (view === 'rules') fillRules();
   if (view === 'export') renderExport();
   if (view === 'wiring') renderWiring();
+  if (view === 'feedback') initGsc();
 }
 
 function bindStatic() {
@@ -3525,11 +3693,12 @@ function bindStatic() {
     ['Замер', 'Доля вошедших в индекс из этой волны.'],
     ['Решение', 'Больше 50% — следующая волна. Меньше — стоп.'],
   ]);
-  $('#connectGscBtn').onclick = () => stubDrawer('Обратная связь — блок 8', [
-    ['Доступ', 'OAuth к Search Console и выбор сайта.'],
-    ['Сбор', 'Раз в неделю: индекс, показы, позиция по каждому URL.'],
-    ['Влияние', 'Пересчёт весов в гейте и правил отсева в паспорте.'],
-  ]);
+  $('#connectGscBtn').onclick = e => runGscSync(e.currentTarget);
+  $('#gscLoadSites').onclick = e => loadGscSites(e.currentTarget);
+  $('#gscSaveSite').onclick = e => saveGscSite(e.currentTarget);
+  $$('#gscDays button').forEach(b => b.onclick = () => {
+    $$('#gscDays button').forEach(x => x.classList.toggle('is-on', x === b));
+  });
 
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
@@ -3796,11 +3965,31 @@ async function savePassportPick() {
   if (t) body.page_type = t.value;
   if (s) body.strategy = s.value;
   if (!t && !s) return;
+  // пока база не подтвердила — подсветки нет, только «сохраняю…»
+  $$('#typePick .pick-card, #stratPick .pick-card').forEach(c => c.classList.remove('is-on'));
+  [t, s].forEach(inp => {
+    if (!inp) return;
+    const need = inp.closest('.pick-card').querySelector('.pick-need');
+    if (!need) return;
+    let mark = need.querySelector('.pick-db');
+    if (!mark) {
+      mark = document.createElement('span');
+      mark.className = 'pill pick-db';
+      need.insertAdjacentElement('afterbegin', mark);
+    }
+    mark.className = 'pill pick-db';
+    mark.textContent = 'сохраняю…';
+  });
+
   try {
-    S.passport = await api.savePassport(PID, body);
+    await api.savePassport(PID, body);
+    S.passport = await api.getPassport(PID);   // читаем значение обратно из базы
     renderPassport();
-    toast.ok('Паспорт сохранён', 'Тип и стратегия теперь уйдут в промпт генерации.');
-  } catch (e) { toast.err('Не сохранилось', e); }
+    toast.ok('Записано в базу', 'Подсветка стоит только на том, что реально сохранилось.');
+  } catch (e) {
+    renderPassport();
+    toast.err('Не сохранилось', e);
+  }
 }
 
 function renderPassport() {
@@ -3863,10 +4052,33 @@ function renderPassport() {
       (drops.length > 100 ? `<div class="muted" style="margin-top:8px;">… и ещё ${p.drop_total - 100}</div>` : '')
     : `<div class="muted" style="padding:10px 0;">Все строки годятся: дублей и полупустых строк не найдено.</div>`;
 
-  const t = $(`#typePick input[value="${p.page_type || ''}"]`);
-  if (t) t.checked = true;
-  const s = $(`#stratPick input[value="${p.strategy || ''}"]`);
-  if (s) s.checked = true;
+  paintPassportPicks();
+}
+
+/** Подсветка выбора ставится СТРОГО по тому, что вернула база. */
+function paintPassportPicks() {
+  const p = S.passport || {};
+  $$('#typePick .pick-card, #stratPick .pick-card').forEach(card => {
+    const inp = card.querySelector('input');
+    const need = card.querySelector('.pick-need');
+    if (!inp || !need) return;
+    const saved = inp.name === 'ptype' ? (p.page_type || '') : (p.strategy || '');
+    const on = !!saved && inp.value === saved;
+    inp.checked = on;
+    card.classList.toggle('is-on', on);
+    let mark = need.querySelector('.pick-db');
+    if (on) {
+      if (!mark) {
+        mark = document.createElement('span');
+        mark.className = 'pill ok pick-db';
+        need.insertAdjacentElement('afterbegin', mark);
+      }
+      mark.className = 'pill ok pick-db';
+      mark.textContent = 'в базе';
+    } else if (mark) {
+      mark.remove();
+    }
+  });
 }
 
 /* ======================================================================
