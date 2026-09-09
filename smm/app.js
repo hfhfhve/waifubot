@@ -103,7 +103,6 @@ async function req(path, opts = {}) {
    -------------------------------------------------------------------------- */
 
 const API_SOON = new Set([
-  'analyzeData', 'getPassport', 'savePassport',   // Блок 1 — оркестратор
   'linkSheet',                                     // вход — Google Sheets (ещё нет)
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
@@ -164,7 +163,7 @@ const api = {
   deleteCustomEndpoint: (id) => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' }),
   testCustomEndpoint:   (id) => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' }),
 
-  /* ---- БЛОК 1 — Оркестратор (ещё нет на сервере) ---- */
+  /* ---- БЛОК 1 — Паспорт проекта (готово) ---- */
   analyzeData:  (id)     => req(`/projects/${id}/analyze`, { method: 'POST' }),
   getPassport:  (id)     => req(`/projects/${id}/passport`),
   savePassport: (id, d)  => req(`/projects/${id}/passport`, { method: 'PUT', body: JSON.stringify(d) }),
