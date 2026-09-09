@@ -2028,7 +2028,13 @@ body.is-plain {
 .plain-shell .canvas {
   flex: 1;
   padding: 34px 28px 64px;
+  /* страница без рельсы едет целиком: canvas не должен быть скролл-контейнером,
+     иначе overscroll-behavior:contain из блока 28 глотает колесо */
+  min-height: 0;
+  overflow: visible;
+  overscroll-behavior: auto;
 }
+.plain-shell { min-height: 100vh; height: auto; }
 .plain-shell .wrap {
   width: 100%;
   max-width: var(--content-max);
