@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: e10559806ae7d891db73cccf0dccbb69a0f3dd5a
-# built:  2026-09-09 19:04 UTC
+# commit: 1351daacbd188fb4505b8683d7c161c124a77fef
+# built:  2026-09-09 20:07 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -10,7 +10,7 @@ smm/index.html  (327 строк)
 smm/project.html  (3267 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (603 строк)
-smm/style.css  (2426 строк)
+smm/style.css  (2432 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -7749,7 +7749,13 @@ body.is-plain {
 .plain-shell .canvas {
   flex: 1;
   padding: 34px 28px 64px;
+  /* страница без рельсы едет целиком: canvas не должен быть скролл-контейнером,
+     иначе overscroll-behavior:contain из блока 28 глотает колесо */
+  min-height: 0;
+  overflow: visible;
+  overscroll-behavior: auto;
 }
+.plain-shell { min-height: 100vh; height: auto; }
 .plain-shell .wrap {
   width: 100%;
   max-width: var(--content-max);
