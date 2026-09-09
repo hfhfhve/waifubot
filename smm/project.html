@@ -12,7 +12,7 @@
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=28">
 </head>
 <body class="is-app">
 
@@ -1335,6 +1335,34 @@
             </div>
           </div>
 
+          <div class="panel" id="designPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Дизайн-основа</div>
+                <div class="panel-sub">Тема задаёт вид, макет — структуру под тип страницы</div>
+              </div>
+              <span class="pill" id="designPill">—</span>
+            </div>
+            <div class="panel-body">
+              <div class="theme-grid" id="themeGrid"></div>
+
+              <div class="field mt-3">
+                <span class="field-label">Макет под тип страницы</span>
+                <div class="pick pick-slim" id="layoutPick"></div>
+                <span class="field-hint" id="layoutHint"></span>
+              </div>
+
+              <div id="designNote" class="mt-3"></div>
+            </div>
+            <div class="panel-foot">
+              <button class="btn" id="repaintDesignBtn">
+                <span data-ico-sm="redo"></span> Перекрасить готовые страницы
+              </button>
+              <span class="grow"></span>
+              <span class="muted" id="designState">Тема применяется сразу по клику</span>
+            </div>
+          </div>
+
           <div class="panel">
             <div class="panel-head">
               <div class="panel-head-body">
@@ -1436,7 +1464,7 @@
   </div>
 </div>
 
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 
 <script>
 /* ==========================================================================
@@ -1698,7 +1726,7 @@ function go(view) {
   if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
-  if (view === 'rules') fillRules();
+  if (view === 'rules') { fillRules(); initDesign(); }
   if (view === 'export') renderExport();
   if (view === 'wiring') renderWiring();
   if (view === 'feedback') initGsc();
@@ -1870,6 +1898,7 @@ function bindStatic() {
 
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
+  if ($('#repaintDesignBtn')) $('#repaintDesignBtn').onclick = e => repaintDesign(e.currentTarget);
   $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
   $('#deleteProjectBtn').onclick = () => deleteProject();
   $('#exportBtn').onclick = () => doExport();
@@ -3157,6 +3186,138 @@ async function loadModels() {
     S.models = Array.isArray(res) ? res : (res.models || []);
   } catch (e) { S.models = []; }
   if (S.view === 'rules') fillRules();
+}
+
+/* ======================================================================
+   ДИЗАЙН-ОСНОВА ПРОЕКТА
+
+   Два слоя: тема (цвет/шрифт/радиусы) и макет под тип страницы
+   (срез базы / матрица A×B / расчёт / статус / сводка).
+   Клик по теме сразу привязывает её к проекту.
+   ====================================================================== */
+
+async function initDesign(force) {
+  if (S.design && !force) { renderDesign(); return; }
+  try { S.design = await api.getDesign(PID); }
+  catch (e) { toast.err('Дизайн-основа не загрузилась', e); return; }
+  renderDesign();
+}
+
+function renderDesign() {
+  const d = S.design || {};
+  const themes = d.themes || [];
+  const layouts = d.layouts || [];
+
+  const grid = $('#themeGrid');
+  if (grid) {
+    grid.innerHTML = themes.map(t => {
+      const on = t.id === d.theme;
+      return `<button class="theme-card${on ? ' is-on' : ''}" data-theme="${escAttr(t.id)}" type="button">` +
+        `<span class="theme-shot-wrap">${themePreviewSvg(t.vars)}</span>` +
+        `<span class="theme-meta">` +
+          `<span class="theme-n">${escHtml(t.name)}${on ? ' <i class="theme-on">выбрана</i>' : ''}</span>` +
+          `<span class="theme-t">${escHtml(t.tagline || '')}</span>` +
+          `<span class="theme-m">${escHtml(t.mood || '')}</span>` +
+        `</span>` +
+      `</button>`;
+    }).join('');
+    grid.querySelectorAll('.theme-card').forEach(el => {
+      el.onclick = () => pickTheme(el.dataset.theme);
+    });
+  }
+
+  const pick = $('#layoutPick');
+  if (pick) {
+    const auto = d.layout === 'auto';
+    const autoName = (layouts.find(l => l.id === d.layout_effective) || {}).name || '—';
+    let html = `<button class="pick-card${auto ? ' is-on' : ''}" data-layout="auto" type="button">` +
+      `<span class="pick-ico">${ico('spark', 18)}</span>` +
+      `<span class="pick-body">` +
+        `<span class="pick-title">По паспорту</span>` +
+        `<span class="pick-desc">сейчас: ${escHtml(autoName)}</span>` +
+      `</span>` +
+    `</button>`;
+    html += layouts.map(l => {
+      const on = l.id === d.layout;
+      const lib = (typeof LIB_PAGE_TYPES !== 'undefined'
+        ? LIB_PAGE_TYPES.find(x => x.id === l.id) : null) || {};
+      return `<button class="pick-card${on ? ' is-on' : ''}" data-layout="${escAttr(l.id)}" type="button">` +
+        `<span class="pick-ico">${ico(lib.icon || 'layout', 18)}</span>` +
+        `<span class="pick-body">` +
+          `<span class="pick-title">${escHtml(l.name)}</span>` +
+          `<span class="pick-desc">${escHtml((l.formats || []).map(f => '.' + f).join(' '))}</span>` +
+        `</span>` +
+      `</button>`;
+    }).join('');
+    pick.innerHTML = html;
+    pick.querySelectorAll('.pick-card').forEach(el => {
+      el.onclick = () => pickLayout(el.dataset.layout);
+    });
+  }
+
+  const lay = layouts.find(l => l.id === d.layout_effective);
+  const hint = $('#layoutHint');
+  if (hint) hint.textContent = lay
+    ? 'Hero: ' + lay.hero + '. ' + lay.accent
+    : 'Макет берётся из типа страницы в паспорте.';
+
+  const pill = $('#designPill');
+  if (pill) {
+    const t = themes.find(x => x.id === d.theme) || {};
+    pill.textContent = (t.name || 'тема') + ' · ' + (d.layout_name || 'макет');
+    pill.className = 'pill ok';
+  }
+
+  const note = $('#designNote');
+  if (note && lay) {
+    note.innerHTML =
+      `<div class="note info"><span class="note-ico" data-ico="info"></span><div class="note-body">` +
+      `<b>Что уйдёт сильной модели.</b> Порядок блоков макета «${escHtml(lay.name)}»: ` +
+      escHtml((lay.blocks || []).join(' → ')) + '. ' +
+      `Цвета и шрифты модель не придумывает — она пользуется только токенами темы.` +
+      `</div></div>`;
+    hydrateIcons(note);
+  }
+
+  const st = $('#designState');
+  if (st) st.textContent = d.pages_total
+    ? 'готовых страниц в базе: ' + fmtNum(d.pages_total)
+    : 'Страниц пока нет — тема применится к новым.';
+}
+
+async function pickTheme(id) {
+  if (!id) return;
+  try {
+    S.design = await api.saveDesign(PID, { theme: id });
+    renderDesign();
+    toast.ok('Тема привязана к проекту',
+      S.design.pages_total
+        ? 'Новые страницы будут в ней. Старые — кнопка «Перекрасить».'
+        : 'Все страницы проекта будут в этой теме.');
+  } catch (e) { toast.err('Тема не сохранилась', e); }
+}
+
+async function pickLayout(id) {
+  if (!id) return;
+  try {
+    S.design = await api.saveDesign(PID, { layout: id });
+    renderDesign();
+    toast.ok('Макет обновлён', 'Сильная модель получит новый порядок блоков.');
+  } catch (e) { toast.err('Макет не сохранился', e); }
+}
+
+async function repaintDesign(btn) {
+  const run = async () => {
+    try {
+      const res = await api.repaintDesign(PID);
+      S.design = res;
+      renderDesign();
+      toast.ok('Страницы перекрашены',
+        'обновлено: ' + fmtNum(res.repainted || 0) + '. Текст и мета не тронуты.');
+    } catch (e) { toast.err('Перекраска не удалась', e); }
+  };
+  if (btn && typeof withBusy === 'function') await withBusy(btn, run);
+  else await run();
 }
 
 function fillRules() {
