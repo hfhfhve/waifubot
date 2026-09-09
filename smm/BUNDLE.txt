@@ -1,5 +1,5 @@
 # SMM Frontend — снимок репозитория
-# commit: 8f441a065a1aa059c280a48e1c02621e2f3ceac1
+# commit: e10559806ae7d891db73cccf0dccbb69a0f3dd5a
 # built:  2026-09-09 19:04 UTC
 
 ## Состав файлов
@@ -9,7 +9,7 @@ smm/app.js  (1439 строк)
 smm/index.html  (327 строк)
 smm/project.html  (3267 строк)
 smm/robots.txt  (4 строк)
-smm/settings.html  (532 строк)
+smm/settings.html  (603 строк)
 smm/style.css  (2426 строк)
 
 ════════════════════════════════════════════════════════
@@ -5118,7 +5118,7 @@ Disallow: /
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -5167,6 +5167,7 @@ Disallow: /
           <a class="set-nav-item" href="#s-models"><span data-ico-sm="spark"></span> Модели</a>
           <a class="set-nav-item" href="#s-quality"><span data-ico-sm="shield"></span> Качество</a>
           <a class="set-nav-item" href="#s-endpoints"><span data-ico-sm="code"></span> Свои API</a>
+          <a class="set-nav-item" href="#s-gsc"><span data-ico-sm="radar"></span> Search Console</a>
           <a class="set-nav-item" href="#s-look"><span data-ico-sm="moon"></span> Внешний вид</a>
           <a class="set-nav-item" href="#s-raw"><span data-ico-sm="list"></span> Все значения</a>
         </nav>
@@ -5317,6 +5318,35 @@ Disallow: /
           </section>
 
           <!-- ВНЕШНИЙ ВИД -->
+          <!-- SEARCH CONSOLE -->
+          <section class="panel" id="s-gsc">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Search Console</div>
+                <div class="panel-sub">Ключ сервисного аккаунта Google — один раз на все проекты</div>
+              </div>
+              <div class="panel-tools" id="gscKeyPill"></div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label class="field-label" for="gscKey">JSON сервисного аккаунта</label>
+                <textarea class="textarea" id="gscKey" rows="6" spellcheck="false"
+                          placeholder='{"type": "service_account", "client_email": "...@....iam.gserviceaccount.com", "private_key": "-----BEGIN PRIVATE KEY-----..."}'></textarea>
+                <div class="field-hint">
+                  Google Cloud → APIs &amp; Services → Credentials → Create service account → Keys → Add key (JSON).
+                  Там же включите <b>Search Console API</b>. Затем в Search Console:
+                  Настройки ресурса → Пользователи и разрешения → Добавить пользователя →
+                  e-mail сервисного аккаунта, доступ «Полный» или «Ограниченный». Пароли и OAuth не нужны.
+                </div>
+              </div>
+              <div class="up-row">
+                <button class="btn" id="gscTestBtn" type="button"><span data-ico-sm="radar"></span> Проверить ключ</button>
+                <span class="muted" id="gscEmail"></span>
+              </div>
+              <div id="gscTestResult"></div>
+            </div>
+          </section>
+
           <section class="panel" id="s-look">
             <div class="panel-head">
               <div class="panel-head-body">
@@ -5352,7 +5382,7 @@ Disallow: /
   </main>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=26"></script>
 <script>
 (function () {
 'use strict';
@@ -5419,6 +5449,10 @@ async function load() {
   $('#maxNausea').value = Number(val('max_nausea')) || 7;
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
+
+  const gk = val('gsc_service_account');
+  $('#gscKey').value = typeof gk === 'string' ? gk : (gk ? JSON.stringify(gk, null, 2) : '');
+  paintGscPill();
 
   renderRaw();
   loadModels();
@@ -5556,6 +5590,7 @@ async function saveAll(btn) {
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
     max_nausea: { value: Number($('#maxNausea').value) || 7 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
+    gsc_service_account: { value: $('#gscKey').value.trim() },
   };
   if (sm) payload.strong_model = { value: sm, provider: prov(sm) };
   if (cm) payload.cheap_model  = { value: cm, provider: prov(cm) };
@@ -5606,6 +5641,40 @@ async function addEp(btn) {
   });
 }
 
+/** Плашка «ключ задан / ключа нет» в шапке панели Search Console. */
+function paintGscPill() {
+  const box = $('#gscKeyPill');
+  if (!box) return;
+  box.innerHTML = ($('#gscKey').value || '').trim()
+    ? '<span class="pill ok"><i class="dot"></i>ключ задан</span>'
+    : '<span class="pill neutral"><i class="dot"></i>ключа нет</span>';
+}
+
+/** Проверка ключа: Google говорит, кто мы и к каким ресурсам есть доступ. */
+async function checkGsc(btn) {
+  const key = ($('#gscKey').value || '').trim();
+  await withBusy(btn, async () => {
+    try {
+      const r = await api.testGsc(key);
+      const sites = r.sites || [];
+      $('#gscEmail').textContent = r.client_email || '';
+      $('#gscTestResult').innerHTML =
+        `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span><div class="note-body">` +
+        `<b>Ключ рабочий.</b> Аккаунт: ${escHtml(r.client_email || '')}.<br>` +
+        (sites.length
+          ? 'Доступные ресурсы: ' + sites.map(x => escHtml(x.site_url)).join(', ')
+          : 'Ресурсов нет: добавьте этот e-mail в Search Console как пользователя ресурса.') +
+        `</div></div>`;
+      toast.ok('Ключ рабочий', sites.length ? ('Ресурсов: ' + sites.length) : 'Добавьте аккаунт в Search Console');
+    } catch (e) {
+      $('#gscTestResult').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body"><b>Не вышло.</b> ${escHtml(e.message)}</div></div>`;
+      toast.err('Ключ не сработал', e);
+    }
+  });
+}
+
 /* ---------- привязка ---------- */
 hydrateIcons();
 renderThemes();
@@ -5622,6 +5691,8 @@ $('#saveBaseBtn').onclick = () => {
 $('#modelsReload').onclick = () => loadModels();
 $('#epTestBtn').onclick = e => testEp(e.currentTarget);
 $('#epAddBtn').onclick = e => addEp(e.currentTarget);
+$('#gscTestBtn').onclick = e => checkGsc(e.currentTarget);
+$('#gscKey').oninput = () => paintGscPill();
 $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
 $('#copyRawBtn').onclick = () => copyText(JSON.stringify(SET, null, 2), 'JSON настроек');
 
