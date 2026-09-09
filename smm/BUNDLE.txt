@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: ac0b8e766d8a28f4e25813fbf9323297a0e882f4
-# built:  2026-09-09 17:56 UTC
+# commit: 01bec6f0a11a112c5f6fae6404df6d5648a132b7
+# built:  2026-09-09 18:22 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
 smm/app.js  (1438 строк)
 smm/index.html  (327 строк)
-smm/project.html  (3056 строк)
+smm/project.html  (3055 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (532 строк)
 smm/style.css  (2426 строк)
@@ -3529,7 +3529,6 @@ function bindStatic() {
     ['Сбор', 'Раз в неделю: индекс, показы, позиция по каждому URL.'],
     ['Влияние', 'Пересчёт весов в гейте и правил отсева в паспорте.'],
   ]);
-  $('#exportSitemapBtn').onclick = () => toast.soon('sitemap.xml', 'Появится вместе с блоком 6.');
 
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
