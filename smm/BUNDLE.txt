@@ -1,11 +1,11 @@
 # SMM Frontend — снимок репозитория
-# commit: 1351daacbd188fb4505b8683d7c161c124a77fef
-# built:  2026-09-09 20:07 UTC
+# commit: 233f46c26554e6268b666762eddac83b9a80f4a5
+# built:  2026-09-09 20:21 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (1439 строк)
+smm/app.js  (1498 строк)
 smm/index.html  (327 строк)
 smm/project.html  (3267 строк)
 smm/robots.txt  (4 строк)
@@ -249,6 +249,12 @@ const api = {
   saveGsc:  (id, d)    => req(`/projects/${id}/gsc`, { method: 'PUT', body: JSON.stringify(d) }),
   syncGsc:  (id, days) => req(`/projects/${id}/gsc/sync?days=${encodeURIComponent(days || 28)}`, { method: 'POST' }),
   testGsc:  (key)      => req('/settings/gsc-test', { method: 'POST', body: JSON.stringify({ key: key || '' }) }),
+
+  /* ---- ДИЗАЙН-ОСНОВА — темы и макеты (готово) ---- */
+  listThemes:   ()      => req('/themes'),
+  getDesign:    (id)    => req(`/projects/${id}/design`),
+  saveDesign:   (id, d) => req(`/projects/${id}/design`, { method: 'PUT', body: JSON.stringify(d) }),
+  repaintDesign:(id)    => req(`/projects/${id}/design/apply`, { method: 'POST' }),
 };
 
 /** Готов ли этот метод на бэкенде. */
@@ -923,6 +929,59 @@ const LIB_STRATEGIES = [
   { id: 'measured', icon: 'radar',  name: 'Собственное измерение',
     gives: 'То, что померил только ты', needs: 'Свои замеры' },
 ];
+
+
+/* --------------------------------------------------------------------------
+   12Б. ПРЕВЬЮ ТЕМЫ
+
+   Фото дизайнов рисуем сами из токенов темы: миниатюра всегда
+   совпадает с тем, что реально попадёт на страницу, и не требует
+   картинок в репозитории.
+   -------------------------------------------------------------------------- */
+
+function themePreviewSvg(vars, opts) {
+  const v = vars || {};
+  const g = (k, fb) => v[k] || fb;
+  const bg = g('--t-bg', '#111');
+  const surf = g('--t-surface', 'rgba(255,255,255,.06)');
+  const surf2 = g('--t-surface-2', 'rgba(255,255,255,.1)');
+  const text = g('--t-text', '#fff');
+  const muted = g('--t-muted', '#999');
+  const acc = g('--t-accent', '#d9ae5f');
+  const acc2 = g('--t-accent-2', acc);
+  const line = g('--t-line', 'rgba(255,255,255,.2)');
+  const r = Math.min(14, parseInt(g('--t-radius', '12px'), 10) || 12);
+  const id = 'tg' + Math.random().toString(36).slice(2, 8);
+  const tall = (opts && opts.tall) || false;
+  const h = tall ? 190 : 132;
+
+  const bar = (x, y, w, wid, col, op) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${wid}" rx="${wid / 2}" fill="${col}" opacity="${op}"/>`;
+  const card = (x, y, w, ch) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${ch}" rx="${r}" fill="${surf}" stroke="${line}"/>`;
+
+  return `<svg class="theme-shot" viewBox="0 0 240 ${h}" role="img" aria-hidden="true">` +
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">` +
+      `<stop offset="0" stop-color="${acc}" stop-opacity=".55"/>` +
+      `<stop offset="1" stop-color="${acc2}" stop-opacity=".18"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="240" height="${h}" fill="${bg}"/>` +
+    `<rect x="0" y="0" width="240" height="18" fill="${surf2}"/>` +
+    bar(12, 7, 30, 5, acc, 1) + bar(66, 8, 20, 4, muted, .8) +
+    bar(92, 8, 20, 4, muted, .8) + bar(118, 8, 20, 4, muted, .8) +
+    `<rect x="196" y="5" width="32" height="9" rx="4.5" fill="${acc}"/>` +
+    `<rect x="12" y="28" width="216" height="38" rx="${r}" fill="url(#${id})"/>` +
+    bar(22, 38, 96, 8, text, .92) + bar(22, 52, 150, 5, text, .5) +
+    card(12, 74, 104, 34) + card(124, 74, 104, 34) +
+    bar(22, 84, 60, 5, text, .8) + bar(22, 94, 84, 4, muted, .8) +
+    bar(134, 84, 60, 5, text, .8) + bar(134, 94, 84, 4, muted, .8) +
+    (tall
+      ? card(12, 116, 216, 30) + bar(22, 126, 120, 5, text, .8) +
+        bar(22, 136, 180, 4, muted, .75) +
+        `<rect x="12" y="154" width="216" height="24" rx="${r}" fill="${acc}" opacity=".9"/>`
+      : bar(12, 118, 216, 6, acc, .35)) +
+    `</svg>`;
+}
 
 /* --------------------------------------------------------------------------
    13. СТАРТ
