@@ -12,7 +12,7 @@
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body class="is-app">
 
@@ -331,19 +331,13 @@
             </div>
           </div>
 
-          <div class="note info">
-            <span class="note-ico" data-ico="info"></span>
-            <div class="note-body">
-              <b>Блок 1 ещё не подключён.</b> Интерфейс готов целиком: паспорт ляжет в настройки проекта,
-              новых таблиц в базе не потребуется.
-            </div>
-          </div>
+          <div id="passportVerdict"></div>
 
           <div class="grid grid-2">
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 1 · Сколько колонок реально различается</div>
+                  <div class="panel-title">Вопрос 1 · ������колько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -634,7 +628,7 @@
                   <span class="switch-track"><i></i></span>
                   <span class="switch-text">
                     <span class="switch-title">Параллельно</span>
-                    <span class="switch-desc">Быстрее, но больше шансов на лимит провайдера</span>
+                    <span class="switch-desc">Быстрее, но больше ш��нсов на лимит провайдера</span>
                   </span>
                 </label>
 
@@ -917,7 +911,7 @@
                 <div class="seg seg-sm" id="pagesSort">
                   <button data-ps="new" class="is-on">Новые</button>
                   <button data-ps="score">По баллу</button>
-                  <button data-ps="uniq">По уникальности</button>
+                  <button data-ps="uniq">По у��икальности</button>
                 </div>
                 <button class="btn btn-sm" id="pagesReload"><span data-ico-sm="refresh"></span></button>
               </div>
@@ -1253,7 +1247,7 @@
               <div class="panel-head">
                 <div class="panel-head-body">
                   <div class="panel-title">Модели</div>
-                  <div class="panel-sub">Сильная рисует каркас один раз, дешёвая заполняет каждую строку</div>
+                  <div class="panel-sub">Сильная рисует каркас один раз, дешё��ая заполняет каждую строку</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -1344,7 +1338,7 @@
             <div class="view-head-body">
               <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
               <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова».</p>
+              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
             </div>
           </div>
 
@@ -1362,8 +1356,9 @@
                   <button class="btn btn-dark btn-lg" id="exportBtn">
                     <span data-ico-sm="download"></span> Скачать ZIP
                   </button>
-                  <button class="btn is-stub" id="exportSitemapBtn">Только sitemap.xml</button>
+                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
                 </div>
+                <div class="muted mt-2" id="exportDomainHint" hidden></div>
               </div>
             </div>
 
@@ -1375,9 +1370,11 @@
               </div>
               <div class="panel-body">
                 <div class="checks-list">
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">HTML-файлы по slug</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">JSON с данными полей</span><span class="check-val">есть</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">sitemap.xml</span><span class="check-val">блок 6</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
                   <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
                   <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
                 </div>
@@ -1391,7 +1388,7 @@
   </div>
 </div>
 
-<script src="app.js?v=23"></script>
+<script src="app.js?v=25"></script>
 
 <script>
 /* ==========================================================================
@@ -1531,6 +1528,7 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
+  if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
   if (view === 'rules') fillRules();
@@ -1568,9 +1566,9 @@ function bindStatic() {
     },
     sheet: {
       title: 'Связь с Google Sheets',
-      text: 'Таблица остаётся живой: поправили строку — страницу можно перегенерить.',
-      list: ['Ссылка на лист и доступ по сервисному аккаунту',
-             'Периодическая сверка и отметка изменённых строк'],
+      text: 'Вставьте ссылку на лист, открытый по ссылке.',
+      list: ['Строки тянутся напрямую, без ключей Google',
+             'Повторная загрузка обновляет факты у своих строк'],
     },
     api: {
       title: 'Внешний API как источник',
@@ -1607,21 +1605,13 @@ function bindStatic() {
   $('#keysExampleBtn').onclick = () => {
     $('#keysInput').value =
       'Шут;номер=0;стихия=воздух;планета=Уран\n' +
-      'Маг;номер=1;стихия=огонь;планета=Меркурий\n' +
+      'Ма��;номер=1;стихия=огонь;планета=Меркурий\n' +
       'Жрица;номер=2;стихия=вода;планета=Луна';
     $('#keysInput').dispatchEvent(new Event('input'));
   };
 
   /* --- паспорт --- */
-  $('#analyzeBtn').onclick = () => stubDrawer('Оркестратор — блок 1', [
-    ['Что будет делать', 'Один запрос к сильной модели со всей таблицей и описанием продукта.'],
-    ['Вопрос 1', 'Сколько колонок реально различаются между строками.'],
-    ['Вопрос 2', 'К какому из пяти типов относятся эти страницы.'],
-    ['Вопрос 3', 'Какая стратегия ценности возможна на этих данных.'],
-    ['Вопрос 4', 'Какой потолок страниц имеет смысл.'],
-    ['Вопрос 5', 'Какие ключи выкинуть и по какой причине.'],
-    ['Куда ляжет результат', 'В настройки проекта как паспорт. Новых таблиц в базе не требуется.'],
-  ]);
+  $('#analyzeBtn').onclick = e => runAnalyze(e.currentTarget);
 
   /* --- каркас --- */
   $$('#frameMode button').forEach(b => b.onclick = () => {
@@ -1715,6 +1705,7 @@ function bindStatic() {
   $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
   $('#deleteProjectBtn').onclick = () => deleteProject();
   $('#exportBtn').onclick = () => doExport();
+  $('#exportSitemapBtn').onclick = () => doExportSitemap();
 
   wire.onChange(w => {
     const dot = $('#wireDot'), txt = $('#wireText');
@@ -1727,6 +1718,8 @@ function bindStatic() {
 
 function reloadAll() {
   loadKeys(); loadTasks(); loadPages();
+  S.passport = null;
+  if (S.view === 'passport') initPassport(true);
   toast.info('Обновлено');
 }
 
@@ -1917,29 +1910,10 @@ function buildLibraries() {
       `<div class="stub-inline" style="margin-top:10px;">заглушка</div>` +
     `</div>`).join('') + `</div>`;
 
-  const ps = S.project && S.project.settings && S.project.settings.passport;
-  const val = k => (ps && ps[k]) || null;
-
-  $('#q1Box').innerHTML = passportSlot('Различающиеся колонки', val('varied_columns'),
-    'Сейчас считается на клиенте по вкладке «Данные». Оркестратор будет судить строже.');
-  $('#q4Box').innerHTML = passportSlot('Потолок страниц', val('page_cap'),
-    'Сейчас потолок равен числу строк. После блока 1 он может быть меньше.');
-  $('#q5Box').innerHTML =
-    `<div class="stub">` +
-      `<div class="stub-head"><span class="pill soon">Заглушка</span>` +
-      `<span class="stub-title">Список отброшенных ключей</span></div>` +
-      `<div class="stub-text">Здесь появится таблица: ключ, причина отказа и кнопка «всё равно сделать».</div>` +
-      `<ul class="stub-list">` +
-        `<li>Нет данных под выбранную стратегию ценности</li>` +
-        `<li>Строка повторяет другую почти полностью</li>` +
-        `<li>Ключ не подходит под тип страницы</li>` +
-      `</ul>` +
-    `</div>`;
-
   $$('#typePick input, #stratPick input').forEach(inp => {
-    inp.onchange = () => toast.soon('Выбор сохранён локально',
-      'На генерацию он начнёт влиять, когда проектировщик каркаса научится читать паспорт.');
+    inp.onchange = () => savePassportPick();
   });
+  renderPassport();
 }
 
 function passportSlot(label, value, hint) {
@@ -1950,6 +1924,118 @@ function passportSlot(label, value, hint) {
   return `<div class="metric"><div class="metric-k">${escHtml(label)}</div>` +
          `<div class="metric-v ph">—</div>` +
          `<div class="metric-note">${escHtml(hint)}</div></div>`;
+}
+
+/* ----------------------------------------------------------------------
+   БЛОК 1 · ПАСПОРТ ПРОЕКТА
+   Арифметику (вопросы 1, 4, 5) считает бэкенд по таблице,
+   тип и стратегию (вопросы 2, 3) предлагает сильная модель,
+   последнее слово — за человеком (радиокнопки сохраняются сразу).
+   ---------------------------------------------------------------------- */
+
+const PASSPORT_VERDICT = {
+  go:      ['ok',      'Можно генерить'],
+  caution: ['warn',    'Данных впритык'],
+  stop:    ['bad',     'СТОП — данных мало'],
+};
+
+async function initPassport(force) {
+  if (S.passport && !force) { renderPassport(); return; }
+  try { S.passport = await api.getPassport(PID); }
+  catch (e) { toast.err('Паспорт не загрузился', e); return; }
+  renderPassport();
+}
+
+async function runAnalyze(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.passport = await api.analyzeData(PID);
+      renderPassport();
+      const p = S.passport || {};
+      if (p.llm_error) toast.warn('Модель не ответила', 'Паспорт собран по таблице. ' + p.llm_error);
+      else toast.ok('Анализ готов', p.reason || '');
+    } catch (e) { toast.err('Анализ не прошёл', e); }
+  });
+}
+
+async function savePassportPick() {
+  const t = $('#typePick input:checked');
+  const s = $('#stratPick input:checked');
+  const body = {};
+  if (t) body.page_type = t.value;
+  if (s) body.strategy = s.value;
+  if (!t && !s) return;
+  try {
+    S.passport = await api.savePassport(PID, body);
+    renderPassport();
+    toast.ok('Паспорт сохранён', 'Тип и стратегия теперь уйдут в промпт генерации.');
+  } catch (e) { toast.err('Не сохранилось', e); }
+}
+
+function renderPassport() {
+  const p = S.passport || {};
+  const st = p.stats || {};
+  const box = $('#passportVerdict');
+
+  if (box) {
+    if (!p.analyzed) {
+      box.innerHTML =
+        `<div class="note info">` +
+          `<span class="note-ico" data-ico="info"></span>` +
+          `<div class="note-body"><b>Анализ ещё не запускался.</b> ` +
+          `Нажмите «Проанализировать данные»: один запрос к сильной модели решит, ` +
+          `стоит ли вообще генерить и сколько.</div>` +
+        `</div>`;
+    } else {
+      const v = PASSPORT_VERDICT[p.verdict] || PASSPORT_VERDICT.caution;
+      const must = (p.must_have || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+      const avoid = (p.avoid || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+      box.innerHTML =
+        `<div class="note ${v[0]}">` +
+          `<span class="note-ico" data-ico="${v[0] === 'ok' ? 'ok' : 'alert'}"></span>` +
+          `<div class="note-body">` +
+            `<b>${escHtml(v[1])}</b> ${escHtml(p.reason || '')}` +
+            (must ? `<div style="margin-top:8px;"><b>Обязательно на каждой странице:</b><ul>${must}</ul></div>` : '') +
+            (avoid ? `<div style="margin-top:6px;"><b>Не писать:</b><ul>${avoid}</ul></div>` : '') +
+            `<div class="muted" style="margin-top:6px;">Источник: ` +
+            `${p.source === 'llm' ? escHtml((p.model || 'модель')) : 'только расчёт по таблице'}` +
+            (p.llm_error ? ' · ' + escHtml(p.llm_error) : '') + `</div>` +
+          `</div>` +
+        `</div>`;
+    }
+    hydrateIcons(box);
+  }
+
+  const varied = st.varied_columns;
+  $('#q1Box').innerHTML = (varied == null)
+    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Данные».')
+    : `<div class="metric accent"><div class="metric-k">Различающиеся колонки</div>` +
+      `<div class="metric-v">${varied} из ${st.columns_total || 0}</div>` +
+      `<div class="metric-note">${escHtml((st.varied_names || []).join(', ') || 'нет ни одной')}` +
+      ((st.constant_names || []).length ? ` · одинаковые везде: ${escHtml(st.constant_names.join(', '))}` : '') +
+      `</div></div>`;
+
+  const cap = p.page_cap;
+  $('#q4Box').innerHTML = (cap == null)
+    ? passportSlot('Потолок страниц', null, 'Появится после анализа.')
+    : `<div class="metric accent"><div class="metric-k">Потолок страниц</div>` +
+      `<div class="metric-v">${cap}</div>` +
+      `<div class="metric-note">Строк в таблице: ${st.rows_total || 0}` +
+      (p.drop_total ? ` · отброшено: ${p.drop_total}` : '') + `</div></div>`;
+
+  const drops = p.drop_keys || [];
+  $('#q5Box').innerHTML = drops.length
+    ? `<table class="tbl"><thead><tr><th>Ключ</th><th>Почему отброшен</th></tr></thead><tbody>` +
+      drops.slice(0, 100).map(d =>
+        `<tr><td>${escHtml(d.key || '—')}</td><td class="muted">${escHtml(d.reason || '')}</td></tr>`).join('') +
+      `</tbody></table>` +
+      (drops.length > 100 ? `<div class="muted" style="margin-top:8px;">… и ещё ${p.drop_total - 100}</div>` : '')
+    : `<div class="muted" style="padding:10px 0;">Все строки годятся: дублей и полупустых строк не найдено.</div>`;
+
+  const t = $(`#typePick input[value="${p.page_type || ''}"]`);
+  if (t) t.checked = true;
+  const s = $(`#stratPick input[value="${p.strategy || ''}"]`);
+  if (s) s.checked = true;
 }
 
 /* ======================================================================
@@ -2815,6 +2901,15 @@ function renderExport() {
   setText('#exportCount', ready ? fmtNum(ready) : '—');
   const btn = $('#exportBtn');
   if (btn) btn.disabled = !ready;
+  const smBtn = $('#exportSitemapBtn');
+  if (smBtn) smBtn.disabled = !ready;
+  const domain = String((S.project && S.project.domain) || '').trim();
+  const hint = $('#exportDomainHint');
+  if (hint) {
+    hint.hidden = !!domain;
+    if (!domain) hint.textContent =
+      'Домен не указан в правилах проекта — в sitemap и robots попадёт example.com.';
+  }
 }
 
 function doExport() {
@@ -2822,6 +2917,16 @@ function doExport() {
   if (!ready) { toast.warn('Нечего выгружать', 'Нет ни одной готовой страницы.'); return; }
   window.location.href = api.exportUrl(PID);
   toast.ok('Архив собирается', 'Браузер начнёт скачивание через пару секунд.');
+}
+
+/* Карта сайта отдельно: удобно, когда страницы уже залиты. */
+function doExportSitemap() {
+  const ready = (S.pages || []).filter(p => p.status === 'ready').length;
+  if (!ready) { toast.warn('Нечего выгружать', 'Нет ни одной готовой страницы.'); return; }
+  window.location.href = api.exportUrl(PID, 'sitemap');
+  const domain = String((S.project && S.project.domain) || '').trim();
+  if (domain) toast.ok('sitemap.xml', 'Адреса собраны по домену ' + domain + '.');
+  else toast.warn('sitemap.xml', 'Домен не указан — в адресах будет example.com.');
 }
 
 /* ======================================================================
@@ -2915,7 +3020,7 @@ async function deleteProject() {
     await api.deleteProject(PID);
     toast.ok('Проект удалён', 'Возвращаемся к списку…');
     setTimeout(() => location.href = 'index.html', 600);
-  } catch (e) { toast.err('Не удалось удалить', e); }
+  } catch (e) { toast.err('Не удало��ь удалить', e); }
 }
 
 /* ======================================================================
