@@ -6699,7 +6699,7 @@ const characters = [
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -6748,6 +6748,7 @@ const characters = [
           <a class="set-nav-item" href="#s-models"><span data-ico-sm="spark"></span> Модели</a>
           <a class="set-nav-item" href="#s-quality"><span data-ico-sm="shield"></span> Качество</a>
           <a class="set-nav-item" href="#s-endpoints"><span data-ico-sm="code"></span> Свои API</a>
+          <a class="set-nav-item" href="#s-gsc"><span data-ico-sm="radar"></span> Search Console</a>
           <a class="set-nav-item" href="#s-look"><span data-ico-sm="moon"></span> Внешний вид</a>
           <a class="set-nav-item" href="#s-raw"><span data-ico-sm="list"></span> Все значения</a>
         </nav>
@@ -6898,6 +6899,35 @@ const characters = [
           </section>
 
           <!-- ВНЕШНИЙ ВИД -->
+          <!-- SEARCH CONSOLE -->
+          <section class="panel" id="s-gsc">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Search Console</div>
+                <div class="panel-sub">Ключ сервисного аккаунта Google — один раз на все проекты</div>
+              </div>
+              <div class="panel-tools" id="gscKeyPill"></div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label class="field-label" for="gscKey">JSON сервисного аккаунта</label>
+                <textarea class="textarea" id="gscKey" rows="6" spellcheck="false"
+                          placeholder='{"type": "service_account", "client_email": "...@....iam.gserviceaccount.com", "private_key": "-----BEGIN PRIVATE KEY-----..."}'></textarea>
+                <div class="field-hint">
+                  Google Cloud → APIs &amp; Services → Credentials → Create service account → Keys → Add key (JSON).
+                  Там же включите <b>Search Console API</b>. Затем в Search Console:
+                  Настройки ресурса → Пользователи и разрешения → Добавить пользователя →
+                  e-mail сервисного аккаунта, доступ «Полный» или «Ограниченный». Пароли и OAuth не нужны.
+                </div>
+              </div>
+              <div class="up-row">
+                <button class="btn" id="gscTestBtn" type="button"><span data-ico-sm="radar"></span> Проверить ключ</button>
+                <span class="muted" id="gscEmail"></span>
+              </div>
+              <div id="gscTestResult"></div>
+            </div>
+          </section>
+
           <section class="panel" id="s-look">
             <div class="panel-head">
               <div class="panel-head-body">
@@ -6933,7 +6963,7 @@ const characters = [
   </main>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=26"></script>
 <script>
 (function () {
 'use strict';
@@ -7000,6 +7030,10 @@ async function load() {
   $('#maxNausea').value = Number(val('max_nausea')) || 7;
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
+
+  const gk = val('gsc_service_account');
+  $('#gscKey').value = typeof gk === 'string' ? gk : (gk ? JSON.stringify(gk, null, 2) : '');
+  paintGscPill();
 
   renderRaw();
   loadModels();
@@ -7137,6 +7171,7 @@ async function saveAll(btn) {
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
     max_nausea: { value: Number($('#maxNausea').value) || 7 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
+    gsc_service_account: { value: $('#gscKey').value.trim() },
   };
   if (sm) payload.strong_model = { value: sm, provider: prov(sm) };
   if (cm) payload.cheap_model  = { value: cm, provider: prov(cm) };
@@ -7187,6 +7222,40 @@ async function addEp(btn) {
   });
 }
 
+/** Плашка «ключ задан / ключа нет» в шапке панели Search Console. */
+function paintGscPill() {
+  const box = $('#gscKeyPill');
+  if (!box) return;
+  box.innerHTML = ($('#gscKey').value || '').trim()
+    ? '<span class="pill ok"><i class="dot"></i>ключ задан</span>'
+    : '<span class="pill neutral"><i class="dot"></i>ключа нет</span>';
+}
+
+/** Проверка ключа: Google говорит, кто мы и к каким ресурсам есть доступ. */
+async function checkGsc(btn) {
+  const key = ($('#gscKey').value || '').trim();
+  await withBusy(btn, async () => {
+    try {
+      const r = await api.testGsc(key);
+      const sites = r.sites || [];
+      $('#gscEmail').textContent = r.client_email || '';
+      $('#gscTestResult').innerHTML =
+        `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span><div class="note-body">` +
+        `<b>Ключ рабочий.</b> Аккаунт: ${escHtml(r.client_email || '')}.<br>` +
+        (sites.length
+          ? 'Доступные ресурсы: ' + sites.map(x => escHtml(x.site_url)).join(', ')
+          : 'Ресурсов нет: добавьте этот e-mail в Search Console как пользователя ресурса.') +
+        `</div></div>`;
+      toast.ok('Ключ рабочий', sites.length ? ('Ресурсов: ' + sites.length) : 'Добавьте аккаунт в Search Console');
+    } catch (e) {
+      $('#gscTestResult').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body"><b>Не вышло.</b> ${escHtml(e.message)}</div></div>`;
+      toast.err('Ключ не сработал', e);
+    }
+  });
+}
+
 /* ---------- привязка ---------- */
 hydrateIcons();
 renderThemes();
@@ -7203,6 +7272,8 @@ $('#saveBaseBtn').onclick = () => {
 $('#modelsReload').onclick = () => loadModels();
 $('#epTestBtn').onclick = e => testEp(e.currentTarget);
 $('#epAddBtn').onclick = e => addEp(e.currentTarget);
+$('#gscTestBtn').onclick = e => checkGsc(e.currentTarget);
+$('#gscKey').oninput = () => paintGscPill();
 $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
 $('#copyRawBtn').onclick = () => copyText(JSON.stringify(SET, null, 2), 'JSON настроек');
 
@@ -7244,7 +7315,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=28">
 </head>
 <body class="is-app">
 
@@ -7563,19 +7634,13 @@ load();
             </div>
           </div>
 
-          <div class="note info">
-            <span class="note-ico" data-ico="info"></span>
-            <div class="note-body">
-              <b>Блок 1 ещё не подключён.</b> Интерфейс готов целиком: паспорт ляжет в настройки проекта,
-              новых таблиц в базе не потребуется.
-            </div>
-          </div>
+          <div id="passportVerdict"></div>
 
           <div class="grid grid-2">
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 1 · Сколько колонок реально различается</div>
+                  <div class="panel-title">Вопрос 1 · ������колько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -7845,9 +7910,9 @@ load();
                 </div>
 
                 <div class="gen-side">
-                  <div class="kv"><span class="kv-k">Потрачено</span><b id="genCost">$0</b></div>
-                  <div class="kv"><span class="kv-k">Модель</span><b id="genModel">—</b></div>
-                  <div class="kv"><span class="kv-k">Потоков</span><b id="genWorkers">—</b></div>
+                  <div class="kv-row"><span class="kv-k">Потрачено</span><b class="kv-v" id="genCost">$0</b></div>
+                  <div class="kv-row"><span class="kv-k">Модель</span><b class="kv-v" id="genModel">—</b></div>
+                  <div class="kv-row"><span class="kv-k">Потоков</span><b class="kv-v" id="genWorkers">—</b></div>
                 </div>
               </div>
 
@@ -7866,7 +7931,7 @@ load();
                   <span class="switch-track"><i></i></span>
                   <span class="switch-text">
                     <span class="switch-title">Параллельно</span>
-                    <span class="switch-desc">Быстрее, но больше шансов на лимит провайдера</span>
+                    <span class="switch-desc">Быстрее, но больше ш��нсов на лимит провайдера</span>
                   </span>
                 </label>
 
@@ -8018,8 +8083,9 @@ load();
               <div class="gate-body">
                 <div class="gate-title">Качество <span class="pill ok">работает</span></div>
                 <div class="gate-desc">
-                  Измерения сводятся в один балл от 0 до 100. Веса измерений
-                  будет пересчитывать блок 8 по реальной индексации.
+                  Измерения сводятся в один балл от 0 до 100. Тошнота, водность и
+                  читаемость из балла убраны — Google их не использует, и их вес
+                  перешёл на уникальность, плотность фактов и перелинковку.
                 </div>
                 <div class="gate-checks" id="lvl4Checks"></div>
               </div>
@@ -8027,6 +8093,52 @@ load();
                 <div class="gate-stat-v" id="lvl4Val">—</div>
                 <div class="gate-stat-k">средний балл</div>
               </div>
+            </div>
+          </div>
+
+          <div class="panel" id="gateCfg">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Настройка гейта <span class="pill neutral" id="gateOffPill">—</span></div>
+                <div class="panel-sub">
+                  Пороги и список проверок. Всё, что Google официально не использует,
+                  выключено — такие проверки только валили нормальные страницы.
+                </div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-sm" id="gateReset">По умолчанию</button>
+                <button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="up-row">
+                <div class="field">
+                  <div class="field-label">Минимум символов (0 — из настроек)</div>
+                  <input class="input input-sm" id="gateMinChars" type="number" min="0" step="100" value="0">
+                </div>
+                <div class="field">
+                  <div class="field-label">Уникальность, % не ниже</div>
+                  <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Самоповторы, не выше</div>
+                  <input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08">
+                </div>
+                <div class="field">
+                  <div class="field-label">Похожие блоки, не выше</div>
+                  <input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6">
+                </div>
+                <div class="field">
+                  <div class="field-label">Пропуск, балл ≥</div>
+                  <input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80">
+                </div>
+                <div class="field">
+                  <div class="field-label">Перегенерация, балл ≥</div>
+                  <input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60">
+                </div>
+              </div>
+              <div id="gateChecks"></div>
+              <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
 
@@ -8102,7 +8214,7 @@ load();
                 <div class="seg seg-sm" id="pagesSort">
                   <button data-ps="new" class="is-on">Новые</button>
                   <button data-ps="score">По баллу</button>
-                  <button data-ps="uniq">По уникальности</button>
+                  <button data-ps="uniq">По у��икальности</button>
                 </div>
                 <button class="btn btn-sm" id="pagesReload"><span data-ico-sm="refresh"></span></button>
               </div>
@@ -8352,32 +8464,81 @@ load();
               </p>
             </div>
             <div class="view-actions">
-              <button class="btn is-stub btn-lg" id="connectGscBtn">
-                <span data-ico-sm="link"></span> Подключить Search Console
+              <div class="seg seg-sm" id="gscDays">
+                <button data-days="7">7 дней</button>
+                <button data-days="28" class="is-on">28 дней</button>
+                <button data-days="90">90 дней</button>
+              </div>
+              <button class="btn btn-dark btn-lg" id="connectGscBtn">
+                <span data-ico-sm="refresh"></span> Синхронизировать
               </button>
             </div>
           </div>
 
           <div class="metrics">
             <div class="metric">
-              <div class="metric-k">В индексе</div>
-              <div class="metric-v ph">���</div>
-              <div class="metric-note">из опубликованных</div>
+              <div class="metric-k">Показы</div>
+              <div class="metric-v ph" id="gscImpr">—</div>
+              <div class="metric-note" id="gscPeriod">ещё не синхронизировано</div>
             </div>
             <div class="metric">
-              <div class="metric-k">С показами</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">хоть один показ за 7 дней</div>
+              <div class="metric-k">Клики</div>
+              <div class="metric-v ph" id="gscClicks">—</div>
+              <div class="metric-note">переходы из поиска</div>
             </div>
             <div class="metric">
               <div class="metric-k">Средняя позиция</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">по всем запросам</div>
+              <div class="metric-v ph" id="gscPos">—</div>
+              <div class="metric-note">взвешено по показам</div>
             </div>
             <div class="metric">
-              <div class="metric-k">Мёртвые страницы</div>
-              <div class="metric-v ph">—</div>
-              <div class="metric-note">нуль показов за 30 дней</div>
+              <div class="metric-k">Живые страницы</div>
+              <div class="metric-v ph" id="gscAlive">—</div>
+              <div class="metric-note" id="gscDead">хотя бы один показ за период</div>
+            </div>
+          </div>
+
+          <div class="panel" id="gscSetup">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Подключение</div>
+                <div class="panel-sub">Ключ задаётся один раз в настройках, ресурс — здесь</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="gscKeyNote"></div>
+              <div class="up-row mt-3">
+                <select class="select input-sm" id="gscSite">
+                  <option value="">— ресурс не выбран —</option>
+                </select>
+                <button class="btn" id="gscLoadSites"><span data-ico-sm="radar"></span> Загрузить ресурсы</button>
+                <button class="btn btn-primary" id="gscSaveSite">Сохранить ресурс</button>
+              </div>
+              <div class="field-hint mt-2">
+                Ресурс — это сайт в Search Console: <b>sc-domain:example.com</b> для домена
+                или <b>https://example.com/</b> для префикса. Страницы сопоставляются по домену проекта из «Правил».
+              </div>
+              <div id="gscState" class="mt-3"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Страницы в поиске</div>
+                <div class="panel-sub">Клики, показы и позиция по каждому URL проекта</div>
+              </div>
+            </div>
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr>
+                  <th>Страница</th>
+                  <th style="width:110px;">Клики</th>
+                  <th style="width:110px;">Показы</th>
+                  <th style="width:120px;">Позиция</th>
+                </tr></thead>
+                <tbody id="gscBody"></tbody>
+              </table>
             </div>
           </div>
 
@@ -8406,16 +8567,15 @@ load();
                 </div>
               </div>
 
-              <div class="stub mt-3">
-                <div class="stub-head">
-                  <span class="pill soon">Заглушка</span>
-                  <span class="stub-title">Что нужно для работы</span>
+              <div class="note info mt-3">
+                <span class="note-ico" data-ico="info"></span>
+                <div class="note-body">
+                  <b>Порядок подключения.</b>
+                  1. Настройки → Search Console: вставьте JSON сервисного аккаунта Google.
+                  2. В самой Search Console добавьте e-mail этого аккаунта в пользователи ресурса.
+                  3. Здесь выберите ресурс и нажмите «Синхронизировать».
+                  Автоматического сбора по расписанию пока нет — снимается по кнопке.
                 </div>
-                <ul class="stub-list">
-                  <li>OAuth-доступ к Search Console и выбор сайта</li>
-                  <li>Сопоставление URL ↔ страница проекта (через canonical из блока 6)</li>
-                  <li>Еженедельная задача сбора и таблица истории по страницам</li>
-                </ul>
               </div>
             </div>
           </div>
@@ -8438,7 +8598,7 @@ load();
               <div class="panel-head">
                 <div class="panel-head-body">
                   <div class="panel-title">Модели</div>
-                  <div class="panel-sub">Сильная рисует каркас один раз, дешёвая заполняет каждую строку</div>
+                  <div class="panel-sub">Сильная рисует каркас один раз, дешё��ая заполняет каждую строку</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -8475,6 +8635,34 @@ load();
                   <input class="input" id="minLen" type="number" min="300" step="100">
                 </label>
               </div>
+            </div>
+          </div>
+
+          <div class="panel" id="designPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Дизайн-основа</div>
+                <div class="panel-sub">Тема задаёт вид, макет — структуру под тип страницы</div>
+              </div>
+              <span class="pill" id="designPill">—</span>
+            </div>
+            <div class="panel-body">
+              <div class="theme-grid" id="themeGrid"></div>
+
+              <div class="field mt-3">
+                <span class="field-label">Макет под тип страницы</span>
+                <div class="pick pick-slim" id="layoutPick"></div>
+                <span class="field-hint" id="layoutHint"></span>
+              </div>
+
+              <div id="designNote" class="mt-3"></div>
+            </div>
+            <div class="panel-foot">
+              <button class="btn" id="repaintDesignBtn">
+                <span data-ico-sm="redo"></span> Перекрасить готовые страницы
+              </button>
+              <span class="grow"></span>
+              <span class="muted" id="designState">Тема применяется сразу по клику</span>
             </div>
           </div>
 
@@ -8529,7 +8717,7 @@ load();
             <div class="view-head-body">
               <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
               <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова».</p>
+              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
             </div>
           </div>
 
@@ -8547,8 +8735,9 @@ load();
                   <button class="btn btn-dark btn-lg" id="exportBtn">
                     <span data-ico-sm="download"></span> Скачать ZIP
                   </button>
-                  <button class="btn is-stub" id="exportSitemapBtn">Только sitemap.xml</button>
+                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
                 </div>
+                <div class="muted mt-2" id="exportDomainHint" hidden></div>
               </div>
             </div>
 
@@ -8560,9 +8749,11 @@ load();
               </div>
               <div class="panel-body">
                 <div class="checks-list">
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">HTML-файлы по slug</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">JSON с данными полей</span><span class="check-val">есть</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">sitemap.xml</span><span class="check-val">блок 6</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
                   <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
                   <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
                 </div>
@@ -8576,7 +8767,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=27"></script>
 
 <script>
 /* ==========================================================================
@@ -8702,6 +8893,125 @@ function paintProjectHead() {
 }
 
 /* ======================================================================
+   SEARCH CONSOLE (блок 8)
+   ====================================================================== */
+
+async function initGsc(force) {
+  if (S.gsc && !force) { renderGsc(); return; }
+  try { S.gsc = await api.getGsc(PID); }
+  catch (e) { toast.err('Search Console не загрузился', e); return; }
+  renderGsc();
+}
+
+function gscDays() {
+  const on = $('#gscDays .is-on');
+  return on ? (Number(on.dataset.days) || 28) : 28;
+}
+
+function renderGsc() {
+  const g = S.gsc || {};
+  const sum = g.summary || {};
+
+  const note = $('#gscKeyNote');
+  if (note) {
+    note.innerHTML = g.key_ready
+      ? `<div class="note ok"><span class="note-ico" data-ico="ok"></span><div class="note-body">` +
+        `<b>Ключ на месте.</b> Сервисный аккаунт задан в настройках.</div></div>`
+      : `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
+        `<b>Ключа нет.</b> Откройте <a href="settings.html#s-gsc">Настройки → Search Console</a> ` +
+        `и вставьте JSON сервисного аккаунта.</div></div>`;
+    hydrateIcons(note);
+  }
+
+  const sel = $('#gscSite');
+  if (sel && g.site_url) {
+    const has = Array.from(sel.options).some(o => o.value === g.site_url);
+    if (!has) sel.insertAdjacentHTML('beforeend',
+      `<option value="${escAttr(g.site_url)}">${escHtml(g.site_url)}</option>`);
+    sel.value = g.site_url;
+  }
+
+  const set = (id, v) => {
+    const el = $(id);
+    if (!el) return;
+    el.classList.toggle('ph', v == null);
+    el.textContent = v == null ? '—' : v;
+  };
+  set('#gscImpr',   sum.impressions == null ? null : fmtNum(sum.impressions));
+  set('#gscClicks', sum.clicks == null ? null : fmtNum(sum.clicks));
+  set('#gscPos',    sum.position == null ? null : String(sum.position));
+  set('#gscAlive',  sum.pages_alive == null ? null : sum.pages_alive + ' из ' + (sum.pages_total || 0));
+
+  if ($('#gscPeriod')) $('#gscPeriod').textContent = sum.period || 'ещё не синхронизировано';
+  if ($('#gscDead')) $('#gscDead').textContent = sum.pages_dead
+    ? 'без показов: ' + fmtNum(sum.pages_dead)
+    : 'хотя бы один показ за период';
+
+  const st = $('#gscState');
+  if (st) {
+    const bits = [];
+    if (g.site_url) bits.push('Ресурс: <b>' + escHtml(g.site_url) + '</b>');
+    if (!g.domain) bits.push('<span class="bad">у проекта не задан домен — URL не с чем сопоставлять</span>');
+    if (sum.synced_at) bits.push('Снято: ' + escHtml(String(sum.synced_at).replace('T', ' ').slice(0, 16)));
+    if (sum.rows_from_google != null) bits.push('строк от Google: ' + fmtNum(sum.rows_from_google) +
+      ', совпало страниц: ' + fmtNum(sum.pages_matched || 0));
+    st.innerHTML = bits.length ? '<div class="muted">' + bits.join(' · ') + '</div>' : '';
+  }
+
+  const body = $('#gscBody');
+  const rows = g.pages || [];
+  if (body) {
+    body.innerHTML = rows.length
+      ? rows.map(r =>
+          `<tr><td>${escHtml(r.slug || '')}</td>` +
+          `<td>${fmtNum(r.clicks || 0)}</td>` +
+          `<td>${fmtNum(r.impressions || 0)}</td>` +
+          `<td>${r.position == null ? '—' : r.position}</td></tr>`).join('')
+      : `<tr><td colspan="4" class="muted">Данных пока нет. Выберите ресурс и нажмите «Синхронизировать».</td></tr>`;
+  }
+}
+
+async function loadGscSites(btn) {
+  await withBusy(btn, async () => {
+    try {
+      const r = await api.testGsc('');
+      const sites = r.sites || [];
+      const sel = $('#gscSite');
+      sel.innerHTML = `<option value="">— ресурс не выбран —</option>` +
+        sites.map(s => `<option value="${escAttr(s.site_url)}">${escHtml(s.site_url)}` +
+          (s.level ? ` · ${escHtml(s.level)}` : '') + `</option>`).join('');
+      if (S.gsc && S.gsc.site_url) sel.value = S.gsc.site_url;
+      if (sites.length) toast.ok('Ключ рабочий', 'Доступно ресурсов: ' + sites.length);
+      else toast.warn('Ресурсов нет',
+        'Добавьте ' + (r.client_email || 'аккаунт') + ' в пользователи ресурса Search Console.');
+    } catch (e) { toast.err('Не получилось', e); }
+  });
+}
+
+async function saveGscSite(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.gsc = await api.saveGsc(PID, { site_url: $('#gscSite').value });
+      renderGsc();
+      toast.ok('Ресурс сохранён', $('#gscSite').value || 'ресурс снят');
+    } catch (e) { toast.err('Не сохранилось', e); }
+  });
+}
+
+async function runGscSync(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.gsc = await api.syncGsc(PID, gscDays());
+      renderGsc();
+      const s = S.gsc.summary || {};
+      toast.ok('Данные сняты',
+        'Показов ' + fmtNum(s.impressions || 0) + ', кликов ' + fmtNum(s.clicks || 0) + '.');
+      if (s.hint) toast.warn('Не с чем сопоставлять', s.hint);
+    } catch (e) { toast.err('Синхронизация не прошла', e); }
+  });
+}
+
+/* ======================================================================
    РОУТЕР
    ====================================================================== */
 
@@ -8716,11 +9026,13 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
-  if (view === 'gate')  renderGate();
+  if (view === 'passport') initPassport();
+  if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
-  if (view === 'rules') fillRules();
+  if (view === 'rules') { fillRules(); initDesign(); }
   if (view === 'export') renderExport();
   if (view === 'wiring') renderWiring();
+  if (view === 'feedback') initGsc();
 }
 
 function bindStatic() {
@@ -8753,9 +9065,9 @@ function bindStatic() {
     },
     sheet: {
       title: 'Связь с Google Sheets',
-      text: 'Таблица остаётся живой: поправили строку — страницу можно перегенерить.',
-      list: ['Ссылка на лист и доступ по сервисному аккаунту',
-             'Периодическая сверка и отметка изменённых строк'],
+      text: 'Вставьте ссылку на лист, открытый по ссылке.',
+      list: ['Строки тянутся напрямую, без ключей Google',
+             'Повторная загрузка обновляет факты у своих строк'],
     },
     api: {
       title: 'Внешний API как источник',
@@ -8792,21 +9104,13 @@ function bindStatic() {
   $('#keysExampleBtn').onclick = () => {
     $('#keysInput').value =
       'Шут;номер=0;стихия=воздух;планета=Уран\n' +
-      'Маг;номер=1;стихия=огонь;планета=Меркурий\n' +
+      'Ма��;номер=1;стихия=огонь;планета=Меркурий\n' +
       'Жрица;номер=2;стихия=вода;планета=Луна';
     $('#keysInput').dispatchEvent(new Event('input'));
   };
 
   /* --- паспорт --- */
-  $('#analyzeBtn').onclick = () => stubDrawer('Оркестратор — блок 1', [
-    ['Что будет делать', 'Один запрос к сильной модели со всей таблицей и описанием продукта.'],
-    ['Вопрос 1', 'Сколько колонок реально различаются между строками.'],
-    ['Вопрос 2', 'К какому из пяти типов относятся эти страницы.'],
-    ['Вопрос 3', 'Какая стратегия ценности возможна на этих данных.'],
-    ['Вопрос 4', 'Какой потолок страниц имеет смысл.'],
-    ['Вопрос 5', 'Какие ключи выкинуть и по какой причине.'],
-    ['Куда ляжет результат', 'В настройки проекта как паспорт. Новых таблиц в базе не требуется.'],
-  ]);
+  $('#analyzeBtn').onclick = e => runAnalyze(e.currentTarget);
 
   /* --- каркас --- */
   $$('#frameMode button').forEach(b => b.onclick = () => {
@@ -8888,18 +9192,20 @@ function bindStatic() {
     ['Замер', 'Доля вошедших в индекс из этой волны.'],
     ['Решение', 'Больше 50% — следующая волна. Меньше — стоп.'],
   ]);
-  $('#connectGscBtn').onclick = () => stubDrawer('Обратная связь — блок 8', [
-    ['Доступ', 'OAuth к Search Console и выбор сайта.'],
-    ['Сбор', 'Раз в неделю: индекс, показы, позиция по каждому URL.'],
-    ['Влияние', 'Пересчёт весов в гейте и правил отсева в паспорте.'],
-  ]);
-  $('#exportSitemapBtn').onclick = () => toast.soon('sitemap.xml', 'Появится вместе с блоком 6.');
+  $('#connectGscBtn').onclick = e => runGscSync(e.currentTarget);
+  $('#gscLoadSites').onclick = e => loadGscSites(e.currentTarget);
+  $('#gscSaveSite').onclick = e => saveGscSite(e.currentTarget);
+  $$('#gscDays button').forEach(b => b.onclick = () => {
+    $$('#gscDays button').forEach(x => x.classList.toggle('is-on', x === b));
+  });
 
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
+  if ($('#repaintDesignBtn')) $('#repaintDesignBtn').onclick = e => repaintDesign(e.currentTarget);
   $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
   $('#deleteProjectBtn').onclick = () => deleteProject();
   $('#exportBtn').onclick = () => doExport();
+  $('#exportSitemapBtn').onclick = () => doExportSitemap();
 
   wire.onChange(w => {
     const dot = $('#wireDot'), txt = $('#wireText');
@@ -8912,6 +9218,8 @@ function bindStatic() {
 
 function reloadAll() {
   loadKeys(); loadTasks(); loadPages();
+  S.passport = null;
+  if (S.view === 'passport') initPassport(true);
   toast.info('Обновлено');
 }
 
@@ -9102,29 +9410,10 @@ function buildLibraries() {
       `<div class="stub-inline" style="margin-top:10px;">заглушка</div>` +
     `</div>`).join('') + `</div>`;
 
-  const ps = S.project && S.project.settings && S.project.settings.passport;
-  const val = k => (ps && ps[k]) || null;
-
-  $('#q1Box').innerHTML = passportSlot('Различающиеся колонки', val('varied_columns'),
-    'Сейчас считается на клиенте по вкладке «Данные». Оркестратор будет судить строже.');
-  $('#q4Box').innerHTML = passportSlot('Потолок страниц', val('page_cap'),
-    'Сейчас потолок равен числу строк. После блока 1 он может быть меньше.');
-  $('#q5Box').innerHTML =
-    `<div class="stub">` +
-      `<div class="stub-head"><span class="pill soon">Заглушка</span>` +
-      `<span class="stub-title">Список отброшенных ключей</span></div>` +
-      `<div class="stub-text">Здесь появится таблица: ключ, причина отказа и кнопка «всё равно сделать».</div>` +
-      `<ul class="stub-list">` +
-        `<li>Нет данных под выбранную стратегию ценности</li>` +
-        `<li>Строка повторяет другую почти полностью</li>` +
-        `<li>Ключ не подходит под тип страницы</li>` +
-      `</ul>` +
-    `</div>`;
-
   $$('#typePick input, #stratPick input').forEach(inp => {
-    inp.onchange = () => toast.soon('Выбор сохранён локально',
-      'На генерацию он начнёт влиять, когда проектировщик каркаса научится читать паспорт.');
+    inp.onchange = () => savePassportPick();
   });
+  renderPassport();
 }
 
 function passportSlot(label, value, hint) {
@@ -9135,6 +9424,161 @@ function passportSlot(label, value, hint) {
   return `<div class="metric"><div class="metric-k">${escHtml(label)}</div>` +
          `<div class="metric-v ph">—</div>` +
          `<div class="metric-note">${escHtml(hint)}</div></div>`;
+}
+
+/* ----------------------------------------------------------------------
+   БЛОК 1 · ПАСПОРТ ПРОЕКТА
+   Арифметику (вопросы 1, 4, 5) считает бэкенд по таблице,
+   тип и стратегию (вопросы 2, 3) предлагает сильная модель,
+   последнее слово — за человеком (радиокнопки сохраняются сразу).
+   ---------------------------------------------------------------------- */
+
+const PASSPORT_VERDICT = {
+  go:      ['ok',      'Можно генерить'],
+  caution: ['warn',    'Данных впритык'],
+  stop:    ['bad',     'СТОП — данных мало'],
+};
+
+async function initPassport(force) {
+  if (S.passport && !force) { renderPassport(); return; }
+  try { S.passport = await api.getPassport(PID); }
+  catch (e) { toast.err('Паспорт не загрузился', e); return; }
+  renderPassport();
+}
+
+async function runAnalyze(btn) {
+  await withBusy(btn, async () => {
+    try {
+      S.passport = await api.analyzeData(PID);
+      renderPassport();
+      const p = S.passport || {};
+      if (p.llm_error) toast.warn('Модель не ответила', 'Паспорт собран по таблице. ' + p.llm_error);
+      else toast.ok('Анализ готов', p.reason || '');
+    } catch (e) { toast.err('Анализ не прошёл', e); }
+  });
+}
+
+async function savePassportPick() {
+  const t = $('#typePick input:checked');
+  const s = $('#stratPick input:checked');
+  const body = {};
+  if (t) body.page_type = t.value;
+  if (s) body.strategy = s.value;
+  if (!t && !s) return;
+  // пока база не подтвердила — подсветки нет, только «сохраняю…»
+  $$('#typePick .pick-card, #stratPick .pick-card').forEach(c => c.classList.remove('is-on'));
+  [t, s].forEach(inp => {
+    if (!inp) return;
+    const need = inp.closest('.pick-card').querySelector('.pick-need');
+    if (!need) return;
+    let mark = need.querySelector('.pick-db');
+    if (!mark) {
+      mark = document.createElement('span');
+      mark.className = 'pill pick-db';
+      need.insertAdjacentElement('afterbegin', mark);
+    }
+    mark.className = 'pill pick-db';
+    mark.textContent = 'сохраняю…';
+  });
+
+  try {
+    await api.savePassport(PID, body);
+    S.passport = await api.getPassport(PID);   // читаем значение обратно из базы
+    renderPassport();
+    toast.ok('Записано в базу', 'Подсветка стоит только на том, что реально сохранилось.');
+  } catch (e) {
+    renderPassport();
+    toast.err('Не сохранилось', e);
+  }
+}
+
+function renderPassport() {
+  const p = S.passport || {};
+  const st = p.stats || {};
+  const box = $('#passportVerdict');
+
+  if (box) {
+    if (!p.analyzed) {
+      box.innerHTML =
+        `<div class="note info">` +
+          `<span class="note-ico" data-ico="info"></span>` +
+          `<div class="note-body"><b>Анализ ещё не запускался.</b> ` +
+          `Нажмите «Проанализировать данные»: один запрос к сильной модели решит, ` +
+          `стоит ли вообще генерить и сколько.</div>` +
+        `</div>`;
+    } else {
+      const v = PASSPORT_VERDICT[p.verdict] || PASSPORT_VERDICT.caution;
+      const must = (p.must_have || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+      const avoid = (p.avoid || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+      box.innerHTML =
+        `<div class="note ${v[0]}">` +
+          `<span class="note-ico" data-ico="${v[0] === 'ok' ? 'ok' : 'alert'}"></span>` +
+          `<div class="note-body">` +
+            `<b>${escHtml(v[1])}</b> ${escHtml(p.reason || '')}` +
+            (must ? `<div style="margin-top:8px;"><b>Обязательно на каждой странице:</b><ul>${must}</ul></div>` : '') +
+            (avoid ? `<div style="margin-top:6px;"><b>Не писать:</b><ul>${avoid}</ul></div>` : '') +
+            `<div class="muted" style="margin-top:6px;">Источник: ` +
+            `${p.source === 'llm' ? escHtml((p.model || 'модель')) : 'только расчёт по таблице'}` +
+            (p.llm_error ? ' · ' + escHtml(p.llm_error) : '') + `</div>` +
+          `</div>` +
+        `</div>`;
+    }
+    hydrateIcons(box);
+  }
+
+  const varied = st.varied_columns;
+  $('#q1Box').innerHTML = (varied == null)
+    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Данные».')
+    : `<div class="metric accent"><div class="metric-k">Различающиеся колонки</div>` +
+      `<div class="metric-v">${varied} из ${st.columns_total || 0}</div>` +
+      `<div class="metric-note">${escHtml((st.varied_names || []).join(', ') || 'нет ни одной')}` +
+      ((st.constant_names || []).length ? ` · одинаковые везде: ${escHtml(st.constant_names.join(', '))}` : '') +
+      `</div></div>`;
+
+  const cap = p.page_cap;
+  $('#q4Box').innerHTML = (cap == null)
+    ? passportSlot('Потолок страниц', null, 'Появится после анализа.')
+    : `<div class="metric accent"><div class="metric-k">Потолок страниц</div>` +
+      `<div class="metric-v">${cap}</div>` +
+      `<div class="metric-note">Строк в таблице: ${st.rows_total || 0}` +
+      (p.drop_total ? ` · отброшено: ${p.drop_total}` : '') + `</div></div>`;
+
+  const drops = p.drop_keys || [];
+  $('#q5Box').innerHTML = drops.length
+    ? `<table class="tbl"><thead><tr><th>Ключ</th><th>Почему отброшен</th></tr></thead><tbody>` +
+      drops.slice(0, 100).map(d =>
+        `<tr><td>${escHtml(d.key || '—')}</td><td class="muted">${escHtml(d.reason || '')}</td></tr>`).join('') +
+      `</tbody></table>` +
+      (drops.length > 100 ? `<div class="muted" style="margin-top:8px;">… и ещё ${p.drop_total - 100}</div>` : '')
+    : `<div class="muted" style="padding:10px 0;">Все строки годятся: дублей и полупустых строк не найдено.</div>`;
+
+  paintPassportPicks();
+}
+
+/** Подсветка выбора ставится СТРОГО по тому, что вернула база. */
+function paintPassportPicks() {
+  const p = S.passport || {};
+  $$('#typePick .pick-card, #stratPick .pick-card').forEach(card => {
+    const inp = card.querySelector('input');
+    const need = card.querySelector('.pick-need');
+    if (!inp || !need) return;
+    const saved = inp.name === 'ptype' ? (p.page_type || '') : (p.strategy || '');
+    const on = !!saved && inp.value === saved;
+    inp.checked = on;
+    card.classList.toggle('is-on', on);
+    let mark = need.querySelector('.pick-db');
+    if (on) {
+      if (!mark) {
+        mark = document.createElement('span');
+        mark.className = 'pill ok pick-db';
+        need.insertAdjacentElement('afterbegin', mark);
+      }
+      mark.className = 'pill ok pick-db';
+      mark.textContent = 'в базе';
+    } else if (mark) {
+      mark.remove();
+    }
+  });
 }
 
 /* ======================================================================
@@ -9648,9 +10092,12 @@ function renderGate() {
   setText('#lvl4Val', avg === null ? '—' : avg.toFixed(0));
 
   /* развилка */
-  const pass = scored.filter(p => p.quality_score >= 80).length;
-  const redo = scored.filter(p => p.quality_score >= 60 && p.quality_score < 80).length;
-  const drop = scored.filter(p => p.quality_score < 60).length;
+  const gcfg = (typeof GATE_CFG !== 'undefined' && GATE_CFG && GATE_CFG.config) || {};
+  const passAt = Number(gcfg.pass_score) || 80;
+  const redoAt = Number(gcfg.redo_score) || 60;
+  const pass = scored.filter(p => p.quality_score >= passAt).length;
+  const redo = scored.filter(p => p.quality_score >= redoAt && p.quality_score < passAt).length;
+  const drop = scored.filter(p => p.quality_score < redoAt).length;
   setText('#forkPass', scored.length ? fmtNum(pass) : '—');
   setText('#forkRedo', scored.length ? fmtNum(redo) : '—');
   setText('#forkDrop', scored.length ? fmtNum(drop) : '—');
@@ -9997,6 +10444,15 @@ function renderExport() {
   setText('#exportCount', ready ? fmtNum(ready) : '—');
   const btn = $('#exportBtn');
   if (btn) btn.disabled = !ready;
+  const smBtn = $('#exportSitemapBtn');
+  if (smBtn) smBtn.disabled = !ready;
+  const domain = String((S.project && S.project.domain) || '').trim();
+  const hint = $('#exportDomainHint');
+  if (hint) {
+    hint.hidden = !!domain;
+    if (!domain) hint.textContent =
+      'Домен не указан в правилах проекта — в sitemap и robots попадёт example.com.';
+  }
 }
 
 function doExport() {
@@ -10004,6 +10460,16 @@ function doExport() {
   if (!ready) { toast.warn('Нечего выгружать', 'Нет ни одной готовой страницы.'); return; }
   window.location.href = api.exportUrl(PID);
   toast.ok('Архив собирается', 'Браузер начнёт скачивание через пару секунд.');
+}
+
+/* Карта сайта отдельно: удобно, когда страницы уже залиты. */
+function doExportSitemap() {
+  const ready = (S.pages || []).filter(p => p.status === 'ready').length;
+  if (!ready) { toast.warn('Нечего выгружать', 'Нет ни одной готовой страницы.'); return; }
+  window.location.href = api.exportUrl(PID, 'sitemap');
+  const domain = String((S.project && S.project.domain) || '').trim();
+  if (domain) toast.ok('sitemap.xml', 'Адреса собраны по домену ' + domain + '.');
+  else toast.warn('sitemap.xml', 'Домен не указан — в адресах будет example.com.');
 }
 
 /* ======================================================================
@@ -10023,6 +10489,138 @@ async function loadModels() {
     S.models = Array.isArray(res) ? res : (res.models || []);
   } catch (e) { S.models = []; }
   if (S.view === 'rules') fillRules();
+}
+
+/* ======================================================================
+   ДИЗАЙН-ОСНОВА ПРОЕКТА
+
+   Два слоя: тема (цвет/шрифт/радиусы) и макет под тип страницы
+   (срез базы / матрица A×B / расчёт / статус / сводка).
+   Клик по теме сразу привязывает её к проекту.
+   ====================================================================== */
+
+async function initDesign(force) {
+  if (S.design && !force) { renderDesign(); return; }
+  try { S.design = await api.getDesign(PID); }
+  catch (e) { toast.err('Дизайн-основа не загрузилась', e); return; }
+  renderDesign();
+}
+
+function renderDesign() {
+  const d = S.design || {};
+  const themes = d.themes || [];
+  const layouts = d.layouts || [];
+
+  const grid = $('#themeGrid');
+  if (grid) {
+    grid.innerHTML = themes.map(t => {
+      const on = t.id === d.theme;
+      return `<button class="theme-card${on ? ' is-on' : ''}" data-theme="${escAttr(t.id)}" type="button">` +
+        `<span class="theme-shot-wrap">${themePreviewSvg(t.vars)}</span>` +
+        `<span class="theme-meta">` +
+          `<span class="theme-n">${escHtml(t.name)}${on ? ' <i class="theme-on">выбрана</i>' : ''}</span>` +
+          `<span class="theme-t">${escHtml(t.tagline || '')}</span>` +
+          `<span class="theme-m">${escHtml(t.mood || '')}</span>` +
+        `</span>` +
+      `</button>`;
+    }).join('');
+    grid.querySelectorAll('.theme-card').forEach(el => {
+      el.onclick = () => pickTheme(el.dataset.theme);
+    });
+  }
+
+  const pick = $('#layoutPick');
+  if (pick) {
+    const auto = d.layout === 'auto';
+    const autoName = (layouts.find(l => l.id === d.layout_effective) || {}).name || '—';
+    let html = `<button class="pick-card${auto ? ' is-on' : ''}" data-layout="auto" type="button">` +
+      `<span class="pick-ico">${ico('spark', 18)}</span>` +
+      `<span class="pick-body">` +
+        `<span class="pick-title">По паспорту</span>` +
+        `<span class="pick-desc">сейчас: ${escHtml(autoName)}</span>` +
+      `</span>` +
+    `</button>`;
+    html += layouts.map(l => {
+      const on = l.id === d.layout;
+      const lib = (typeof LIB_PAGE_TYPES !== 'undefined'
+        ? LIB_PAGE_TYPES.find(x => x.id === l.id) : null) || {};
+      return `<button class="pick-card${on ? ' is-on' : ''}" data-layout="${escAttr(l.id)}" type="button">` +
+        `<span class="pick-ico">${ico(lib.icon || 'layout', 18)}</span>` +
+        `<span class="pick-body">` +
+          `<span class="pick-title">${escHtml(l.name)}</span>` +
+          `<span class="pick-desc">${escHtml((l.formats || []).map(f => '.' + f).join(' '))}</span>` +
+        `</span>` +
+      `</button>`;
+    }).join('');
+    pick.innerHTML = html;
+    pick.querySelectorAll('.pick-card').forEach(el => {
+      el.onclick = () => pickLayout(el.dataset.layout);
+    });
+  }
+
+  const lay = layouts.find(l => l.id === d.layout_effective);
+  const hint = $('#layoutHint');
+  if (hint) hint.textContent = lay
+    ? 'Hero: ' + lay.hero + '. ' + lay.accent
+    : 'Макет берётся из типа страницы в паспорте.';
+
+  const pill = $('#designPill');
+  if (pill) {
+    const t = themes.find(x => x.id === d.theme) || {};
+    pill.textContent = (t.name || 'тема') + ' · ' + (d.layout_name || 'макет');
+    pill.className = 'pill ok';
+  }
+
+  const note = $('#designNote');
+  if (note && lay) {
+    note.innerHTML =
+      `<div class="note info"><span class="note-ico" data-ico="info"></span><div class="note-body">` +
+      `<b>Что уйдёт сильной модели.</b> Порядок блоков макета «${escHtml(lay.name)}»: ` +
+      escHtml((lay.blocks || []).join(' → ')) + '. ' +
+      `Цвета и шрифты модель не придумывает — она пользуется только токенами темы.` +
+      `</div></div>`;
+    hydrateIcons(note);
+  }
+
+  const st = $('#designState');
+  if (st) st.textContent = d.pages_total
+    ? 'готовых страниц в базе: ' + fmtNum(d.pages_total)
+    : 'Страниц пока нет — тема применится к новым.';
+}
+
+async function pickTheme(id) {
+  if (!id) return;
+  try {
+    S.design = await api.saveDesign(PID, { theme: id });
+    renderDesign();
+    toast.ok('Тема привязана к проекту',
+      S.design.pages_total
+        ? 'Новые страницы будут в ней. Старые — кнопка «Перекрасить».'
+        : 'Все страницы проекта будут в этой теме.');
+  } catch (e) { toast.err('Тема не сохранилась', e); }
+}
+
+async function pickLayout(id) {
+  if (!id) return;
+  try {
+    S.design = await api.saveDesign(PID, { layout: id });
+    renderDesign();
+    toast.ok('Макет обновлён', 'Сильная модель получит новый порядок блоков.');
+  } catch (e) { toast.err('Макет не сохранился', e); }
+}
+
+async function repaintDesign(btn) {
+  const run = async () => {
+    try {
+      const res = await api.repaintDesign(PID);
+      S.design = res;
+      renderDesign();
+      toast.ok('Страницы перекрашены',
+        'обновлено: ' + fmtNum(res.repainted || 0) + '. Текст и мета не тронуты.');
+    } catch (e) { toast.err('Перекраска не удалась', e); }
+  };
+  if (btn && typeof withBusy === 'function') await withBusy(btn, run);
+  else await run();
 }
 
 function fillRules() {
@@ -10097,7 +10695,7 @@ async function deleteProject() {
     await api.deleteProject(PID);
     toast.ok('Проект удалён', 'Возвращаемся к списку…');
     setTimeout(() => location.href = 'index.html', 600);
-  } catch (e) { toast.err('Не удалось удалить', e); }
+  } catch (e) { toast.err('Не удало��ь удалить', e); }
 }
 
 /* ======================================================================
@@ -10575,13 +11173,9 @@ async function req(path, opts = {}) {
    -------------------------------------------------------------------------- */
 
 const API_SOON = new Set([
-  'analyzeData', 'getPassport', 'savePassport',   // Блок 1 — оркестратор
-  'uploadTable', 'previewTable', 'linkSheet',      // вход — таблица данных
   'listLibraries', 'buildFrame',                   // Блок 2 — каркас из библиотеки
-  'getGateConfig', 'saveGateConfig',               // Блок 5 — настройка гейта
   'buildWiring', 'getWiring',                      // Блок 6 — обвязка
   'listWaves', 'createWave', 'publishWave',        // Блок 7 — волны
-  'getFeedback', 'connectSearchConsole',           // Блок 8 — обратная связь
 ]);
 
 const api = {
@@ -10617,7 +11211,7 @@ const api = {
   deletePage:     (id, pid) => req(`/projects/${id}/pages/${pid}`, { method: 'DELETE' }),
   deletePages:    (id, ids) => req(`/projects/${id}/pages/delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
   regeneratePage: (pid)     => req(`/pages/${pid}/regenerate`, { method: 'POST' }),
-  exportUrl:      (id)      => `${API_BASE.replace(/\/+$/, '')}/projects/${id}/export`,
+  exportUrl:      (id, only) => `${API_BASE.replace(/\/+$/, '')}/projects/${id}/export` + (only ? `?only=${encodeURIComponent(only)}` : ''),
 
   /* ---- Чат ---- */
   chatHistory:      (id)      => req(`/chat/${id}/history`),
@@ -10637,15 +11231,15 @@ const api = {
   deleteCustomEndpoint: (id) => req(`/settings/custom-endpoints/${id}`, { method: 'DELETE' }),
   testCustomEndpoint:   (id) => req(`/settings/custom-endpoints/${id}/test`, { method: 'POST' }),
 
-  /* ---- БЛОК 1 — Оркестратор (ещё нет на сервере) ---- */
+  /* ---- БЛОК 1 — Паспорт проекта (готово) ---- */
   analyzeData:  (id)     => req(`/projects/${id}/analyze`, { method: 'POST' }),
   getPassport:  (id)     => req(`/projects/${id}/passport`),
   savePassport: (id, d)  => req(`/projects/${id}/passport`, { method: 'PUT', body: JSON.stringify(d) }),
 
-  /* ---- ВХОД — таблица данных (ещё нет) ---- */
+  /* ---- ВХОД — таблица данных (upload/preview — готовы) ---- */
   uploadTable:  (id, fd) => req(`/projects/${id}/table`, { method: 'POST', body: fd, headers: {} }),
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
-  linkSheet:    (id, u)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify({ url: u }) }),
+  linkSheet:    (id, d)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify(d) }),
 
   /* ---- БЛОК 2 — Библиотеки и проектировщик (ещё нет) ---- */
   listLibraries: ()      => req('/libraries'),
@@ -10664,9 +11258,17 @@ const api = {
   createWave:  (id, d)  => req(`/projects/${id}/waves`, { method: 'POST', body: JSON.stringify(d) }),
   publishWave: (id, w)  => req(`/projects/${id}/waves/${w}/publish`, { method: 'POST' }),
 
-  /* ---- БЛОК 8 — Обратная связь (ещё нет) ---- */
-  getFeedback:          (id) => req(`/projects/${id}/feedback`),
-  connectSearchConsole: (id) => req(`/projects/${id}/feedback/connect`, { method: 'POST' }),
+  /* ---- БЛОК 8 — Search Console (готово) ---- */
+  getGsc:   (id)       => req(`/projects/${id}/gsc`),
+  saveGsc:  (id, d)    => req(`/projects/${id}/gsc`, { method: 'PUT', body: JSON.stringify(d) }),
+  syncGsc:  (id, days) => req(`/projects/${id}/gsc/sync?days=${encodeURIComponent(days || 28)}`, { method: 'POST' }),
+  testGsc:  (key)      => req('/settings/gsc-test', { method: 'POST', body: JSON.stringify({ key: key || '' }) }),
+
+  /* ---- ДИЗАЙН-ОСНОВА — темы и макеты (готово) ---- */
+  listThemes:   ()      => req('/themes'),
+  getDesign:    (id)    => req(`/projects/${id}/design`),
+  saveDesign:   (id, d) => req(`/projects/${id}/design`, { method: 'PUT', body: JSON.stringify(d) }),
+  repaintDesign:(id)    => req(`/projects/${id}/design/apply`, { method: 'POST' }),
 };
 
 /** Готов ли этот метод на бэкенде. */
@@ -10864,13 +11466,19 @@ const CHECK_INFO = {
   self_repetition:        ['Самоповторы', '5.3'],
   intra_page_similarity:  ['Повторы блоков внутри', '5.3'],
   volume:                 ['Объём текста', '5.4'],
-  nausea:                 ['Тошнота', '5.4'],
-  nausea_academic:        ['Академическая тошнота', '5.4'],
-  stop_words:             ['Стоп-слова', '5.4'],
-  water:                  ['Водность', '5.4'],
-  readability:            ['Читаемость', '5.4'],
+  stop_phrases:           ['Стоп-слова (справка)', '5.4'],
   h2_body:                ['Текст под H2', '5.4'],
+  h2_count:               ['Число H2', '5.4'],
+  h2_has_text:            ['Текст под каждым H2', '5.4'],
   structure:              ['Структура', '5.4'],
+  meta_title:             ['Длина title', '5.1'],
+  meta_description:       ['Длина description', '5.1'],
+  h1_single:              ['Ровно один H1', '5.1'],
+  html_complete:          ['HTML не оборван', '5.1'],
+  empty_holes:            ['Заглушки и пустые блоки', '5.1'],
+  slug_collision:         ['Совпадение slug', '5.1'],
+  schema:                 ['JSON по каркасу', '5.1'],
+  right_entity:           ['Страница про свой ключ', '5.3'],
 };
 
 function checkTitle(name) { return (CHECK_INFO[name] || [name])[0]; }
@@ -11336,6 +11944,59 @@ const LIB_STRATEGIES = [
     gives: 'То, что померил только ты', needs: 'Свои замеры' },
 ];
 
+
+/* --------------------------------------------------------------------------
+   12Б. ПРЕВЬЮ ТЕМЫ
+
+   Фото дизайнов рисуем сами из токенов темы: миниатюра всегда
+   совпадает с тем, что реально попадёт на страницу, и не требует
+   картинок в репозитории.
+   -------------------------------------------------------------------------- */
+
+function themePreviewSvg(vars, opts) {
+  const v = vars || {};
+  const g = (k, fb) => v[k] || fb;
+  const bg = g('--t-bg', '#111');
+  const surf = g('--t-surface', 'rgba(255,255,255,.06)');
+  const surf2 = g('--t-surface-2', 'rgba(255,255,255,.1)');
+  const text = g('--t-text', '#fff');
+  const muted = g('--t-muted', '#999');
+  const acc = g('--t-accent', '#d9ae5f');
+  const acc2 = g('--t-accent-2', acc);
+  const line = g('--t-line', 'rgba(255,255,255,.2)');
+  const r = Math.min(14, parseInt(g('--t-radius', '12px'), 10) || 12);
+  const id = 'tg' + Math.random().toString(36).slice(2, 8);
+  const tall = (opts && opts.tall) || false;
+  const h = tall ? 190 : 132;
+
+  const bar = (x, y, w, wid, col, op) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${wid}" rx="${wid / 2}" fill="${col}" opacity="${op}"/>`;
+  const card = (x, y, w, ch) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${ch}" rx="${r}" fill="${surf}" stroke="${line}"/>`;
+
+  return `<svg class="theme-shot" viewBox="0 0 240 ${h}" role="img" aria-hidden="true">` +
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">` +
+      `<stop offset="0" stop-color="${acc}" stop-opacity=".55"/>` +
+      `<stop offset="1" stop-color="${acc2}" stop-opacity=".18"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="240" height="${h}" fill="${bg}"/>` +
+    `<rect x="0" y="0" width="240" height="18" fill="${surf2}"/>` +
+    bar(12, 7, 30, 5, acc, 1) + bar(66, 8, 20, 4, muted, .8) +
+    bar(92, 8, 20, 4, muted, .8) + bar(118, 8, 20, 4, muted, .8) +
+    `<rect x="196" y="5" width="32" height="9" rx="4.5" fill="${acc}"/>` +
+    `<rect x="12" y="28" width="216" height="38" rx="${r}" fill="url(#${id})"/>` +
+    bar(22, 38, 96, 8, text, .92) + bar(22, 52, 150, 5, text, .5) +
+    card(12, 74, 104, 34) + card(124, 74, 104, 34) +
+    bar(22, 84, 60, 5, text, .8) + bar(22, 94, 84, 4, muted, .8) +
+    bar(134, 84, 60, 5, text, .8) + bar(134, 94, 84, 4, muted, .8) +
+    (tall
+      ? card(12, 116, 216, 30) + bar(22, 126, 120, 5, text, .8) +
+        bar(22, 136, 180, 4, muted, .75) +
+        `<rect x="12" y="154" width="216" height="24" rx="${r}" fill="${acc}" opacity=".9"/>`
+      : bar(12, 118, 216, 6, acc, .35)) +
+    `</svg>`;
+}
+
 /* --------------------------------------------------------------------------
    13. СТАРТ
    -------------------------------------------------------------------------- */
@@ -11368,6 +12029,542 @@ function showShortcuts() {
       `<div class="check-row ok"><span class="check-name">${escHtml(r[1])}</span>` +
       `<span class="check-val"><kbd>${escHtml(r[0])}</kbd></span></div>`).join('') + `</div>`,
   });
+}
+
+/* --------------------------------------------------------------------------
+   ВХОД · ТАБЛИЦА ДАННЫХ (CSV / TSV / Excel)
+   Работает на экране «Данные» через api.uploadTable / api.previewTable.
+   Шаг 1 — разбор файла без записи (apply=false),
+   шаг 2 — заливка строк выбранной колонкой-ключом.
+   -------------------------------------------------------------------------- */
+
+function initTableUpload() {
+  const host = document.getElementById('srcPaste');
+  const sources = document.getElementById('dataSources');
+  if (!host || !sources) return;                  // мы не на странице проекта
+  if (document.getElementById('srcTable')) return;
+
+  const PID = new URLSearchParams(location.search).get('id');
+
+  const box = document.createElement('div');
+  box.id = 'srcTable';
+  box.className = 'mt-3';
+  box.hidden = true;
+  box.innerHTML = `
+    <div class="up-drop" id="tblDrop">
+      <div class="up-drop-t">Перетащите файл сюда или нажмите</div>
+      <div class="up-drop-s">CSV, TSV, XLSX · до 12 МБ · первая строка — заголовки колонок</div>
+    </div>
+    <input type="file" class="up-file" id="tblFile" accept=".csv,.tsv,.txt,.xlsx,.xlsm">
+    <div class="up-row">
+      <div class="field">
+        <div class="field-label">Колонка-ключ</div>
+        <select class="select input-sm" id="tblKeyCol" disabled>
+          <option value="">первая колонка</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Режим</div>
+        <select class="select input-sm" id="tblMode">
+          <option value="add">Добавить к текущим</option>
+          <option value="replace">Заменить все строки</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="tblUpload" disabled>Загрузить строки</button>
+      <span class="up-name" id="tblName"></span>
+    </div>
+    <div class="up-prev" id="tblPrev"></div>`;
+  host.insertAdjacentElement('afterend', box);
+
+  /* Живая таблица: тот же разбор, только источник — ссылка на лист. */
+  const sheetBox = document.createElement('div');
+  sheetBox.id = 'srcSheet';
+  sheetBox.className = 'mt-3';
+  sheetBox.hidden = true;
+  sheetBox.innerHTML = `
+    <div class="field">
+      <div class="field-label">Ссылка на Google Sheets</div>
+      <input class="input" id="shUrl" placeholder="https://docs.google.com/spreadsheets/d/…">
+      <div class="field-hint">
+        В таблице: «Поделиться» → «Всем, у кого есть ссылка» → роль «Читатель».
+        Ключи и доступы Google не нужны — лист читается напрямую.
+        Ссылка запоминается: потом достаточно нажать «Загрузить строки».
+      </div>
+    </div>
+    <div class="up-row">
+      <div class="field">
+        <div class="field-label">Колонка-ключ</div>
+        <select class="select input-sm" id="shKeyCol" disabled>
+          <option value="">первая колонка</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Режим</div>
+        <select class="select input-sm" id="shMode">
+          <option value="sync">Обновлять факты у своих строк</option>
+          <option value="add">Только добавлять новые</option>
+          <option value="replace">Заменить все строки</option>
+        </select>
+      </div>
+      <button class="btn" id="shCheck">Проверить лист</button>
+      <button class="btn btn-primary" id="shSync" disabled>Загрузить строки</button>
+      <span class="up-name" id="shName"></span>
+    </div>
+    <div class="up-prev" id="shPrev"></div>`;
+  box.insertAdjacentElement('afterend', sheetBox);
+
+  const drop   = box.querySelector('#tblDrop');
+  const input  = box.querySelector('#tblFile');
+  const keySel = box.querySelector('#tblKeyCol');
+  const mode   = box.querySelector('#tblMode');
+  const btn    = box.querySelector('#tblUpload');
+  const nameEl = box.querySelector('#tblName');
+  const prev   = box.querySelector('#tblPrev');
+
+  let picked = null;        // выбранный файл
+  let busy = false;
+  let loadedSaved = false;
+  let savedMeta = null;
+
+  /* Карта колонок + первые строки. */
+  function renderPreview(meta, into) {
+    const out = into || prev;
+    if (!meta || !(meta.columns || []).length) { out.innerHTML = ''; return; }
+    const cols = meta.columns;
+    const varied = cols.filter(c => (c.variability || 0) >= 0.5).length;
+    const rows = meta.sample || [];
+
+    const head = `
+      <div class="metrics mt-3">
+        <div class="metric"><div class="metric-k">Строк</div>
+          <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
+        <div class="metric"><div class="metric-k">Колонок</div>
+          <div class="metric-v">${cols.length}</div></div>
+        <div class="metric"><div class="metric-k">Различаются</div>
+          <div class="metric-v">${varied}</div>
+          <div class="metric-note">чем больше разных колонок, тем выше потолок уникальности</div></div>
+        <div class="metric"><div class="metric-k">Ключ</div>
+          <div class="metric-v lg">${escHtml(meta.key_column || '—')}</div></div>
+      </div>`;
+
+    const map = `<div class="cols mt-3">` + cols.map(c => {
+      const pct = Math.round((c.variability || 0) * 100);
+      const tone = pct >= 50 ? 'ok' : (pct >= 15 ? 'warn' : 'bad');
+      return `<div class="col-card">
+        <div class="col-name"><span>${escHtml(c.name)}</span>
+          <span class="pill ${tone}">${pct}%</span></div>
+        <div class="col-note">${escHtml(c.sample || 'пусто')}</div>
+        <div class="col-nums">заполнено ${Math.round((c.fill_rate || 0) * 100)}% · уникальных ${fmtNum(c.unique || 0)}</div>
+        <div class="bar"><i class="bar-fill" style="width:${pct}%"></i></div>
+      </div>`;
+    }).join('') + `</div>`;
+
+    const names = cols.map(c => c.name);
+    const table = !rows.length ? '' : `
+      <div class="hr-label">Первые строки</div>
+      <div class="up-prev-wrap">
+        <table class="up-prev-tbl">
+          <thead><tr>${names.map(n =>
+            `<th>${escHtml(n)}${n === meta.key_column ? ' · ключ' : ''}</th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r =>
+            `<tr>${names.map(n => `<td>${escHtml(String(r[n] == null ? '' : r[n]))}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+
+    out.innerHTML = head + map + table;
+  }
+
+  /* Отправка файла. apply=false — только разобрать и показать. */
+  async function send(apply) {
+    if (!picked || !PID || busy) return null;
+    busy = true;
+    btn.disabled = true;
+    const label = btn.textContent;
+    if (apply) btn.textContent = 'Загружаю…';
+    else prev.innerHTML = `<div class="muted mt-3">Разбираю файл…</div>`;
+    try {
+      const fd = new FormData();
+      fd.append('file', picked);
+      fd.append('key_column', apply ? (keySel.value || '') : '');
+      fd.append('replace', apply && mode.value === 'replace' ? 'true' : 'false');
+      fd.append('apply', apply ? 'true' : 'false');
+      const meta = await api.uploadTable(PID, fd);
+      renderPreview(meta);
+      return meta;
+    } catch (e) {
+      prev.innerHTML = `<div class="note bad mt-3"><div class="note-body">${escHtml(e.message || 'Ошибка загрузки')}</div></div>`;
+      toast.err('Таблица данных', e);
+      return null;
+    } finally {
+      busy = false;
+      btn.textContent = label;
+      btn.disabled = !picked;
+    }
+  }
+
+  async function choose(file) {
+    if (!file) return;
+    picked = file;
+    nameEl.textContent = `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} КБ`;
+    btn.disabled = false;
+    const meta = await send(false);
+    keySel.innerHTML = '';
+    keySel.disabled = true;
+    if (meta && (meta.columns || []).length) {
+      meta.columns.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.name;
+        o.textContent = `${c.name} · уник. ${c.unique}`;
+        keySel.appendChild(o);
+      });
+      keySel.value = meta.key_column || meta.columns[0].name;
+      keySel.disabled = false;
+      keySel.onchange = () => {
+        const c = meta.columns.find(x => x.name === keySel.value);
+        if (c && (c.variability || 0) < 1) {
+          toast.info('Ключ с повторами',
+            `В колонке «${c.name}» есть одинаковые значения — дубли будут пропущены`);
+        }
+      };
+    }
+  }
+
+  /* Выбор файла: клик и drag-n-drop */
+  drop.onclick = () => input.click();
+  input.onchange = () => choose(input.files && input.files[0]);
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.add('is-over');
+  }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.remove('is-over');
+  }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) choose(f);
+  });
+
+  /* Заливка строк */
+  btn.onclick = async () => {
+    if (mode.value === 'replace') {
+      const ok = await confirmDialog({
+        title: 'Заменить все строки?',
+        text: 'Текущие строки удалятся вместе с их задачами и страницами.',
+        confirm: 'Заменить',
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    const meta = await send(true);
+    if (!meta) return;
+    const msg = `Добавлено ${fmtNum(meta.created || 0)} из ${fmtNum(meta.rows_total || 0)}` +
+      (meta.skipped_duplicates ? `, дублей ${meta.skipped_duplicates}` : '') +
+      (meta.skipped_empty ? `, без ключа ${meta.skipped_empty}` : '');
+    toast.ok('Строки загружены', msg);
+    const reload = document.getElementById('keysReload');
+    if (reload) reload.click();                   // перерисовать таблицу строк
+  };
+
+  /* ---- Живая таблица ---- */
+
+  const shUrl   = sheetBox.querySelector('#shUrl');
+  const shKey   = sheetBox.querySelector('#shKeyCol');
+  const shMode  = sheetBox.querySelector('#shMode');
+  const shCheck = sheetBox.querySelector('#shCheck');
+  const shSync  = sheetBox.querySelector('#shSync');
+  const shName  = sheetBox.querySelector('#shName');
+  const shPrev  = sheetBox.querySelector('#shPrev');
+
+  let shBusy = false;
+
+  function shFillKeys(meta) {
+    const cols = (meta && meta.columns) || [];
+    if (!cols.length) return;
+    shKey.innerHTML = '';
+    cols.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.name;
+      o.textContent = `${c.name} · уник. ${c.unique}`;
+      shKey.appendChild(o);
+    });
+    shKey.value = meta.key_column || cols[0].name;
+    shKey.disabled = false;
+  }
+
+  /* apply=false — только прочитать лист и показать карту колонок. */
+  async function shSend(apply) {
+    const url = (shUrl.value || '').trim();
+    if (!url || !PID || shBusy) return null;
+    shBusy = true;
+    shCheck.disabled = true;
+    shSync.disabled = true;
+    const label = shSync.textContent;
+    if (apply) shSync.textContent = 'Загружаю…';
+    else shPrev.innerHTML = `<div class="muted mt-3">Читаю лист…</div>`;
+    try {
+      const meta = await api.linkSheet(PID, {
+        url,
+        key_column: apply ? (shKey.value || '') : '',
+        apply,
+        replace: apply && shMode.value === 'replace',
+        sync: shMode.value === 'sync',
+      });
+      renderPreview(meta, shPrev);
+      shFillKeys(meta);
+      shName.textContent = `в листе ${fmtNum(meta.rows_total || 0)} ` +
+        plural(meta.rows_total || 0, 'строка', 'строки', 'строк');
+      return meta;
+    } catch (e) {
+      shPrev.innerHTML = `<div class="note bad mt-3"><div class="note-body">${escHtml(e.message || 'Не удалось прочитать лист')}</div></div>`;
+      toast.err('Google Sheets', e);
+      return null;
+    } finally {
+      shBusy = false;
+      shCheck.disabled = false;
+      shSync.textContent = label;
+      shSync.disabled = !(shUrl.value || '').trim();
+    }
+  }
+
+  shUrl.oninput = () => { shSync.disabled = !(shUrl.value || '').trim(); };
+  shCheck.onclick = () => shSend(false);
+  shSync.onclick = async () => {
+    if (shMode.value === 'replace') {
+      const ok = await confirmDialog({
+        title: 'Заменить все строки?',
+        text: 'Текущие строки удалятся вместе с их задачами и страницами.',
+        confirm: 'Заменить',
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    const meta = await shSend(true);
+    if (!meta) return;
+    const msg = `Добавлено ${fmtNum(meta.created || 0)}` +
+      (meta.updated ? `, обновлено ${fmtNum(meta.updated)}` : '') +
+      (meta.skipped_duplicates ? `, без изменений ${fmtNum(meta.skipped_duplicates)}` : '') +
+      (meta.skipped_empty ? `, без ключа ${fmtNum(meta.skipped_empty)}` : '');
+    toast.ok('Лист синхронизирован', msg);
+    const reload = document.getElementById('keysReload');
+    if (reload) reload.click();
+  };
+
+  /* У карточек CSV и Sheets теперь реальная форма, а не заглушка. */
+  ['csv', 'sheet'].forEach(src => {
+    const card = sources.querySelector(`.pick-card[data-src="${src}"]`);
+    if (!card) return;
+    const need = card.querySelector('.pick-need');
+    if (need) need.remove();
+    const soon = card.querySelector('.pill.soon');
+    if (soon) { soon.className = 'pill ok'; soon.textContent = 'Готово'; }
+  });
+
+  /* Сохранённая карта колонок тянется один раз и годится обоим источникам. */
+  async function loadSaved() {
+    if (loadedSaved) return savedMeta;
+    loadedSaved = true;
+    try { savedMeta = await api.previewTable(PID); }
+    catch (_) { savedMeta = null; }               // превью необязательно
+    return savedMeta;
+  }
+
+  sources.addEventListener('click', async e => {
+    const card = e.target.closest && e.target.closest('.pick-card');
+    if (!card) return;
+    const src = card.dataset.src;
+    const isCsv = src === 'csv';
+    const isSheet = src === 'sheet';
+    box.hidden = !isCsv;
+    sheetBox.hidden = !isSheet;
+    if (!isCsv && !isSheet) return;
+    // своим обработчиком страница показала заглушку — убираем её
+    const stub = document.getElementById('srcStub');
+    if (stub) stub.hidden = true;
+    const paste = document.getElementById('srcPaste');
+    if (paste) paste.hidden = true;
+    if (!PID) return;
+    const saved = await loadSaved();
+    if (!saved || !(saved.columns || []).length) return;
+    renderPreview(saved, isSheet ? shPrev : prev);
+    if (isSheet) {
+      if (!shUrl.value && saved.sheet_url) shUrl.value = saved.sheet_url;
+      if (saved.source === 'sheet') shFillKeys(saved);
+      shSync.disabled = !(shUrl.value || '').trim();
+    }
+  });
+}
+
+/* --------------------------------------------------------------------------
+   ГЕЙТ КАЧЕСТВА — пороги и отключение проверок.
+
+   Главное: часть проверок Google не использует вообще — тошнота,
+   водность, индексы читаемости, meta keywords. Они выключены на
+   бэкенде и показаны здесь с пометкой, чтобы было видно почему.
+   -------------------------------------------------------------------------- */
+
+let GATE_CFG = null;
+let gateBound = false;
+
+const GATE_GOOGLE = {
+  uses:     ['ok',      'Google учитывает'],
+  indirect: ['warn',    'влияет косвенно'],
+  ignores:  ['neutral', 'Google не смотрит'],
+};
+
+function gatePid() { return new URLSearchParams(location.search).get('id'); }
+
+async function initGateConfig(force) {
+  const host = document.getElementById('gateChecks');
+  const pid = gatePid();
+  if (!host || !pid) return;
+  if (GATE_CFG && !force) { renderGateConfig(); return; }
+
+  host.innerHTML = '<div class="stub-text">Загружаем настройки гейта…</div>';
+  try {
+    GATE_CFG = await api.getGateConfig(pid);
+  } catch (e) {
+    GATE_CFG = null;
+    host.innerHTML = '<div class="stub-text">' +
+      escHtml(e.message || 'Настройки гейта не загрузились') + '</div>';
+    return;
+  }
+  bindGateConfig();
+  renderGateConfig();
+}
+
+function renderGateConfig() {
+  if (!GATE_CFG) return;
+  const cfg = GATE_CFG.config || {};
+  const put = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+
+  put('gateMinChars', cfg.min_chars || 0);
+  put('gateUniq', Math.round((Number(cfg.uniqueness_min) || 0) * 100));
+  put('gateSelfRep', cfg.self_repetition_max);
+  put('gateIntra', cfg.intra_page_max);
+  put('gatePass', cfg.pass_score);
+  put('gateRedo', cfg.redo_score);
+
+  const checks = GATE_CFG.checks || [];
+  const off = checks.filter(c => !c.enabled).length;
+  const pill = document.getElementById('gateOffPill');
+  if (pill) pill.textContent = off ? ('выключено ' + off) : 'все включены';
+
+  const groups = [
+    ['5.1', '5.1 · Блокировки'],
+    ['5.2', '5.2 · Факты'],
+    ['5.3', '5.3 · Уникальность'],
+    ['5.4', '5.4 · Качество текста'],
+  ];
+
+  const html = groups.map(([lvl, title]) => {
+    const items = checks.filter(c => c.level === lvl);
+    if (!items.length) return '';
+    return `<div class="hr-label">${escHtml(title)}</div>` +
+      `<div class="checks-list">` + items.map(c => {
+        const g = GATE_GOOGLE[c.google] || GATE_GOOGLE.indirect;
+        const total = (c.ok || 0) + (c.fail || 0);
+        const stat = total ? `${c.ok}/${total}` : '—';
+        return `<label class="check-row" title="${escAttr(c.key)}">` +
+          `<span class="check-name">` +
+            `<input type="checkbox" class="check" data-gate-key="${escAttr(c.key)}"` +
+              `${c.enabled ? ' checked' : ''}${c.locked ? ' disabled' : ''}> ` +
+            `${escHtml(c.label)} <span class="pill ${g[0]}">${escHtml(g[1])}</span>` +
+            (c.locked ? ` <span class="pill neutral">обязательная</span>` : '') +
+            `<span class="muted" style="display:block;margin-top:2px;">${escHtml(c.note || '')}</span>` +
+          `</span>` +
+          `<span class="check-val">${stat}</span>` +
+        `</label>`;
+      }).join('') + `</div>`;
+  }).join('');
+
+  document.getElementById('gateChecks').innerHTML = html;
+
+  const note = document.getElementById('gateNote');
+  if (note) {
+    note.innerHTML =
+      '<b>Что убрано и почему.</b> Тошнота (классическая и академическая), водность, ' +
+      'индекс читаемости Флеша и meta keywords выключены: Google прямо говорит, что ' +
+      'понятия оптимальной плотности слов не существует, алгоритмов на базовых индексах ' +
+      'читаемости нет, а тег keywords игнорируется с 2009 года. Отключённые проверки ' +
+      'не считаются при генерации и вычищаются из уже готовых страниц при сохранении.';
+  }
+
+  /* подписи развилки — из тех же настроек */
+  const ranges = document.querySelectorAll('#view-gate .fork-range');
+  if (ranges.length === 3) {
+    ranges[0].textContent = '≥ ' + cfg.pass_score;
+    ranges[1].textContent = cfg.redo_score + ' — ' + cfg.pass_score;
+    ranges[2].textContent = '< ' + cfg.redo_score;
+  }
+}
+
+function bindGateConfig() {
+  if (gateBound) return;
+  gateBound = true;
+
+  const save = document.getElementById('gateSave');
+  if (save) save.onclick = () => saveGateConfigUI(save);
+
+  const reset = document.getElementById('gateReset');
+  if (reset) reset.onclick = () => {
+    if (!GATE_CFG) return;
+    const def = GATE_CFG.defaults || {};
+    GATE_CFG.config = Object.assign({}, def);
+    const offDef = def.disabled || [];
+    GATE_CFG.checks = (GATE_CFG.checks || []).map(c =>
+      Object.assign({}, c, { enabled: offDef.indexOf(c.key) === -1 }));
+    renderGateConfig();
+    toast.info('Значения по умолчанию', 'Нажмите «Сохранить», чтобы применить');
+  };
+}
+
+async function saveGateConfigUI(btn) {
+  const pid = gatePid();
+  if (!pid || !GATE_CFG) return;
+
+  const num = (id, def) => {
+    const el = document.getElementById(id);
+    const v = el ? parseFloat(String(el.value).replace(',', '.')) : NaN;
+    return Number.isFinite(v) ? v : def;
+  };
+
+  const disabled = Array.from(document.querySelectorAll('[data-gate-key]'))
+    .filter(el => !el.checked && !el.disabled)
+    .map(el => el.getAttribute('data-gate-key'));
+
+  const body = {
+    min_chars: Math.round(num('gateMinChars', 0)),
+    uniqueness_min: Math.max(0, Math.min(95, num('gateUniq', 80))) / 100,
+    self_repetition_max: num('gateSelfRep', 0.08),
+    intra_page_max: num('gateIntra', 0.6),
+    pass_score: Math.round(num('gatePass', 80)),
+    redo_score: Math.round(num('gateRedo', 60)),
+    disabled: disabled,
+    apply_to_existing: true,
+  };
+
+  const run = async () => {
+    try {
+      const res = await api.saveGateConfig(pid, body);
+      const parts = [];
+      if (res && res.cleaned) parts.push('очищено страниц: ' + res.cleaned);
+      if (res && res.restored) parts.push('стали готовыми: ' + res.restored);
+      toast.ok('Гейт сохранён', parts.join(', ') || 'Настройки применены');
+      await initGateConfig(true);
+      if (typeof loadPages === 'function') await loadPages(true);
+      if (typeof renderGate === 'function') renderGate();
+    } catch (e) {
+      toast.err('Не удалось сохранить гейт', e);
+    }
+  };
+
+  if (btn && typeof withBusy === 'function') await withBusy(btn, run);
+  else await run();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTableUpload);
+} else {
+  initTableUpload();
 }
 
 
@@ -13405,7 +14602,13 @@ body.is-plain {
 .plain-shell .canvas {
   flex: 1;
   padding: 34px 28px 64px;
+  /* страница без рельсы едет целиком: canvas не должен быть скролл-контейнером,
+     иначе overscroll-behavior:contain из блока 28 глотает колесо */
+  min-height: 0;
+  overflow: visible;
+  overscroll-behavior: auto;
 }
+.plain-shell { min-height: 100vh; height: auto; }
 .plain-shell .wrap {
   width: 100%;
   max-width: var(--content-max);
