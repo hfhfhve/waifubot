@@ -246,6 +246,12 @@
             </div>
             <div class="panel-body">
               <label class="field">
+                <span class="field-label">Сильная модель — анализ данных и паспорт проекта <b id="passportPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="passportPrompt" rows="8" spellcheck="false"
+                          placeholder="Ты SEO-оркестратор…"></textarea>
+                <span class="field-hint">Первый шаг: читает карту колонок и решает тип страницы, стратегию, макет и вердикт. Ответ только JSON — формат ответа подставляет система.</span>
+              </label>
+              <label class="field">
                 <span class="field-label">Дорогая модель — проектировщик каркаса <b id="strongPromptLen" class="raw-badge">0 симв.</b></span>
                 <textarea class="textarea code" id="strongPrompt" rows="14" spellcheck="false"
                           placeholder="Ты — старший SEO-архитектор…"></textarea>
@@ -365,6 +371,7 @@ async function load() {
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
 
+  $('#passportPrompt').value = promptText(val('passport_system_prompt'));
   $('#strongPrompt').value = promptText(val('strong_system_prompt'));
   $('#cheapPrompt').value = promptText(val('cheap_system_prompt'));
   paintPromptLens();
@@ -393,12 +400,14 @@ function paintPromptLens() {
     const n = ($(el) && $(el).value.length) || 0;
     if ($(id)) $(id).textContent = fmtNum(n) + '\u00a0симв.';
   };
+  put('#passportPromptLen', '#passportPrompt');
   put('#strongPromptLen', '#strongPrompt');
   put('#cheapPromptLen', '#cheapPrompt');
 }
 
 async function savePrompts(btn) {
   const payload = {
+    passport_system_prompt: { value: $('#passportPrompt').value },
     strong_system_prompt: { value: $('#strongPrompt').value },
     cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
@@ -605,6 +614,7 @@ async function saveAll(btn) {
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
     gsc_service_account: { value: $('#gscKey').value.trim() },
+    passport_system_prompt: { value: $('#passportPrompt').value },
     strong_system_prompt: { value: $('#strongPrompt').value },
     cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
