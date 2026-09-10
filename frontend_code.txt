@@ -7626,7 +7626,7 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Вход · делается один раз</div>
               <h1>Данные</h1>
               <p class="view-sub">
-                Одна строка — одна будущая страница. Чем больше колонок реально различается м����ду строками,
+                Одна строка — одна будущая страница. Чем больше колонок реально различается между строками,
                 тем выше потолок уникальности и тем меньше страниц отлетит на гейте.
               </p>
             </div>
@@ -7766,8 +7766,8 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Блок 1 · решение до генерации</div>
               <h1>Паспорт проекта</h1>
               <p class="view-sub">
-                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
-                Здесь есть развилка «данных мало — С��О��», которой нет ни у одного платного сервиса.
+                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и сколько.
+                Здесь есть развилка «данных мало — СТОП», которой нет ни у одного платного сервиса.
               </p>
             </div>
             <div class="view-actions">
@@ -7783,7 +7783,7 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопр��с 1 · ������колько колонок реально различается</div>
+                  <div class="panel-title">Вопрос 1 · Сколько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -7937,7 +7937,7 @@ load();
                 <div class="panel-head">
                   <div class="panel-head-body">
                     <div class="panel-title">Схема полей (JSON)</div>
-                    <div class="panel-sub">По ней дешёвая модель отдаёт тексты — и ничего кром�� текстов.</div>
+                    <div class="panel-sub">По ней дешёвая модель отдаёт тексты — и ничего кроме текстов.</div>
                   </div>
                 </div>
                 <div class="panel-body">
@@ -8056,7 +8056,7 @@ load();
                   <span class="switch-track"><i></i></span>
                   <span class="switch-text">
                     <span class="switch-title">Параллельно</span>
-                    <span class="switch-desc">Быстрее, но больше ш����сов на лимит провайдера</span>
+                    <span class="switch-desc">Быстрее, но больше шансов на лимит провайдера</span>
                   </span>
                 </label>
 
@@ -8339,7 +8339,7 @@ load();
                 <div class="seg seg-sm" id="pagesSort">
                   <button data-ps="new" class="is-on">Новые</button>
                   <button data-ps="score">По баллу</button>
-                  <button data-ps="uniq">По у��икальности</button>
+                  <button data-ps="uniq">По уникальности</button>
                 </div>
                 <button class="btn btn-sm" id="pagesReload"><span data-ico-sm="refresh"></span></button>
               </div>
@@ -8584,7 +8584,7 @@ load();
               <h1>Обратная связь</h1>
               <p class="view-sub">
                 Раз в неделю система спрашивает Search Console по каждой странице:
-                в индексе? есть показы? какая позиция? И после этого меняет веса �� гейте
+                в индексе? есть показы? какая позиция? И после этого меняет веса в гейте
                 и правила отбора в паспорте.
               </p>
             </div>
@@ -8723,7 +8723,7 @@ load();
               <div class="panel-head">
                 <div class="panel-head-body">
                   <div class="panel-title">Модели</div>
-                  <div class="panel-sub">Сильная рисует каркас один раз, дешё��ая заполняет каждую строку</div>
+                  <div class="panel-sub">Сильная рисует каркас один раз, дешёвая заполняет каждую строку</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -8891,7 +8891,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 
 <script>
 /* ==========================================================================
@@ -9228,7 +9228,7 @@ function bindStatic() {
   $('#keysExampleBtn').onclick = () => {
     $('#keysInput').value =
       'Шут;номер=0;стихия=воздух;планета=Уран\n' +
-      'Ма��;номер=1;стихия=огонь;планета=Меркурий\n' +
+      'Маг;номер=1;стихия=огонь;планета=Меркурий\n' +
       'Жрица;номер=2;стихия=вода;планета=Луна';
     $('#keysInput').dispatchEvent(new Event('input'));
   };
@@ -9305,7 +9305,7 @@ function bindStatic() {
   $('#buildWiringBtn').onclick = () => stubDrawer('Обвязка — блок 6', [
     ['Canonical', 'Шаблон адреса по домену проекта и slug страницы.'],
     ['Sitemap', 'Только страницы в статусе «Готова», lastmod из даты генерации.'],
-    ['Schema', 'Тип раз��етки из типа страницы в паспорте.'],
+    ['Schema', 'Тип разметки из типа страницы в паспорте.'],
     ['Внутренние ссылки', '3–5 соседей по близости, без пар со схожестью выше 0.90.'],
     ['Где взять данные', 'У каждой страницы уже записан ближайший сосед и его схожесть.'],
   ]);
@@ -9348,7 +9348,7 @@ function reloadAll() {
 
 function stubDrawer(title, rows) {
   drawer.open({
-    eyebrow: 'Заглушка �� бэкенд ещё не подключён',
+    eyebrow: 'Заглушка — бэкенд ещё не подключён',
     title: title,
     body:
       `<div class="note info" style="margin:0 0 16px;">` +
@@ -9805,7 +9805,7 @@ async function approveFrame(btn) {
       await api.approveTemplate(PID, S.template.id);
       S.template.status = 'approved';
       paintFrameState();
-      toast.ok('Каркас утверждён', 'Теп��рь можно запускать генерацию.');
+      toast.ok('Каркас утверждён', 'Теперь можно запускать генерацию.');
     } catch (e) { toast.err('Не удалось утвердить', e); }
   });
 }
@@ -10119,7 +10119,7 @@ async function openTaskDrawer(taskId) {
       ? `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
         `<div class="note-body">${escHtml(String(t.error))}</div></div>` : '') +
     `<details class="fold"><summary>Промпт, который ушёл в модель</summary>` +
-      `<pre class="pre">${escHtml((data && data.prompt) || 'Промпт ��е сохранён')}</pre></details>` +
+      `<pre class="pre">${escHtml((data && data.prompt) || 'Промпт не сохранён')}</pre></details>` +
     attempts.map(a =>
       `<details class="fold"><summary>Попытка ${a.n} — ${a.ok ? 'успех' : 'ошибка'}` +
         (a.chars ? ` · ${fmtNum(a.chars)} симв.` : '') + `</summary>` +
@@ -10174,7 +10174,7 @@ async function retryFailed(btn) {
       if (!res.retried) toast.warn('Нечего перезапускать', res.reason || '');
       else toast.ok('Перезапущено', res.retried + ' ' + plural(res.retried, 'задача', 'задачи', 'задач'));
       loadTasks(true);
-    } catch (e) { toast.err('Не уд��лось перезапустить', e); }
+    } catch (e) { toast.err('Не удалось перезапустить', e); }
   });
 }
 
@@ -10496,7 +10496,7 @@ async function regenPage(pid, btn) {
 async function delPage(pid) {
   const ok = await confirmDialog({
     title: 'Удалить страницу?',
-    text: 'Она ��счезнет из корпуса — уникальность остальных страниц пересчитается п��и следующем прогоне.',
+    text: 'Она исчезнет из корпуса — уникальность остальных страниц пересчитается при следующем прогоне.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10513,7 +10513,7 @@ async function deleteSelected(btn) {
   if (!ids.length) return;
   const ok = await confirmDialog({
     title: 'Удалить ' + ids.length + ' ' + plural(ids.length, 'страницу', 'страницы', 'страниц') + '?',
-    text: '��ействие неотменимо.',
+    text: 'Действие неотменимо.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10799,7 +10799,7 @@ async function deleteProject() {
     await api.deleteProject(PID);
     toast.ok('Проект удалён', 'Возвращаемся к списку…');
     setTimeout(() => location.href = 'index.html', 600);
-  } catch (e) { toast.err('Не удало��ь удалить', e); }
+  } catch (e) { toast.err('Не удалось удалить', e); }
 }
 
 /* ======================================================================
