@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 9af71c618e0f882637ba4bc630288473ee5758f7
-# built:  2026-09-10 10:46 UTC
+# commit: aa6a22e6a2f55e88711354134b74e5cde3af02c4
+# built:  2026-09-10 10:52 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -9,7 +9,7 @@ smm/app.js  (1498 строк)
 smm/index.html  (327 строк)
 smm/project.html  (3428 строк)
 smm/robots.txt  (4 строк)
-smm/settings.html  (660 строк)
+smm/settings.html  (739 строк)
 smm/style.css  (2617 строк)
 
 ════════════════════════════════════════════════════════
@@ -5338,7 +5338,7 @@ Disallow: /
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=30">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -5385,6 +5385,7 @@ Disallow: /
         <nav class="set-nav">
           <a class="set-nav-item is-active" href="#s-wire"><span data-ico-sm="link"></span> Связь с бэкендом</a>
           <a class="set-nav-item" href="#s-models"><span data-ico-sm="spark"></span> Модели</a>
+          <a class="set-nav-item" href="#s-prompts"><span data-ico-sm="keyboard"></span> Промпты</a>
           <a class="set-nav-item" href="#s-quality"><span data-ico-sm="shield"></span> Качество</a>
           <a class="set-nav-item" href="#s-endpoints"><span data-ico-sm="code"></span> Свои API</a>
           <a class="set-nav-item" href="#s-gsc"><span data-ico-sm="radar"></span> Search Console</a>
@@ -5567,6 +5568,34 @@ Disallow: /
             </div>
           </section>
 
+          <!-- ПРОМПТЫ -->
+          <section class="panel" id="s-prompts">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Промпты моделей</div>
+                <div class="panel-sub">Системные инструкции. Сохраняются в базу как есть — экранировать ничего не надо.</div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-primary btn-sm" id="savePromptsBtn" type="button"><span data-ico-sm="check"></span> Сохранить промпты</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <label class="field">
+                <span class="field-label">Дорогая модель — проектировщик каркаса <b id="strongPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="strongPrompt" rows="14" spellcheck="false"
+                          placeholder="Ты — старший SEO-архитектор…"></textarea>
+                <span class="field-hint">Работает в чате проекта. Блок «ДИЗАЙН-ОСНОВА ПРОЕКТА» система добавляет сама — цвета и шрифты здесь писать не нужно.</span>
+              </label>
+              <label class="field">
+                <span class="field-label">Дешёвая модель — заполнитель страниц <b id="cheapPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="cheapPrompt" rows="12" spellcheck="false"
+                          placeholder="Ты — автор programmatic SEO-страниц…"></textarea>
+                <span class="field-hint">Работает на каждой странице генерации. Здесь важны только правила JSON и длины полей.</span>
+              </label>
+              <div id="promptsNote"></div>
+            </div>
+          </section>
+
           <section class="panel" id="s-look">
             <div class="panel-head">
               <div class="panel-head-body">
@@ -5672,6 +5701,10 @@ async function load() {
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
 
+  $('#strongPrompt').value = promptText(val('strong_system_prompt'));
+  $('#cheapPrompt').value = promptText(val('cheap_system_prompt'));
+  paintPromptLens();
+
   const gk = val('gsc_service_account');
   $('#gscKey').value = typeof gk === 'string' ? gk : (gk ? JSON.stringify(gk, null, 2) : '');
   paintGscPill();
@@ -5681,6 +5714,47 @@ async function load() {
   loadModels();
   loadProviders();
   loadEndpoints();
+}
+
+/* ---------- промпты ---------- */
+function promptText(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) return v.join('\n');
+  return JSON.stringify(v, null, 2);
+}
+
+function paintPromptLens() {
+  const put = (id, el) => {
+    const n = ($(el) && $(el).value.length) || 0;
+    if ($(id)) $(id).textContent = fmtNum(n) + '\u00a0симв.';
+  };
+  put('#strongPromptLen', '#strongPrompt');
+  put('#cheapPromptLen', '#cheapPrompt');
+}
+
+async function savePrompts(btn) {
+  const payload = {
+    strong_system_prompt: { value: $('#strongPrompt').value },
+    cheap_system_prompt: { value: $('#cheapPrompt').value },
+  };
+  await withBusy(btn, async () => {
+    try {
+      const res = await api.updateSettings(payload);
+      SET = (res && res.settings) ? res.settings : Object.assign({}, SET, payload);
+      renderRaw();
+      paintPromptLens();
+      $('#promptsNote').innerHTML =
+        `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
+        `<div class="note-body"><b>Сохранено.</b> Новые генерации пойдут уже по этим инструкциям.</div></div>`;
+      toast.ok('Промпты сохранены');
+    } catch (e) {
+      $('#promptsNote').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body">${escHtml(e.message)}</div></div>`;
+      toast.err('Не удалось сохранить', e);
+    }
+  });
 }
 
 /* Список всех значений с сервера.
@@ -5868,6 +5942,8 @@ async function saveAll(btn) {
     max_nausea: { value: Number($('#maxNausea').value) || 7 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
     gsc_service_account: { value: $('#gscKey').value.trim() },
+    strong_system_prompt: { value: $('#strongPrompt').value },
+    cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
   if (sm) payload.strong_model = { value: sm, provider: prov(sm) };
   if (cm) payload.cheap_model  = { value: cm, provider: prov(cm) };
@@ -5960,6 +6036,9 @@ $('#themeBtn').onclick = () => { toggleTheme(); renderThemes(); hydrateIcons(); 
 $('#helpBtn').onclick = () => showShortcuts();
 $('#pingBtn').onclick = e => ping(e.currentTarget);
 $('#saveAllBtn').onclick = e => saveAll(e.currentTarget);
+$('#savePromptsBtn').onclick = e => savePrompts(e.currentTarget);
+$('#strongPrompt').oninput = paintPromptLens;
+$('#cheapPrompt').oninput = paintPromptLens;
 $('#saveBaseBtn').onclick = () => {
   saveApiBase($('#apiBase').value.trim());
   toast.ok('Адрес сохранён', 'Перезагружаем…');
