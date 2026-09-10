@@ -1,5 +1,5 @@
 # SMM Frontend — снимок репозитория
-# commit: e5b51f3a24b63d88476ff6156366d6b121451702
+# commit: 738a31816820981ee09166523cdddfe7591391c4
 # built:  2026-09-10 10:46 UTC
 
 ## Состав файлов
@@ -1903,7 +1903,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 </head>
 <body class="is-app">
 
