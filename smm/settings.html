@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ru" data-theme="light">
 <head>
@@ -142,10 +143,7 @@
                 <label class="field">
                   <span class="field-label">Минимум символов текста</span>
                   <input class="input" id="minLen" type="number" min="300" step="100" value="1800">
-                </label>
-                <label class="field">
-                  <span class="field-label">Максимальная тошнота</span>
-                  <input class="input" id="maxNausea" type="number" min="3" step="0.5" value="7">
+                  <span class="field-hint">Ниже этого — брак без разговоров.</span>
                 </label>
               </div>
               <label class="field">
@@ -257,7 +255,7 @@
                 <span class="field-label">Дешёвая модель — заполнитель страниц <b id="cheapPromptLen" class="raw-badge">0 симв.</b></span>
                 <textarea class="textarea code" id="cheapPrompt" rows="12" spellcheck="false"
                           placeholder="Ты — автор programmatic SEO-страниц…"></textarea>
-                <span class="field-hint">Работает на каждой странице генерации. Здесь важны только правила JSON и длины полей.</span>
+                <span class="field-hint">Работает на каждой странице генерации. Здесь важны только правил�� JSON и длины полей.</span>
               </label>
               <div id="promptsNote"></div>
             </div>
@@ -364,7 +362,6 @@ async function load() {
   $('#uniqRange').value = u;
   $('#uniqOut').textContent = u.toFixed(2);
   $('#minLen').value = Number(val('min_text_length')) || 1800;
-  $('#maxNausea').value = Number(val('max_nausea')) || 7;
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
 
@@ -606,7 +603,6 @@ async function saveAll(btn) {
   const payload = {
     uniqueness_threshold: { value: Number($('#uniqRange').value) },
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
-    max_nausea: { value: Number($('#maxNausea').value) || 7 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
     gsc_service_account: { value: $('#gscKey').value.trim() },
     strong_system_prompt: { value: $('#strongPrompt').value },
