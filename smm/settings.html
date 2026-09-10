@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -254,11 +254,13 @@
                 <div class="panel-sub">То, что бэкенд вернул по <code>/settings</code>. Полезно для разбора проблем.</div>
               </div>
               <div class="panel-tools">
+                <input class="input input-sm raw-filter" id="rawFilter" type="search"
+                       placeholder="Фильтр по ключу" autocomplete="off" spellcheck="false">
                 <button class="btn btn-quiet btn-sm" id="copyRawBtn" type="button"><span data-ico-sm="copy"></span> Копировать JSON</button>
               </div>
             </div>
             <div class="panel-body">
-              <div class="kv" id="rawList"></div>
+              <div class="raw-list" id="rawList"></div>
             </div>
           </section>
 
@@ -342,27 +344,82 @@ async function load() {
   paintGscPill();
 
   renderRaw();
+  if ($('#rawFilter')) $('#rawFilter').oninput = () => renderRaw();
   loadModels();
   loadProviders();
   loadEndpoints();
 }
 
+/* Список всех значений с сервера.
+
+   Раньше ключ и значение клались в двухколоночный grid, и промпты на 20 тысяч
+   символов наезжали друг на друга. Теперь каждое значение — отдельная карточка:
+   короткое показывается сразу, длинное прячется под раскрывашку с переносами. */
+
+const RAW_SECRET = /(api_key|token|secret|service_account|password)/i;
+const RAW_LONG = 180;
+
+function rawValueText(k) {
+  let v = val(k);
+  if (Array.isArray(v)) return v.length ? v.join('\n') : '';
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') return JSON.stringify(v, null, 2);
+  return String(v);
+}
+
 function renderRaw() {
-  const keys = Object.keys(SET);
-  if (!keys.length) {
-    $('#rawList').innerHTML = `<div class="empty" style="padding:18px 0;">` +
+  const box = $('#rawList');
+  if (!box) return;
+
+  const all = Object.keys(SET).sort();
+  const q = (($('#rawFilter') && $('#rawFilter').value) || '').trim().toLowerCase();
+  const keys = q ? all.filter(k => k.toLowerCase().includes(q)) : all;
+
+  if (!all.length) {
+    box.innerHTML = `<div class="empty" style="padding:18px 0;">` +
       `<div class="empty-title">Пусто</div>` +
       `<div class="empty-text">Сервер не вернул ни одного значения.</div></div>`;
     return;
   }
-  $('#rawList').innerHTML = keys.sort().map(k => {
-    let v = val(k);
-    if (Array.isArray(v)) v = v.length ? v.join(', ') : '—';
-    if (v === null || v === undefined || v === '') v = '—';
-    if (typeof v === 'object') v = JSON.stringify(v);
-    return `<div class="kv-row">` +
-      `<span class="kv-k">${escHtml(k)}</span>` +
-      `<span class="kv-v">${escHtml(String(v))}</span>` +
+  if (!keys.length) {
+    box.innerHTML = `<div class="empty" style="padding:18px 0;">` +
+      `<div class="empty-title">Ничего не нашлось</div>` +
+      `<div class="empty-text">Нет ключей со словом «${escHtml(q)}».</div></div>`;
+    return;
+  }
+
+  box.innerHTML = keys.map(k => {
+    const text = rawValueText(k);
+    const empty = text === '';
+    const secret = RAW_SECRET.test(k) && !empty;
+    const chars = text.length;
+    const long = chars > RAW_LONG || text.includes('\n');
+
+    const meta = empty
+      ? '<span class="raw-badge">пусто</span>'
+      : (secret
+          ? '<span class="raw-badge ok">задано</span>'
+          : `<span class="raw-badge">${fmtNum(chars)} симв.</span>`);
+
+    let body;
+    if (empty) {
+      body = '<div class="raw-v raw-empty">—</div>';
+    } else if (secret) {
+      body = '<div class="raw-v raw-empty">скрыто, меняется в своём разделе настроек</div>';
+    } else if (long) {
+      body =
+        `<details class="raw-more">` +
+          `<summary><span class="raw-peek">${escHtml(text.slice(0, 120))}…</span>` +
+          `<span class="raw-toggle">показать целиком</span></summary>` +
+          `<pre class="raw-pre">${escHtml(text)}</pre>` +
+        `</details>`;
+    } else {
+      body = `<div class="raw-v">${escHtml(text)}</div>`;
+    }
+
+    return `<div class="raw-item">` +
+      `<div class="raw-head"><code class="raw-k">${escHtml(k)}</code>${meta}</div>` +
+      body +
     `</div>`;
   }).join('');
 }
