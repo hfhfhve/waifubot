@@ -6692,6 +6692,7 @@ const characters = [
 Файл: ./smm/settings.html
 ==================================================
 
+
 <!doctype html>
 <html lang="ru" data-theme="light">
 <head>
@@ -6699,7 +6700,7 @@ const characters = [
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=30">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -6746,6 +6747,7 @@ const characters = [
         <nav class="set-nav">
           <a class="set-nav-item is-active" href="#s-wire"><span data-ico-sm="link"></span> Связь с бэкендом</a>
           <a class="set-nav-item" href="#s-models"><span data-ico-sm="spark"></span> Модели</a>
+          <a class="set-nav-item" href="#s-prompts"><span data-ico-sm="keyboard"></span> Промпты</a>
           <a class="set-nav-item" href="#s-quality"><span data-ico-sm="shield"></span> Качество</a>
           <a class="set-nav-item" href="#s-endpoints"><span data-ico-sm="code"></span> Свои API</a>
           <a class="set-nav-item" href="#s-gsc"><span data-ico-sm="radar"></span> Search Console</a>
@@ -6835,10 +6837,7 @@ const characters = [
                 <label class="field">
                   <span class="field-label">Минимум символов текста</span>
                   <input class="input" id="minLen" type="number" min="300" step="100" value="1800">
-                </label>
-                <label class="field">
-                  <span class="field-label">Максимальная тошнота</span>
-                  <input class="input" id="maxNausea" type="number" min="3" step="0.5" value="7">
+                  <span class="field-hint">Ниже этого — брак без разговоров.</span>
                 </label>
               </div>
               <label class="field">
@@ -6928,6 +6927,34 @@ const characters = [
             </div>
           </section>
 
+          <!-- ПРОМПТЫ -->
+          <section class="panel" id="s-prompts">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Промпты моделей</div>
+                <div class="panel-sub">Системные инструкции. Сохраняются в базу как есть — экранировать ничего не надо.</div>
+              </div>
+              <div class="panel-tools">
+                <button class="btn btn-primary btn-sm" id="savePromptsBtn" type="button"><span data-ico-sm="check"></span> Сохранить промпты</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <label class="field">
+                <span class="field-label">Дорогая модель — проектировщик каркаса <b id="strongPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="strongPrompt" rows="14" spellcheck="false"
+                          placeholder="Ты — старший SEO-архитектор…"></textarea>
+                <span class="field-hint">Работает в чате проекта. Блок «ДИЗАЙН-ОСНОВА ПРОЕКТА» система добавляет сама — цвета и шрифты здесь писать не нужно.</span>
+              </label>
+              <label class="field">
+                <span class="field-label">Дешёвая модель — заполнитель страниц <b id="cheapPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="cheapPrompt" rows="12" spellcheck="false"
+                          placeholder="Ты — автор programmatic SEO-страниц…"></textarea>
+                <span class="field-hint">Работает на каждой странице генерации. Здесь важны только правил�� JSON и длины полей.</span>
+              </label>
+              <div id="promptsNote"></div>
+            </div>
+          </section>
+
           <section class="panel" id="s-look">
             <div class="panel-head">
               <div class="panel-head-body">
@@ -6948,11 +6975,13 @@ const characters = [
                 <div class="panel-sub">То, что бэкенд вернул по <code>/settings</code>. Полезно для разбора проблем.</div>
               </div>
               <div class="panel-tools">
+                <input class="input input-sm raw-filter" id="rawFilter" type="search"
+                       placeholder="Фильтр по ключу" autocomplete="off" spellcheck="false">
                 <button class="btn btn-quiet btn-sm" id="copyRawBtn" type="button"><span data-ico-sm="copy"></span> Копировать JSON</button>
               </div>
             </div>
             <div class="panel-body">
-              <div class="kv" id="rawList"></div>
+              <div class="raw-list" id="rawList"></div>
             </div>
           </section>
 
@@ -6963,7 +6992,7 @@ const characters = [
   </main>
 </div>
 
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 <script>
 (function () {
 'use strict';
@@ -7027,36 +7056,135 @@ async function load() {
   $('#uniqRange').value = u;
   $('#uniqOut').textContent = u.toFixed(2);
   $('#minLen').value = Number(val('min_text_length')) || 1800;
-  $('#maxNausea').value = Number(val('max_nausea')) || 7;
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
+
+  $('#strongPrompt').value = promptText(val('strong_system_prompt'));
+  $('#cheapPrompt').value = promptText(val('cheap_system_prompt'));
+  paintPromptLens();
 
   const gk = val('gsc_service_account');
   $('#gscKey').value = typeof gk === 'string' ? gk : (gk ? JSON.stringify(gk, null, 2) : '');
   paintGscPill();
 
   renderRaw();
+  if ($('#rawFilter')) $('#rawFilter').oninput = () => renderRaw();
   loadModels();
   loadProviders();
   loadEndpoints();
 }
 
+/* ---------- промпты ---------- */
+function promptText(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) return v.join('\n');
+  return JSON.stringify(v, null, 2);
+}
+
+function paintPromptLens() {
+  const put = (id, el) => {
+    const n = ($(el) && $(el).value.length) || 0;
+    if ($(id)) $(id).textContent = fmtNum(n) + '\u00a0симв.';
+  };
+  put('#strongPromptLen', '#strongPrompt');
+  put('#cheapPromptLen', '#cheapPrompt');
+}
+
+async function savePrompts(btn) {
+  const payload = {
+    strong_system_prompt: { value: $('#strongPrompt').value },
+    cheap_system_prompt: { value: $('#cheapPrompt').value },
+  };
+  await withBusy(btn, async () => {
+    try {
+      const res = await api.updateSettings(payload);
+      SET = (res && res.settings) ? res.settings : Object.assign({}, SET, payload);
+      renderRaw();
+      paintPromptLens();
+      $('#promptsNote').innerHTML =
+        `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
+        `<div class="note-body"><b>Сохранено.</b> Новые генерации пойдут уже по этим инструкциям.</div></div>`;
+      toast.ok('Промпты сохранены');
+    } catch (e) {
+      $('#promptsNote').innerHTML =
+        `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
+        `<div class="note-body">${escHtml(e.message)}</div></div>`;
+      toast.err('Не удалось сохранить', e);
+    }
+  });
+}
+
+/* Список всех значений с сервера.
+
+   Раньше ключ и значение клались в двухколоночный grid, и промпты на 20 тысяч
+   символов наезжали друг на друга. Теперь каждое значение — отдельная карточка:
+   короткое показывается сразу, длинное прячется под раскрывашку с переносами. */
+
+const RAW_SECRET = /(api_key|token|secret|service_account|password)/i;
+const RAW_LONG = 180;
+
+function rawValueText(k) {
+  let v = val(k);
+  if (Array.isArray(v)) return v.length ? v.join('\n') : '';
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') return JSON.stringify(v, null, 2);
+  return String(v);
+}
+
 function renderRaw() {
-  const keys = Object.keys(SET);
-  if (!keys.length) {
-    $('#rawList').innerHTML = `<div class="empty" style="padding:18px 0;">` +
+  const box = $('#rawList');
+  if (!box) return;
+
+  const all = Object.keys(SET).sort();
+  const q = (($('#rawFilter') && $('#rawFilter').value) || '').trim().toLowerCase();
+  const keys = q ? all.filter(k => k.toLowerCase().includes(q)) : all;
+
+  if (!all.length) {
+    box.innerHTML = `<div class="empty" style="padding:18px 0;">` +
       `<div class="empty-title">Пусто</div>` +
       `<div class="empty-text">Сервер не вернул ни одного значения.</div></div>`;
     return;
   }
-  $('#rawList').innerHTML = keys.sort().map(k => {
-    let v = val(k);
-    if (Array.isArray(v)) v = v.length ? v.join(', ') : '—';
-    if (v === null || v === undefined || v === '') v = '—';
-    if (typeof v === 'object') v = JSON.stringify(v);
-    return `<div class="kv-row">` +
-      `<span class="kv-k">${escHtml(k)}</span>` +
-      `<span class="kv-v">${escHtml(String(v))}</span>` +
+  if (!keys.length) {
+    box.innerHTML = `<div class="empty" style="padding:18px 0;">` +
+      `<div class="empty-title">Ничего не нашлось</div>` +
+      `<div class="empty-text">Нет ключей со словом «${escHtml(q)}».</div></div>`;
+    return;
+  }
+
+  box.innerHTML = keys.map(k => {
+    const text = rawValueText(k);
+    const empty = text === '';
+    const secret = RAW_SECRET.test(k) && !empty;
+    const chars = text.length;
+    const long = chars > RAW_LONG || text.includes('\n');
+
+    const meta = empty
+      ? '<span class="raw-badge">пусто</span>'
+      : (secret
+          ? '<span class="raw-badge ok">задано</span>'
+          : `<span class="raw-badge">${fmtNum(chars)} симв.</span>`);
+
+    let body;
+    if (empty) {
+      body = '<div class="raw-v raw-empty">—</div>';
+    } else if (secret) {
+      body = '<div class="raw-v raw-empty">скрыто, меняется в своём разделе настроек</div>';
+    } else if (long) {
+      body =
+        `<details class="raw-more">` +
+          `<summary><span class="raw-peek">${escHtml(text.slice(0, 120))}…</span>` +
+          `<span class="raw-toggle">показать целиком</span></summary>` +
+          `<pre class="raw-pre">${escHtml(text)}</pre>` +
+        `</details>`;
+    } else {
+      body = `<div class="raw-v">${escHtml(text)}</div>`;
+    }
+
+    return `<div class="raw-item">` +
+      `<div class="raw-head"><code class="raw-k">${escHtml(k)}</code>${meta}</div>` +
+      body +
     `</div>`;
   }).join('');
 }
@@ -7169,9 +7297,10 @@ async function saveAll(btn) {
   const payload = {
     uniqueness_threshold: { value: Number($('#uniqRange').value) },
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
-    max_nausea: { value: Number($('#maxNausea').value) || 7 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
     gsc_service_account: { value: $('#gscKey').value.trim() },
+    strong_system_prompt: { value: $('#strongPrompt').value },
+    cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
   if (sm) payload.strong_model = { value: sm, provider: prov(sm) };
   if (cm) payload.cheap_model  = { value: cm, provider: prov(cm) };
@@ -7264,6 +7393,9 @@ $('#themeBtn').onclick = () => { toggleTheme(); renderThemes(); hydrateIcons(); 
 $('#helpBtn').onclick = () => showShortcuts();
 $('#pingBtn').onclick = e => ping(e.currentTarget);
 $('#saveAllBtn').onclick = e => saveAll(e.currentTarget);
+$('#savePromptsBtn').onclick = e => savePrompts(e.currentTarget);
+$('#strongPrompt').oninput = paintPromptLens;
+$('#cheapPrompt').oninput = paintPromptLens;
 $('#saveBaseBtn').onclick = () => {
   saveApiBase($('#apiBase').value.trim());
   toast.ok('Адрес сохранён', 'Перезагружаем…');
@@ -7301,6 +7433,7 @@ load();
 Файл: ./smm/project.html
 ==================================================
 
+
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>
@@ -7315,7 +7448,7 @@ load();
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 </head>
 <body class="is-app">
 
@@ -7351,6 +7484,12 @@ load();
           <span class="nav-ico" data-ico="compass"></span>
           <span class="nav-label">Паспорт</span>
           <span class="nav-soon">блок 1</span>
+        </button>
+
+        <button class="nav-item" data-view="layout">
+          <span class="nav-ico" data-ico="sliders"></span>
+          <span class="nav-label">Макет</span>
+          <span class="nav-state" id="navLayoutState" hidden></span>
         </button>
 
         <button class="nav-item" data-view="frame" data-hotkey="3">
@@ -7483,7 +7622,7 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Вход · делается один раз</div>
               <h1>Данные</h1>
               <p class="view-sub">
-                Одна строка — одна будущая страница. Чем больше колонок реально различается ме��ду строками,
+                Одна строка — одна будущая страница. Чем больше колонок реально различается м����ду строками,
                 тем выше потолок уникальности и тем меньше страниц отлетит на гейте.
               </p>
             </div>
@@ -7623,8 +7762,8 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Блок 1 · решение до генерации</div>
               <h1>Паспорт проекта</h1>
               <p class="view-sub">
-                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и сколько.
-                Здесь есть развилка «данных мало — СТОП», которой нет ни у одного платного сервиса.
+                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
+                Здесь есть развилка «данных мало — С��О��», которой нет ни у одного платного сервиса.
               </p>
             </div>
             <div class="view-actions">
@@ -7640,7 +7779,7 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 1 · ������колько колонок реально различается</div>
+                  <div class="panel-title">Вопр��с 1 · ������колько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -7691,6 +7830,48 @@ load();
         </section>
 
         <!-- ============================================================
+             ШАГ · МАКЕТ СТРАНИЦЫ  (обязательно до каркаса)
+             ============================================================ -->
+        <section class="view" id="view-layout">
+          <div class="view-head">
+            <div class="view-head-body">
+              <div class="view-eyebrow"><i class="dot"></i>Шаг между паспортом и каркасом</div>
+              <h1>Макет страницы</h1>
+              <p class="view-sub">
+                Макет — это порядок блоков будущей страницы, а не её оформление.
+                Сильная модель в паспорте смотрит на ваши колонки и советует макет —
+                подтвердите его или выберите свой. Каркас собирается строго под него.
+              </p>
+            </div>
+            <div class="view-actions">
+              <span class="pill" id="layoutStepPill">—</span>
+            </div>
+          </div>
+
+          <div id="layoutAdvice"></div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Выберите макет</div>
+                <div class="panel-sub">Цвета и шрифты здесь ни при чём — тема живёт в «Правилах проекта»</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="pick" id="layoutStepPick"></div>
+              <div id="layoutStepDetail" class="mt-3"></div>
+            </div>
+            <div class="panel-foot">
+              <button class="btn btn-primary" id="layoutConfirmBtn">
+                <span data-ico-sm="check"></span> Подтвердить и перейти к каркасу
+              </button>
+              <span class="grow"></span>
+              <span class="muted" id="layoutStepState"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
              БЛОК 2 · КАРКАС
              ============================================================ -->
         <section class="view" id="view-frame">
@@ -7708,6 +7889,8 @@ load();
               <span id="frameModelInfo"></span>
             </div>
           </div>
+
+          <div id="frameLayoutWarn"></div>
 
           <div class="seg" id="frameMode">
             <button data-fmode="chat" class="is-on">Диалог с моделью</button>
@@ -7835,30 +8018,12 @@ load();
                     <span data-ico-sm="check"></span> Утвердить
                   </button>
                   <button class="btn" id="previewFrameBtn">
-                    <span data-ico-sm="eye"></span> Предпросмотр
+                    <span data-ico-sm="eye"></span> Предпросмотр в новой вкладке
                   </button>
                 </div>
               </div>
             </div>
 
-            <div class="panel" id="framePreviewPanel" hidden>
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Предпросмотр на тестовых данных</div>
-                </div>
-                <div class="panel-tools">
-                  <button class="icon-btn" id="framePreviewClose" title="Закрыть" data-ico="x"></button>
-                </div>
-              </div>
-              <div class="panel-body flush">
-                <div class="iframe-shell">
-                  <div class="iframe-bar">
-                    <i class="lights"></i> страница собрана кодом, без ИИ
-                  </div>
-                  <iframe id="framePreviewFrame" title="Предпросмотр каркаса"></iframe>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -7931,7 +8096,7 @@ load();
                   <span class="switch-track"><i></i></span>
                   <span class="switch-text">
                     <span class="switch-title">Параллельно</span>
-                    <span class="switch-desc">Быстрее, но больше ш��нсов на лимит провайдера</span>
+                    <span class="switch-desc">Быстрее, но больше ш����сов на лимит провайдера</span>
                   </span>
                 </label>
 
@@ -7998,7 +8163,7 @@ load();
               <h1>Гейт качества</h1>
               <p class="view-sub">
                 Уровни проходятся последовательно. Страница, упавшая на 5.1,
-                дальше не идёт — нет смысла мерить тошноту у сломанной разметки.
+                дальше не идёт — нет смысла мерить текст у сломанной разметки.
               </p>
             </div>
             <div class="view-actions">
@@ -8459,7 +8624,7 @@ load();
               <h1>Обратная связь</h1>
               <p class="view-sub">
                 Раз в неделю система спрашивает Search Console по каждой странице:
-                в индексе? есть показы? какая позиция? И после этого меняет веса в гейте
+                в индексе? есть показы? какая позиция? И после этого меняет веса �� гейте
                 и правила отбора в паспорте.
               </p>
             </div>
@@ -8641,8 +8806,8 @@ load();
           <div class="panel" id="designPanel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Дизайн-основа</div>
-                <div class="panel-sub">Тема задаёт вид, макет — структуру под тип страницы</div>
+                <div class="panel-title">Тема оформления</div>
+                <div class="panel-sub">Только внешний вид — меняется когда угодно. Структура — в шаге «Макет»</div>
               </div>
               <span class="pill" id="designPill">—</span>
             </div>
@@ -8651,8 +8816,10 @@ load();
 
               <div class="field mt-3">
                 <span class="field-label">Макет под тип страницы</span>
-                <div class="pick pick-slim" id="layoutPick"></div>
                 <span class="field-hint" id="layoutHint"></span>
+                <button class="btn mt-2" id="gotoLayoutBtn" type="button">
+                  <span data-ico-sm="sliders"></span> Открыть шаг «Макет»
+                </button>
               </div>
 
               <div id="designNote" class="mt-3"></div>
@@ -8781,6 +8948,7 @@ const PID = new URLSearchParams(location.search).get('id');
 const VIEWS = {
   data:     'Данные',
   passport: 'Паспорт проекта',
+  layout:   'Макет страницы',
   frame:    'Каркас',
   generate: 'Генерация',
   gate:     'Гейт качества',
@@ -9026,6 +9194,8 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
+  if (view === 'frame') frameLayoutGuard();
+  if (view === 'layout') initLayoutStep();
   if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
@@ -9135,8 +9305,7 @@ function bindStatic() {
   $('#extractFrameBtn').onclick = e => extractFrame(e.currentTarget);
   $('#saveFrameBtn').onclick = e => saveFrame(e.currentTarget);
   $('#approveFrameBtn').onclick = e => approveFrame(e.currentTarget);
-  $('#previewFrameBtn').onclick = () => previewFrame();
-  $('#framePreviewClose').onclick = () => $('#framePreviewPanel').hidden = true;
+  $('#previewFrameBtn').onclick = e => previewFrame(e.currentTarget);
   $('#frameHtml').addEventListener('input', () => checkFrameLive());
 
   /* --- генерация --- */
@@ -9182,7 +9351,7 @@ function bindStatic() {
   $('#buildWiringBtn').onclick = () => stubDrawer('Обвязка — блок 6', [
     ['Canonical', 'Шаблон адреса по домену проекта и slug страницы.'],
     ['Sitemap', 'Только страницы в статусе «Готова», lastmod из даты генерации.'],
-    ['Schema', 'Тип разметки из типа страницы в паспорте.'],
+    ['Schema', 'Тип раз��етки из типа страницы в паспорте.'],
     ['Внутренние ссылки', '3–5 соседей по близости, без пар со схожестью выше 0.90.'],
     ['Где взять данные', 'У каждой страницы уже записан ближайший сосед и его схожесть.'],
   ]);
@@ -9202,6 +9371,8 @@ function bindStatic() {
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
   if ($('#repaintDesignBtn')) $('#repaintDesignBtn').onclick = e => repaintDesign(e.currentTarget);
+  if ($('#layoutConfirmBtn')) $('#layoutConfirmBtn').onclick = e => confirmLayout(e.currentTarget);
+  if ($('#gotoLayoutBtn')) $('#gotoLayoutBtn').onclick = () => go('layout');
   $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
   $('#deleteProjectBtn').onclick = () => deleteProject();
   $('#exportBtn').onclick = () => doExport();
@@ -9225,7 +9396,7 @@ function reloadAll() {
 
 function stubDrawer(title, rows) {
   drawer.open({
-    eyebrow: 'Заглушка — бэкенд ещё не подключён',
+    eyebrow: 'Заглушка �� бэкенд ещё не подключён',
     title: title,
     body:
       `<div class="note info" style="margin:0 0 16px;">` +
@@ -9687,16 +9858,27 @@ async function approveFrame(btn) {
   });
 }
 
-async function previewFrame() {
+async function previewFrame(btn) {
   if (!S.template) { toast.warn('Сначала сохраните каркас'); return; }
+  // Окно открываем СИНХРОННО, в обработчике клика: если ждать ответ API,
+  // браузер считает window.open попапом и блокирует.
+  const w = window.open('', '_blank');
+  if (w) w.document.write('<title>Предпросмотр каркаса</title>'
+    + '<p style="font:14px system-ui;padding:24px;">Собираем страницу на тестовых данных…</p>');
   try {
-    const res = await api.previewTemplate(PID, S.template.id);
+    const res = await withBusy(btn, () => api.previewTemplate(PID, S.template.id));
     const html = (res && (res.html || res.preview)) || '';
-    $('#framePreviewPanel').hidden = false;
-    const f = $('#framePreviewFrame');
-    f.srcdoc = html;
-    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } catch (e) { toast.err('Предпросмотр не вышел', e); }
+    if (!w) {
+      toast.warn('Браузер заблокировал окно', 'Разрешите всплывающие окна для предпросмотра.');
+      return;
+    }
+    w.document.open();
+    w.document.write(html || '<p style="font:14px system-ui;padding:24px;">Пустой HTML</p>');
+    w.document.close();
+  } catch (e) {
+    if (w) w.close();
+    toast.err('Предпросмотр не вышел', e);
+  }
 }
 
 /* ---------------------- чат ---------------------- */
@@ -10040,7 +10222,7 @@ async function retryFailed(btn) {
       if (!res.retried) toast.warn('Нечего перезапускать', res.reason || '');
       else toast.ok('Перезапущено', res.retried + ' ' + plural(res.retried, 'задача', 'задачи', 'задач'));
       loadTasks(true);
-    } catch (e) { toast.err('Не удалось перезапустить', e); }
+    } catch (e) { toast.err('Не уд��лось перезапустить', e); }
   });
 }
 
@@ -10362,7 +10544,7 @@ async function regenPage(pid, btn) {
 async function delPage(pid) {
   const ok = await confirmDialog({
     title: 'Удалить страницу?',
-    text: 'Она исчезнет из корпуса — уникальность остальных страниц пересчитается п��и следующем прогоне.',
+    text: 'Она ��счезнет из корпуса — уникальность остальных страниц пересчитается п��и следующем прогоне.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10379,7 +10561,7 @@ async function deleteSelected(btn) {
   if (!ids.length) return;
   const ok = await confirmDialog({
     title: 'Удалить ' + ids.length + ' ' + plural(ids.length, 'страницу', 'страницы', 'страниц') + '?',
-    text: 'Действие неотменимо.',
+    text: '��ействие неотменимо.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10529,39 +10711,11 @@ function renderDesign() {
     });
   }
 
-  const pick = $('#layoutPick');
-  if (pick) {
-    const auto = d.layout === 'auto';
-    const autoName = (layouts.find(l => l.id === d.layout_effective) || {}).name || '—';
-    let html = `<button class="pick-card${auto ? ' is-on' : ''}" data-layout="auto" type="button">` +
-      `<span class="pick-ico">${ico('spark', 18)}</span>` +
-      `<span class="pick-body">` +
-        `<span class="pick-title">По паспорту</span>` +
-        `<span class="pick-desc">сейчас: ${escHtml(autoName)}</span>` +
-      `</span>` +
-    `</button>`;
-    html += layouts.map(l => {
-      const on = l.id === d.layout;
-      const lib = (typeof LIB_PAGE_TYPES !== 'undefined'
-        ? LIB_PAGE_TYPES.find(x => x.id === l.id) : null) || {};
-      return `<button class="pick-card${on ? ' is-on' : ''}" data-layout="${escAttr(l.id)}" type="button">` +
-        `<span class="pick-ico">${ico(lib.icon || 'layout', 18)}</span>` +
-        `<span class="pick-body">` +
-          `<span class="pick-title">${escHtml(l.name)}</span>` +
-          `<span class="pick-desc">${escHtml((l.formats || []).map(f => '.' + f).join(' '))}</span>` +
-        `</span>` +
-      `</button>`;
-    }).join('');
-    pick.innerHTML = html;
-    pick.querySelectorAll('.pick-card').forEach(el => {
-      el.onclick = () => pickLayout(el.dataset.layout);
-    });
-  }
-
   const lay = layouts.find(l => l.id === d.layout_effective);
   const hint = $('#layoutHint');
   if (hint) hint.textContent = lay
-    ? 'Hero: ' + lay.hero + '. ' + lay.accent
+    ? 'Сейчас: «' + lay.name + '»' + (d.layout_confirmed ? '' : ' (не подтверждён)') +
+      '. Структура задаётся до каркаса, в отдельном шаге.'
     : 'Макет берётся из типа страницы в паспорте.';
 
   const pill = $('#designPill');
@@ -10600,13 +10754,152 @@ async function pickTheme(id) {
   } catch (e) { toast.err('Тема не сохранилась', e); }
 }
 
+/* ======================================================================
+   ШАГ «МАКЕТ СТРАНИЦЫ»
+
+   Обязательный шаг между паспортом и каркасом. Сильная модель при
+   анализе таблицы возвращает layout_suggested + layout_reason —
+   здесь это показывается как рекомендация, а выбор делает владелец.
+   ====================================================================== */
+
+async function ensureDesign(force) {
+  if (S.design && !force) return S.design;
+  try { S.design = await api.getDesign(PID); }
+  catch (e) { S.design = null; }
+  return S.design;
+}
+
+async function initLayoutStep(force) {
+  if (!S.design || force) {
+    if (!(await ensureDesign(true))) { toast.err('Макеты не загрузились', 'нет ответа от сервера'); return; }
+  }
+  renderLayoutStep();
+}
+
+function renderLayoutStep() {
+  const d = S.design || {};
+  const layouts = d.layouts || [];
+  const sug = d.layout_suggested || '';
+  const chosen = d.layout === 'auto' ? d.layout_effective : d.layout;
+
+  const advice = $('#layoutAdvice');
+  if (advice) {
+    if (sug) {
+      const same = sug === chosen;
+      advice.innerHTML =
+        `<div class="note ${same ? 'ok' : 'info'}"><span class="note-ico" data-ico="${same ? 'ok' : 'spark'}"></span>` +
+        `<div class="note-body"><b>Сильная модель советует: «${escHtml(d.layout_suggested_name || sug)}».</b> ` +
+        escHtml(d.layout_reason || 'Решение по карте колонок вашей таблицы.') +
+        (same ? ' Этот макет и выбран.' :
+          ` <button class="link-btn" id="useSuggestBtn" type="button">Взять рекомендацию</button>`) +
+        `</div></div>`;
+    } else {
+      advice.innerHTML =
+        `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
+        `Рекомендации пока нет. Запустите анализ на вкладке «Паспорт» — сильная модель посмотрит колонки ` +
+        `и предложит макет. Можно выбрать и вручную.</div></div>`;
+    }
+    hydrateIcons(advice);
+    const b = $('#useSuggestBtn');
+    if (b) b.onclick = () => pickLayout(sug);
+  }
+
+  const pick = $('#layoutStepPick');
+  if (pick) {
+    pick.innerHTML = layouts.map(l => {
+      const on = l.id === chosen;
+      const lib = (typeof LIB_PAGE_TYPES !== 'undefined'
+        ? LIB_PAGE_TYPES.find(x => x.id === l.id) : null) || {};
+      return `<button class="pick-card${on ? ' is-on' : ''}" data-layout="${escAttr(l.id)}" type="button">` +
+        `<span class="pick-ico">${ico(lib.icon || 'layout', 18)}</span>` +
+        `<span class="pick-body">` +
+          `<span class="pick-title">${escHtml(l.name)}${l.id === sug ? ' <i class="theme-on">совет модели</i>' : ''}</span>` +
+          `<span class="pick-desc">${escHtml(lib.when || l.hero || '')}</span>` +
+        `</span>` +
+      `</button>`;
+    }).join('');
+    pick.querySelectorAll('.pick-card').forEach(el => {
+      el.onclick = () => pickLayout(el.dataset.layout);
+    });
+  }
+
+  const lay = layouts.find(l => l.id === chosen);
+  const detail = $('#layoutStepDetail');
+  if (detail) {
+    detail.innerHTML = lay
+      ? `<div class="note info"><span class="note-ico" data-ico="info"></span><div class="note-body">` +
+        `<b>Что уйдёт сильной модели.</b> Hero: ${escHtml(lay.hero)}.<br>` +
+        `Порядок блоков: ${escHtml((lay.blocks || []).join(' → ')) }.<br>` +
+        `Главное в этом типе: ${escHtml(lay.accent)}</div></div>`
+      : '';
+    hydrateIcons(detail);
+  }
+
+  const pill = $('#layoutStepPill');
+  if (pill) {
+    pill.textContent = d.layout_confirmed
+      ? 'подтверждён: ' + (d.layout_name || '—')
+      : 'не подтверждён';
+    pill.className = 'pill ' + (d.layout_confirmed ? 'ok' : 'warn');
+  }
+
+  const st = $('#layoutStepState');
+  if (st) st.textContent = d.layout_confirmed
+    ? 'Каркас будет собран под этот макет.'
+    : 'Пока макет не подтверждён, каркас просить рано.';
+
+  const navSt = $('#navLayoutState');
+  if (navSt) {
+    navSt.hidden = false;
+    navSt.textContent = d.layout_confirmed ? '✓' : '!';
+    navSt.className = 'nav-state ' + (d.layout_confirmed ? 'ok' : 'warn');
+  }
+}
+
 async function pickLayout(id) {
   if (!id) return;
   try {
     S.design = await api.saveDesign(PID, { layout: id });
-    renderDesign();
-    toast.ok('Макет обновлён', 'Сильная модель получит новый порядок блоков.');
+    renderLayoutStep();
+    if (S.view === 'rules') renderDesign();
+    toast.ok('Макет выбран', 'Сильная модель получит этот порядок блоков.');
   } catch (e) { toast.err('Макет не сохранился', e); }
+}
+
+async function confirmLayout(btn) {
+  const d = S.design || {};
+  const id = d.layout === 'auto' ? d.layout_effective : d.layout;
+  if (!id) { toast.err('Выберите макет', 'ни один макет не выбран'); return; }
+  await withBusy(btn, async () => {
+    try {
+      S.design = await api.saveDesign(PID, { layout: id, layout_confirmed: true });
+      renderLayoutStep();
+      go('frame');
+    } catch (e) { toast.err('Не сохранилось', e); }
+  });
+}
+
+/** Каркас без подтверждённого макета — предупреждение наверху вкладки. */
+async function frameLayoutGuard() {
+  const box = $('#frameLayoutWarn');
+  if (!box) return;
+  const d = await ensureDesign();
+  if (!d) { box.innerHTML = ''; return; }
+  if (d.layout_confirmed) {
+    box.innerHTML =
+      `<div class="note ok"><span class="note-ico" data-ico="ok"></span><div class="note-body">` +
+      `Макет: <b>${escHtml(d.layout_name || '—')}</b>. Модель получит именно этот порядок блоков.` +
+      `</div></div>`;
+  } else {
+    box.innerHTML =
+      `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
+      `Макет ещё не подтверждён. Сначала пройдите шаг «Макет» — иначе каркас соберётся наугад. ` +
+      `<button class="link-btn" id="warnGoLayout" type="button">Открыть шаг «Макет»</button>` +
+      `</div></div>`;
+    const b = $('#warnGoLayout');
+    if (b) b.onclick = () => go('layout');
+  }
+  hydrateIcons(box);
 }
 
 async function repaintDesign(btn) {
@@ -10742,7 +11035,7 @@ boot();
 <meta name="viewport" content="width=1280">
 <title>Проекты — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=29">
 <script>
   try {
     var t = localStorage.getItem('seo_theme');
@@ -10889,7 +11182,7 @@ boot();
   </main>
 </div>
 
-<script src="app.js?v=22"></script>
+<script src="app.js?v=27"></script>
 <script>
 (function () {
 'use strict';
@@ -15084,3 +15377,122 @@ body.is-app { height: 100vh; overflow: hidden; }
 @media (max-width: 700px) {
   .theme-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ==========================================================================
+   30. «ВСЕ ЗНАЧЕНИЯ С СЕРВЕРА» — длинные тексты без наложений
+   ========================================================================== */
+
+.raw-list { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+.raw-item {
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.raw-head {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.raw-k {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px 7px;
+  word-break: break-all;
+}
+
+.raw-badge {
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.raw-badge.ok { color: var(--accent); border-color: var(--accent-line); }
+
+.raw-v {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.raw-empty { color: var(--faint); }
+
+.raw-more summary {
+  display: flex; align-items: baseline; gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.raw-more summary::-webkit-details-marker { display: none; }
+
+.raw-peek {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.raw-toggle {
+  flex: none;
+  font-size: 11.5px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.raw-more[open] .raw-peek { display: none; }
+.raw-more[open] .raw-toggle::after { content: " — свернуть"; color: var(--muted); }
+
+.raw-pre {
+  margin: 10px 0 0;
+  max-height: 420px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+
+.raw-filter { width: 190px; max-width: 44vw; }
+
+@media (max-width: 700px) {
+  .raw-filter { width: 100%; max-width: none; }
+}
+
+/* Промпты — большие моноширинные поля */
+#strongPrompt, #cheapPrompt {
+  min-height: 260px;
+  max-height: 60vh;
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+
+#s-prompts .field-label { display: flex; align-items: center; gap: 8px; }
+#s-prompts .raw-badge { font-weight: 400; }
