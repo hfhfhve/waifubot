@@ -10839,6 +10839,7 @@ boot();
 Файл: ./smm/index.html
 ==================================================
 
+
 <!doctype html>
 <html lang="ru" data-theme="light">
 <head>
@@ -10993,7 +10994,7 @@ boot();
   </main>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
 (function () {
 'use strict';
