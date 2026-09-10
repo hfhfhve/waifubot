@@ -6940,6 +6940,12 @@ const characters = [
             </div>
             <div class="panel-body">
               <label class="field">
+                <span class="field-label">Сильная модель — анализ данных и паспорт проекта <b id="passportPromptLen" class="raw-badge">0 симв.</b></span>
+                <textarea class="textarea code" id="passportPrompt" rows="8" spellcheck="false"
+                          placeholder="Ты SEO-оркестратор…"></textarea>
+                <span class="field-hint">Первый шаг: читает карту колонок и решает тип страницы, стратегию, макет и вердикт. Ответ только JSON — формат ответа подставляет система.</span>
+              </label>
+              <label class="field">
                 <span class="field-label">Дорогая модель — проектировщик каркаса <b id="strongPromptLen" class="raw-badge">0 симв.</b></span>
                 <textarea class="textarea code" id="strongPrompt" rows="14" spellcheck="false"
                           placeholder="Ты — старший SEO-архитектор…"></textarea>
@@ -7059,6 +7065,7 @@ async function load() {
   const sw = val('stop_words');
   $('#stopWords').value = Array.isArray(sw) ? sw.join('\n') : (sw || '');
 
+  $('#passportPrompt').value = promptText(val('passport_system_prompt'));
   $('#strongPrompt').value = promptText(val('strong_system_prompt'));
   $('#cheapPrompt').value = promptText(val('cheap_system_prompt'));
   paintPromptLens();
@@ -7087,12 +7094,14 @@ function paintPromptLens() {
     const n = ($(el) && $(el).value.length) || 0;
     if ($(id)) $(id).textContent = fmtNum(n) + '\u00a0симв.';
   };
+  put('#passportPromptLen', '#passportPrompt');
   put('#strongPromptLen', '#strongPrompt');
   put('#cheapPromptLen', '#cheapPrompt');
 }
 
 async function savePrompts(btn) {
   const payload = {
+    passport_system_prompt: { value: $('#passportPrompt').value },
     strong_system_prompt: { value: $('#strongPrompt').value },
     cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
@@ -7299,6 +7308,7 @@ async function saveAll(btn) {
     min_text_length: { value: parseInt($('#minLen').value, 10) || 1800 },
     stop_words: { value: $('#stopWords').value.split('\n').map(s => s.trim()).filter(Boolean) },
     gsc_service_account: { value: $('#gscKey').value.trim() },
+    passport_system_prompt: { value: $('#passportPrompt').value },
     strong_system_prompt: { value: $('#strongPrompt').value },
     cheap_system_prompt: { value: $('#cheapPrompt').value },
   };
@@ -7484,12 +7494,6 @@ load();
           <span class="nav-ico" data-ico="compass"></span>
           <span class="nav-label">Паспорт</span>
           <span class="nav-soon">блок 1</span>
-        </button>
-
-        <button class="nav-item" data-view="layout">
-          <span class="nav-ico" data-ico="sliders"></span>
-          <span class="nav-label">Макет</span>
-          <span class="nav-state" id="navLayoutState" hidden></span>
         </button>
 
         <button class="nav-item" data-view="frame" data-hotkey="3">
@@ -7830,48 +7834,6 @@ load();
         </section>
 
         <!-- ============================================================
-             ШАГ · МАКЕТ СТРАНИЦЫ  (обязательно до каркаса)
-             ============================================================ -->
-        <section class="view" id="view-layout">
-          <div class="view-head">
-            <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг между паспортом и каркасом</div>
-              <h1>Макет страницы</h1>
-              <p class="view-sub">
-                Макет — это порядок блоков будущей страницы, а не её оформление.
-                Сильная модель в паспорте смотрит на ваши колонки и советует макет —
-                подтвердите его или выберите свой. Каркас собирается строго под него.
-              </p>
-            </div>
-            <div class="view-actions">
-              <span class="pill" id="layoutStepPill">—</span>
-            </div>
-          </div>
-
-          <div id="layoutAdvice"></div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Выберите макет</div>
-                <div class="panel-sub">Цвета и шрифты здесь ни при чём — тема живёт в «Правилах проекта»</div>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="pick" id="layoutStepPick"></div>
-              <div id="layoutStepDetail" class="mt-3"></div>
-            </div>
-            <div class="panel-foot">
-              <button class="btn btn-primary" id="layoutConfirmBtn">
-                <span data-ico-sm="check"></span> Подтвердить и перейти к каркасу
-              </button>
-              <span class="grow"></span>
-              <span class="muted" id="layoutStepState"></span>
-            </div>
-          </div>
-        </section>
-
-        <!-- ============================================================
              БЛОК 2 · КАРКАС
              ============================================================ -->
         <section class="view" id="view-frame">
@@ -7889,8 +7851,6 @@ load();
               <span id="frameModelInfo"></span>
             </div>
           </div>
-
-          <div id="frameLayoutWarn"></div>
 
           <div class="seg" id="frameMode">
             <button data-fmode="chat" class="is-on">Диалог с моделью</button>
@@ -8807,7 +8767,7 @@ load();
             <div class="panel-head">
               <div class="panel-head-body">
                 <div class="panel-title">Тема оформления</div>
-                <div class="panel-sub">Только внешний вид — меняется когда угодно. Структура — в шаге «Макет»</div>
+                <div class="panel-sub">Только внешний вид — меняется когда угодно. Порядок блоков берётся из паспорта</div>
               </div>
               <span class="pill" id="designPill">—</span>
             </div>
@@ -8817,9 +8777,6 @@ load();
               <div class="field mt-3">
                 <span class="field-label">Макет под тип страницы</span>
                 <span class="field-hint" id="layoutHint"></span>
-                <button class="btn mt-2" id="gotoLayoutBtn" type="button">
-                  <span data-ico-sm="sliders"></span> Открыть шаг «Макет»
-                </button>
               </div>
 
               <div id="designNote" class="mt-3"></div>
@@ -8948,7 +8905,6 @@ const PID = new URLSearchParams(location.search).get('id');
 const VIEWS = {
   data:     'Данные',
   passport: 'Паспорт проекта',
-  layout:   'Макет страницы',
   frame:    'Каркас',
   generate: 'Генерация',
   gate:     'Гейт качества',
@@ -9194,8 +9150,6 @@ function go(view) {
   $('.canvas').scrollTop = 0;
 
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
-  if (view === 'frame') frameLayoutGuard();
-  if (view === 'layout') initLayoutStep();
   if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
   if (view === 'waves') renderWaves();
@@ -9371,8 +9325,6 @@ function bindStatic() {
   /* --- правила --- */
   $('#saveRulesBtn').onclick = e => saveRules(e.currentTarget);
   if ($('#repaintDesignBtn')) $('#repaintDesignBtn').onclick = e => repaintDesign(e.currentTarget);
-  if ($('#layoutConfirmBtn')) $('#layoutConfirmBtn').onclick = e => confirmLayout(e.currentTarget);
-  if ($('#gotoLayoutBtn')) $('#gotoLayoutBtn').onclick = () => go('layout');
   $('#uniqRange').oninput = e => $('#uniqOut').textContent = Number(e.target.value).toFixed(2);
   $('#deleteProjectBtn').onclick = () => deleteProject();
   $('#exportBtn').onclick = () => doExport();
@@ -10714,8 +10666,7 @@ function renderDesign() {
   const lay = layouts.find(l => l.id === d.layout_effective);
   const hint = $('#layoutHint');
   if (hint) hint.textContent = lay
-    ? 'Сейчас: «' + lay.name + '»' + (d.layout_confirmed ? '' : ' (не подтверждён)') +
-      '. Структура задаётся до каркаса, в отдельном шаге.'
+    ? 'Сейчас: «' + lay.name + '». Порядок блоков выбран сильной моделью в паспорте по карте колонок.'
     : 'Макет берётся из типа страницы в паспорте.';
 
   const pill = $('#designPill');
@@ -10754,152 +10705,12 @@ async function pickTheme(id) {
   } catch (e) { toast.err('Тема не сохранилась', e); }
 }
 
-/* ======================================================================
-   ШАГ «МАКЕТ СТРАНИЦЫ»
-
-   Обязательный шаг между паспортом и каркасом. Сильная модель при
-   анализе таблицы возвращает layout_suggested + layout_reason —
-   здесь это показывается как рекомендация, а выбор делает владелец.
-   ====================================================================== */
-
+/* Дизайн-основа проекта из кэша или с сервера. */
 async function ensureDesign(force) {
   if (S.design && !force) return S.design;
   try { S.design = await api.getDesign(PID); }
   catch (e) { S.design = null; }
   return S.design;
-}
-
-async function initLayoutStep(force) {
-  if (!S.design || force) {
-    if (!(await ensureDesign(true))) { toast.err('Макеты не загрузились', 'нет ответа от сервера'); return; }
-  }
-  renderLayoutStep();
-}
-
-function renderLayoutStep() {
-  const d = S.design || {};
-  const layouts = d.layouts || [];
-  const sug = d.layout_suggested || '';
-  const chosen = d.layout === 'auto' ? d.layout_effective : d.layout;
-
-  const advice = $('#layoutAdvice');
-  if (advice) {
-    if (sug) {
-      const same = sug === chosen;
-      advice.innerHTML =
-        `<div class="note ${same ? 'ok' : 'info'}"><span class="note-ico" data-ico="${same ? 'ok' : 'spark'}"></span>` +
-        `<div class="note-body"><b>Сильная модель советует: «${escHtml(d.layout_suggested_name || sug)}».</b> ` +
-        escHtml(d.layout_reason || 'Решение по карте колонок вашей таблицы.') +
-        (same ? ' Этот макет и выбран.' :
-          ` <button class="link-btn" id="useSuggestBtn" type="button">Взять рекомендацию</button>`) +
-        `</div></div>`;
-    } else {
-      advice.innerHTML =
-        `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
-        `Рекомендации пока нет. Запустите анализ на вкладке «Паспорт» — сильная модель посмотрит колонки ` +
-        `и предложит макет. Можно выбрать и вручную.</div></div>`;
-    }
-    hydrateIcons(advice);
-    const b = $('#useSuggestBtn');
-    if (b) b.onclick = () => pickLayout(sug);
-  }
-
-  const pick = $('#layoutStepPick');
-  if (pick) {
-    pick.innerHTML = layouts.map(l => {
-      const on = l.id === chosen;
-      const lib = (typeof LIB_PAGE_TYPES !== 'undefined'
-        ? LIB_PAGE_TYPES.find(x => x.id === l.id) : null) || {};
-      return `<button class="pick-card${on ? ' is-on' : ''}" data-layout="${escAttr(l.id)}" type="button">` +
-        `<span class="pick-ico">${ico(lib.icon || 'layout', 18)}</span>` +
-        `<span class="pick-body">` +
-          `<span class="pick-title">${escHtml(l.name)}${l.id === sug ? ' <i class="theme-on">совет модели</i>' : ''}</span>` +
-          `<span class="pick-desc">${escHtml(lib.when || l.hero || '')}</span>` +
-        `</span>` +
-      `</button>`;
-    }).join('');
-    pick.querySelectorAll('.pick-card').forEach(el => {
-      el.onclick = () => pickLayout(el.dataset.layout);
-    });
-  }
-
-  const lay = layouts.find(l => l.id === chosen);
-  const detail = $('#layoutStepDetail');
-  if (detail) {
-    detail.innerHTML = lay
-      ? `<div class="note info"><span class="note-ico" data-ico="info"></span><div class="note-body">` +
-        `<b>Что уйдёт сильной модели.</b> Hero: ${escHtml(lay.hero)}.<br>` +
-        `Порядок блоков: ${escHtml((lay.blocks || []).join(' → ')) }.<br>` +
-        `Главное в этом типе: ${escHtml(lay.accent)}</div></div>`
-      : '';
-    hydrateIcons(detail);
-  }
-
-  const pill = $('#layoutStepPill');
-  if (pill) {
-    pill.textContent = d.layout_confirmed
-      ? 'подтверждён: ' + (d.layout_name || '—')
-      : 'не подтверждён';
-    pill.className = 'pill ' + (d.layout_confirmed ? 'ok' : 'warn');
-  }
-
-  const st = $('#layoutStepState');
-  if (st) st.textContent = d.layout_confirmed
-    ? 'Каркас будет собран под этот макет.'
-    : 'Пока макет не подтверждён, каркас просить рано.';
-
-  const navSt = $('#navLayoutState');
-  if (navSt) {
-    navSt.hidden = false;
-    navSt.textContent = d.layout_confirmed ? '✓' : '!';
-    navSt.className = 'nav-state ' + (d.layout_confirmed ? 'ok' : 'warn');
-  }
-}
-
-async function pickLayout(id) {
-  if (!id) return;
-  try {
-    S.design = await api.saveDesign(PID, { layout: id });
-    renderLayoutStep();
-    if (S.view === 'rules') renderDesign();
-    toast.ok('Макет выбран', 'Сильная модель получит этот порядок блоков.');
-  } catch (e) { toast.err('Макет не сохранился', e); }
-}
-
-async function confirmLayout(btn) {
-  const d = S.design || {};
-  const id = d.layout === 'auto' ? d.layout_effective : d.layout;
-  if (!id) { toast.err('Выберите макет', 'ни один макет не выбран'); return; }
-  await withBusy(btn, async () => {
-    try {
-      S.design = await api.saveDesign(PID, { layout: id, layout_confirmed: true });
-      renderLayoutStep();
-      go('frame');
-    } catch (e) { toast.err('Не сохранилось', e); }
-  });
-}
-
-/** Каркас без подтверждённого макета — предупреждение наверху вкладки. */
-async function frameLayoutGuard() {
-  const box = $('#frameLayoutWarn');
-  if (!box) return;
-  const d = await ensureDesign();
-  if (!d) { box.innerHTML = ''; return; }
-  if (d.layout_confirmed) {
-    box.innerHTML =
-      `<div class="note ok"><span class="note-ico" data-ico="ok"></span><div class="note-body">` +
-      `Макет: <b>${escHtml(d.layout_name || '—')}</b>. Модель получит именно этот порядок блоков.` +
-      `</div></div>`;
-  } else {
-    box.innerHTML =
-      `<div class="note warn"><span class="note-ico" data-ico="alert"></span><div class="note-body">` +
-      `Макет ещё не подтверждён. Сначала пройдите шаг «Макет» — иначе каркас соберётся наугад. ` +
-      `<button class="link-btn" id="warnGoLayout" type="button">Открыть шаг «Макет»</button>` +
-      `</div></div>`;
-    const b = $('#warnGoLayout');
-    if (b) b.onclick = () => go('layout');
-  }
-  hydrateIcons(box);
 }
 
 async function repaintDesign(btn) {
@@ -11360,6 +11171,7 @@ load();
 ==================================================
 Файл: ./smm/app.js
 ==================================================
+
 
 /* ==========================================================================
    SEO-Фабрика — ядро фронтенда
@@ -12218,7 +12030,7 @@ const LIB_PAGE_TYPES = [
     design: 'Калькулятор сверху, объяснение, примеры' },
   { id: 'status',   icon: 'clock',  name: 'Статус с датой',
     when: 'Данные устаревают', ex: 'Работает ли VPN сегодня',
-    design: 'Большая плашка с датой, таблица состояний, история изменений' },
+    design: 'Большая плашка с датой, таблица состояний, история изменени��' },
   { id: 'digest',   icon: 'list',   name: 'Сводка из источников',
     when: 'Данные разбросаны', ex: 'Сравнение 30 мнений',
     design: 'Таблица источников, расхождения, итог' },
@@ -12428,6 +12240,11 @@ function initTableUpload() {
     const rows = meta.sample || [];
 
     const head = `
+      <div class="note info mt-3"><div class="note-body">
+        Это предпросмотр файла: строк в проекте пока нет.
+        Выберите колонку-ключ и нажмите «Загрузить строки» — только после этого
+        строки появятся в проекте и генерацию можно будет запустить.
+      </div></div>
       <div class="metrics mt-3">
         <div class="metric"><div class="metric-k">Строк</div>
           <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
@@ -12689,9 +12506,10 @@ function initTableUpload() {
 /* --------------------------------------------------------------------------
    ГЕЙТ КАЧЕСТВА — пороги и отключение проверок.
 
-   Главное: часть проверок Google не использует вообще — тошнота,
-   водность, индексы читаемости, meta keywords. Они выключены на
-   бэкенде и показаны здесь с пометкой, чтобы было видно почему.
+   Главное: часть проверок Google не использует вообще — водность,
+   индексы читаемости, meta keywords. Они выключены на бэкенде и
+   показаны здесь с пометкой, чтобы было видно почему.
+   Тошнота удалена из проекта целиком и больше не приходит с бэкенда.
    -------------------------------------------------------------------------- */
 
 let GATE_CFG = null;
@@ -12777,7 +12595,7 @@ function renderGateConfig() {
       '<b>Что убрано и почему.</b> Тошнота (классическая и академическая), водность, ' +
       'индекс читаемости Флеша и meta keywords выключены: Google прямо говорит, что ' +
       'понятия оптимальной плотности слов не существует, алгоритмов на базовых индексах ' +
-      'читаемости нет, а тег keywords игнорируется с 2009 года. Отключённые проверки ' +
+      'читаемости нет, а тег keywords игнорируется с 2009 года. От��лючённые проверки ' +
       'не считаются при генерации и вычищаются из уже готовых страниц при сохранении.';
   }
 
