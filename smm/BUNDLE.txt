@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 1399e04b005c1a4876a47f5bc9b3375aedd07b29
-# built:  2026-09-10 15:48 UTC
+# commit: cac1104194c46dec500fd0883d77076c87c2adf4
+# built:  2026-09-11 13:32 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (1498 строк)
-smm/index.html  (327 строк)
-smm/project.html  (3390 строк)
+smm/app.js  (1505 строк)
+smm/index.html  (328 строк)
+smm/project.html  (3393 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (745 строк)
 smm/style.css  (2631 строк)
@@ -53,6 +53,7 @@ smm/style.css  (2631 строк)
 ════════════════════════════════════════════════════════
   smm/app.js
 ════════════════════════════════════════════════════════
+
 
 /* ==========================================================================
    SEO-Фабрика — ядро фронтенда
@@ -911,7 +912,7 @@ const LIB_PAGE_TYPES = [
     design: 'Калькулятор сверху, объяснение, примеры' },
   { id: 'status',   icon: 'clock',  name: 'Статус с датой',
     when: 'Данные устаревают', ex: 'Работает ли VPN сегодня',
-    design: 'Большая плашка с датой, таблица состояний, история изменений' },
+    design: 'Большая плашка с датой, таблица состояний, история изменени��' },
   { id: 'digest',   icon: 'list',   name: 'Сводка из источников',
     when: 'Данные разбросаны', ex: 'Сравнение 30 мнений',
     design: 'Таблица источников, расхождения, итог' },
@@ -1121,6 +1122,11 @@ function initTableUpload() {
     const rows = meta.sample || [];
 
     const head = `
+      <div class="note info mt-3"><div class="note-body">
+        Это предпросмотр файла: строк в проекте пока нет.
+        Выберите колонку-ключ и нажмите «Загрузить строки» — только после этого
+        строки появятся в проекте и генерацию можно будет запустить.
+      </div></div>
       <div class="metrics mt-3">
         <div class="metric"><div class="metric-k">Строк</div>
           <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
@@ -1382,9 +1388,10 @@ function initTableUpload() {
 /* --------------------------------------------------------------------------
    ГЕЙТ КАЧЕСТВА — пороги и отключение проверок.
 
-   Главное: часть проверок Google не использует вообще — тошнота,
-   водность, индексы читаемости, meta keywords. Они выключены на
-   бэкенде и показаны здесь с пометкой, чтобы было видно почему.
+   Главное: часть проверок Google не использует вообще — водность,
+   индексы читаемости, meta keywords. Они выключены на бэкенде и
+   показаны здесь с пометкой, чтобы было видно почему.
+   Тошнота удалена из проекта целиком и больше не приходит с бэкенда.
    -------------------------------------------------------------------------- */
 
 let GATE_CFG = null;
@@ -1470,7 +1477,7 @@ function renderGateConfig() {
       '<b>Что убрано и почему.</b> Тошнота (классическая и академическая), водность, ' +
       'индекс читаемости Флеша и meta keywords выключены: Google прямо говорит, что ' +
       'понятия оптимальной плотности слов не существует, алгоритмов на базовых индексах ' +
-      'читаемости нет, а тег keywords игнорируется с 2009 года. Отключённые проверки ' +
+      'читаемости нет, а тег keywords игнорируется с 2009 года. От��лючённые проверки ' +
       'не считаются при генерации и вычищаются из уже готовых страниц при сохранении.';
   }
 
@@ -1556,6 +1563,7 @@ if (document.readyState === 'loading') {
 ════════════════════════════════════════════════════════
   smm/index.html
 ════════════════════════════════════════════════════════
+
 
 <!doctype html>
 <html lang="ru" data-theme="light">
@@ -1711,7 +1719,7 @@ if (document.readyState === 'loading') {
   </main>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
 (function () {
 'use strict';
@@ -2213,7 +2221,7 @@ load();
               <h1>Паспорт проекта</h1>
               <p class="view-sub">
                 Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
-                Здесь есть развилка «данных мало — С��О��», которой нет ни у одного платного сервиса.
+                Здесь есть развилка «данных мало — ����О��», которой нет ни у одного платного сервиса.
               </p>
             </div>
             <div class="view-actions">
@@ -2229,7 +2237,7 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопр��с 1 · ������колько колонок реально различается</div>
+                  <div class="panel-title">��опр��с 1 · ������колько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -2612,7 +2620,7 @@ load();
                   </div>
                   <ul class="stub-list">
                     <li><b>Покрытие данных</b> — сколько полей строки реально упомянуто в тексте</li>
-                    <li><b>Поддержанность цифр</b> — каждое число в тексте есть в исходных данных</li>
+                    <li><b>Поддержанность цифр</b> — каждое чи��ло в тексте есть в исходных данных</li>
                     <li>Список потерянных фактов и список подозрительных чисел в карточке страницы</li>
                   </ul>
                 </div>
@@ -2800,7 +2808,7 @@ load();
                   <th style="width:126px;">Статус</th>
                   <th style="width:118px;">Балл</th>
                   <th style="width:132px;">Уникальность</th>
-                  <th style="width:170px;">Модель</th>
+                  <th style="width:170px;">Мод��ль</th>
                   <th class="td-act" style="width:130px;"></th>
                 </tr></thead>
                 <tbody id="pagesBody"></tbody>
@@ -3142,7 +3150,7 @@ load();
                 <span class="note-ico" data-ico="info"></span>
                 <div class="note-body">
                   <b>Порядок подключения.</b>
-                  1. Настройки → Search Console: вставьте JSON сервисного аккаунта Google.
+                  1. Настройки �� Search Console: вставьте JSON сервисного аккаунта Google.
                   2. В самой Search Console добавьте e-mail этого аккаунта в пользователи ресурса.
                   3. Здесь выберите ресурс и нажмите «Синхронизировать».
                   Автоматического сбора по расписанию пока нет — снимается по кнопке.
@@ -3370,7 +3378,7 @@ const S = {
   pages: [],
   models: [],
   view: 'data',
-  parallel: 3,
+  parallel: 1,
   taskFilter: 'all',
   pagesSort: 'new',
   selected: new Set(),
@@ -3711,15 +3719,18 @@ function bindStatic() {
   /* --- генерация --- */
   $('#startGenBtn').onclick = () => startGeneration();
   $('#stopGenBtn').onclick = () => stopGeneration();
-  $('#turboToggle').onchange = e => {
-    $('#parallelSeg').hidden = !e.target.checked;
-    if (!e.target.checked) S.parallel = 1;
-    else S.parallel = parseInt($$('#parallelSeg button.is-on')[0].dataset.par, 10);
+  const syncParallel = () => {
+    const on = $('#turboToggle').checked;
+    $('#parallelSeg').hidden = !on;
+    const picked = $$('#parallelSeg button.is-on')[0];
+    S.parallel = on ? (parseInt(picked ? picked.dataset.par : '', 10) || 2) : 1;
   };
+  $('#turboToggle').onchange = syncParallel;
   $$('#parallelSeg button').forEach(b => b.onclick = () => {
     $$('#parallelSeg button').forEach(x => x.classList.toggle('is-on', x === b));
-    S.parallel = parseInt(b.dataset.par, 10);
+    syncParallel();
   });
+  syncParallel();
   $('#tasksReload').onclick = () => loadTasks();
   $$('#taskFilter button').forEach(b => b.onclick = () => {
     $$('#taskFilter button').forEach(x => x.classList.toggle('is-on', x === b));
@@ -4097,7 +4108,7 @@ function renderPassport() {
 
   const varied = st.varied_columns;
   $('#q1Box').innerHTML = (varied == null)
-    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Данные».')
+    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Д��нные».')
     : `<div class="metric accent"><div class="metric-k">Различающиеся колонки</div>` +
       `<div class="metric-v">${varied} из ${st.columns_total || 0}</div>` +
       `<div class="metric-note">${escHtml((st.varied_names || []).join(', ') || 'нет ни одной')}` +
@@ -4806,7 +4817,7 @@ function renderPages() {
       `<td class="td-w-check"><input type="checkbox" class="check" data-sel="${p.id}" ` +
         `${S.selected.has(p.id) ? 'checked' : ''}></td>` +
       `<td class="td-num">${i + 1}</td>` +
-      `<td class="td-key"><button class="link-btn" data-open="${p.id}">${escHtml(p.key || '—')}</button>` +
+      `<td class="td-key"><button class="link-btn" data-open="${p.id}">${escHtml(p.key || '���')}</button>` +
         (failed ? ` <span class="pill bad">${failed} ${plural(failed, 'провал', 'провала', 'провалов')}</span>` : '') + `</td>` +
       `<td class="td-mono">${escHtml(p.slug || '—')}</td>` +
       `<td>${pill(p.status)}</td>` +
@@ -5151,7 +5162,7 @@ async function pickTheme(id) {
   } catch (e) { toast.err('Тема не сохранилась', e); }
 }
 
-/* Дизайн-основа проекта из кэша или с сервера. */
+/* Дизайн-основа проекта из кэша или с с��рвера. */
 async function ensureDesign(force) {
   if (S.design && !force) return S.design;
   try { S.design = await api.getDesign(PID); }
