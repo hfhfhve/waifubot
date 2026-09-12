@@ -11,9 +11,12 @@
   try {
     var t = localStorage.getItem('seo_theme');
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    /* слой «живое оформление» — тоже до отрисовки, иначе мигает фон */
+    var f = localStorage.getItem('seo_fx');
+    document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body class="is-app">
 
@@ -1035,7 +1038,7 @@
 
         <!-- ══════════════════════════════════════════════════════════
              ЭКРАН 8 — ПУБЛИКАЦИЯ ВОЛНАМИ (БЛОК 7) — ЗАГЛУШКА
-             ══════════════════════════════════════════════════════════ -->
+             ══════════════════════���═══════════════════════════════════ -->
         <section class="view" id="view-waves">
           <div class="view-head">
             <div class="view-head-body">
@@ -1442,7 +1445,7 @@
   </div>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 
 <script>
 /* ==========================================================================
@@ -2107,7 +2110,7 @@ function passportSlot(label, value, hint) {
    БЛОК 1 · ПАСПОРТ ПРОЕКТА
    Арифметику (вопросы 1, 4, 5) считает бэкенд по таблице,
    тип и стратегию (вопросы 2, 3) предлагает сильная модель,
-   последнее слово — за человеком (радиокнопки сохраняются сразу).
+   ��оследнее слово — за человеком (радиокнопки сохраняются сразу).
    ---------------------------------------------------------------------- */
 
 const PASSPORT_VERDICT = {
@@ -2691,7 +2694,7 @@ async function startGeneration() {
     return;
   }
   if (!S.template || S.template.status !== 'approved') {
-    toast.warn('Каркас не утверждён', 'Соберите каркас и нажмите «Утвердить».');
+    toast.warn('Каркас не утверждён', 'Соберите каркас и нажмите «Утверд��ть».');
     go('frame');
     return;
   }
