@@ -7626,7 +7626,7 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Вход · делается один раз</div>
               <h1>Данные</h1>
               <p class="view-sub">
-                Одна строка — одна будущая страница. Чем больше колонок реально различается между строками,
+                Одна строка — одна будущая страница. Чем больше колонок реально различается м����ду строками,
                 тем выше потолок уникальности и тем меньше страниц отлетит на гейте.
               </p>
             </div>
@@ -7766,8 +7766,8 @@ load();
               <div class="view-eyebrow"><i class="dot"></i>Блок 1 · решение до генерации</div>
               <h1>Паспорт проекта</h1>
               <p class="view-sub">
-                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и сколько.
-                Здесь есть развилка «данных мало — СТОП», которой нет ни у одного платного сервиса.
+                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
+                Здесь есть развилка «данных мало — ����О��», которой нет ни у одного платного сервиса.
               </p>
             </div>
             <div class="view-actions">
@@ -7783,7 +7783,7 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 1 · Сколько колонок реально различается</div>
+                  <div class="panel-title">��опр��с 1 · ������колько колонок реально различается</div>
                 </div>
               </div>
               <div class="panel-body" id="q1Box"></div>
@@ -7937,7 +7937,7 @@ load();
                 <div class="panel-head">
                   <div class="panel-head-body">
                     <div class="panel-title">Схема полей (JSON)</div>
-                    <div class="panel-sub">По ней дешёвая модель отдаёт тексты — и ничего кроме текстов.</div>
+                    <div class="panel-sub">По ней дешёвая модель отдаёт тексты — и ничего кром�� текстов.</div>
                   </div>
                 </div>
                 <div class="panel-body">
@@ -8056,7 +8056,7 @@ load();
                   <span class="switch-track"><i></i></span>
                   <span class="switch-text">
                     <span class="switch-title">Параллельно</span>
-                    <span class="switch-desc">Быстрее, но больше шансов на лимит провайдера</span>
+                    <span class="switch-desc">Быстрее, но больше ш����сов на лимит провайдера</span>
                   </span>
                 </label>
 
@@ -8166,7 +8166,7 @@ load();
                   </div>
                   <ul class="stub-list">
                     <li><b>Покрытие данных</b> — сколько полей строки реально упомянуто в тексте</li>
-                    <li><b>Поддержанность цифр</b> — каждое число в тексте есть в исходных данных</li>
+                    <li><b>Поддержанность цифр</b> — каждое чи��ло в тексте есть в исходных данных</li>
                     <li>Список потерянных фактов и список подозрительных чисел в карточке страницы</li>
                   </ul>
                 </div>
@@ -8237,10 +8237,6 @@ load();
             </div>
             <div class="panel-body">
               <div class="up-row">
-                <div class="field">
-                  <div class="field-label">Минимум символов (0 — из настроек)</div>
-                  <input class="input input-sm" id="gateMinChars" type="number" min="0" step="100" value="0">
-                </div>
                 <div class="field">
                   <div class="field-label">Уникальность, % не ниже</div>
                   <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
@@ -8339,7 +8335,7 @@ load();
                 <div class="seg seg-sm" id="pagesSort">
                   <button data-ps="new" class="is-on">Новые</button>
                   <button data-ps="score">По баллу</button>
-                  <button data-ps="uniq">По уникальности</button>
+                  <button data-ps="uniq">По у��икальности</button>
                 </div>
                 <button class="btn btn-sm" id="pagesReload"><span data-ico-sm="refresh"></span></button>
               </div>
@@ -8354,7 +8350,7 @@ load();
                   <th style="width:126px;">Статус</th>
                   <th style="width:118px;">Балл</th>
                   <th style="width:132px;">Уникальность</th>
-                  <th style="width:170px;">Модель</th>
+                  <th style="width:170px;">Мод��ль</th>
                   <th class="td-act" style="width:130px;"></th>
                 </tr></thead>
                 <tbody id="pagesBody"></tbody>
@@ -8584,7 +8580,7 @@ load();
               <h1>Обратная связь</h1>
               <p class="view-sub">
                 Раз в неделю система спрашивает Search Console по каждой странице:
-                в индексе? есть показы? какая позиция? И после этого меняет веса в гейте
+                в индексе? есть показы? какая позиция? И после этого меняет веса �� гейте
                 и правила отбора в паспорте.
               </p>
             </div>
@@ -8696,7 +8692,7 @@ load();
                 <span class="note-ico" data-ico="info"></span>
                 <div class="note-body">
                   <b>Порядок подключения.</b>
-                  1. Настройки → Search Console: вставьте JSON сервисного аккаунта Google.
+                  1. Настройки ��� Search Console: вставьте JSON сервисного аккаунта Google.
                   2. В самой Search Console добавьте e-mail этого аккаунта в пользователи ресурса.
                   3. Здесь выберите ресурс и нажмите «Синхронизировать».
                   Автоматического сбора по расписанию пока нет — снимается по кнопке.
@@ -8723,7 +8719,7 @@ load();
               <div class="panel-head">
                 <div class="panel-head-body">
                   <div class="panel-title">Модели</div>
-                  <div class="panel-sub">Сильная рисует каркас один раз, дешёвая заполняет каждую строку</div>
+                  <div class="panel-sub">Сильная рисует каркас один раз, дешё��ая заполняет каждую строку</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -8891,7 +8887,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=28"></script>
+<script src="app.js?v=27"></script>
 
 <script>
 /* ==========================================================================
@@ -8924,7 +8920,7 @@ const S = {
   pages: [],
   models: [],
   view: 'data',
-  parallel: 3,
+  parallel: 1,
   taskFilter: 'all',
   pagesSort: 'new',
   selected: new Set(),
@@ -9228,7 +9224,7 @@ function bindStatic() {
   $('#keysExampleBtn').onclick = () => {
     $('#keysInput').value =
       'Шут;номер=0;стихия=воздух;планета=Уран\n' +
-      'Маг;номер=1;стихия=огонь;планета=Меркурий\n' +
+      'Ма��;номер=1;стихия=огонь;планета=Меркурий\n' +
       'Жрица;номер=2;стихия=вода;планета=Луна';
     $('#keysInput').dispatchEvent(new Event('input'));
   };
@@ -9265,15 +9261,18 @@ function bindStatic() {
   /* --- генерация --- */
   $('#startGenBtn').onclick = () => startGeneration();
   $('#stopGenBtn').onclick = () => stopGeneration();
-  $('#turboToggle').onchange = e => {
-    $('#parallelSeg').hidden = !e.target.checked;
-    if (!e.target.checked) S.parallel = 1;
-    else S.parallel = parseInt($$('#parallelSeg button.is-on')[0].dataset.par, 10);
+  const syncParallel = () => {
+    const on = $('#turboToggle').checked;
+    $('#parallelSeg').hidden = !on;
+    const picked = $$('#parallelSeg button.is-on')[0];
+    S.parallel = on ? (parseInt(picked ? picked.dataset.par : '', 10) || 2) : 1;
   };
+  $('#turboToggle').onchange = syncParallel;
   $$('#parallelSeg button').forEach(b => b.onclick = () => {
     $$('#parallelSeg button').forEach(x => x.classList.toggle('is-on', x === b));
-    S.parallel = parseInt(b.dataset.par, 10);
+    syncParallel();
   });
+  syncParallel();
   $('#tasksReload').onclick = () => loadTasks();
   $$('#taskFilter button').forEach(b => b.onclick = () => {
     $$('#taskFilter button').forEach(x => x.classList.toggle('is-on', x === b));
@@ -9305,7 +9304,7 @@ function bindStatic() {
   $('#buildWiringBtn').onclick = () => stubDrawer('Обвязка — блок 6', [
     ['Canonical', 'Шаблон адреса по домену проекта и slug страницы.'],
     ['Sitemap', 'Только страницы в статусе «Готова», lastmod из даты генерации.'],
-    ['Schema', 'Тип разметки из типа страницы в паспорте.'],
+    ['Schema', 'Тип раз��етки из типа страницы в паспорте.'],
     ['Внутренние ссылки', '3–5 соседей по близости, без пар со схожестью выше 0.90.'],
     ['Где взять данные', 'У каждой страницы уже записан ближайший сосед и его схожесть.'],
   ]);
@@ -9348,7 +9347,7 @@ function reloadAll() {
 
 function stubDrawer(title, rows) {
   drawer.open({
-    eyebrow: 'Заглушка — бэкенд ещё не подключён',
+    eyebrow: 'Заглушка �� бэкенд ещё не подключён',
     title: title,
     body:
       `<div class="note info" style="margin:0 0 16px;">` +
@@ -9651,7 +9650,7 @@ function renderPassport() {
 
   const varied = st.varied_columns;
   $('#q1Box').innerHTML = (varied == null)
-    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Данные».')
+    ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Д��нные».')
     : `<div class="metric accent"><div class="metric-k">Различающиеся колонки</div>` +
       `<div class="metric-v">${varied} из ${st.columns_total || 0}</div>` +
       `<div class="metric-note">${escHtml((st.varied_names || []).join(', ') || 'нет ни одной')}` +
@@ -9720,7 +9719,7 @@ function paintFrameState() {
   nav.className = 'nav-state ' + (t.status === 'approved' ? 'ok' : 'warn');
   box.innerHTML = t.status === 'approved'
     ? `<span class="pill ok"><i class="dot"></i>Каркас утверждён</span>`
-    : `<span class="pill warn"><i class="dot"></i>Черновик каркаса</span>`;
+    : `<span class="pill warn"><i class="dot"></i>Черновик к��ркаса</span>`;
   $('#approveFrameBtn').hidden = t.status === 'approved';
   $('#frameModelInfo').innerHTML = modelTag(t);
 }
@@ -9805,7 +9804,7 @@ async function approveFrame(btn) {
       await api.approveTemplate(PID, S.template.id);
       S.template.status = 'approved';
       paintFrameState();
-      toast.ok('Каркас утверждён', 'Теперь можно запускать генерацию.');
+      toast.ok('Каркас утверждён', 'Теп��рь можно запускать генерацию.');
     } catch (e) { toast.err('Не удалось утвердить', e); }
   });
 }
@@ -10119,7 +10118,7 @@ async function openTaskDrawer(taskId) {
       ? `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
         `<div class="note-body">${escHtml(String(t.error))}</div></div>` : '') +
     `<details class="fold"><summary>Промпт, который ушёл в модель</summary>` +
-      `<pre class="pre">${escHtml((data && data.prompt) || 'Промпт не сохранён')}</pre></details>` +
+      `<pre class="pre">${escHtml((data && data.prompt) || 'Промпт ��е сохранён')}</pre></details>` +
     attempts.map(a =>
       `<details class="fold"><summary>Попытка ${a.n} — ${a.ok ? 'успех' : 'ошибка'}` +
         (a.chars ? ` · ${fmtNum(a.chars)} симв.` : '') + `</summary>` +
@@ -10132,7 +10131,7 @@ async function openTaskDrawer(taskId) {
 
 async function startGeneration() {
   if (!S.keys.length) {
-    toast.warn('Нет строк с данными', 'Сначала добавьте таблицу или ключи на экране «Данные».');
+    toast.warn('Нет строк с данными', 'Сначала добавьте табли��у или ключи на экране «Данные».');
     go('data');
     return;
   }
@@ -10174,7 +10173,7 @@ async function retryFailed(btn) {
       if (!res.retried) toast.warn('Нечего перезапускать', res.reason || '');
       else toast.ok('Перезапущено', res.retried + ' ' + plural(res.retried, 'задача', 'задачи', 'задач'));
       loadTasks(true);
-    } catch (e) { toast.err('Не удалось перезапустить', e); }
+    } catch (e) { toast.err('Не уд��лось перезапустить', e); }
   });
 }
 
@@ -10360,7 +10359,7 @@ function renderPages() {
       `<td class="td-w-check"><input type="checkbox" class="check" data-sel="${p.id}" ` +
         `${S.selected.has(p.id) ? 'checked' : ''}></td>` +
       `<td class="td-num">${i + 1}</td>` +
-      `<td class="td-key"><button class="link-btn" data-open="${p.id}">${escHtml(p.key || '—')}</button>` +
+      `<td class="td-key"><button class="link-btn" data-open="${p.id}">${escHtml(p.key || '���')}</button>` +
         (failed ? ` <span class="pill bad">${failed} ${plural(failed, 'провал', 'провала', 'провалов')}</span>` : '') + `</td>` +
       `<td class="td-mono">${escHtml(p.slug || '—')}</td>` +
       `<td>${pill(p.status)}</td>` +
@@ -10496,7 +10495,7 @@ async function regenPage(pid, btn) {
 async function delPage(pid) {
   const ok = await confirmDialog({
     title: 'Удалить страницу?',
-    text: 'Она исчезнет из корпуса — уникальность остальных страниц пересчитается при следующем прогоне.',
+    text: 'Она ��счезнет из корпуса — уникальность остальных страниц пересчитается п��и следующем прогоне.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10513,7 +10512,7 @@ async function deleteSelected(btn) {
   if (!ids.length) return;
   const ok = await confirmDialog({
     title: 'Удалить ' + ids.length + ' ' + plural(ids.length, 'страницу', 'страницы', 'страниц') + '?',
-    text: 'Действие неотменимо.',
+    text: '��ействие неотменимо.',
     confirm: 'Удалить', danger: true,
   });
   if (!ok) return;
@@ -10705,7 +10704,7 @@ async function pickTheme(id) {
   } catch (e) { toast.err('Тема не сохранилась', e); }
 }
 
-/* Дизайн-основа проекта из кэша или с сервера. */
+/* Дизайн-основа проекта из кэша или с с��рвера. */
 async function ensureDesign(force) {
   if (S.design && !force) return S.design;
   try { S.design = await api.getDesign(PID); }
@@ -10799,7 +10798,7 @@ async function deleteProject() {
     await api.deleteProject(PID);
     toast.ok('Проект удалён', 'Возвращаемся к списку…');
     setTimeout(() => location.href = 'index.html', 600);
-  } catch (e) { toast.err('Не удалось удалить', e); }
+  } catch (e) { toast.err('Не удало��ь удалить', e); }
 }
 
 /* ======================================================================
@@ -11172,7 +11171,6 @@ load();
 ==================================================
 Файл: ./smm/app.js
 ==================================================
-
 
 /* ==========================================================================
    SEO-Фабрика — ядро фронтенда
@@ -11571,10 +11569,9 @@ const CHECK_INFO = {
   uniqueness:             ['Уникальность по словам', '5.3'],
   self_repetition:        ['Самоповторы', '5.3'],
   intra_page_similarity:  ['Повторы блоков внутри', '5.3'],
-  volume:                 ['Объём текста', '5.4'],
+  min_body:               ['Страница не пустая', '5.4'],
   stop_phrases:           ['Стоп-слова (справка)', '5.4'],
   h2_body:                ['Текст под H2', '5.4'],
-  h2_count:               ['Число H2', '5.4'],
   h2_has_text:            ['Текст под каждым H2', '5.4'],
   structure:              ['Структура', '5.4'],
   meta_title:             ['Длина title', '5.1'],
@@ -12031,7 +12028,7 @@ const LIB_PAGE_TYPES = [
     design: 'Калькулятор сверху, объяснение, примеры' },
   { id: 'status',   icon: 'clock',  name: 'Статус с датой',
     when: 'Данные устаревают', ex: 'Работает ли VPN сегодня',
-    design: 'Большая плашка с датой, таблица состояний, история изменени��' },
+    design: 'Большая плашка с датой, таблица состояний, история изменений' },
   { id: 'digest',   icon: 'list',   name: 'Сводка из источников',
     when: 'Данные разбросаны', ex: 'Сравнение 30 мнений',
     design: 'Таблица источников, расхождения, итог' },
@@ -12241,11 +12238,6 @@ function initTableUpload() {
     const rows = meta.sample || [];
 
     const head = `
-      <div class="note info mt-3"><div class="note-body">
-        Это предпросмотр файла: строк в проекте пока нет.
-        Выберите колонку-ключ и нажмите «Загрузить строки» — только после этого
-        строки появятся в проекте и генерацию можно будет запустить.
-      </div></div>
       <div class="metrics mt-3">
         <div class="metric"><div class="metric-k">Строк</div>
           <div class="metric-v">${fmtNum(meta.rows_total || 0)}</div></div>
@@ -12507,10 +12499,9 @@ function initTableUpload() {
 /* --------------------------------------------------------------------------
    ГЕЙТ КАЧЕСТВА — пороги и отключение проверок.
 
-   Главное: часть проверок Google не использует вообще — водность,
-   индексы читаемости, meta keywords. Они выключены на бэкенде и
-   показаны здесь с пометкой, чтобы было видно почему.
-   Тошнота удалена из проекта целиком и больше не приходит с бэкенда.
+   Главное: часть проверок Google не использует вообще — тошнота,
+   водность, индексы читаемости, meta keywords. Они выключены на
+   бэкенде и показаны здесь с пометкой, чтобы было видно почему.
    -------------------------------------------------------------------------- */
 
 let GATE_CFG = null;
@@ -12548,7 +12539,6 @@ function renderGateConfig() {
   const cfg = GATE_CFG.config || {};
   const put = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
 
-  put('gateMinChars', cfg.min_chars || 0);
   put('gateUniq', Math.round((Number(cfg.uniqueness_min) || 0) * 100));
   put('gateSelfRep', cfg.self_repetition_max);
   put('gateIntra', cfg.intra_page_max);
@@ -12593,11 +12583,13 @@ function renderGateConfig() {
   const note = document.getElementById('gateNote');
   if (note) {
     note.innerHTML =
-      '<b>Что убрано и почему.</b> Тошнота (классическая и академическая), водность, ' +
-      'индекс читаемости Флеша и meta keywords выключены: Google прямо говорит, что ' +
-      'понятия оптимальной плотности слов не существует, алгоритмов на базовых индексах ' +
-      'читаемости нет, а тег keywords игнорируется с 2009 года. От��лючённые проверки ' +
-      'не считаются при генерации и вычищаются из уже готовых страниц при сохранении.';
+      '<b>Гейт = только технический брак и дубли.</b> Удалены совсем: тошнота, ' +
+      'водность, индекс Флеша, meta keywords и число H2 — Google не использует ни ' +
+      'плотность слов, ни индексы читаемости, тег keywords игнорируется с 2009 года, ' +
+      'а количество заголовков не нормируется. <b>Объём текста больше не валит ' +
+      'страницу:</b> остался один предохранитель «Страница не пустая» — 900 символов, ' +
+      'а цель по объёму задаётся промптом и оценивается баллом. Отключённые ' +
+      'проверки не считаются при генерации и вычищаются из готовых страниц при сохранении.';
   }
 
   /* подписи развилки — из тех же настроек */
@@ -12644,7 +12636,6 @@ async function saveGateConfigUI(btn) {
     .map(el => el.getAttribute('data-gate-key'));
 
   const body = {
-    min_chars: Math.round(num('gateMinChars', 0)),
     uniqueness_min: Math.max(0, Math.min(95, num('gateUniq', 80))) / 100,
     self_repetition_max: num('gateSelfRep', 0.08),
     intra_page_max: num('gateIntra', 0.6),
@@ -15315,3 +15306,20 @@ body.is-app { height: 100vh; overflow: hidden; }
 
 #s-prompts .field-label { display: flex; align-items: center; gap: 8px; }
 #s-prompts .raw-badge { font-weight: 400; }
+
+/* --------------------------------------------------------------------------
+   ФИКСЫ СЛОЁВ И СКРЫТИЯ
+   -------------------------------------------------------------------------- */
+
+/* 1. Атрибут hidden проигрывал любому своему display из стилей:
+   .btn/.seg/.pill задают inline-flex, и это перебивало display:none браузера.
+   Оттуда одновременно видные «Запустить» и «Остановить» и вечно открытый
+   селектор потоков при выключенном переключателе. */
+[hidden] { display: none !important; }
+
+/* 2. Затемнение внутри модалки лежало ПОВЕРХ самого окна:
+   .scrim — позиционированный с z-index 60, а .modal — статичный блок,
+   и любой позиционированный сосед рисуется выше него. Оттуда размытие
+   поверх кнопок и перехват всех кликов в «Удалить страницу?». */
+.modal-wrap > .scrim { z-index: 0; }
+.modal-wrap > .modal { position: relative; z-index: 1; }
