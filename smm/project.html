@@ -793,10 +793,6 @@
             <div class="panel-body">
               <div class="up-row">
                 <div class="field">
-                  <div class="field-label">Минимум символов (0 — из настроек)</div>
-                  <input class="input input-sm" id="gateMinChars" type="number" min="0" step="100" value="0">
-                </div>
-                <div class="field">
                   <div class="field-label">Уникальность, % не ниже</div>
                   <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
                 </div>
@@ -1251,7 +1247,7 @@
                 <span class="note-ico" data-ico="info"></span>
                 <div class="note-body">
                   <b>Порядок подключения.</b>
-                  1. Настройки �� Search Console: вставьте JSON сервисного аккаунта Google.
+                  1. Настройки ��� Search Console: вставьте JSON сервисного аккаунта Google.
                   2. В самой Search Console добавьте e-mail этого аккаунта в пользователи ресурса.
                   3. Здесь выберите ресурс и нажмите «Синхронизировать».
                   Автоматического сбора по расписанию пока нет — снимается по кнопке.
@@ -2278,7 +2274,7 @@ function paintFrameState() {
   nav.className = 'nav-state ' + (t.status === 'approved' ? 'ok' : 'warn');
   box.innerHTML = t.status === 'approved'
     ? `<span class="pill ok"><i class="dot"></i>Каркас утверждён</span>`
-    : `<span class="pill warn"><i class="dot"></i>Черновик каркаса</span>`;
+    : `<span class="pill warn"><i class="dot"></i>Черновик к��ркаса</span>`;
   $('#approveFrameBtn').hidden = t.status === 'approved';
   $('#frameModelInfo').innerHTML = modelTag(t);
 }
@@ -2690,7 +2686,7 @@ async function openTaskDrawer(taskId) {
 
 async function startGeneration() {
   if (!S.keys.length) {
-    toast.warn('Нет строк с данными', 'Сначала добавьте таблицу или ключи на экране «Данные».');
+    toast.warn('Нет строк с данными', 'Сначала добавьте табли��у или ключи на экране «Данные».');
     go('data');
     return;
   }
