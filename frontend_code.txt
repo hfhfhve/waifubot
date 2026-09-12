@@ -6700,9 +6700,11 @@ const characters = [
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=31">
 <script>
   try {
+    var f = localStorage.getItem('seo_fx');
+    document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
     var t = localStorage.getItem('seo_theme');
     if (t !== 'light' && t !== 'dark') t = 'light';
     document.documentElement.setAttribute('data-theme', t);
@@ -6915,7 +6917,7 @@ const characters = [
                 <div class="field-hint">
                   Google Cloud → APIs &amp; Services → Credentials → Create service account → Keys → Add key (JSON).
                   Там же включите <b>Search Console API</b>. Затем в Search Console:
-                  Настройки ресурса → Пользователи и разрешения → Добавить пользователя →
+                  ��астройки ресурса → Пользователи и разрешения → Добавить пользователя →
                   e-mail сервисного аккаунта, доступ «Полный» или «Ограниченный». Пароли и OAuth не нужны.
                 </div>
               </div>
@@ -6970,6 +6972,18 @@ const characters = [
             </div>
             <div class="panel-body">
               <div class="theme-pick" id="themePick"></div>
+
+              <div class="field" style="margin-top:18px">
+                <label class="switch" id="fxSwitch">
+                  <input type="checkbox" id="fxToggle">
+                  <span class="switch-track"><i></i></span>
+                  <span class="switch-text">
+                    <span class="switch-title">Живое оформление</span>
+                    <span class="switch-desc">Подвижный фон, плавное всплытие панелей, блики на кнопках, свечение акцентов</span>
+                  </span>
+                </label>
+                <div class="field-hint">Настройка хранится на сервере (ключ <code>ui_effects</code>) и действует во всём интерфейсе. Переключение видно сразу.</div>
+              </div>
             </div>
           </section>
 
@@ -6998,7 +7012,7 @@ const characters = [
   </main>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
 (function () {
 'use strict';
@@ -7042,6 +7056,28 @@ function renderThemes() {
     renderThemes();
     hydrateIcons();
   });
+}
+
+/* ---------- живое оформление ---------- */
+function initFxToggle() {
+  const box = $('#fxToggle');
+  if (!box) return;
+  const fromServer = fxNorm(val('ui_effects'));
+  const cur = fromServer || getFx();
+  applyFx(cur);
+  box.checked = cur === 'on';
+
+  box.onchange = async () => {
+    const v = applyFx(box.checked);
+    try {
+      const res = await api.updateSettings({ ui_effects: { value: v === 'on' } });
+      SET = (res && res.settings) ? res.settings : SET;
+      renderRaw();
+      toast.ok(v === 'on' ? 'Живое оформление включено' : 'Живое оформление выключено');
+    } catch (e) {
+      toast.bad('Не сохранилось', e.message);
+    }
+  };
 }
 
 /* ---------- загрузка ---------- */
@@ -7292,7 +7328,7 @@ async function ping(btn) {
         `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
         `<div class="note-body"><b>Связь есть.</b> Ответ за ${ms} мс.</div></div>`;
     } catch (e) {
-      $('#wirePill').innerHTML = `<span class="pill bad"><i class="dot"></i>нет связи</span>`;
+      $('#wirePill').innerHTML = `<span class="pill bad"><i class="dot"></i>нет св��зи</span>`;
       $('#wireResult').innerHTML =
         `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
         `<div class="note-body"><b>Бэкенд не ответил.</b> ${escHtml(e.message)}</div></div>`;
@@ -7398,6 +7434,7 @@ async function checkGsc(btn) {
 /* ---------- привязка ---------- */
 hydrateIcons();
 renderThemes();
+initFxToggle();
 
 $('#themeBtn').onclick = () => { toggleTheme(); renderThemes(); hydrateIcons(); };
 $('#helpBtn').onclick = () => showShortcuts();
@@ -7425,7 +7462,7 @@ $$('.set-nav-item').forEach(a => a.onclick = () => {
 
 cmdk.register([
   { group: 'Действия', label: 'Сохранить настройки', icon: 'check', run: () => saveAll($('#saveAllBtn')) },
-  { group: 'Действия', label: 'Проверить связь', icon: 'radar', run: () => ping($('#pingBtn')) },
+  { group: 'Действия', label: '��роверить связь', icon: 'radar', run: () => ping($('#pingBtn')) },
   { group: 'Прочее', label: 'К списку проектов', icon: 'home', run: () => location.href = 'index.html' },
   { group: 'Прочее', label: 'Переключить тему', icon: 'moon', hint: 'T', run: () => { toggleTheme(); renderThemes(); } },
 ]);
@@ -7456,9 +7493,12 @@ load();
   try {
     var t = localStorage.getItem('seo_theme');
     if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    /* слой «живое оформление» — тоже до отрисовки, иначе мигает фон */
+    var f = localStorage.getItem('seo_fx');
+    document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body class="is-app">
 
@@ -8480,7 +8520,7 @@ load();
 
         <!-- ══════════════════════════════════════════════════════════
              ЭКРАН 8 — ПУБЛИКАЦИЯ ВОЛНАМИ (БЛОК 7) — ЗАГЛУШКА
-             ══════════════════════════════════════════════════════════ -->
+             ══════════════════════���═══════════════════════════════════ -->
         <section class="view" id="view-waves">
           <div class="view-head">
             <div class="view-head-body">
@@ -8887,7 +8927,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 
 <script>
 /* ==========================================================================
@@ -9552,7 +9592,7 @@ function passportSlot(label, value, hint) {
    БЛОК 1 · ПАСПОРТ ПРОЕКТА
    Арифметику (вопросы 1, 4, 5) считает бэкенд по таблице,
    тип и стратегию (вопросы 2, 3) предлагает сильная модель,
-   последнее слово — за человеком (радиокнопки сохраняются сразу).
+   ��оследнее слово — за человеком (радиокнопки сохраняются сразу).
    ---------------------------------------------------------------------- */
 
 const PASSPORT_VERDICT = {
@@ -10136,7 +10176,7 @@ async function startGeneration() {
     return;
   }
   if (!S.template || S.template.status !== 'approved') {
-    toast.warn('Каркас не утверждён', 'Соберите каркас и нажмите «Утвердить».');
+    toast.warn('Каркас не утверждён', 'Соберите каркас и нажмите «Утверд��ть».');
     go('frame');
     return;
   }
@@ -11624,6 +11664,50 @@ function toggleTheme() {
 }
 
 /* --------------------------------------------------------------------------
+   6b. ЖИВОЙ ИНТЕРФЕЙС (FX)
+
+   Слой оформления: живой фон, всплытие панелей, блики на кнопках, свечения.
+   Источник истины — ключ ui_effects в настройках (БД). В браузере значение
+   дублируется в localStorage, чтобы слой применялся до первой отрисовки и не
+   было мигания при переходах между страницами.
+   -------------------------------------------------------------------------- */
+
+const FX_KEY = 'seo_fx';
+
+/** Приводит что угодно (true/false, 'on'/'off', {value:…}) к 'on' | 'off'. */
+function fxNorm(v) {
+  if (v && typeof v === 'object' && 'value' in v) v = v.value;
+  if (v === false || v === 'off' || v === 'false' || v === 0 || v === '0') return 'off';
+  if (v === true || v === 'on' || v === 'true' || v === 1 || v === '1') return 'on';
+  return null;
+}
+
+function getFx() {
+  try {
+    const v = fxNorm(localStorage.getItem(FX_KEY));
+    if (v) return v;
+  } catch (e) {}
+  return 'on';
+}
+
+function applyFx(value) {
+  const v = fxNorm(value) || 'off';
+  document.documentElement.setAttribute('data-fx', v);
+  try { localStorage.setItem(FX_KEY, v); } catch (e) {}
+  return v;
+}
+
+/** Подтягивает ui_effects с сервера. Сеть недоступна — остаётся кэш. */
+async function syncFxFromServer() {
+  try {
+    const res = await api.getSettings();
+    const set = (res && res.settings) ? res.settings : (res || {});
+    const v = fxNorm(set.ui_effects);
+    if (v) applyFx(v);
+  } catch (e) {}
+}
+
+/* --------------------------------------------------------------------------
    7. ТОСТЫ
    -------------------------------------------------------------------------- */
 
@@ -12105,6 +12189,8 @@ function themePreviewSvg(vars, opts) {
    -------------------------------------------------------------------------- */
 
 applyTheme(getTheme());
+applyFx(getFx());
+syncFxFromServer();
 
 /** Общие горячие клавиши для всех страниц. */
 document.addEventListener('keydown', e => {
@@ -15323,3 +15409,312 @@ body.is-app { height: 100vh; overflow: hidden; }
    поверх кнопок и перехват всех кликов в «Удалить страницу?». */
 .modal-wrap > .scrim { z-index: 0; }
 .modal-wrap > .modal { position: relative; z-index: 1; }
+
+/* ==========================================================================
+   СЛОЙ «ЖИВОЙ ИНТЕРФЕЙС» (FX)
+
+   Включается атрибутом на <html>: data-fx="on". Выключается — data-fx="off".
+   Источник истины — ключ ui_effects в настройках (БД), в браузере значение
+   кэшируется в localStorage, чтобы слой применялся до первой отрисовки.
+
+   Правила слоя:
+     • только additive — ни одно базовое правило выше не переопределяется
+       так, чтобы при выключении что-то осталось сломанным;
+     • ничего, что влияет на раскладку: только цвет, тень, прозрачность
+       и transform, то есть свойства, которые браузер считает на GPU;
+     • ни одна анимация не мешает чтению и не крутится в пустую там,
+       где пользователь работает с текстом;
+     • при системной настройке «меньше движения» движение отключается,
+       но статичная часть оформления остаётся.
+   ========================================================================== */
+
+:root {
+  --fx-aurora-1: 39, 131, 222;
+  --fx-aurora-2: 131, 96, 184;
+  --fx-aurora-3: 63, 146, 104;
+  --fx-aurora-alpha: .085;
+  --fx-sheen: rgba(255, 255, 255, .28);
+}
+
+[data-theme="dark"] {
+  --fx-aurora-alpha: .14;
+  --fx-sheen: rgba(255, 255, 255, .12);
+}
+
+/* --------------------------------------------------------------------------
+   1. ЖИВОЙ ФОН
+
+   Три размытых цветовых пятна на всё окно, очень медленно расходящиеся.
+   Лежат под всем интерфейсом (z-index 0 при фоне -1), не перехватывают
+   события и не создают прокрутки.
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] body.is-app::before {
+  content: "";
+  position: fixed;
+  inset: -20vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 38vmax at 18% 12%, rgba(var(--fx-aurora-1), var(--fx-aurora-alpha)), transparent 62%),
+    radial-gradient(32vmax 32vmax at 84% 22%, rgba(var(--fx-aurora-2), var(--fx-aurora-alpha)), transparent 64%),
+    radial-gradient(34vmax 34vmax at 62% 88%, rgba(var(--fx-aurora-3), calc(var(--fx-aurora-alpha) * .72)), transparent 66%);
+  filter: blur(18px);
+  animation: fxAurora 44s var(--ease) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes fxAurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
+  100% { transform: translate3d(-2%, 2.5%, 0) scale(1.02); }
+}
+
+/* Полотно и рельс становятся полупрозрачными, чтобы фон был виден,
+   но текст оставался на плотной подложке — читаемость важнее эффекта. */
+[data-fx="on"] .rail {
+  background: color-mix(in srgb, var(--rail) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+[data-fx="on"] .topbar {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/* --------------------------------------------------------------------------
+   2. ПАНЕЛИ — ГЛУБИНА И ОТКЛИК
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .panel {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--t) var(--ease-out),
+    box-shadow var(--t) var(--ease-out),
+    border-color var(--t) var(--ease);
+}
+
+[data-fx="on"] .panel:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .04),
+    0 10px 28px -14px rgba(var(--fx-aurora-1), .30);
+}
+
+/* Тонкая световая линия по верхней кромке панели. */
+[data-fx="on"] .panel { position: relative; }
+
+[data-fx="on"] .panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--fx-sheen) 22%, var(--fx-sheen) 78%, transparent);
+  opacity: 0;
+  transition: opacity var(--t) var(--ease);
+  pointer-events: none;
+}
+
+[data-fx="on"] .panel:hover::before { opacity: 1; }
+
+/* --------------------------------------------------------------------------
+   3. ПОЯВЛЕНИЕ РАЗДЕЛА
+
+   Панели всплывают каскадом. Задержки заданы только для первых восьми:
+   дальше пользователь всё равно доскроллит, а ждать анимацию не должен.
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .view.is-active > .panel,
+[data-fx="on"] .view.is-active > div > .panel {
+  animation: fxRise 460ms var(--ease-out) both;
+}
+
+[data-fx="on"] .view.is-active > .panel:nth-child(1),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(1) { animation-delay: 0ms; }
+[data-fx="on"] .view.is-active > .panel:nth-child(2),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(2) { animation-delay: 45ms; }
+[data-fx="on"] .view.is-active > .panel:nth-child(3),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(3) { animation-delay: 90ms; }
+[data-fx="on"] .view.is-active > .panel:nth-child(4),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(4) { animation-delay: 130ms; }
+[data-fx="on"] .view.is-active > .panel:nth-child(5),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(5) { animation-delay: 165ms; }
+[data-fx="on"] .view.is-active > .panel:nth-child(n + 6),
+[data-fx="on"] .view.is-active > div > .panel:nth-child(n + 6) { animation-delay: 195ms; }
+
+@keyframes fxRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --------------------------------------------------------------------------
+   4. КНОПКИ — БЛИК И СВЕЧЕНИЕ
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .btn-primary,
+[data-fx="on"] .btn-dark,
+[data-fx="on"] .btn-ok {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+[data-fx="on"] .btn-primary::before,
+[data-fx="on"] .btn-dark::before,
+[data-fx="on"] .btn-ok::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 18%, var(--fx-sheen) 50%, transparent 82%);
+  transform: translateX(-120%);
+  transition: transform 620ms var(--ease-out);
+  pointer-events: none;
+}
+
+[data-fx="on"] .btn-primary:hover::before,
+[data-fx="on"] .btn-dark:hover::before,
+[data-fx="on"] .btn-ok:hover::before { transform: translateX(120%); }
+
+/* Блик не должен крутиться под спиннером занятой кнопки. */
+[data-fx="on"] .btn.is-busy::before { display: none; }
+
+[data-fx="on"] .btn-primary:hover {
+  box-shadow: 0 4px 18px -6px rgba(var(--fx-aurora-1), .55);
+}
+
+[data-fx="on"] .btn-ok:hover {
+  box-shadow: 0 4px 18px -6px rgba(var(--fx-aurora-3), .55);
+}
+
+/* --------------------------------------------------------------------------
+   5. НАВИГАЦИЯ
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .nav-item {
+  transition:
+    background var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease-out);
+}
+
+[data-fx="on"] .nav-item:hover { transform: translateX(2px); }
+
+[data-fx="on"] .nav-item.is-active {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--fx-aurora-1), .13),
+    color-mix(in srgb, var(--surface-2) 70%, transparent) 72%
+  );
+}
+
+[data-fx="on"] .nav-item.is-active::before {
+  box-shadow: 0 0 10px rgba(var(--fx-aurora-1), .85);
+}
+
+/* --------------------------------------------------------------------------
+   6. ЖИВЫЕ ИНДИКАТОРЫ
+
+   Пульсирующая точка «идёт генерация» получает расходящееся кольцо:
+   единственное место, где постоянное движение оправдано — оно показывает,
+   что процесс не завис.
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .nav-state.live,
+[data-fx="on"] .proj-switch-dot.is-live { position: relative; }
+
+[data-fx="on"] .nav-state.live::after,
+[data-fx="on"] .proj-switch-dot.is-live::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 99px;
+  border: 1px solid var(--accent);
+  animation: fxRing 1.8s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+@keyframes fxRing {
+  from { opacity: .55; transform: scale(.7); }
+  to   { opacity: 0;   transform: scale(2.1); }
+}
+
+/* --------------------------------------------------------------------------
+   7. ЧИСЛА И МЕТРИКИ
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .metric {
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+
+[data-fx="on"] .metric:hover {
+  border-color: var(--accent-line);
+  background: color-mix(in srgb, var(--accent-soft) 40%, transparent);
+}
+
+[data-fx="on"] .metric-v {
+  background: linear-gradient(180deg, var(--text), color-mix(in srgb, var(--text) 62%, var(--accent)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   8. ЗАГОЛОВОК РАЗДЕЛА
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .view-eyebrow .dot {
+  animation: fxBlink 2.6s var(--ease) infinite;
+}
+
+@keyframes fxBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+/* --------------------------------------------------------------------------
+   9. ПОЛЯ ВВОДА
+   -------------------------------------------------------------------------- */
+
+[data-fx="on"] .input:focus,
+[data-fx="on"] textarea:focus {
+  box-shadow:
+    0 0 0 3px var(--accent-soft),
+    0 2px 14px -8px rgba(var(--fx-aurora-1), .6);
+}
+
+/* --------------------------------------------------------------------------
+   10. УВАЖЕНИЕ К СИСТЕМНОЙ НАСТРОЙКЕ
+
+   Пользователь попросил систему двигать интерфейс меньше — значит движение
+   выключаем даже при включённом слое. Цвет, тени и прозрачность остаются:
+   они никому не мешают.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fx="on"] body.is-app::before,
+  [data-fx="on"] .view.is-active > .panel,
+  [data-fx="on"] .view.is-active > div > .panel,
+  [data-fx="on"] .nav-state.live::after,
+  [data-fx="on"] .proj-switch-dot.is-live::after,
+  [data-fx="on"] .view-eyebrow .dot {
+    animation: none;
+  }
+  [data-fx="on"] .panel:hover,
+  [data-fx="on"] .nav-item:hover { transform: none; }
+  [data-fx="on"] .btn-primary::before,
+  [data-fx="on"] .btn-dark::before,
+  [data-fx="on"] .btn-ok::before { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   11. ПЕЧАТЬ — БЕЗ ЭФФЕКТОВ
+   -------------------------------------------------------------------------- */
+
+@media print {
+  [data-fx="on"] body.is-app::before { display: none; }
+  [data-fx="on"] .panel { backdrop-filter: none; background: #fff; }
+}
