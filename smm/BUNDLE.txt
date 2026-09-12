@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: 7b581b0d09026db90b8e2eaf6070411ab4f4227b
-# built:  2026-09-12 18:32 UTC
+# commit: 43c74013121afd6ef44aaeee0efca6ff9f20756c
+# built:  2026-09-12 18:33 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -9,7 +9,7 @@ smm/app.js  (1543 строк)
 smm/index.html  (328 строк)
 smm/project.html  (3389 строк)
 smm/robots.txt  (4 строк)
-smm/settings.html  (745 строк)
+smm/settings.html  (782 строк)
 smm/style.css  (2957 строк)
 
 ════════════════════════════════════════════════════════
@@ -5346,9 +5346,11 @@ Disallow: /
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=31">
 <script>
   try {
+    var f = localStorage.getItem('seo_fx');
+    document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
     var t = localStorage.getItem('seo_theme');
     if (t !== 'light' && t !== 'dark') t = 'light';
     document.documentElement.setAttribute('data-theme', t);
@@ -5561,7 +5563,7 @@ Disallow: /
                 <div class="field-hint">
                   Google Cloud → APIs &amp; Services → Credentials → Create service account → Keys → Add key (JSON).
                   Там же включите <b>Search Console API</b>. Затем в Search Console:
-                  Настройки ресурса → Пользователи и разрешения → Добавить пользователя →
+                  ��астройки ресурса → Пользователи и разрешения → Добавить пользователя →
                   e-mail сервисного аккаунта, доступ «Полный» или «Ограниченный». Пароли и OAuth не нужны.
                 </div>
               </div>
@@ -5616,6 +5618,18 @@ Disallow: /
             </div>
             <div class="panel-body">
               <div class="theme-pick" id="themePick"></div>
+
+              <div class="field" style="margin-top:18px">
+                <label class="switch" id="fxSwitch">
+                  <input type="checkbox" id="fxToggle">
+                  <span class="switch-track"><i></i></span>
+                  <span class="switch-text">
+                    <span class="switch-title">Живое оформление</span>
+                    <span class="switch-desc">Подвижный фон, плавное всплытие панелей, блики на кнопках, свечение акцентов</span>
+                  </span>
+                </label>
+                <div class="field-hint">Настройка хранится на сервере (ключ <code>ui_effects</code>) и действует во всём интерфейсе. Переключение видно сразу.</div>
+              </div>
             </div>
           </section>
 
@@ -5644,7 +5658,7 @@ Disallow: /
   </main>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
 (function () {
 'use strict';
@@ -5688,6 +5702,28 @@ function renderThemes() {
     renderThemes();
     hydrateIcons();
   });
+}
+
+/* ---------- живое оформление ---------- */
+function initFxToggle() {
+  const box = $('#fxToggle');
+  if (!box) return;
+  const fromServer = fxNorm(val('ui_effects'));
+  const cur = fromServer || getFx();
+  applyFx(cur);
+  box.checked = cur === 'on';
+
+  box.onchange = async () => {
+    const v = applyFx(box.checked);
+    try {
+      const res = await api.updateSettings({ ui_effects: { value: v === 'on' } });
+      SET = (res && res.settings) ? res.settings : SET;
+      renderRaw();
+      toast.ok(v === 'on' ? 'Живое оформление включено' : 'Живое оформление выключено');
+    } catch (e) {
+      toast.bad('Не сохранилось', e.message);
+    }
+  };
 }
 
 /* ---------- загрузка ---------- */
@@ -5938,7 +5974,7 @@ async function ping(btn) {
         `<div class="note ok"><span class="note-ico">${ico('ok', 17)}</span>` +
         `<div class="note-body"><b>Связь есть.</b> Ответ за ${ms} мс.</div></div>`;
     } catch (e) {
-      $('#wirePill').innerHTML = `<span class="pill bad"><i class="dot"></i>нет связи</span>`;
+      $('#wirePill').innerHTML = `<span class="pill bad"><i class="dot"></i>нет св��зи</span>`;
       $('#wireResult').innerHTML =
         `<div class="note bad"><span class="note-ico">${ico('alert', 17)}</span>` +
         `<div class="note-body"><b>Бэкенд не ответил.</b> ${escHtml(e.message)}</div></div>`;
@@ -6044,6 +6080,7 @@ async function checkGsc(btn) {
 /* ---------- привязка ---------- */
 hydrateIcons();
 renderThemes();
+initFxToggle();
 
 $('#themeBtn').onclick = () => { toggleTheme(); renderThemes(); hydrateIcons(); };
 $('#helpBtn').onclick = () => showShortcuts();
@@ -6071,7 +6108,7 @@ $$('.set-nav-item').forEach(a => a.onclick = () => {
 
 cmdk.register([
   { group: 'Действия', label: 'Сохранить настройки', icon: 'check', run: () => saveAll($('#saveAllBtn')) },
-  { group: 'Действия', label: 'Проверить связь', icon: 'radar', run: () => ping($('#pingBtn')) },
+  { group: 'Действия', label: '��роверить связь', icon: 'radar', run: () => ping($('#pingBtn')) },
   { group: 'Прочее', label: 'К списку проектов', icon: 'home', run: () => location.href = 'index.html' },
   { group: 'Прочее', label: 'Переключить тему', icon: 'moon', hint: 'T', run: () => { toggleTheme(); renderThemes(); } },
 ]);
