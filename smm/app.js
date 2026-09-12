@@ -450,6 +450,50 @@ function toggleTheme() {
 }
 
 /* --------------------------------------------------------------------------
+   6b. ЖИВОЙ ИНТЕРФЕЙС (FX)
+
+   Слой оформления: живой фон, всплытие панелей, блики на кнопках, свечения.
+   Источник истины — ключ ui_effects в настройках (БД). В браузере значение
+   дублируется в localStorage, чтобы слой применялся до первой отрисовки и не
+   было мигания при переходах между страницами.
+   -------------------------------------------------------------------------- */
+
+const FX_KEY = 'seo_fx';
+
+/** Приводит что угодно (true/false, 'on'/'off', {value:…}) к 'on' | 'off'. */
+function fxNorm(v) {
+  if (v && typeof v === 'object' && 'value' in v) v = v.value;
+  if (v === false || v === 'off' || v === 'false' || v === 0 || v === '0') return 'off';
+  if (v === true || v === 'on' || v === 'true' || v === 1 || v === '1') return 'on';
+  return null;
+}
+
+function getFx() {
+  try {
+    const v = fxNorm(localStorage.getItem(FX_KEY));
+    if (v) return v;
+  } catch (e) {}
+  return 'on';
+}
+
+function applyFx(value) {
+  const v = fxNorm(value) || 'off';
+  document.documentElement.setAttribute('data-fx', v);
+  try { localStorage.setItem(FX_KEY, v); } catch (e) {}
+  return v;
+}
+
+/** Подтягивает ui_effects с сервера. Сеть недоступна — остаётся кэш. */
+async function syncFxFromServer() {
+  try {
+    const res = await api.getSettings();
+    const set = (res && res.settings) ? res.settings : (res || {});
+    const v = fxNorm(set.ui_effects);
+    if (v) applyFx(v);
+  } catch (e) {}
+}
+
+/* --------------------------------------------------------------------------
    7. ТОСТЫ
    -------------------------------------------------------------------------- */
 
@@ -931,6 +975,8 @@ function themePreviewSvg(vars, opts) {
    -------------------------------------------------------------------------- */
 
 applyTheme(getTheme());
+applyFx(getFx());
+syncFxFromServer();
 
 /** Общие горячие клавиши для всех страниц. */
 document.addEventListener('keydown', e => {
