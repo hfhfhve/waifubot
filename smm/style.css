@@ -2955,3 +2955,57 @@ body.is-app { height: 100vh; overflow: hidden; }
   [data-fx="on"] body.is-app::before { display: none; }
   [data-fx="on"] .panel { backdrop-filter: none; background: #fff; }
 }
+
+
+/* ==========================================================================
+   СКЛЕЕННЫЕ ЭКРАНЫ · шесть пунктов меню вместо одиннадцати
+   Один экран показывает несколько секций (.view) стопкой, между ними
+   рисуется разделитель, а заголовки второй и следующих секций мельче —
+   чтобы читалось как один экран с разделами, а не как две страницы подряд.
+   ========================================================================== */
+
+.view.is-active + .view.is-active {
+	margin-top: 46px;
+	padding-top: 28px;
+	border-top: 1px solid var(--line);
+}
+
+.view.is-active + .view.is-active .view-head h1 { font-size: 23px; }
+
+/* подпункты экрана в левой рельсе */
+.nav-sub {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin: 3px 0 8px 0;
+	padding-left: 30px;
+}
+
+.nav-jump {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	width: 100%;
+	padding: 6px 10px;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: var(--muted);
+	font: inherit;
+	font-size: 12.5px;
+	text-align: left;
+	cursor: pointer;
+	transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.nav-jump:hover { background: var(--surface-2); color: var(--text); }
+.nav-jump.is-active { color: var(--text); font-weight: 560; }
+.nav-jump.is-active::before {
+	content: '';
+	width: 3px;
+	height: 12px;
+	margin-left: -6px;
+	margin-right: 3px;
+	border-radius: 2px;
+	background: var(--accent);
+}
