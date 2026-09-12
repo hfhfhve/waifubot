@@ -6700,7 +6700,7 @@ const characters = [
 <meta name="viewport" content="width=1280">
 <title>Настройки — SEO-Фабрика</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232783de'/%3E%3Cpath d='M9 21V11l7 6 7-6v10' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=32">
 <script>
   try {
     var f = localStorage.getItem('seo_fx');
@@ -7012,7 +7012,7 @@ const characters = [
   </main>
 </div>
 
-<script src="app.js?v=28"></script>
+<script src="app.js?v=29"></script>
 <script>
 (function () {
 'use strict';
@@ -7498,7 +7498,7 @@ load();
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body class="is-app">
 
@@ -7522,60 +7522,81 @@ load();
     <nav class="rail-nav">
 
       <div class="nav-group">
-        <div class="nav-group-title">Путь проекта</div>
+        <div class="nav-group-title">Подготовка</div>
 
-        <button class="nav-item" data-screen="data" data-hotkey="1">
+        <button class="nav-item" data-view="data" data-hotkey="1">
           <span class="nav-ico" data-ico="table"></span>
           <span class="nav-label">Данные</span>
           <span class="nav-count" id="navKeys">0</span>
         </button>
-        <div class="nav-sub" data-screen="data" hidden>
-          <button class="nav-jump" data-jump="data">Источник и колонки</button>
-          <button class="nav-jump" data-jump="passport">Паспорт проекта</button>
-        </div>
 
-        <button class="nav-item" data-screen="frame" data-hotkey="2">
+        <button class="nav-item" data-view="passport" data-hotkey="2">
+          <span class="nav-ico" data-ico="compass"></span>
+          <span class="nav-label">Паспорт</span>
+          <span class="nav-soon">блок 1</span>
+        </button>
+
+        <button class="nav-item" data-view="frame" data-hotkey="3">
           <span class="nav-ico" data-ico="layout"></span>
           <span class="nav-label">Каркас</span>
           <span class="nav-state" id="navFrameState" hidden></span>
         </button>
+      </div>
 
-        <button class="nav-item" data-screen="generate" data-hotkey="3">
+      <div class="nav-group">
+        <div class="nav-group-title">Конвейер</div>
+
+        <button class="nav-item" data-view="generate" data-hotkey="4">
           <span class="nav-ico" data-ico="play"></span>
           <span class="nav-label">Генерация</span>
           <span class="nav-state" id="navGenLive"></span>
         </button>
-        <div class="nav-sub" data-screen="generate" hidden>
-          <button class="nav-jump" data-jump="generate">Запуск и задачи</button>
-          <button class="nav-jump" data-jump="gate">Гейт качества <i class="nav-state" id="navGateState"></i></button>
-        </div>
 
-        <button class="nav-item" data-screen="pages" data-hotkey="4">
+        <button class="nav-item" data-view="gate" data-hotkey="5">
+          <span class="nav-ico" data-ico="shield"></span>
+          <span class="nav-label">Гейт качества</span>
+          <span class="nav-state" id="navGateState"></span>
+        </button>
+
+        <button class="nav-item" data-view="pages" data-hotkey="6">
           <span class="nav-ico" data-ico="file"></span>
           <span class="nav-label">Страницы</span>
         </button>
-        <div class="nav-sub" data-screen="pages" hidden>
-          <button class="nav-jump" data-jump="pages">Список страниц</button>
-          <button class="nav-jump" data-jump="wiring">Обвязка кодом</button>
-        </div>
-
-        <button class="nav-item" data-screen="publish" data-hotkey="5">
-          <span class="nav-ico" data-ico="waves"></span>
-          <span class="nav-label">Публикация</span>
-        </button>
-        <div class="nav-sub" data-screen="publish" hidden>
-          <button class="nav-jump" data-jump="waves">Волны</button>
-          <button class="nav-jump" data-jump="feedback">Обратная связь</button>
-          <button class="nav-jump" data-jump="export">Выгрузка архива</button>
-        </div>
       </div>
 
       <div class="nav-group">
-        <div class="nav-group-title">Настройки</div>
+        <div class="nav-group-title">После генерации</div>
 
-        <button class="nav-item" data-screen="rules" data-hotkey="0">
+        <button class="nav-item" data-view="wiring" data-hotkey="7">
+          <span class="nav-ico" data-ico="link"></span>
+          <span class="nav-label">Обвязка</span>
+          <span class="nav-soon">блок 6</span>
+        </button>
+
+        <button class="nav-item" data-view="waves" data-hotkey="8">
+          <span class="nav-ico" data-ico="waves"></span>
+          <span class="nav-label">Волны</span>
+          <span class="nav-soon">блок 7</span>
+        </button>
+
+        <button class="nav-item" data-view="feedback" data-hotkey="9">
+          <span class="nav-ico" data-ico="radar"></span>
+          <span class="nav-label">Обратная связь</span>
+          <span class="nav-soon">блок 8</span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Настройки и выход</div>
+
+        <button class="nav-item" data-view="rules" data-hotkey="0">
           <span class="nav-ico" data-ico="sliders"></span>
           <span class="nav-label">Правила проекта</span>
+        </button>
+
+        <button class="nav-item" data-view="export" data-hotkey="e">
+          <span class="nav-ico" data-ico="download"></span>
+          <span class="nav-label">Выгрузка</span>
         </button>
       </div>
 
@@ -7923,7 +7944,7 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Дизайн-основы · справочник</div>
+                  <div class="panel-title">Библиотека 3 · дизайн-основы</div>
                   <div class="panel-sub">Не картинки, а наборы блоков, жёстко привязанные к типу страницы.</div>
                 </div>
               </div>
@@ -8722,59 +8743,6 @@ load();
         </section>
 
         <!-- ══════════════════════════════════════════════════════════
-             ЭКРАН 11 — ВЫГРУЗКА
-             ══════════════════════════════════════════════════════════ -->
-        <section class="view" id="view-export">
-          <div class="view-head">
-            <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
-              <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
-            </div>
-          </div>
-
-          <div class="grid grid-2">
-            <div class="panel accent">
-              <div class="panel-body">
-                <div class="export-hero">
-                  <span class="export-ico" data-ico="download"></span>
-                  <div>
-                    <div class="export-n" id="exportCount">—</div>
-                    <div class="export-t">страниц готово к выгрузке</div>
-                  </div>
-                </div>
-                <div class="btn-row mt-3">
-                  <button class="btn btn-dark btn-lg" id="exportBtn">
-                    <span data-ico-sm="download"></span> Скачать ZIP
-                  </button>
-                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
-                </div>
-                <div class="muted mt-2" id="exportDomainHint" hidden></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Состав архива</div>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="checks-list">
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ══════════════════════════════════════════════════════════
              ЭКРАН 10 — ПРАВИЛА ПРОЕКТА
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-rules">
@@ -8810,8 +8778,8 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Базовые пороги проекта</div>
-                  <div class="panel-sub">Два главных числа. Полный список проверок — в «Генерация → Гейт качества»</div>
+                  <div class="panel-title">Пороги гейта</div>
+                  <div class="panel-sub">Уровни 5.3 и 5.4</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -8834,8 +8802,8 @@ load();
           <div class="panel" id="designPanel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Оформление генерируемых страниц</div>
-                <div class="panel-sub">Вид сайта на выходе, а не тема интерфейса. Меняется когда угодно, порядок блоков берётся из паспорта</div>
+                <div class="panel-title">Тема оформления</div>
+                <div class="panel-sub">Только внешний вид — меняется когда угодно. Порядок блоков берётся из паспорта</div>
               </div>
               <span class="pill" id="designPill">—</span>
             </div>
@@ -8901,13 +8869,65 @@ load();
           </div>
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════
+             ЭКРАН 11 — ВЫГРУЗКА
+             ══════════════════════════════════════════════════════════ -->
+        <section class="view" id="view-export">
+          <div class="view-head">
+            <div class="view-head-body">
+              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
+              <h1>Выгрузка</h1>
+              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="panel accent">
+              <div class="panel-body">
+                <div class="export-hero">
+                  <span class="export-ico" data-ico="download"></span>
+                  <div>
+                    <div class="export-n" id="exportCount">—</div>
+                    <div class="export-t">страниц готово к выгрузке</div>
+                  </div>
+                </div>
+                <div class="btn-row mt-3">
+                  <button class="btn btn-dark btn-lg" id="exportBtn">
+                    <span data-ico-sm="download"></span> Скачать ZIP
+                  </button>
+                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
+                </div>
+                <div class="muted mt-2" id="exportDomainHint" hidden></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-head-body">
+                  <div class="panel-title">Состав архива</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="checks-list">
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
+                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
+                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </main>
   </div>
 </div>
 
-<script src="app.js?v=29"></script>
+<script src="app.js?v=28"></script>
 
 <script>
 /* ==========================================================================
@@ -8932,20 +8952,6 @@ const VIEWS = {
   export:   'Выгрузка',
 };
 
-/* Шесть экранов вместо одиннадцати пунктов меню.
-   Секции (.view) не удалены и не переписаны — один экран показывает несколько секций стопкой. */
-const SCREENS = {
-  data:     { label: 'Данные и паспорт', views: ['data', 'passport'] },
-  frame:    { label: 'Каркас',            views: ['frame'] },
-  generate: { label: 'Генерация и гейт',  views: ['generate', 'gate'] },
-  pages:    { label: 'Страницы и обвязка', views: ['pages', 'wiring'] },
-  publish:  { label: 'Публикация',        views: ['waves', 'feedback', 'export'] },
-  rules:    { label: 'Правила проекта',   views: ['rules'] },
-};
-
-const VIEW_SCREEN = {};
-Object.keys(SCREENS).forEach(id => SCREENS[id].views.forEach(v => { VIEW_SCREEN[v] = id; }));
-
 const S = {
   project: null,
   template: null,
@@ -8954,7 +8960,6 @@ const S = {
   pages: [],
   models: [],
   view: 'data',
-  screen: 'data',
   parallel: 1,
   taskFilter: 'all',
   pagesSort: 'new',
@@ -9007,7 +9012,7 @@ async function boot() {
   registerCommands();
 
   const start = (location.hash || '').replace('#', '');
-  go(start || 'data');
+  go(VIEWS[start] ? start : 'data');
 
   loadKeys();
   loadTasks(true);
@@ -9170,40 +9175,16 @@ async function runGscSync(btn) {
    РОУТЕР
    ====================================================================== */
 
-function go(target) {
-  /* target — или экран ('publish'), или секция ('feedback'): старые ссылки и анкоры работают как раньше. */
-  const asView   = VIEWS[target] ? target : null;
-  const screen   = SCREENS[target] ? target : (asView ? VIEW_SCREEN[asView] : 'data');
-  const sc       = SCREENS[screen] || SCREENS.data;
-  const view     = asView && sc.views.indexOf(asView) >= 0 ? asView : sc.views[0];
+function go(view) {
+  if (!VIEWS[view]) view = 'data';
+  S.view = view;
 
-  S.screen = screen;
-  S.view   = view;
-
-  $$('.view').forEach(v => v.classList.toggle('is-active', sc.views.indexOf(v.id.slice(5)) >= 0));
-  $$('.nav-item[data-screen]').forEach(b => b.classList.toggle('is-active', b.dataset.screen === screen));
-  $$('.nav-sub').forEach(el => { el.hidden = el.dataset.screen !== screen; });
-  $$('.nav-jump').forEach(b => b.classList.toggle('is-active', b.dataset.jump === view));
-
-  $('#crumbView').textContent = sc.label;
+  $$('.view').forEach(v => v.classList.toggle('is-active', v.id === 'view-' + view));
+  $$('.nav-item[data-view]').forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
+  $('#crumbView').textContent = VIEWS[view];
   history.replaceState(null, '', '#' + view);
   $('.canvas').scrollTop = 0;
 
-  sc.views.forEach(initView);
-
-  if (view !== sc.views[0]) {
-    const el = $('#view-' + view);
-    if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  }
-}
-
-/* Секция открыта в текущем экране — нужно для фоновых обновлений. */
-function screenHas(view) {
-  const sc = SCREENS[S.screen];
-  return !!sc && sc.views.indexOf(view) >= 0;
-}
-
-function initView(view) {
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
   if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
@@ -9215,8 +9196,7 @@ function initView(view) {
 }
 
 function bindStatic() {
-  $$('.nav-item[data-screen]').forEach(b => b.onclick = () => go(b.dataset.screen));
-  $$('.nav-jump').forEach(b => b.onclick = () => go(b.dataset.jump));
+  $$('.nav-item[data-view]').forEach(b => b.onclick = () => go(b.dataset.view));
   $('#projSwitch').onclick = () => location.href = 'index.html';
   $('#themeBtn').onclick = () => toggleTheme();
   $('#helpBtn').onclick = () => showShortcuts();
@@ -9229,7 +9209,7 @@ function bindStatic() {
     if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const byHotkey = $$('.nav-item[data-hotkey="' + e.key + '"]')[0];
-    if (byHotkey) { e.preventDefault(); go(byHotkey.dataset.screen); return; }
+    if (byHotkey) { e.preventDefault(); go(byHotkey.dataset.view); return; }
     if (e.key.toLowerCase() === 'g') { go('generate'); startGeneration(); }
     if (e.key.toLowerCase() === 'r') { e.preventDefault(); reloadAll(); }
   });
@@ -9401,7 +9381,7 @@ function bindStatic() {
 function reloadAll() {
   loadKeys(); loadTasks(); loadPages();
   S.passport = null;
-  if (screenHas('passport')) initPassport(true);
+  if (S.view === 'passport') initPassport(true);
   toast.info('Обновлено');
 }
 
@@ -10354,9 +10334,9 @@ async function loadPages(silent) {
   }
   renderPageMetrics();
   renderPages();
-  if (screenHas('gate')) renderGate();
-  if (screenHas('wiring')) renderWiring();
-  if (screenHas('export')) renderExport();
+  if (S.view === 'gate') renderGate();
+  if (S.view === 'wiring') renderWiring();
+  if (S.view === 'export') renderExport();
 }
 
 function renderPageMetrics() {
@@ -10681,7 +10661,7 @@ async function loadModels() {
     const res = await api.getModels();
     S.models = Array.isArray(res) ? res : (res.models || []);
   } catch (e) { S.models = []; }
-  if (screenHas('rules')) fillRules();
+  if (S.view === 'rules') fillRules();
 }
 
 /* ======================================================================
@@ -12224,7 +12204,8 @@ document.addEventListener('keydown', e => {
 function showShortcuts() {
   const rows = [
     ['⌘ K / Ctrl K', 'Командная палитра'],
-    ['1 … 9',        'Перейти на этап по номеру'],
+    ['1 … 5',        'Перейти на этап по номеру'],
+    ['0',            'Правила проекта'],
     ['G',            'Запустить генерацию'],
     ['R',            'Обновить текущий этап'],
     ['T',            'Переключить тему'],
@@ -15737,4 +15718,58 @@ body.is-app { height: 100vh; overflow: hidden; }
 @media print {
   [data-fx="on"] body.is-app::before { display: none; }
   [data-fx="on"] .panel { backdrop-filter: none; background: #fff; }
+}
+
+
+/* ==========================================================================
+   СКЛЕЕННЫЕ ЭКРАНЫ · шесть пунктов меню вместо одиннадцати
+   Один экран показывает несколько секций (.view) стопкой, между ними
+   рисуется разделитель, а заголовки второй и следующих секций мельче —
+   чтобы читалось как один экран с разделами, а не как две страницы подряд.
+   ========================================================================== */
+
+.view.is-active + .view.is-active {
+	margin-top: 46px;
+	padding-top: 28px;
+	border-top: 1px solid var(--line);
+}
+
+.view.is-active + .view.is-active .view-head h1 { font-size: 23px; }
+
+/* подпункты экрана в левой рельсе */
+.nav-sub {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin: 3px 0 8px 0;
+	padding-left: 30px;
+}
+
+.nav-jump {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	width: 100%;
+	padding: 6px 10px;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: var(--muted);
+	font: inherit;
+	font-size: 12.5px;
+	text-align: left;
+	cursor: pointer;
+	transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.nav-jump:hover { background: var(--surface-2); color: var(--text); }
+.nav-jump.is-active { color: var(--text); font-weight: 560; }
+.nav-jump.is-active::before {
+	content: '';
+	width: 3px;
+	height: 12px;
+	margin-left: -6px;
+	margin-right: 3px;
+	border-radius: 2px;
+	background: var(--accent);
 }
