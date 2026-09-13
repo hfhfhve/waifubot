@@ -371,12 +371,22 @@ function modelTag(o) {
 /** Балл → буква и тон. Пороги совпадают с гейтом бэкенда. */
 function grade(score) {
   const s = Number(score);
-  if (!isFinite(s)) return { g: '—', cls: 'g-none' };
-  if (s >= 88) return { g: 'A', cls: 'g-a' };
-  if (s >= 78) return { g: 'B', cls: 'g-b' };
-  if (s >= 68) return { g: 'C', cls: 'g-c' };
-  if (s >= 55) return { g: 'D', cls: 'g-d' };
-  return { g: 'F', cls: 'g-f' };
+  /* Отдаём и letter/tone, и старые g/cls — разные вызовы ждут разные имена. */
+  const mk = (letter, tone) => ({ letter: letter, tone: tone, g: letter, cls: tone });
+  if (score === null || score === undefined || !isFinite(s)) return mk('—', 'g-none');
+  if (s >= 88) return mk('A', 'g-a');
+  if (s >= 78) return mk('B', 'g-b');
+  if (s >= 68) return mk('C', 'g-c');
+  if (s >= 55) return mk('D', 'g-d');
+  return mk('F', 'g-f');
+}
+
+/** Балл страницы: поле с бека, иначе запись quality_score из checks. */
+function pageScore(p) {
+  if (!p) return null;
+  if (typeof p.quality_score === 'number') return p.quality_score;
+  const hit = (p.checks || []).find(c => c && c.check_name === 'quality_score');
+  return hit && typeof hit.score === 'number' ? hit.score : null;
 }
 
 /** Русские названия проверок гейта + к какому уровню относятся. */
