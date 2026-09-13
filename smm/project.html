@@ -16,7 +16,7 @@
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=40">
 </head>
 <body class="is-app">
 
@@ -87,7 +87,7 @@
 
         <button class="nav-item" data-view="wiring" data-hotkey="7">
           <span class="nav-ico" data-ico="link"></span>
-          <span class="nav-label">Обвязка</span>
+          <span class="nav-label">SEO-обвязка</span>
           <span class="nav-soon">блок 6</span>
         </button>
 
@@ -99,7 +99,7 @@
 
         <button class="nav-item" data-view="feedback" data-hotkey="9">
           <span class="nav-ico" data-ico="radar"></span>
-          <span class="nav-label">Обратная связь</span>
+          <span class="nav-label">Результаты в поиске</span>
           <span class="nav-soon">блок 8</span>
         </button>
       </div>
@@ -109,7 +109,7 @@
 
         <button class="nav-item" data-view="rules" data-hotkey="0">
           <span class="nav-ico" data-ico="sliders"></span>
-          <span class="nav-label">Правила проекта</span>
+          <span class="nav-label">Настройки проекта</span>
         </button>
 
         <button class="nav-item" data-view="export" data-hotkey="e">
@@ -181,11 +181,10 @@
         <section class="view" id="view-data">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Вход · делается один раз</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 1 · исходные данные</div>
               <h1>Данные</h1>
               <p class="view-sub">
-                Одна строка — одна будущая страница. Чем больше колонок реально различается м����ду строками,
-                тем выше потолок уникальности и тем меньше страниц отлетит на гейте.
+                Одна строка данных создаёт одну страницу. Добавьте таблицу и проверьте, что важные колонки заполнены.
               </p>
             </div>
           </div>
@@ -193,8 +192,8 @@
           <div class="panel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Откуда берём данные</div>
-                <div class="panel-sub">Сейчас работает только ручная вставка. Остальное — заглушки с техзаданием.</div>
+                <div class="panel-title">Источник данных</div>
+                <div class="panel-sub">Выберите удобный способ загрузки. Доступные варианты помечены ниже.</div>
               </div>
             </div>
             <div class="panel-body">
@@ -281,7 +280,7 @@
             <div class="panel-head">
               <div class="panel-head-body">
                 <div class="panel-title">Карта колонок</div>
-                <div class="panel-sub">Главный предсказатель успеха: сколько колонок реально различается.</div>
+                <div class="panel-sub">Показывает, какие данные делают страницы разными.</div>
               </div>
             </div>
             <div class="panel-body" id="columnsMap"></div>
@@ -321,17 +320,13 @@
         <section class="view" id="view-passport">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 из 6 · после загрузки данных</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 · решение ИИ</div>
               <h1>ИИ-анализ проекта</h1>
-              <p class="view-sub">Система проверит данные, предложит формат страницы и стратегию ценности. Ничего выбирать заранее не нужно.</p>
+              <p class="view-sub">ИИ оценит данные и предложит подходящую структуру страниц.</p>
             </div>
             <div class="view-actions">
               <button class="btn btn-dark btn-lg" id="analyzeBtn"><span data-ico-sm="spark"></span> Запустить анализ</button>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="active">2. ИИ-анализ</span><span>3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div id="passportVerdict"></div>
@@ -373,20 +368,16 @@
         <section class="view" id="view-frame">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 из 6 · по рекомендации ИИ</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 · шаблон страницы</div>
               <h1>Каркас</h1>
               <p class="view-sub">
-                ИИ получает ваши данные и рекомендацию прошлого шага, затем создаёт один общий шаблон страницы. Вы проверяете его и запускаете массовую генерацию.
+                Создайте один шаблон, проверьте его и утвердите перед запуском.
               </p>
             </div>
             <div class="view-actions">
               <span id="frameStatePill"></span>
               <span id="frameModelInfo"></span>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="active">3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
           <div class="seg" id="frameMode">
             <button data-fmode="chat" class="is-on">Создать с ИИ</button>
@@ -398,8 +389,8 @@
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Диалог с сильной моделью</div>
-                  <div class="panel-sub">Ответ должен содержать ровно четыре блока: HTML, SEO META, JSON SCHEMA и промпт.</div>
+                  <div class="panel-title">Создание каркаса с ИИ</div>
+                  <div class="panel-sub">Опишите пожелания или сразу попросите ИИ собрать готовый каркас.</div>
                 </div>
                 <div class="panel-tools">
                   <button class="icon-btn" id="chatReload" title="Обновить историю" data-ico="refresh"></button>
@@ -509,17 +500,12 @@
         <section class="view" id="view-generate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 из 6 · массовое создание</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 · создание страниц</div>
               <h1>Генерация</h1>
               <p class="view-sub">
-                Дешёвая модель заполняет схему полей, потом код без ИИ вставляет JSON в каркас.
-                Страница ни разу не генерируется целиком — именно поэтому разметка не ломается.
+                Запустите обработку строк и следите за результатом каждой задачи.
               </p>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="active">4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div class="panel accent">
@@ -639,27 +625,27 @@
         <section class="view" id="view-gate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 из 6 · после генерации</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 · автоматическая проверка</div>
               <h1>Контроль качества</h1>
-              <p class="view-sub">Здесь видно только три вещи: открывается ли страница, не дублирует ли другие и достаточно ли высок итоговый балл.</p>
+              <p class="view-sub">Проверяем технические ошибки, дубли и общий балл страниц.</p>
             </div>
             <div class="view-actions"><button class="btn" id="recomputeBtn"><span data-ico-sm="refresh"></span> Перепроверить страницы</button></div>
           </div>
 
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="done">4. Генерация</span><span class="active">5. Контроль</span><span>6. Страницы</span>
+          <div class="empty-state-card" id="gateEmpty">
+            <span class="empty-state-icon" data-ico="shield"></span>
+            <div><b>Пока нечего проверять</b><p>После генерации здесь появятся результаты по всем страницам.</p></div>
           </div>
-
-          <div class="quality-summary" id="gateLevels">
-            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Технически исправны</b><p>HTML, заголовок, мета и обязательные поля собраны без ошибок.</p><div class="gate-checks" id="lvl1Checks"></div></div></div>
-            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Не похожи на дубли</b><p>Сравнение с остальными страницами и проверка повторов внутри текста.</p><div class="gate-checks" id="lvl3Checks"></div></div></div>
-            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл</b><p>Общая оценка качества от 0 до 100. Подробности доступны в карточке страницы.</p><div class="gate-checks" id="lvl4Checks"></div></div></div>
+          <div class="quality-summary" id="gateCards" hidden>
+            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Без технических ошибок</b><div class="gate-checks" id="lvl1Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Прошли проверку на дубли</b><div class="gate-checks" id="lvl3Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл качества</b><div class="gate-checks" id="lvl4Checks"></div></div></div>
           </div>
 
           <div class="panel" id="gateCfg">
             <div class="panel-head">
-              <div class="panel-head-body"><div class="panel-title">Правила допуска <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Обычные значения уже выставлены. Меняйте их только если понимаете последствия.</div></div>
-              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Вернуть обычные</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
+              <div class="panel-head-body"><div class="panel-title">Настройки проверки <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Оставьте стандартные значения, если не требуется особый режим.</div></div>
+              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Сбросить</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
             </div>
             <div class="panel-body">
               <div class="up-row gate-thresholds">
@@ -669,7 +655,13 @@
                 <div class="field"><div class="field-label">Готова от, баллов</div><input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80"></div>
                 <div class="field"><div class="field-label">Переделать от</div><input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60"></div>
               </div>
-              <details class="gate-details"><summary>Показать отдельные технические проверки</summary><div id="gateChecks" class="mt-2"></div></details>
+              <div class="gate-disclosure">
+                <button class="gate-disclosure-btn" id="gateChecksToggle" type="button" aria-expanded="false">
+                  <span><b>Технические проверки</b><small>Посмотреть результаты каждой проверки</small></span>
+                  <span class="gate-disclosure-action">Показать</span>
+                </button>
+                <div id="gateChecksWrap" hidden><div id="gateChecks"></div></div>
+              </div>
               <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
@@ -693,9 +685,9 @@
         <section class="view" id="view-pages">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 из 6 · готовый результат</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 · готовые страницы</div>
               <h1>Страницы</h1>
-              <p class="view-sub">Клик по баллу открывает все проверки страницы по уровням гейта.</p>
+              <p class="view-sub">Откройте страницу, скачайте HTML или отправьте её на повторную генерацию.</p>
             </div>
           </div>
 
@@ -749,11 +741,10 @@
         <section class="view" id="view-wiring">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 6 · код без ИИ</div>
-              <h1>Обвязка</h1>
+              <div class="view-eyebrow"><i class="dot"></i>Подготовка к публикации</div>
+              <h1>SEO-обвязка</h1>
               <p class="view-sub">
-                Ничего из этого не требует модели — только детерминированный код
-                поверх готовых страниц.
+                Canonical, sitemap, микроразметка и внутренние ссылки для готовых страниц.
               </p>
             </div>
             <div class="view-actions">
@@ -860,12 +851,10 @@
         <section class="view" id="view-waves">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 7 · выкладывать порциями</div>
-              <h1>Публикация волнами</h1>
+              <div class="view-eyebrow"><i class="dot"></i>Публикация</div>
+              <h1>Публикация партиями</h1>
               <p class="view-sub">
-                30 страниц → пауза две недели → замер индексации.
-                Вошло больше половины — следующая волна. Меньше — СТОП и разбираться,
-                а не выкладывать остальные 900.
+                Публикуйте небольшими партиями и проверяйте индексацию перед следующим запуском.
               </p>
             </div>
             <div class="view-actions">
@@ -952,12 +941,10 @@
         <section class="view" id="view-feedback">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 8 · замкнутый контур</div>
-              <h1>Обратная связь</h1>
+              <div class="view-eyebrow"><i class="dot"></i>После публикации</div>
+              <h1>Результаты в поиске</h1>
               <p class="view-sub">
-                Раз в неделю система спрашивает Search Console по каждой странице:
-                в индексе? есть показы? какая позиция? И после этого меняет веса �� гейте
-                и правила отбора в паспорте.
+                Данные Search Console: показы, клики, позиции и страницы без трафика.
               </p>
             </div>
             <div class="view-actions">
@@ -1084,9 +1071,9 @@
         <section class="view" id="view-rules">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Только этот проект</div>
-              <h1>Правила проекта</h1>
-              <p class="view-sub">Настройки ниже перекрывают глобальные и действуют только внутри этого проекта.</p>
+              <div class="view-eyebrow"><i class="dot"></i>Настройки</div>
+              <h1>Настройки проекта</h1>
+              <p class="view-sub">Эти параметры действуют только в текущем проекте.</p>
             </div>
           </div>
 
@@ -1211,9 +1198,9 @@
         <section class="view" id="view-export">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
+              <div class="view-eyebrow"><i class="dot"></i>Экспорт</div>
               <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
+              <p class="view-sub">Скачайте готовые страницы одним архивом или отдельно выгрузите sitemap.</p>
             </div>
           </div>
 
@@ -1263,7 +1250,7 @@
   </div>
 </div>
 
-<script src="app.js?v=28"></script>
+<script src="app.js?v=40"></script>
 
 <script>
 /* ==========================================================================
@@ -1281,10 +1268,10 @@ const VIEWS = {
   generate: 'Генерация',
   gate:     'Контроль качества',
   pages:    'Страницы',
-  wiring:   'Обвязка',
-  waves:    'Публикация волнами',
-  feedback: 'Обратная связь',
-  rules:    'Правила проекта',
+  wiring:   'SEO-обвязка',
+  waves:    'Публикация партиями',
+  feedback: 'Результаты в поиске',
+  rules:    'Настройки проекта',
   export:   'Выгрузка',
 };
 
@@ -1657,8 +1644,17 @@ function bindStatic() {
   });
   $('#retryFailedBtn').onclick = e => retryFailed(e.currentTarget);
 
-  /* --- гейт --- */
+  /* --- контроль качества --- */
   $('#recomputeBtn').onclick = e => recompute(e.currentTarget);
+  const gateToggle = $('#gateChecksToggle');
+  if (gateToggle) gateToggle.onclick = () => {
+    const wrap = $('#gateChecksWrap');
+    const open = wrap ? wrap.hidden : false;
+    if (wrap) wrap.hidden = !open;
+    gateToggle.setAttribute('aria-expanded', String(open));
+    const action = gateToggle.querySelector('.gate-disclosure-action');
+    if (action) action.textContent = open ? 'Скрыть' : 'Показать';
+  };
 
   /* --- страницы --- */
   $('#pagesReload').onclick = () => loadPages();
@@ -1677,7 +1673,7 @@ function bindStatic() {
   $('#selDelete').onclick = e => deleteSelected(e.currentTarget);
 
   /* --- заглушки блоков 6–8 --- */
-  $('#buildWiringBtn').onclick = () => stubDrawer('Обвязка — блок 6', [
+  $('#buildWiringBtn').onclick = () => stubDrawer('SEO-обвязка — блок 6', [
     ['Canonical', 'Шаблон адреса по домену проекта и slug страницы.'],
     ['Sitemap', 'Только страницы в статусе «Готова», lastmod из даты генерации.'],
     ['Schema', 'Тип раз��етки из типа страницы в паспорте.'],
@@ -2568,6 +2564,10 @@ async function retryFailed(btn) {
 
 function renderGate() {
   const pages = S.pages || [];
+  const gateEmpty = $('#gateEmpty');
+  const gateCards = $('#gateCards');
+  if (gateEmpty) gateEmpty.hidden = pages.length > 0;
+  if (gateCards) gateCards.hidden = pages.length === 0;
   const buckets = { 1: {}, 3: {}, 4: {} };
 
   pages.forEach(p => {
