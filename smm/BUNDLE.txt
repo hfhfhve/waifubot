@@ -1,16 +1,16 @@
 # SMM Frontend — снимок репозитория
-# commit: 05c6341c6e4d62ef0192f636b6e417fbdae60b1e
-# built:  2026-09-13 19:41 UTC
+# commit: 826d7aa3d9247146c888b9d31e5866de4043b8c9
+# built:  2026-09-13 20:39 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
-smm/app.js  (1546 строк)
+smm/app.js  (1553 строк)
 smm/index.html  (328 строк)
 smm/project.html  (3406 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (782 строк)
-smm/style.css  (3076 строк)
+smm/style.css  (3099 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -226,6 +226,13 @@ const api = {
   uploadTable:  (id, fd) => req(`/projects/${id}/table`, { method: 'POST', body: fd, headers: {} }),
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
   linkSheet:    (id, d)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify(d) }),
+
+  /* ---- Изображения ---- */
+  listMedia:   (id)     => req(`/projects/${id}/media`),
+  uploadMedia: (id, fd) => req(`/projects/${id}/media/upload`, { method: 'POST', body: fd, headers: {} }),
+  importMedia: (id, d)  => req(`/projects/${id}/media/url`, { method: 'POST', body: JSON.stringify(d) }),
+  deleteMedia: (id, aid)=> req(`/projects/${id}/media/${aid}`, { method: 'DELETE' }),
+  mediaUrl:    (id, aid)=> `${API_BASE.replace(/\/+$/, '')}/projects/${id}/media/${aid}/file`,
 
   /* ---- БЛОК 2 — Библиотеки и проектировщик (ещё нет) ---- */
   listLibraries: ()      => req('/libraries'),
@@ -9221,3 +9228,26 @@ body.is-app{font-size:15px;letter-spacing:0;color:var(--text);background:var(--s
 .flow-steps{display:none!important}
 @media(max-width:1100px){.quality-summary{grid-template-columns:1fr}.gate-thresholds{grid-template-columns:repeat(2,minmax(0,1fr))}.canvas{padding-left:24px;padding-right:24px}}
 @media(max-width:760px){.canvas{padding:22px 16px 96px}.view-head{margin-bottom:22px}.view-head h1{font-size:28px}.view-sub{font-size:15px}.panel-head,.panel-body{padding:16px}.quality-card{min-height:0}.gate-thresholds{grid-template-columns:1fr}.topbar{padding:0 14px}.btn,.icon-btn{min-height:44px}.tbl-scroll{max-height:62vh}.fork{grid-template-columns:1fr}.gate-disclosure-btn{min-height:72px}}
+
+
+/* Дополнения к страницам -------------------------------------------------- */
+.site-options-panel .panel-body{padding-top:18px}
+.site-options-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.site-option{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;transition:border-color .16s var(--ease),box-shadow .16s var(--ease),background .16s var(--ease)}
+.site-option:hover{border-color:var(--line-strong)}
+.site-option.is-on{border-color:color-mix(in srgb,var(--accent) 58%,var(--line));box-shadow:0 0 0 3px var(--accent-soft)}
+.site-option-toggle{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;user-select:none}
+.site-option-toggle input{position:absolute;opacity:0;pointer-events:none}
+.site-check{display:grid;place-items:center;width:23px;height:23px;border:1.5px solid var(--line-strong);border-radius:7px;color:transparent;background:var(--surface-2);font-size:14px;font-weight:800;flex:none;transition:.16s var(--ease)}
+.site-option-toggle input:checked + .site-check{background:var(--accent);border-color:var(--accent);color:white}
+.site-option-toggle input:focus-visible + .site-check{box-shadow:0 0 0 3px var(--accent-soft)}
+.site-option-toggle>span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+.site-option-toggle b{font-size:14px;line-height:1.25}
+.site-option-toggle small{font-size:12.5px;line-height:1.35;color:var(--muted)}
+.site-option-fields{padding:0 16px 17px;border-top:1px solid var(--line);background:var(--surface-2)}
+.site-option-fields[hidden]{display:none}
+.site-option-fields>.field,.site-option-fields>.form-grid{margin-top:15px}
+.site-option-fields .textarea{min-height:112px}
+.site-options-save{display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+@media(max-width:860px){.site-options-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.site-option-toggle{padding:14px}.site-option-fields{padding:0 14px 15px}.site-option-fields .form-grid{grid-template-columns:1fr}.site-option-fields .form-grid .full{grid-column:auto}.site-options-save{align-items:stretch;flex-direction:column}.site-options-save .btn{justify-content:center}}
