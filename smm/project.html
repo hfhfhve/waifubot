@@ -16,7 +16,7 @@
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=41">
+<link rel="stylesheet" href="style.css?v=42">
 </head>
 <body class="is-app">
 
@@ -381,6 +381,42 @@
                 <button class="btn btn-primary" id="saveSiteRequirementsBtn"><span data-ico-sm="check"></span> Сохранить дополнения</button>
                 <span class="muted" id="siteRequirementsState">Изменения применятся к следующему каркасу</span>
               </div>
+            </div>
+          </div>
+
+          <div class="panel media-panel" id="mediaPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Изображения <span class="pill neutral" id="mediaCount">0</span></div>
+                <div class="panel-sub">Загрузите файл или вставьте ссылку — сервис сохранит оптимизированный WebP и положит его в ZIP.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="media-form-grid">
+                <label class="field"><span class="field-label">Куда привязать</span>
+                  <select class="select" id="mediaScope"><option value="project">Ко всему проекту</option><option value="page">К конкретной странице</option></select>
+                </label>
+                <label class="field" id="mediaKeyField" hidden><span class="field-label">Страница</span><select class="select" id="mediaKey"></select></label>
+                <label class="field"><span class="field-label">Роль</span>
+                  <select class="select" id="mediaRole"><option value="logo">Логотип</option><option value="hero">Главное изображение</option><option value="content">В тексте</option><option value="gallery">Галерея</option></select>
+                </label>
+                <label class="field"><span class="field-label">Alt-текст</span><input class="input" id="mediaAlt" placeholder="Что изображено — без переспама"></label>
+                <label class="field full"><span class="field-label">Подпись под изображением</span><input class="input" id="mediaCaption" placeholder="Необязательно"></label>
+              </div>
+              <div class="media-source-grid">
+                <div class="media-source-card">
+                  <div><b>Загрузить файлы</b><small>JPEG, PNG или WebP · до 15 МБ каждый</small></div>
+                  <input class="input" type="file" id="mediaFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+                  <button class="btn btn-primary" id="mediaUploadBtn"><span data-ico-sm="upload"></span> Загрузить и сжать</button>
+                </div>
+                <div class="media-source-card">
+                  <div><b>Добавить по ссылке</b><small>Файл скачается сейчас — внешний хостинг больше не нужен</small></div>
+                  <input class="input" type="url" id="mediaUrl" placeholder="https://site.ru/image.jpg">
+                  <button class="btn" id="mediaUrlBtn"><span data-ico-sm="link"></span> Скачать по ссылке</button>
+                </div>
+              </div>
+              <div class="media-note">Исходники не складываются в БД: там хранится только метаинформация. В архив попадают готовые WebP-файлы.</div>
+              <div class="media-assets" id="mediaAssets"></div>
             </div>
           </div>
 
@@ -1358,7 +1394,7 @@
   </div>
 </div>
 
-<script src="app.js?v=40"></script>
+<script src="app.js?v=42"></script>
 
 <script>
 /* ==========================================================================
@@ -1387,6 +1423,7 @@ const S = {
   project: null,
   template: null,
   keys: [],
+  media: [],
   tasks: null,
   pages: [],
   models: [],
@@ -1447,6 +1484,7 @@ async function boot() {
   go(VIEWS[start] ? start : 'data');
 
   loadKeys();
+  loadMedia();
   loadTasks(true);
   loadPages(true);
   loadModels();
@@ -1699,6 +1737,10 @@ function bindStatic() {
   });
   $('#saveSiteRequirementsBtn').onclick = e => saveSiteRequirements(e.currentTarget);
 
+  $('#mediaScope').onchange = syncMediaTarget;
+  $('#mediaUploadBtn').onclick = e => uploadMediaFiles(e.currentTarget);
+  $('#mediaUrlBtn').onclick = e => importMediaUrl(e.currentTarget);
+
   $('#addKeysBtn').onclick = e => addKeys(e.currentTarget);
   $('#keysReload').onclick = () => loadKeys();
   $('#keysFilter').oninput = () => renderKeys();
@@ -1833,7 +1875,7 @@ function bindStatic() {
 }
 
 function reloadAll() {
-  loadKeys(); loadTasks(); loadPages();
+  loadKeys(); loadMedia(); loadTasks(); loadPages();
   S.passport = null;
   if (S.view === 'passport') initPassport(true);
   toast.info('Обновлено');
@@ -1928,6 +1970,93 @@ async function saveSiteRequirements(btn) {
   });
 }
 
+function mediaPayload() {
+  const scope = $('#mediaScope').value;
+  const key = scope === 'page' ? Number($('#mediaKey').value || 0) : null;
+  if (scope === 'page' && !key) throw new Error('Сначала выберите страницу');
+  return {
+    scope, role: $('#mediaRole').value, key_item_id: key,
+    alt_text: ($('#mediaAlt').value || '').trim(),
+    caption: ($('#mediaCaption').value || '').trim(),
+  };
+}
+
+function fillMediaKeyOptions() {
+  const select = $('#mediaKey');
+  if (!select) return;
+  const old = select.value;
+  select.innerHTML = S.keys.length
+    ? S.keys.map(k => `<option value="${k.id}">${escHtml(k.key)}</option>`).join('')
+    : '<option value="">Сначала добавьте строки</option>';
+  if (old && S.keys.some(k => String(k.id) === old)) select.value = old;
+  syncMediaTarget();
+}
+
+function syncMediaTarget() {
+  const page = $('#mediaScope').value === 'page';
+  $('#mediaKeyField').hidden = !page;
+  const logo = $('#mediaRole').querySelector('option[value="logo"]');
+  logo.disabled = page;
+  if (page && $('#mediaRole').value === 'logo') $('#mediaRole').value = 'content';
+}
+
+async function loadMedia() {
+  const box = $('#mediaAssets');
+  box.innerHTML = '<div class="muted">Загрузка изображений…</div>';
+  try { S.media = await api.listMedia(PID) || []; }
+  catch (e) { box.innerHTML = `<div class="note bad">${escHtml(e.message)}</div>`; return; }
+  renderMedia();
+}
+
+function renderMedia() {
+  $('#mediaCount').textContent = fmtNum(S.media.length);
+  const box = $('#mediaAssets');
+  if (!S.media.length) {
+    box.innerHTML = '<div class="empty media-empty"><div class="empty-title">Изображений пока нет</div><div class="empty-text">Добавьте логотип всему проекту или фотографию отдельной странице.</div></div>';
+    return;
+  }
+  const role = {logo:'Логотип', hero:'Главное', content:'В тексте', gallery:'Галерея'};
+  box.innerHTML = S.media.map(a => `<article class="media-asset">
+    <img src="${api.mediaUrl(PID,a.id)}" alt="${escHtml(a.alt_text || '')}" loading="lazy">
+    <div class="media-asset-body"><b>${escHtml(a.original_name || 'image.webp')}</b>
+      <span>${role[a.role] || a.role} · ${a.scope === 'project' ? 'весь проект' : escHtml(a.key || 'страница')}</span>
+      <small>${a.width}×${a.height} · ${Math.max(1,Math.round((a.size_bytes||0)/1024))} КБ · WebP</small>
+    </div>
+    <button class="icon-btn sm" data-delmedia="${a.id}" title="Удалить">${ico('trash',15)}</button>
+  </article>`).join('');
+  box.querySelectorAll('[data-delmedia]').forEach(b => b.onclick = async () => {
+    if (!await confirmDialog({title:'Удалить изображение?',text:'Оно исчезнет из следующих экспортов.',confirm:'Удалить',danger:true})) return;
+    try { await api.deleteMedia(PID,b.dataset.delmedia); S.media=S.media.filter(x=>String(x.id)!==String(b.dataset.delmedia)); renderMedia(); toast.ok('Изображение удалено'); }
+    catch(e){ toast.err('Не удалось удалить',e); }
+  });
+}
+
+async function uploadMediaFiles(btn) {
+  const files = Array.from($('#mediaFiles').files || []);
+  if (!files.length) { toast.warn('Выберите файл'); return; }
+  await withBusy(btn, async () => {
+    try {
+      const meta = mediaPayload();
+      for (const file of files) {
+        const fd = new FormData(); fd.append('file',file);
+        Object.entries(meta).forEach(([k,v]) => { if (v !== null) fd.append(k,String(v)); });
+        await api.uploadMedia(PID,fd);
+      }
+      $('#mediaFiles').value=''; await loadMedia();
+      toast.ok('Изображения готовы', files.length + ' шт. преобразовано в WebP');
+    } catch(e){ toast.err('Не удалось загрузить',e); }
+  });
+}
+
+async function importMediaUrl(btn) {
+  const url=($('#mediaUrl').value||'').trim();
+  if (!url) { toast.warn('Вставьте ссылку'); return; }
+  await withBusy(btn, async () => {
+    try { await api.importMedia(PID,{...mediaPayload(),url}); $('#mediaUrl').value=''; await loadMedia(); toast.ok('Изображение скачано','Сохранено как WebP'); }
+    catch(e){ toast.err('Не удалось скачать',e); }
+  });
+}
+
 async function loadKeys() {
   $('#keysBody').innerHTML = skeletonRows(6, 4);
   try {
@@ -1940,6 +2069,7 @@ async function loadKeys() {
   renderColumns();
   $('#navKeys').textContent = fmtNum(S.keys.length);
   $('#keysCountPill').textContent = fmtNum(S.keys.length);
+  fillMediaKeyOptions();
 }
 
 function renderColumns() {
