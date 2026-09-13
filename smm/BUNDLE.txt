@@ -1,13 +1,13 @@
 # SMM Frontend — снимок репозитория
-# commit: 9c152b760641085620e4930431cd9ee61a6a98a9
-# built:  2026-09-13 12:00 UTC
+# commit: 6d80e9280963677372ad510bbbb9ec41d10aa9d2
+# built:  2026-09-13 14:17 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
 smm/a  (1 строк)
 smm/app.js  (1554 строк)
 smm/index.html  (328 строк)
-smm/project.html  (3392 строк)
+smm/project.html  (3215 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (782 строк)
 smm/style.css  (3011 строк)
@@ -1951,7 +1951,7 @@ load();
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Проект — SEO-Фабрика</title>
 <meta name="robots" content="noindex">
 <script>
@@ -1988,7 +1988,7 @@ load();
     <nav class="rail-nav">
 
       <div class="nav-group">
-        <div class="nav-group-title">Подготовка</div>
+        <div class="nav-group-title">Подготовка проекта</div>
 
         <button class="nav-item" data-view="data" data-hotkey="1">
           <span class="nav-ico" data-ico="table"></span>
@@ -1998,8 +1998,8 @@ load();
 
         <button class="nav-item" data-view="passport" data-hotkey="2">
           <span class="nav-ico" data-ico="compass"></span>
-          <span class="nav-label">Паспорт</span>
-          <span class="nav-soon">блок 1</span>
+          <span class="nav-label">ИИ-анализ</span>
+          <span class="nav-step">2</span>
         </button>
 
         <button class="nav-item" data-view="frame" data-hotkey="3">
@@ -2010,7 +2010,7 @@ load();
       </div>
 
       <div class="nav-group">
-        <div class="nav-group-title">Конвейер</div>
+        <div class="nav-group-title">Создание страниц</div>
 
         <button class="nav-item" data-view="generate" data-hotkey="4">
           <span class="nav-ico" data-ico="play"></span>
@@ -2020,7 +2020,7 @@ load();
 
         <button class="nav-item" data-view="gate" data-hotkey="5">
           <span class="nav-ico" data-ico="shield"></span>
-          <span class="nav-label">Гейт качества</span>
+          <span class="nav-label">Контроль качества</span>
           <span class="nav-state" id="navGateState"></span>
         </button>
 
@@ -2264,77 +2264,53 @@ load();
         </section>
 
         <!-- ============================================================
-             БЛОК 1 · ПАСПОРТ ПРОЕКТА
+             ШАГ 2 · ИИ-АНАЛИЗ
              ============================================================ -->
         <section class="view" id="view-passport">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 1 · решение до генерации</div>
-              <h1>Паспорт проекта</h1>
-              <p class="view-sub">
-                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
-                Здесь есть развилка «данных мало — ����О��», которой нет ни у одного платного сервиса.
-              </p>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 из 6 · после загрузки данных</div>
+              <h1>ИИ-анализ проекта</h1>
+              <p class="view-sub">Система проверит данные, предложит формат страницы и стратегию ценности. Ничего выбирать заранее не нужно.</p>
             </div>
             <div class="view-actions">
-              <button class="btn btn-dark" id="analyzeBtn">
-                <span data-ico-sm="spark"></span> Проанализировать данные
-              </button>
+              <button class="btn btn-dark btn-lg" id="analyzeBtn"><span data-ico-sm="spark"></span> Запустить анализ</button>
             </div>
+          </div>
+
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="active">2. ИИ-анализ</span><span>3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div id="passportVerdict"></div>
 
+          <div class="panel" id="aiDecisionPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Рекомендация ИИ</div>
+                <div class="panel-sub">Тип отвечает за структуру страницы. Стратегия — за полезность и причину существования страницы.</div>
+              </div>
+            </div>
+            <div class="panel-body" id="aiRecommendation"></div>
+          </div>
+
           <div class="grid grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">��опр��с 1 · ������колько колонок реально различается</div>
-                </div>
-              </div>
-              <div class="panel-body" id="q1Box"></div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 4 · Потолок страниц</div>
-                </div>
-              </div>
-              <div class="panel-body" id="q4Box"></div>
-            </div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Качество исходных данных</div></div></div><div class="panel-body" id="q1Box"></div></div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Безопасный объём запуска</div></div></div><div class="panel-body" id="q4Box"></div></div>
           </div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 2 · Тип страницы</div>
-                <div class="panel-sub">Библиотека 1 — пять типов. Тип задаёт дизайн-основу и набор обязательных блоков.</div>
-              </div>
-            </div>
+          <details class="panel choice-details">
+            <summary class="panel-head"><span><b>Изменить рекомендацию вручную</b><small>Необязательно. Откройте только если решение ИИ не подходит.</small></span><span data-ico-sm="chevron"></span></summary>
             <div class="panel-body">
-              <div class="pick grid-3" id="typePick"></div>
+              <div class="field-label">Тип страницы — структура и порядок блоков</div>
+              <div class="pick grid-3 mt-2" id="typePick"></div>
+              <div class="field-label mt-3">Стратегия ценности — чем страница полезнее обычного ответа</div>
+              <div class="pick grid-3 mt-2" id="stratPick"></div>
             </div>
-          </div>
+          </details>
 
           <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 3 · Стратегия добавленной ценности</div>
-                <div class="panel-sub">Библиотека 2 — за что страница вообще имеет право существовать.</div>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="pick grid-3" id="stratPick"></div>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 5 · Какие ключи выкинуть и почему</div>
-              </div>
-            </div>
+            <div class="panel-head"><div class="panel-head-body"><div class="panel-title">Строки, которые лучше не генерировать</div><div class="panel-sub">Дубли и строки, которым не хватает данных.</div></div></div>
             <div class="panel-body" id="q5Box"></div>
           </div>
         </section>
@@ -2345,11 +2321,10 @@ load();
         <section class="view" id="view-frame">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 2 · проектировщик каркаса</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 из 6 · по рекомендации ИИ</div>
               <h1>Каркас</h1>
               <p class="view-sub">
-                Каркас делается один раз сильной моделью: разметка с полями <code>{{…}}</code>,
-                схема полей и промпт для дешёвой модели. Дальше все страницы собираются кодом без ИИ.
+                ИИ получает ваши данные и рекомендацию прошлого шага, затем создаёт один общий шаблон страницы. Вы проверяете его и запускаете массовую генерацию.
               </p>
             </div>
             <div class="view-actions">
@@ -2358,10 +2333,12 @@ load();
             </div>
           </div>
 
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="active">3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
+          </div>
           <div class="seg" id="frameMode">
-            <button data-fmode="chat" class="is-on">Диалог с моделью</button>
-            <button data-fmode="lib">Дизайн-основы</button>
-            <button data-fmode="edit">Редактор каркаса</button>
+            <button data-fmode="chat" class="is-on">Создать с ИИ</button>
+            <button data-fmode="edit">Проверить и утвердить</button>
           </div>
 
           <!-- режим: диалог -->
@@ -2379,12 +2356,6 @@ load();
               <div class="panel-body flush">
                 <div class="chat">
                   <div class="chat-log" id="chatLog"></div>
-                  <div class="chat-quick">
-                    <button class="chip" data-quick="Мне нужна страница-срез базы: карточка сущности с главной таблицей характеристик, разделами и FAQ.">Срез базы</button>
-                    <button class="chip" data-quick="Мне нужна страница-матрица A×B: двухколоночное сравнение, шкала и явный вывод.">Матрица A×B</button>
-                    <button class="chip" data-quick="Мне нужна страница-расчёт: калькулятор сверху, объяснение формулы и примеры.">Расчёт</button>
-                    <button class="chip" data-quick="Сделай разметку без воды: только те блоки, которые заполняются фактами из строки таблицы.">Без воды</button>
-                  </div>
                   <div class="chat-compose">
                     <textarea class="textarea" id="chatInput" rows="2"
                       placeholder="Опишите, какая нужна страница…  Enter — отправить, Shift+Enter — перенос"></textarea>
@@ -2396,25 +2367,12 @@ load();
               </div>
               <div class="panel-foot">
                 <button class="btn" id="askFrameBtn">
-                  <span data-ico-sm="layout"></span> Попросить итоговый каркас
+                  <span data-ico-sm="layout"></span> Сгенерировать каркас
                 </button>
                 <button class="btn btn-ok" id="extractFrameBtn">
                   <span data-ico-sm="download"></span> Извлечь каркас из ответа
                 </button>
               </div>
-            </div>
-          </div>
-
-          <!-- режим: библиотека дизайн-основ -->
-          <div id="fmode-lib" hidden>
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Библиотека 3 · дизайн-основы</div>
-                  <div class="panel-sub">Не картинки, а наборы блоков, жёстко привязанные к типу страницы.</div>
-                </div>
-              </div>
-              <div class="panel-body" id="designLib"></div>
             </div>
           </div>
 
@@ -2499,13 +2457,17 @@ load();
         <section class="view" id="view-generate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блоки 3 и 4 · цикл по каждой строке</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 из 6 · массовое создание</div>
               <h1>Генерация</h1>
               <p class="view-sub">
                 Дешёвая модель заполняет схему полей, потом код без ИИ вставляет JSON в каркас.
                 Страница ни разу не генерируется целиком — именно поэтому разметка не ломается.
               </p>
             </div>
+          </div>
+
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="active">4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div class="panel accent">
@@ -2620,210 +2582,66 @@ load();
         </section>
 
         <!-- ══════════════════════════════════════════════════════════
-             ЭКРАН 5 — ГЕЙТ КАЧЕСТВА (БЛОК 5, четыре уровня)
+             ШАГ 5 — КОНТРОЛЬ КАЧЕСТВА
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-gate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 5 · четыре уровня строго по порядку</div>
-              <h1>Гейт качества</h1>
-              <p class="view-sub">
-                Уровни проходятся последовательно. Страница, упавшая на 5.1,
-                дальше не идёт — нет смысла мерить текст у сломанной разметки.
-              </p>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 из 6 · после генерации</div>
+              <h1>Контроль качества</h1>
+              <p class="view-sub">Здесь видно только три вещи: открывается ли страница, не дублирует ли другие и достаточно ли высок итоговый балл.</p>
             </div>
-            <div class="view-actions">
-              <button class="btn" id="recomputeBtn">
-                <span data-ico-sm="refresh"></span> Пересчитать уникальность
-              </button>
-            </div>
+            <div class="view-actions"><button class="btn" id="recomputeBtn"><span data-ico-sm="refresh"></span> Перепроверить страницы</button></div>
           </div>
 
-          <div class="gate" id="gateLevels">
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="done">4. Генерация</span><span class="active">5. Контроль</span><span>6. Страницы</span>
+          </div>
 
-            <div class="gate-level" id="lvl-1">
-              <div class="gate-n">5.1</div>
-              <div class="gate-body">
-                <div class="gate-title">Блокировки <span class="pill ok">работает</span></div>
-                <div class="gate-desc">
-                  Сломан HTML, остались заглушки <code>{{…}}</code>, два H1, нет title —
-                  сразу брак, без обсуждения.
-                </div>
-                <div class="gate-checks" id="lvl1Checks"></div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl1Val">—</div>
-                <div class="gate-stat-k">прошло уровень</div>
-              </div>
-            </div>
-
-            <div class="gate-level soon" id="lvl-2">
-              <div class="gate-n">5.2</div>
-              <div class="gate-body">
-                <div class="gate-title">Факты <span class="pill soon">бэкенд в работе</span></div>
-                <div class="gate-desc">
-                  Все ли данные из строки дошли до текста и нет ли выдуманных цифр.
-                  Доля подтверждённого ниже 60% → брак.
-                </div>
-                <div class="stub" style="margin-top:12px;">
-                  <div class="stub-text">
-                    Сейчас проверка бинарная: любой непопавший факт валит страницу целиком.
-                    Нужно две метрики вместо одного флажка:
-                  </div>
-                  <ul class="stub-list">
-                    <li><b>Покрытие данных</b> — сколько полей строки реально упомянуто в тексте</li>
-                    <li><b>Поддержанность цифр</b> — каждое чи��ло в тексте есть в исходных данных</li>
-                    <li>Список потерянных фактов и список подозрительных чисел в карточке страницы</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl2Val">—</div>
-                <div class="gate-stat-k">покрытие данных</div>
-              </div>
-            </div>
-
-            <div class="gate-level" id="lvl-3">
-              <div class="gate-n">5.3</div>
-              <div class="gate-body">
-                <div class="gate-title">Уникальность <span class="pill ok">по словам работает</span></div>
-                <div class="gate-desc">
-                  Шинглы против всего корпуса проекта плюс повторы блоков внутри страницы.
-                  Обвязка каркаса из сравнения вычитается, иначе все страницы казались бы похожими.
-                </div>
-                <div class="gate-checks" id="lvl3Checks"></div>
-                <div class="stub" style="margin-top:12px;">
-                  <div class="stub-head">
-                    <span class="pill soon">Отложено</span>
-                    <span class="stub-title">Уникальность по смыслу (эмбеддинги)</span>
-                  </div>
-                  <div class="stub-text">
-                    Шинглы ловят перестановку слов, но не ловят пересказ другими словами.
-                    Векторное сравнение закрывает эту дыру. По вашему решению — позже.
-                  </div>
-                </div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl3Val">—</div>
-                <div class="gate-stat-k">средняя уникальность</div>
-              </div>
-            </div>
-
-            <div class="gate-level" id="lvl-4">
-              <div class="gate-n">5.4</div>
-              <div class="gate-body">
-                <div class="gate-title">Качество <span class="pill ok">работает</span></div>
-                <div class="gate-desc">
-                  Измерения сводятся в один балл от 0 до 100. Тошнота, водность и
-                  читаемость из балла убраны — Google их не использует, и их вес
-                  перешёл на уникальность, плотность фактов и перелинковку.
-                </div>
-                <div class="gate-checks" id="lvl4Checks"></div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl4Val">—</div>
-                <div class="gate-stat-k">средний балл</div>
-              </div>
-            </div>
+          <div class="quality-summary" id="gateLevels">
+            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Технически исправны</b><p>HTML, заголовок, мета и обязательные поля собраны без ошибок.</p><div class="gate-checks" id="lvl1Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Не похожи на дубли</b><p>Сравнение с остальными страницами и проверка повторов внутри текста.</p><div class="gate-checks" id="lvl3Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл</b><p>Общая оценка качества от 0 до 100. Подробности доступны в карточке страницы.</p><div class="gate-checks" id="lvl4Checks"></div></div></div>
           </div>
 
           <div class="panel" id="gateCfg">
             <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Настройка гейта <span class="pill neutral" id="gateOffPill">—</span></div>
-                <div class="panel-sub">
-                  Пороги и список проверок. Всё, что Google официально не использует,
-                  выключено — такие проверки только валили нормальные страницы.
-                </div>
-              </div>
-              <div class="panel-tools">
-                <button class="btn btn-sm" id="gateReset">По умолчанию</button>
-                <button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button>
-              </div>
+              <div class="panel-head-body"><div class="panel-title">Правила допуска <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Обычные значения уже выставлены. Меняйте их только если понимаете последствия.</div></div>
+              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Вернуть обычные</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
             </div>
             <div class="panel-body">
-              <div class="up-row">
-                <div class="field">
-                  <div class="field-label">Уникальность, % не ниже</div>
-                  <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
-                </div>
-                <div class="field">
-                  <div class="field-label">Самоповторы, не выше</div>
-                  <input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08">
-                </div>
-                <div class="field">
-                  <div class="field-label">Похожие блоки, не выше</div>
-                  <input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6">
-                </div>
-                <div class="field">
-                  <div class="field-label">Пропуск, балл ≥</div>
-                  <input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80">
-                </div>
-                <div class="field">
-                  <div class="field-label">Перегенерация, балл ≥</div>
-                  <input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60">
-                </div>
+              <div class="up-row gate-thresholds">
+                <div class="field"><div class="field-label">Уникальность от, %</div><input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80"></div>
+                <div class="field"><div class="field-label">Самоповторы до</div><input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08"></div>
+                <div class="field"><div class="field-label">Похожие блоки до</div><input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6"></div>
+                <div class="field"><div class="field-label">Готова от, баллов</div><input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80"></div>
+                <div class="field"><div class="field-label">Переделать от</div><input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60"></div>
               </div>
-              <div id="gateChecks"></div>
+              <details class="gate-details"><summary>Показать отдельные технические проверки</summary><div id="gateChecks" class="mt-2"></div></details>
               <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
 
-          <div class="hr-label">Развилка по баллу</div>
-
+          <div class="hr-label">Результат проверки</div>
           <div class="fork">
-            <div class="fork-card pass">
-              <div class="fork-range">≥ 80</div>
-              <div class="fork-name">Пропуск</div>
-              <div class="fork-count" id="forkPass">—</div>
-              <div class="fork-note">Страница идёт в обвязку</div>
-            </div>
-            <div class="fork-card redo">
-              <div class="fork-range">60 — 80</div>
-              <div class="fork-name">Перегенерация</div>
-              <div class="fork-count" id="forkRedo">—</div>
-              <div class="fork-note">Максимум два раза, потом отклонение</div>
-            </div>
-            <div class="fork-card drop">
-              <div class="fork-range">&lt; 60</div>
-              <div class="fork-name">Отклонена</div>
-              <div class="fork-count" id="forkDrop">—</div>
-              <div class="fork-note">Навсегда, без повторных попыток</div>
-            </div>
+            <div class="fork-card pass"><div class="fork-range">≥ 80</div><div class="fork-name">Готовы</div><div class="fork-count" id="forkPass">—</div><div class="fork-note">Можно выгружать</div></div>
+            <div class="fork-card redo"><div class="fork-range">60 — 80</div><div class="fork-name">Нужно переделать</div><div class="fork-count" id="forkRedo">—</div><div class="fork-note">Перегенерировать после проверки причин</div></div>
+            <div class="fork-card drop"><div class="fork-range">&lt; 60</div><div class="fork-name">Отклонены</div><div class="fork-count" id="forkDrop">—</div><div class="fork-note">Не попадут в выгрузку</div></div>
           </div>
 
           <div class="grid grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Распределение баллов</div>
-                  <div class="panel-sub">Горб слева означает проблему в каркасе или промпте, а не в отдельных страницах</div>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="hist" id="scoreHist"></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Самые частые причины брака</div>
-                  <div class="panel-sub">Что именно править в каркасе или промпте</div>
-                </div>
-              </div>
-              <div class="panel-body" id="failReasons"></div>
-            </div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Распределение баллов</div><div class="panel-sub">Если большинство слева — исправляйте каркас, а не отдельные страницы.</div></div></div><div class="panel-body"><div class="hist" id="scoreHist"></div></div></div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Главные причины отклонения</div><div class="panel-sub">Сначала исправляйте самую частую.</div></div></div><div class="panel-body" id="failReasons"></div></div>
           </div>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════
+        <!-- ═════════════════���════════════════════════════════════════
              ЭКРАН 6 — СТРАНИЦЫ
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-pages">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Результат конвейера</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 из 6 · готовый результат</div>
               <h1>Страницы</h1>
               <p class="view-sub">Клик по баллу открывает все проверки страницы по уровням гейта.</p>
             </div>
@@ -3268,8 +3086,8 @@ load();
           <div class="panel" id="designPanel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Тема оформления</div>
-                <div class="panel-sub">Только внешний вид — меняется когда угодно. Порядок блоков берётся из паспорта</div>
+                <div class="panel-title">Внешний вид страниц</div>
+                <div class="panel-sub">Цвета, шрифты и радиусы. Структуру уже выбрал ИИ на шаге анализа</div>
               </div>
               <span class="pill" id="designPill">—</span>
             </div>
@@ -3277,7 +3095,7 @@ load();
               <div class="theme-grid" id="themeGrid"></div>
 
               <div class="field mt-3">
-                <span class="field-label">Макет под тип страницы</span>
+                <span class="field-label">Структура, выбранная ИИ</span>
                 <span class="field-hint" id="layoutHint"></span>
               </div>
 
@@ -3406,10 +3224,10 @@ const PID = new URLSearchParams(location.search).get('id');
 
 const VIEWS = {
   data:     'Данные',
-  passport: 'Паспорт проекта',
+  passport: 'ИИ-анализ',
   frame:    'Каркас',
   generate: 'Генерация',
-  gate:     'Гейт качества',
+  gate:     'Контроль качества',
   pages:    'Страницы',
   wiring:   'Обвязка',
   waves:    'Публикация волнами',
@@ -3741,7 +3559,7 @@ function bindStatic() {
   /* --- каркас --- */
   $$('#frameMode button').forEach(b => b.onclick = () => {
     $$('#frameMode button').forEach(x => x.classList.toggle('is-on', x === b));
-    ['chat', 'lib', 'edit'].forEach(m => $('#fmode-' + m).hidden = m !== b.dataset.fmode);
+    ['chat', 'edit'].forEach(m => $('#fmode-' + m).hidden = m !== b.dataset.fmode);
   });
   $('#chatSend').onclick = () => sendChat();
   $('#chatReload').onclick = () => loadChat();
@@ -4031,12 +3849,6 @@ function buildLibraries() {
       `</span>` +
     `</label>`).join('');
 
-  $('#designLib').innerHTML = `<div class="cols">` + LIB_PAGE_TYPES.map(t =>
-    `<div class="col-card">` +
-      `<div class="col-name">${escHtml(t.name)}</div>` +
-      `<div class="col-note" style="margin-top:6px;">${escHtml(t.design)}</div>` +
-      `<div class="stub-inline" style="margin-top:10px;">заглушка</div>` +
-    `</div>`).join('') + `</div>`;
 
   $$('#typePick input, #stratPick input').forEach(inp => {
     inp.onchange = () => savePassportPick();
@@ -4154,6 +3966,20 @@ function renderPassport() {
     hydrateIcons(box);
   }
 
+  const rec = $('#aiRecommendation');
+  if (rec) {
+    if (!p.analyzed) {
+      rec.innerHTML = `<div class="empty compact"><div class="empty-title">Сначала запустите анализ</div><div class="empty-text">ИИ выберет структуру и стратегию по вашим колонкам и примерам строк.</div></div>`;
+    } else {
+      const type = LIB_PAGE_TYPES.find(x => x.id === p.page_type) || {};
+      const strat = LIB_STRATEGIES.find(x => x.id === p.strategy) || {};
+      rec.innerHTML = `<div class="ai-rec-grid">` +
+        `<div class="ai-rec"><span class="ai-rec-k">Структура страницы</span><b>${escHtml(type.name || p.page_type || '—')}</b><p>${escHtml(type.design || '')}</p></div>` +
+        `<div class="ai-rec"><span class="ai-rec-k">Стратегия ценности</span><b>${escHtml(strat.name || p.strategy || '—')}</b><p>${escHtml(strat.gives || '')}</p></div>` +
+        `</div>` + (p.layout_reason ? `<div class="note info mt-2"><div class="note-body"><b>Почему:</b> ${escHtml(p.layout_reason)}</div></div>` : '');
+    }
+  }
+
   const varied = st.varied_columns;
   $('#q1Box').innerHTML = (varied == null)
     ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Д��нные».')
@@ -4193,6 +4019,7 @@ function paintPassportPicks() {
     const saved = inp.name === 'ptype' ? (p.page_type || '') : (p.strategy || '');
     const on = !!saved && inp.value === saved;
     inp.checked = on;
+    inp.disabled = !p.analyzed;
     card.classList.toggle('is-on', on);
     let mark = need.querySelector('.pick-db');
     if (on) {
@@ -4202,7 +4029,7 @@ function paintPassportPicks() {
         need.insertAdjacentElement('afterbegin', mark);
       }
       mark.className = 'pill ok pick-db';
-      mark.textContent = 'в базе';
+      mark.textContent = p.source === 'manual' ? 'выбрано вручную' : 'рекомендовано ИИ';
     } else if (mark) {
       mark.remove();
     }
@@ -4453,7 +4280,7 @@ async function extractFrame(btn) {
       checkFrameLive();
 
       $$('#frameMode button').forEach(x => x.classList.toggle('is-on', x.dataset.fmode === 'edit'));
-      ['chat', 'lib', 'edit'].forEach(k => $('#fmode-' + k).hidden = k !== 'edit');
+      ['chat', 'edit'].forEach(k => $('#fmode-' + k).hidden = k !== 'edit');
 
       if (res.problems && res.problems.length)
         toast.warn('Каркас извлечён с замечаниями', res.problems.slice(0, 2).join('; '));
@@ -4947,10 +4774,6 @@ async function openPageDrawer(pid) {
         `<button class="btn" data-dw-regen>${ico('redo', 15)} Перегенерировать</button>` +
       `</div>` +
       levelBlock('5.1 · Блокировки', 'сломанная разметка и заглушки', byLevel(1)) +
-      `<div class="check-group">` +
-        `<div class="check-group-head"><b>5.2 · Факты</b><span>заглушка — блок ещё не подключён</span></div>` +
-        `<div class="stub-text">Здесь появится доля фактов из строки, дошедших до текста, и список выдуманных чисел.</div>` +
-      `</div>` +
       levelBlock('5.3 · Уникальность', 'шинглы против всего корпуса', byLevel(3)) +
       levelBlock('5.4 · Качество', '18 измерений, балл 0–100', byLevel(4)),
   });
