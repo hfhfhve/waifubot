@@ -16,7 +16,7 @@
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body class="is-app">
 
@@ -272,6 +272,114 @@
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel site-options-panel" id="siteRequirementsPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Дополнения к страницам <span class="pill neutral" id="siteReqCount">0 включено</span></div>
+                <div class="panel-sub">Включите только нужное. Эти требования получит ИИ при создании каркаса.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="site-options-grid">
+
+                <div class="site-option" data-site-option="header">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteHeaderEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>Шапка сайта</b><small>Навигация и основные действия</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="header" hidden>
+                    <label class="field">
+                      <span class="field-label">Что должно быть в шапке</span>
+                      <textarea class="textarea" id="siteHeaderText" rows="6" placeholder="Главная — https://domen.com/&#10;Продукты — https://domen.com/products&#10;Вход — https://domen.com/login&#10;Регистрация — https://domen.com/register"></textarea>
+                      <span class="field-hint">По одному пункту на строку. ИИ соберёт из этого готовую шапку.</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="site-option" data-site-option="footer">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteFooterEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>Подвал сайта</b><small>Контакты, документы и ссылки</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="footer" hidden>
+                    <label class="field">
+                      <span class="field-label">Что должно быть в подвале</span>
+                      <textarea class="textarea" id="siteFooterText" rows="6" placeholder="О компании — /about&#10;Контакты — /contacts&#10;Оферта — /offer&#10;Политика конфиденциальности — /privacy&#10;Email — hello@domen.com"></textarea>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="site-option" data-site-option="eeat">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteEeatEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>E-E-A-T и доверие</b><small>Автор, проверка и источники</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="eeat" hidden>
+                    <div class="form-grid">
+                      <label class="field"><span class="field-label">Автор</span><input class="input" id="siteEeatAuthor" placeholder="Имя, должность, опыт"></label>
+                      <label class="field"><span class="field-label">Кто проверил</span><input class="input" id="siteEeatReviewer" placeholder="Эксперт, квалификация"></label>
+                      <label class="field full"><span class="field-label">Источники и подтверждения</span><textarea class="textarea" id="siteEeatSources" rows="5" placeholder="Источники, лицензии, сертификаты, методология, ссылки"></textarea></label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="site-option" data-site-option="company">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteCompanyEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>Информация о компании</b><small>Кто оказывает услугу или продаёт продукт</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="company" hidden>
+                    <div class="form-grid">
+                      <label class="field"><span class="field-label">Название</span><input class="input" id="siteCompanyName" placeholder="Название компании"></label>
+                      <label class="field"><span class="field-label">Контакты</span><input class="input" id="siteCompanyContacts" placeholder="Телефон, email, адрес"></label>
+                      <label class="field full"><span class="field-label">О компании</span><textarea class="textarea" id="siteCompanyAbout" rows="5" placeholder="Чем занимается, опыт, реквизиты, лицензии, преимущества"></textarea></label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="site-option" data-site-option="lead_form">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteLeadEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>Форма заявки</b><small>Поля, кнопка и адрес отправки</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="lead_form" hidden>
+                    <div class="form-grid">
+                      <label class="field"><span class="field-label">Заголовок формы</span><input class="input" id="siteLeadTitle" placeholder="Получить консультацию"></label>
+                      <label class="field"><span class="field-label">Текст кнопки</span><input class="input" id="siteLeadButton" placeholder="Отправить заявку"></label>
+                      <label class="field full"><span class="field-label">Поля формы</span><input class="input" id="siteLeadFields" placeholder="Имя, телефон, email, комментарий"></label>
+                      <label class="field full"><span class="field-label">Куда отправлять</span><input class="input" id="siteLeadTarget" placeholder="URL обработчика формы или email"></label>
+                      <label class="field full"><span class="field-label">Дополнительные условия</span><textarea class="textarea" id="siteLeadNotes" rows="4" placeholder="Согласие на обработку данных, ссылка на политику, обязательные поля"></textarea></label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="site-option" data-site-option="custom">
+                  <label class="site-option-toggle">
+                    <input type="checkbox" id="siteCustomEnabled">
+                    <span class="site-check">✓</span>
+                    <span><b>Свои требования</b><small>Любые дополнительные пожелания одним текстом</small></span>
+                  </label>
+                  <div class="site-option-fields" data-site-fields="custom" hidden>
+                    <label class="field">
+                      <span class="field-label">Что ещё должен сделать ИИ</span>
+                      <textarea class="textarea" id="siteCustomText" rows="7" placeholder="Напишите свободным текстом любые блоки, ограничения, ссылки и пожелания к странице."></textarea>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="site-options-save">
+                <button class="btn btn-primary" id="saveSiteRequirementsBtn"><span data-ico-sm="check"></span> Сохранить дополнения</button>
+                <span class="muted" id="siteRequirementsState">Изменения применятся к следующему каркасу</span>
               </div>
             </div>
           </div>
@@ -1331,6 +1439,7 @@ async function boot() {
 
   $('#bootLoad').hidden = true;
   paintProjectHead();
+  fillSiteRequirements();
   buildLibraries();
   registerCommands();
 
@@ -1577,6 +1686,19 @@ function bindStatic() {
     };
   });
 
+  $$('[data-site-option] input[type="checkbox"]').forEach(input => {
+    input.onchange = () => {
+      syncSiteRequirementsUI();
+      $('#siteRequirementsState').textContent = 'Есть несохранённые изменения';
+    };
+  });
+  $$('#siteRequirementsPanel input, #siteRequirementsPanel textarea').forEach(input => {
+    input.addEventListener('input', () => {
+      $('#siteRequirementsState').textContent = 'Есть несохранённые изменения';
+    });
+  });
+  $('#saveSiteRequirementsBtn').onclick = e => saveSiteRequirements(e.currentTarget);
+
   $('#addKeysBtn').onclick = e => addKeys(e.currentTarget);
   $('#keysReload').onclick = () => loadKeys();
   $('#keysFilter').oninput = () => renderKeys();
@@ -1736,6 +1858,75 @@ function stubDrawer(title, rows) {
 /* ======================================================================
    ДАННЫЕ
    ====================================================================== */
+
+const SITE_REQUIREMENT_CONTROLS = {
+  header: { enabled: '#siteHeaderEnabled', fields: { text: '#siteHeaderText' } },
+  footer: { enabled: '#siteFooterEnabled', fields: { text: '#siteFooterText' } },
+  eeat: { enabled: '#siteEeatEnabled', fields: {
+    author: '#siteEeatAuthor', reviewer: '#siteEeatReviewer', sources: '#siteEeatSources'
+  } },
+  company: { enabled: '#siteCompanyEnabled', fields: {
+    name: '#siteCompanyName', contacts: '#siteCompanyContacts', about: '#siteCompanyAbout'
+  } },
+  lead_form: { enabled: '#siteLeadEnabled', fields: {
+    title: '#siteLeadTitle', button: '#siteLeadButton', fields: '#siteLeadFields',
+    target: '#siteLeadTarget', notes: '#siteLeadNotes'
+  } },
+  custom: { enabled: '#siteCustomEnabled', fields: { text: '#siteCustomText' } },
+};
+
+function fillSiteRequirements() {
+  const cfg = (((S.project || {}).settings || {}).site_requirements) || {};
+  Object.entries(SITE_REQUIREMENT_CONTROLS).forEach(([key, spec]) => {
+    const saved = cfg[key] && typeof cfg[key] === 'object' ? cfg[key] : {};
+    $(spec.enabled).checked = !!saved.enabled;
+    Object.entries(spec.fields).forEach(([name, selector]) => {
+      $(selector).value = saved[name] == null ? '' : String(saved[name]);
+    });
+  });
+  syncSiteRequirementsUI();
+  $('#siteRequirementsState').textContent = 'Сохранено в проекте';
+}
+
+function syncSiteRequirementsUI() {
+  let enabled = 0;
+  Object.entries(SITE_REQUIREMENT_CONTROLS).forEach(([key, spec]) => {
+    const on = !!$(spec.enabled).checked;
+    if (on) enabled += 1;
+    const card = document.querySelector('[data-site-option="' + key + '"]');
+    const fields = document.querySelector('[data-site-fields="' + key + '"]');
+    if (card) card.classList.toggle('is-on', on);
+    if (fields) fields.hidden = !on;
+  });
+  $('#siteReqCount').textContent = enabled + ' ' + plural(enabled, 'включено', 'включено', 'включено');
+}
+
+function collectSiteRequirements() {
+  const cfg = {};
+  Object.entries(SITE_REQUIREMENT_CONTROLS).forEach(([key, spec]) => {
+    const item = { enabled: !!$(spec.enabled).checked };
+    Object.entries(spec.fields).forEach(([name, selector]) => {
+      item[name] = ($(selector).value || '').trim();
+    });
+    cfg[key] = item;
+  });
+  return cfg;
+}
+
+async function saveSiteRequirements(btn) {
+  await withBusy(btn, async () => {
+    try {
+      const cfg = collectSiteRequirements();
+      S.project = await api.updateProject(PID, { settings: { site_requirements: cfg } });
+      fillSiteRequirements();
+      const count = Object.values(cfg).filter(x => x.enabled).length;
+      toast.ok('Дополнения сохранены', count ? 'ИИ получит их при создании каркаса.' : 'Все дополнения выключены.');
+    } catch (e) {
+      $('#siteRequirementsState').textContent = 'Не удалось сохранить';
+      toast.err('Дополнения не сохранились', e);
+    }
+  });
+}
 
 async function loadKeys() {
   $('#keysBody').innerHTML = skeletonRows(6, 4);
