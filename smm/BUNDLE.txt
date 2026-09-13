@@ -1,5 +1,5 @@
 # SMM Frontend — снимок репозитория
-# commit: 826d7aa3d9247146c888b9d31e5866de4043b8c9
+# commit: 8cf5a2a45bcb93ca0f959e30c0c92274aed6313f
 # built:  2026-09-13 20:39 UTC
 
 ## Состав файлов
@@ -10,7 +10,7 @@ smm/index.html  (328 строк)
 smm/project.html  (3406 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (782 строк)
-smm/style.css  (3099 строк)
+smm/style.css  (3114 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -9251,3 +9251,18 @@ body.is-app{font-size:15px;letter-spacing:0;color:var(--text);background:var(--s
 .site-options-save{display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
 @media(max-width:860px){.site-options-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.site-option-toggle{padding:14px}.site-option-fields{padding:0 14px 15px}.site-option-fields .form-grid{grid-template-columns:1fr}.site-option-fields .form-grid .full{grid-column:auto}.site-options-save{align-items:stretch;flex-direction:column}.site-options-save .btn{justify-content:center}}
+
+
+/* === Изображения проекта v42 === */
+.media-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.media-form-grid .full{grid-column:1/-1}
+.media-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.media-source-card{display:grid;gap:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.media-source-card>div{display:flex;flex-direction:column;gap:3px}.media-source-card small{color:var(--muted);line-height:1.4}
+.media-source-card .btn{justify-self:start}.media-note{margin:16px 0;color:var(--muted);font-size:12.5px}
+.media-assets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border-top:1px solid var(--line);padding-top:16px}
+.media-asset{display:grid;grid-template-columns:88px minmax(0,1fr) 34px;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.media-asset>img{width:88px;height:68px;object-fit:cover;border-radius:8px;background:var(--surface-2)}
+.media-asset-body{min-width:0;display:flex;flex-direction:column;gap:3px}.media-asset-body b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}.media-asset-body span,.media-asset-body small{color:var(--muted);font-size:12px;line-height:1.35}.media-empty{grid-column:1/-1;padding:20px 0}
+@media(max-width:860px){.media-assets,.media-source-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.media-form-grid{grid-template-columns:1fr}.media-form-grid .full{grid-column:auto}.media-asset{grid-template-columns:72px minmax(0,1fr) 34px}.media-asset>img{width:72px;height:58px}.media-source-card .btn{justify-self:stretch;justify-content:center}}
