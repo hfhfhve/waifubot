@@ -171,6 +171,13 @@ const api = {
   previewTable: (id)     => req(`/projects/${id}/table/preview`),
   linkSheet:    (id, d)  => req(`/projects/${id}/table/sheet`, { method: 'POST', body: JSON.stringify(d) }),
 
+  /* ---- Изображения ---- */
+  listMedia:   (id)     => req(`/projects/${id}/media`),
+  uploadMedia: (id, fd) => req(`/projects/${id}/media/upload`, { method: 'POST', body: fd, headers: {} }),
+  importMedia: (id, d)  => req(`/projects/${id}/media/url`, { method: 'POST', body: JSON.stringify(d) }),
+  deleteMedia: (id, aid)=> req(`/projects/${id}/media/${aid}`, { method: 'DELETE' }),
+  mediaUrl:    (id, aid)=> `${API_BASE.replace(/\/+$/, '')}/projects/${id}/media/${aid}/file`,
+
   /* ---- БЛОК 2 — Библиотеки и проектировщик (ещё нет) ---- */
   listLibraries: ()      => req('/libraries'),
   buildFrame:    (id, d) => req(`/projects/${id}/build-frame`, { method: 'POST', body: JSON.stringify(d) }),
