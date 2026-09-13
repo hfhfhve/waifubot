@@ -1,6 +1,6 @@
 # SMM Frontend — снимок репозитория
-# commit: b21b5278a2ed5e728d04be659d722aa6a203120f
-# built:  2026-09-13 14:18 UTC
+# commit: 8405f38aeeabaf44038a3f739d9ad59484a8d65c
+# built:  2026-09-13 14:44 UTC
 
 ## Состав файлов
 smm/404.html  (27 строк)
@@ -10,7 +10,7 @@ smm/index.html  (328 строк)
 smm/project.html  (3215 строк)
 smm/robots.txt  (4 строк)
 smm/settings.html  (782 строк)
-smm/style.css  (3011 строк)
+smm/style.css  (3076 строк)
 
 ════════════════════════════════════════════════════════
   smm/404.html
@@ -1956,7 +1956,7 @@ load();
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=40">
 </head>
 <body class="is-app">
 
@@ -2027,7 +2027,7 @@ load();
 
         <button class="nav-item" data-view="wiring" data-hotkey="7">
           <span class="nav-ico" data-ico="link"></span>
-          <span class="nav-label">Обвязка</span>
+          <span class="nav-label">SEO-обвязка</span>
           <span class="nav-soon">блок 6</span>
         </button>
 
@@ -2039,7 +2039,7 @@ load();
 
         <button class="nav-item" data-view="feedback" data-hotkey="9">
           <span class="nav-ico" data-ico="radar"></span>
-          <span class="nav-label">Обратная связь</span>
+          <span class="nav-label">Результаты в поиске</span>
           <span class="nav-soon">блок 8</span>
         </button>
       </div>
@@ -2049,7 +2049,7 @@ load();
 
         <button class="nav-item" data-view="rules" data-hotkey="0">
           <span class="nav-ico" data-ico="sliders"></span>
-          <span class="nav-label">Правила проекта</span>
+          <span class="nav-label">Настройки проекта</span>
         </button>
 
         <button class="nav-item" data-view="export" data-hotkey="e">
@@ -2121,11 +2121,10 @@ load();
         <section class="view" id="view-data">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Вход · делается один раз</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 1 · исходные данные</div>
               <h1>Данные</h1>
               <p class="view-sub">
-                Одна строка — одна будущая страница. Чем больше колонок реально различается м����ду строками,
-                тем выше потолок уникальности и тем меньше страниц отлетит на гейте.
+                Одна строка данных создаёт одну страницу. Добавьте таблицу и проверьте, что важные колонки заполнены.
               </p>
             </div>
           </div>
@@ -2133,8 +2132,8 @@ load();
           <div class="panel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Откуда берём данные</div>
-                <div class="panel-sub">Сейчас работает только ручная вставка. Остальное — заглушки с техзаданием.</div>
+                <div class="panel-title">Источник данных</div>
+                <div class="panel-sub">Выберите удобный способ загрузки. Доступные варианты помечены ниже.</div>
               </div>
             </div>
             <div class="panel-body">
@@ -2221,7 +2220,7 @@ load();
             <div class="panel-head">
               <div class="panel-head-body">
                 <div class="panel-title">Карта колонок</div>
-                <div class="panel-sub">Главный предсказатель успеха: сколько колонок реально различается.</div>
+                <div class="panel-sub">Показывает, какие данные делают страницы разными.</div>
               </div>
             </div>
             <div class="panel-body" id="columnsMap"></div>
@@ -2261,17 +2260,13 @@ load();
         <section class="view" id="view-passport">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 из 6 · после загрузки данных</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 · решение ИИ</div>
               <h1>ИИ-анализ проекта</h1>
-              <p class="view-sub">Система проверит данные, предложит формат страницы и стратегию ценности. Ничего выбирать заранее не нужно.</p>
+              <p class="view-sub">ИИ оценит данные и предложит подходящую структуру страниц.</p>
             </div>
             <div class="view-actions">
               <button class="btn btn-dark btn-lg" id="analyzeBtn"><span data-ico-sm="spark"></span> Запустить анализ</button>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="active">2. ИИ-анализ</span><span>3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div id="passportVerdict"></div>
@@ -2313,20 +2308,16 @@ load();
         <section class="view" id="view-frame">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 из 6 · по рекомендации ИИ</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 · шаблон страницы</div>
               <h1>Каркас</h1>
               <p class="view-sub">
-                ИИ получает ваши данные и рекомендацию прошлого шага, затем создаёт один общий шаблон страницы. Вы проверяете его и запускаете массовую генерацию.
+                Создайте один шаблон, проверьте его и утвердите перед запуском.
               </p>
             </div>
             <div class="view-actions">
               <span id="frameStatePill"></span>
               <span id="frameModelInfo"></span>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="active">3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
           <div class="seg" id="frameMode">
             <button data-fmode="chat" class="is-on">Создать с ИИ</button>
@@ -2338,8 +2329,8 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Диалог с сильной моделью</div>
-                  <div class="panel-sub">Ответ должен содержать ровно четыре блока: HTML, SEO META, JSON SCHEMA и промпт.</div>
+                  <div class="panel-title">Создание каркаса с ИИ</div>
+                  <div class="panel-sub">Опишите пожелания или сразу попросите ИИ собрать готовый каркас.</div>
                 </div>
                 <div class="panel-tools">
                   <button class="icon-btn" id="chatReload" title="Обновить историю" data-ico="refresh"></button>
@@ -2449,17 +2440,12 @@ load();
         <section class="view" id="view-generate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 из 6 · массовое создание</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 · создание страниц</div>
               <h1>Генерация</h1>
               <p class="view-sub">
-                Дешёвая модель заполняет схему полей, потом код без ИИ вставляет JSON в каркас.
-                Страница ни разу не генерируется целиком — именно поэтому разметка не ломается.
+                Запустите обработку строк и следите за результатом каждой задачи.
               </p>
             </div>
-          </div>
-
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="active">4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div class="panel accent">
@@ -2579,27 +2565,27 @@ load();
         <section class="view" id="view-gate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 из 6 · после генерации</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 · автоматическая проверка</div>
               <h1>Контроль качества</h1>
-              <p class="view-sub">Здесь видно только три вещи: открывается ли страница, не дублирует ли другие и достаточно ли высок итоговый балл.</p>
+              <p class="view-sub">Проверяем технические ошибки, дубли и общий балл страниц.</p>
             </div>
             <div class="view-actions"><button class="btn" id="recomputeBtn"><span data-ico-sm="refresh"></span> Перепроверить страницы</button></div>
           </div>
 
-          <div class="flow-steps" aria-label="Порядок работы">
-            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="done">4. Генерация</span><span class="active">5. Контроль</span><span>6. Страницы</span>
+          <div class="empty-state-card" id="gateEmpty">
+            <span class="empty-state-icon" data-ico="shield"></span>
+            <div><b>Пока нечего проверять</b><p>После генерации здесь появятся результаты по всем страницам.</p></div>
           </div>
-
-          <div class="quality-summary" id="gateLevels">
-            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Технически исправны</b><p>HTML, заголовок, мета и обязательные поля собраны без ошибок.</p><div class="gate-checks" id="lvl1Checks"></div></div></div>
-            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Не похожи на дубли</b><p>Сравнение с остальными страницами и проверка повторов внутри текста.</p><div class="gate-checks" id="lvl3Checks"></div></div></div>
-            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл</b><p>Общая оценка качества от 0 до 100. Подробности доступны в карточке страницы.</p><div class="gate-checks" id="lvl4Checks"></div></div></div>
+          <div class="quality-summary" id="gateCards" hidden>
+            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Без технических ошибок</b><div class="gate-checks" id="lvl1Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Прошли проверку на дубли</b><div class="gate-checks" id="lvl3Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл качества</b><div class="gate-checks" id="lvl4Checks"></div></div></div>
           </div>
 
           <div class="panel" id="gateCfg">
             <div class="panel-head">
-              <div class="panel-head-body"><div class="panel-title">Правила допуска <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Обычные значения уже выставлены. Меняйте их только если понимаете последствия.</div></div>
-              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Вернуть обычные</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
+              <div class="panel-head-body"><div class="panel-title">Настройки проверки <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Оставьте стандартные значения, если не требуется особый режим.</div></div>
+              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Сбросить</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
             </div>
             <div class="panel-body">
               <div class="up-row gate-thresholds">
@@ -2609,7 +2595,13 @@ load();
                 <div class="field"><div class="field-label">Готова от, баллов</div><input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80"></div>
                 <div class="field"><div class="field-label">Переделать от</div><input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60"></div>
               </div>
-              <details class="gate-details"><summary>Показать отдельные технические проверки</summary><div id="gateChecks" class="mt-2"></div></details>
+              <div class="gate-disclosure">
+                <button class="gate-disclosure-btn" id="gateChecksToggle" type="button" aria-expanded="false">
+                  <span><b>Технические проверки</b><small>Посмотреть результаты каждой проверки</small></span>
+                  <span class="gate-disclosure-action">Показать</span>
+                </button>
+                <div id="gateChecksWrap" hidden><div id="gateChecks"></div></div>
+              </div>
               <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
@@ -2633,9 +2625,9 @@ load();
         <section class="view" id="view-pages">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 из 6 · готовый результат</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 · готовые страницы</div>
               <h1>Страницы</h1>
-              <p class="view-sub">Клик по баллу открывает все проверки страницы по уровням гейта.</p>
+              <p class="view-sub">Откройте страницу, скачайте HTML или отправьте её на повторную генерацию.</p>
             </div>
           </div>
 
@@ -2689,11 +2681,10 @@ load();
         <section class="view" id="view-wiring">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 6 · код без ИИ</div>
-              <h1>Обвязка</h1>
+              <div class="view-eyebrow"><i class="dot"></i>Подготовка к публикации</div>
+              <h1>SEO-обвязка</h1>
               <p class="view-sub">
-                Ничего из этого не требует модели — только детерминированный код
-                поверх готовых страниц.
+                Canonical, sitemap, микроразметка и внутренние ссылки для готовых страниц.
               </p>
             </div>
             <div class="view-actions">
@@ -2800,12 +2791,10 @@ load();
         <section class="view" id="view-waves">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 7 · выкладывать порциями</div>
-              <h1>Публикация волнами</h1>
+              <div class="view-eyebrow"><i class="dot"></i>Публикация</div>
+              <h1>Публикация партиями</h1>
               <p class="view-sub">
-                30 страниц → пауза две недели → замер индексации.
-                Вошло больше половины — следующая волна. Меньше — СТОП и разбираться,
-                а не выкладывать остальные 900.
+                Публикуйте небольшими партиями и проверяйте индексацию перед следующим запуском.
               </p>
             </div>
             <div class="view-actions">
@@ -2892,12 +2881,10 @@ load();
         <section class="view" id="view-feedback">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 8 · замкнутый контур</div>
-              <h1>Обратная связь</h1>
+              <div class="view-eyebrow"><i class="dot"></i>После публикации</div>
+              <h1>Результаты в поиске</h1>
               <p class="view-sub">
-                Раз в неделю система спрашивает Search Console по каждой странице:
-                в индексе? есть показы? какая позиция? И после этого меняет веса �� гейте
-                и правила отбора в паспорте.
+                Данные Search Console: показы, клики, позиции и страницы без трафика.
               </p>
             </div>
             <div class="view-actions">
@@ -3024,9 +3011,9 @@ load();
         <section class="view" id="view-rules">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Только этот проект</div>
-              <h1>Правила проекта</h1>
-              <p class="view-sub">Настройки ниже перекрывают глобальные и действуют только внутри этого проекта.</p>
+              <div class="view-eyebrow"><i class="dot"></i>Настройки</div>
+              <h1>Настройки проекта</h1>
+              <p class="view-sub">Эти параметры действуют только в текущем проекте.</p>
             </div>
           </div>
 
@@ -3151,9 +3138,9 @@ load();
         <section class="view" id="view-export">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
+              <div class="view-eyebrow"><i class="dot"></i>Экспорт</div>
               <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
+              <p class="view-sub">Скачайте готовые страницы одним архивом или отдельно выгрузите sitemap.</p>
             </div>
           </div>
 
@@ -3203,7 +3190,7 @@ load();
   </div>
 </div>
 
-<script src="app.js?v=28"></script>
+<script src="app.js?v=40"></script>
 
 <script>
 /* ==========================================================================
@@ -3221,10 +3208,10 @@ const VIEWS = {
   generate: 'Генерация',
   gate:     'Контроль качества',
   pages:    'Страницы',
-  wiring:   'Обвязка',
-  waves:    'Публикация волнами',
-  feedback: 'Обратная связь',
-  rules:    'Правила проекта',
+  wiring:   'SEO-обвязка',
+  waves:    'Публикация партиями',
+  feedback: 'Результаты в поиске',
+  rules:    'Настройки проекта',
   export:   'Выгрузка',
 };
 
@@ -3597,8 +3584,17 @@ function bindStatic() {
   });
   $('#retryFailedBtn').onclick = e => retryFailed(e.currentTarget);
 
-  /* --- гейт --- */
+  /* --- контроль качества --- */
   $('#recomputeBtn').onclick = e => recompute(e.currentTarget);
+  const gateToggle = $('#gateChecksToggle');
+  if (gateToggle) gateToggle.onclick = () => {
+    const wrap = $('#gateChecksWrap');
+    const open = wrap ? wrap.hidden : false;
+    if (wrap) wrap.hidden = !open;
+    gateToggle.setAttribute('aria-expanded', String(open));
+    const action = gateToggle.querySelector('.gate-disclosure-action');
+    if (action) action.textContent = open ? 'Скрыть' : 'Показать';
+  };
 
   /* --- страницы --- */
   $('#pagesReload').onclick = () => loadPages();
@@ -3617,7 +3613,7 @@ function bindStatic() {
   $('#selDelete').onclick = e => deleteSelected(e.currentTarget);
 
   /* --- заглушки блоков 6–8 --- */
-  $('#buildWiringBtn').onclick = () => stubDrawer('Обвязка — блок 6', [
+  $('#buildWiringBtn').onclick = () => stubDrawer('SEO-обвязка — блок 6', [
     ['Canonical', 'Шаблон адреса по домену проекта и slug страницы.'],
     ['Sitemap', 'Только страницы в статусе «Готова», lastmod из даты генерации.'],
     ['Schema', 'Тип раз��етки из типа страницы в паспорте.'],
@@ -4508,6 +4504,10 @@ async function retryFailed(btn) {
 
 function renderGate() {
   const pages = S.pages || [];
+  const gateEmpty = $('#gateEmpty');
+  const gateCards = $('#gateCards');
+  if (gateEmpty) gateEmpty.hidden = pages.length > 0;
+  if (gateCards) gateCards.hidden = pages.length === 0;
   const buckets = { 1: {}, 3: {}, 4: {} };
 
   pages.forEach(p => {
@@ -8965,3 +8965,68 @@ body.is-app { height: 100vh; overflow: hidden; }
 	border-radius: 2px;
 	background: var(--accent);
 }
+
+
+/* ===== UX cleanup 2026-09: linear project flow ===== */
+.flow-steps{display:flex;align-items:center;gap:6px;margin:0 0 24px;padding:6px;background:var(--surface-2,#f0efed);border:1px solid var(--line,#e6e5e3);border-radius:10px;overflow-x:auto}
+.flow-steps span{white-space:nowrap;padding:8px 12px;border-radius:7px;color:var(--muted,#7d7a75);font-size:12.5px;font-weight:600}
+.flow-steps span.done{color:var(--text,#2c2c2b)}
+.flow-steps span.active{background:var(--surface,#fff);color:var(--accent,#2783de);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ai-rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ai-rec{padding:20px;border:1px solid var(--line,#e6e5e3);border-radius:10px;background:var(--surface-2,#f9f8f7)}
+.ai-rec-k{display:block;margin-bottom:7px;color:var(--muted,#7d7a75);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.ai-rec b{font-size:18px}.ai-rec p{margin:7px 0 0;color:var(--muted,#7d7a75);line-height:1.45}
+.choice-details>summary{cursor:pointer;list-style:none}.choice-details>summary::-webkit-details-marker{display:none}.choice-details>summary small{display:block;margin-top:3px;color:var(--muted,#7d7a75);font-weight:400}.choice-details[open]>summary{border-bottom:1px solid var(--line,#e6e5e3)}
+.quality-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}.quality-card{display:flex;gap:16px;align-items:flex-start;padding:20px;border:1px solid var(--line,#e6e5e3);border-radius:10px;background:var(--surface,#fff)}.quality-card>div{min-width:0}.quality-card p{margin:5px 0 12px;color:var(--muted,#7d7a75);font-size:13px;line-height:1.45}.quality-num{min-width:54px;color:var(--accent,#2783de);font-size:26px;font-weight:750;line-height:1}.gate-thresholds{grid-template-columns:repeat(5,minmax(110px,1fr))}.gate-details>summary{cursor:pointer;color:var(--accent,#2783de);font-size:13px;font-weight:650}.nav-step{margin-left:auto;color:var(--muted,#7d7a75);font-size:11px}.empty.compact{padding:20px}
+@media(max-width:980px){.quality-summary{grid-template-columns:1fr}.gate-thresholds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.ai-rec-grid{grid-template-columns:1fr}.flow-steps{margin-left:-4px;margin-right:-4px}.flow-steps span{padding:8px 10px}.gate-thresholds{grid-template-columns:1fr}}
+
+/* Mobile app shell: bottom scrollable navigation, readable content */
+@media (max-width:760px){
+  body.is-app{height:100dvh;overflow:hidden}
+  .app{display:block;width:100%;height:100dvh;overflow:hidden}
+  .rail{position:fixed;top:auto;left:0;right:0;bottom:0;width:100%;height:68px;min-height:68px;border-right:0;border-top:1px solid var(--line);background:var(--rail);z-index:80}
+  .rail-head,.rail-foot,.nav-group-title{display:none!important}
+  .rail-nav{display:flex;align-items:stretch;gap:4px;padding:7px 10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .rail-nav::-webkit-scrollbar{display:none}
+  .nav-group{display:contents}
+  .nav-item{flex:0 0 auto;min-width:92px;height:52px;padding:6px 9px;justify-content:center;gap:6px;border-radius:8px}
+  .nav-item .nav-label{font-size:11.5px;white-space:nowrap;overflow:visible}
+  .nav-item .nav-ico{width:18px}
+  .nav-soon,.nav-count,.nav-step,.nav-state{display:none!important}
+  .shell{width:100%;height:calc(100dvh - 68px);min-height:0}
+  .topbar{height:56px;padding:0 14px;gap:8px}
+  .proj-switch{max-width:190px}.crumbs{display:none}.topbar-tools{margin-left:auto}.topbar-tools .icon-btn:nth-child(2),.topbar-tools .icon-btn:nth-child(4){display:none}
+  .canvas{padding:24px 16px 96px}
+  .view-head{flex-direction:column;gap:14px}.view-actions{width:100%;padding-top:0}.view-actions .btn{width:100%;min-height:44px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .panel-head{align-items:flex-start;flex-wrap:wrap}.panel-tools{width:100%;overflow-x:auto}
+  .quality-card{padding:16px}.quality-num{min-width:48px;font-size:24px}
+}
+
+
+/* ========================================================================== 
+   UX/UI OVERHAUL v40 — calm, readable, consistent across project.html
+   ========================================================================== */
+body.is-app{font-size:15px;letter-spacing:0;color:var(--text);background:var(--surface)}
+.canvas{padding:36px 36px 96px}.wrap{max-width:1180px}
+.view-head{margin-bottom:28px;gap:24px}.view-head h1{font-size:clamp(28px,3vw,38px);line-height:1.12;letter-spacing:-.025em}.view-eyebrow{font-size:12px;letter-spacing:.07em;margin-bottom:10px}.view-sub{font-size:16px;line-height:1.6;max-width:68ch;margin-top:10px}
+.panel{border-radius:12px;box-shadow:none}.panel+.panel{margin-top:20px}.panel-head{padding:18px 20px}.panel-title{font-size:16px;line-height:1.35}.panel-sub{font-size:14px;line-height:1.5;margin-top:5px}.panel-body{padding:20px}.panel-foot{padding:15px 20px}
+.btn{min-height:38px;padding:0 16px;font-size:14px;border-radius:8px}.btn-sm{min-height:34px}.btn-lg{min-height:46px;padding:0 22px;font-size:15px}.icon-btn{min-width:38px;min-height:38px}.icon-btn.sm{min-width:34px;min-height:34px}
+.input,.select,.textarea{font-size:15px;line-height:1.5;border-radius:8px}.input,.select{min-height:42px}.field-label{font-size:13px;margin-bottom:7px}.field-hint{font-size:13px;line-height:1.5;margin-top:7px}
+.rail{background:var(--bg)}.rail-head{padding:18px}.rail-nav{padding:14px 10px}.nav-group-title{font-size:11px;margin:16px 10px 8px}.nav-item{min-height:42px;padding:0 11px;border-radius:8px}.nav-label{font-size:14px}.rail-foot{padding:14px}
+.topbar{height:64px;padding:0 24px;background:var(--bg)}.proj-switch{height:42px;border-radius:9px}.crumbs{font-size:13px}
+.grid{gap:20px}.metrics{gap:14px}.metric{padding:20px;border-radius:10px}.metric-k{font-size:13px}.metric-v{font-size:28px}.metric-note{font-size:13px;line-height:1.45}
+.note{padding:16px 18px;border-radius:10px;font-size:14px;line-height:1.55}.stub{padding:18px;border-radius:10px}.stub-text,.muted{line-height:1.55}
+.pick{gap:14px}.pick-card{padding:16px;border-radius:10px;min-height:92px}.pick-title{font-size:15px}.pick-desc{font-size:13.5px;line-height:1.45;margin-top:4px}.pick-need{font-size:12.5px;margin-top:8px}
+.seg{border-radius:9px}.seg button{min-height:34px;padding:0 15px;font-size:13.5px;border-radius:7px}
+.tbl{font-size:14px}.tbl th{font-size:12px;padding:12px 14px}.tbl td{padding:13px 14px;line-height:1.45}.tbl-scroll{border-radius:0 0 12px 12px}
+.chat-log{padding:22px}.chat-compose{padding:16px}.msg-bubble{font-size:14px;line-height:1.55;border-radius:10px}
+.gen-top{gap:28px}.gen-controls{gap:12px}.progress-head{font-size:15px}.progress-legend{font-size:13px}
+.quality-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}.quality-card{display:block;padding:20px;min-height:132px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.quality-num{display:block;margin-bottom:12px;font-size:32px;line-height:1;color:var(--accent);font-weight:750}.quality-card b{font-size:15px;line-height:1.4}.quality-card .gate-checks{margin-top:14px}.gate-chip{font-size:12px;margin:3px 4px 3px 0}
+.empty-state-card{display:flex;align-items:center;gap:16px;padding:22px;margin-bottom:20px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.empty-state-icon{width:42px;height:42px;display:grid;place-items:center;color:var(--muted);background:var(--surface-2);border-radius:10px}.empty-state-card b{font-size:16px}.empty-state-card p{margin:5px 0 0;color:var(--muted);font-size:14px}
+.gate-thresholds{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:14px}.gate-disclosure{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden}.gate-disclosure-btn{width:100%;min-height:64px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;border:0;background:var(--bg);color:var(--text);text-align:left;cursor:pointer}.gate-disclosure-btn:hover{background:var(--surface-2)}.gate-disclosure-btn b{display:block;font-size:14px}.gate-disclosure-btn small{display:block;margin-top:3px;color:var(--muted);font-size:12.5px}.gate-disclosure-action{color:var(--accent);font-size:13px;font-weight:650}.gate-disclosure-btn:focus-visible{outline:3px solid var(--accent-soft);outline-offset:-3px}#gateChecksWrap{padding:0 16px 16px;border-top:1px solid var(--line)}
+.fork{gap:14px}.fork-card{padding:20px;border-radius:12px}.fork-range{font-size:13px}.fork-name{font-size:15px}.fork-count{font-size:30px}.fork-note{font-size:13px;line-height:1.45}
+.ai-rec{padding:20px;border-radius:10px}.ai-rec-k{font-size:12px}.ai-rec b{font-size:19px}.ai-rec p{font-size:14px;line-height:1.5}
+.flow-steps{display:none!important}
+@media(max-width:1100px){.quality-summary{grid-template-columns:1fr}.gate-thresholds{grid-template-columns:repeat(2,minmax(0,1fr))}.canvas{padding-left:24px;padding-right:24px}}
+@media(max-width:760px){.canvas{padding:22px 16px 96px}.view-head{margin-bottom:22px}.view-head h1{font-size:28px}.view-sub{font-size:15px}.panel-head,.panel-body{padding:16px}.quality-card{min-height:0}.gate-thresholds{grid-template-columns:1fr}.topbar{padding:0 14px}.btn,.icon-btn{min-height:44px}.tbl-scroll{max-height:62vh}.fork{grid-template-columns:1fr}.gate-disclosure-btn{min-height:72px}}
