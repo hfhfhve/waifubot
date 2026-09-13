@@ -7480,11 +7480,12 @@ load();
 Файл: ./smm/project.html
 ==================================================
 
+
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Проект — SEO-Фабрика</title>
 <meta name="robots" content="noindex">
 <script>
@@ -7497,7 +7498,7 @@ load();
     document.documentElement.setAttribute('data-fx', f === 'off' ? 'off' : 'on');
   } catch (e) {}
 </script>
-<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body class="is-app">
 
@@ -7521,60 +7522,81 @@ load();
     <nav class="rail-nav">
 
       <div class="nav-group">
-        <div class="nav-group-title">Путь проекта</div>
+        <div class="nav-group-title">Подготовка проекта</div>
 
-        <button class="nav-item" data-screen="data" data-hotkey="1">
+        <button class="nav-item" data-view="data" data-hotkey="1">
           <span class="nav-ico" data-ico="table"></span>
           <span class="nav-label">Данные</span>
           <span class="nav-count" id="navKeys">0</span>
         </button>
-        <div class="nav-sub" data-screen="data" hidden>
-          <button class="nav-jump" data-jump="data">Источник и колонки</button>
-          <button class="nav-jump" data-jump="passport">Паспорт проекта</button>
-        </div>
 
-        <button class="nav-item" data-screen="frame" data-hotkey="2">
+        <button class="nav-item" data-view="passport" data-hotkey="2">
+          <span class="nav-ico" data-ico="compass"></span>
+          <span class="nav-label">ИИ-анализ</span>
+          <span class="nav-step">2</span>
+        </button>
+
+        <button class="nav-item" data-view="frame" data-hotkey="3">
           <span class="nav-ico" data-ico="layout"></span>
           <span class="nav-label">Каркас</span>
           <span class="nav-state" id="navFrameState" hidden></span>
         </button>
+      </div>
 
-        <button class="nav-item" data-screen="generate" data-hotkey="3">
+      <div class="nav-group">
+        <div class="nav-group-title">Создание страниц</div>
+
+        <button class="nav-item" data-view="generate" data-hotkey="4">
           <span class="nav-ico" data-ico="play"></span>
           <span class="nav-label">Генерация</span>
           <span class="nav-state" id="navGenLive"></span>
         </button>
-        <div class="nav-sub" data-screen="generate" hidden>
-          <button class="nav-jump" data-jump="generate">Запуск и задачи</button>
-          <button class="nav-jump" data-jump="gate">Гейт качества <i class="nav-state" id="navGateState"></i></button>
-        </div>
 
-        <button class="nav-item" data-screen="pages" data-hotkey="4">
+        <button class="nav-item" data-view="gate" data-hotkey="5">
+          <span class="nav-ico" data-ico="shield"></span>
+          <span class="nav-label">Контроль качества</span>
+          <span class="nav-state" id="navGateState"></span>
+        </button>
+
+        <button class="nav-item" data-view="pages" data-hotkey="6">
           <span class="nav-ico" data-ico="file"></span>
           <span class="nav-label">Страницы</span>
         </button>
-        <div class="nav-sub" data-screen="pages" hidden>
-          <button class="nav-jump" data-jump="pages">Список страниц</button>
-          <button class="nav-jump" data-jump="wiring">Обвязка кодом</button>
-        </div>
-
-        <button class="nav-item" data-screen="publish" data-hotkey="5">
-          <span class="nav-ico" data-ico="waves"></span>
-          <span class="nav-label">Публикация</span>
-        </button>
-        <div class="nav-sub" data-screen="publish" hidden>
-          <button class="nav-jump" data-jump="waves">Волны</button>
-          <button class="nav-jump" data-jump="feedback">Обратная связь</button>
-          <button class="nav-jump" data-jump="export">Выгрузка архива</button>
-        </div>
       </div>
 
       <div class="nav-group">
-        <div class="nav-group-title">Настройки</div>
+        <div class="nav-group-title">После генерации</div>
 
-        <button class="nav-item" data-screen="rules" data-hotkey="0">
+        <button class="nav-item" data-view="wiring" data-hotkey="7">
+          <span class="nav-ico" data-ico="link"></span>
+          <span class="nav-label">Обвязка</span>
+          <span class="nav-soon">блок 6</span>
+        </button>
+
+        <button class="nav-item" data-view="waves" data-hotkey="8">
+          <span class="nav-ico" data-ico="waves"></span>
+          <span class="nav-label">Волны</span>
+          <span class="nav-soon">блок 7</span>
+        </button>
+
+        <button class="nav-item" data-view="feedback" data-hotkey="9">
+          <span class="nav-ico" data-ico="radar"></span>
+          <span class="nav-label">Обратная связь</span>
+          <span class="nav-soon">блок 8</span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Настройки и выход</div>
+
+        <button class="nav-item" data-view="rules" data-hotkey="0">
           <span class="nav-ico" data-ico="sliders"></span>
           <span class="nav-label">Правила проекта</span>
+        </button>
+
+        <button class="nav-item" data-view="export" data-hotkey="e">
+          <span class="nav-ico" data-ico="download"></span>
+          <span class="nav-label">Выгрузка</span>
         </button>
       </div>
 
@@ -7776,77 +7798,53 @@ load();
         </section>
 
         <!-- ============================================================
-             БЛОК 1 · ПАСПОРТ ПРОЕКТА
+             ШАГ 2 · ИИ-АНАЛИЗ
              ============================================================ -->
         <section class="view" id="view-passport">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 1 · решение до генерации</div>
-              <h1>Паспорт проекта</h1>
-              <p class="view-sub">
-                Сильная модель один раз смотрит на таблицу и решает, стоит ли вообще генерить и ск��лько.
-                Здесь есть развилка «данных мало — ����О��», которой нет ни у одного платного сервиса.
-              </p>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 2 из 6 · после загрузки данных</div>
+              <h1>ИИ-анализ проекта</h1>
+              <p class="view-sub">Система проверит данные, предложит формат страницы и стратегию ценности. Ничего выбирать заранее не нужно.</p>
             </div>
             <div class="view-actions">
-              <button class="btn btn-dark" id="analyzeBtn">
-                <span data-ico-sm="spark"></span> Проанализировать данные
-              </button>
+              <button class="btn btn-dark btn-lg" id="analyzeBtn"><span data-ico-sm="spark"></span> Запустить анализ</button>
             </div>
+          </div>
+
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="active">2. ИИ-анализ</span><span>3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div id="passportVerdict"></div>
 
+          <div class="panel" id="aiDecisionPanel">
+            <div class="panel-head">
+              <div class="panel-head-body">
+                <div class="panel-title">Рекомендация ИИ</div>
+                <div class="panel-sub">Тип отвечает за структуру страницы. Стратегия — за полезность и причину существования страницы.</div>
+              </div>
+            </div>
+            <div class="panel-body" id="aiRecommendation"></div>
+          </div>
+
           <div class="grid grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">��опр��с 1 · ������колько колонок реально различается</div>
-                </div>
-              </div>
-              <div class="panel-body" id="q1Box"></div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Вопрос 4 · Потолок страниц</div>
-                </div>
-              </div>
-              <div class="panel-body" id="q4Box"></div>
-            </div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Качество исходных данных</div></div></div><div class="panel-body" id="q1Box"></div></div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Безопасный объём запуска</div></div></div><div class="panel-body" id="q4Box"></div></div>
           </div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 2 · Тип страницы</div>
-                <div class="panel-sub">Библиотека 1 — пять типов. Тип задаёт дизайн-основу и набор обязательных блоков.</div>
-              </div>
-            </div>
+          <details class="panel choice-details">
+            <summary class="panel-head"><span><b>Изменить рекомендацию вручную</b><small>Необязательно. Откройте только если решение ИИ не подходит.</small></span><span data-ico-sm="chevron"></span></summary>
             <div class="panel-body">
-              <div class="pick grid-3" id="typePick"></div>
+              <div class="field-label">Тип страницы — структура и порядок блоков</div>
+              <div class="pick grid-3 mt-2" id="typePick"></div>
+              <div class="field-label mt-3">Стратегия ценности — чем страница полезнее обычного ответа</div>
+              <div class="pick grid-3 mt-2" id="stratPick"></div>
             </div>
-          </div>
+          </details>
 
           <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 3 · Стратегия добавленной ценности</div>
-                <div class="panel-sub">Библиотека 2 — за что страница вообще имеет право существовать.</div>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="pick grid-3" id="stratPick"></div>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Вопрос 5 · Какие ключи выкинуть и почему</div>
-              </div>
-            </div>
+            <div class="panel-head"><div class="panel-head-body"><div class="panel-title">Строки, которые лучше не генерировать</div><div class="panel-sub">Дубли и строки, которым не хватает данных.</div></div></div>
             <div class="panel-body" id="q5Box"></div>
           </div>
         </section>
@@ -7857,11 +7855,10 @@ load();
         <section class="view" id="view-frame">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 2 · проектировщик каркаса</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 3 из 6 · по рекомендации ИИ</div>
               <h1>Каркас</h1>
               <p class="view-sub">
-                Каркас делается один раз сильной моделью: разметка с полями <code>{{…}}</code>,
-                схема полей и промпт для дешёвой модели. Дальше все страницы собираются кодом без ИИ.
+                ИИ получает ваши данные и рекомендацию прошлого шага, затем создаёт один общий шаблон страницы. Вы проверяете его и запускаете массовую генерацию.
               </p>
             </div>
             <div class="view-actions">
@@ -7870,10 +7867,12 @@ load();
             </div>
           </div>
 
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="active">3. Каркас</span><span>4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
+          </div>
           <div class="seg" id="frameMode">
-            <button data-fmode="chat" class="is-on">Диалог с моделью</button>
-            <button data-fmode="lib">Дизайн-основы</button>
-            <button data-fmode="edit">Редактор каркаса</button>
+            <button data-fmode="chat" class="is-on">Создать с ИИ</button>
+            <button data-fmode="edit">Проверить и утвердить</button>
           </div>
 
           <!-- режим: диалог -->
@@ -7891,12 +7890,6 @@ load();
               <div class="panel-body flush">
                 <div class="chat">
                   <div class="chat-log" id="chatLog"></div>
-                  <div class="chat-quick">
-                    <button class="chip" data-quick="Мне нужна страница-срез базы: карточка сущности с главной таблицей характеристик, разделами и FAQ.">Срез базы</button>
-                    <button class="chip" data-quick="Мне нужна страница-матрица A×B: двухколоночное сравнение, шкала и явный вывод.">Матрица A×B</button>
-                    <button class="chip" data-quick="Мне нужна страница-расчёт: калькулятор сверху, объяснение формулы и примеры.">Расчёт</button>
-                    <button class="chip" data-quick="Сделай разметку без воды: только те блоки, которые заполняются фактами из строки таблицы.">Без воды</button>
-                  </div>
                   <div class="chat-compose">
                     <textarea class="textarea" id="chatInput" rows="2"
                       placeholder="Опишите, какая нужна страница…  Enter — отправить, Shift+Enter — перенос"></textarea>
@@ -7908,25 +7901,12 @@ load();
               </div>
               <div class="panel-foot">
                 <button class="btn" id="askFrameBtn">
-                  <span data-ico-sm="layout"></span> Попросить итоговый каркас
+                  <span data-ico-sm="layout"></span> Сгенерировать каркас
                 </button>
                 <button class="btn btn-ok" id="extractFrameBtn">
                   <span data-ico-sm="download"></span> Извлечь каркас из ответа
                 </button>
               </div>
-            </div>
-          </div>
-
-          <!-- режим: библиотека дизайн-основ -->
-          <div id="fmode-lib" hidden>
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Дизайн-основы · справочник</div>
-                  <div class="panel-sub">Не картинки, а наборы блоков, жёстко привязанные к типу страницы.</div>
-                </div>
-              </div>
-              <div class="panel-body" id="designLib"></div>
             </div>
           </div>
 
@@ -8011,13 +7991,17 @@ load();
         <section class="view" id="view-generate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блоки 3 и 4 · цикл по каждой строке</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 4 из 6 · массовое создание</div>
               <h1>Генерация</h1>
               <p class="view-sub">
                 Дешёвая модель заполняет схему полей, потом код без ИИ вставляет JSON в каркас.
                 Страница ни разу не генерируется целиком — именно поэтому разметка не ломается.
               </p>
             </div>
+          </div>
+
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="active">4. Генерация</span><span>5. Контроль</span><span>6. Страницы</span>
           </div>
 
           <div class="panel accent">
@@ -8132,210 +8116,66 @@ load();
         </section>
 
         <!-- ══════════════════════════════════════════════════════════
-             ЭКРАН 5 — ГЕЙТ КАЧЕСТВА (БЛОК 5, четыре уровня)
+             ШАГ 5 — КОНТРОЛЬ КАЧЕСТВА
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-gate">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Блок 5 · четыре уровня строго по порядку</div>
-              <h1>Гейт качества</h1>
-              <p class="view-sub">
-                Уровни проходятся последовательно. Страница, упавшая на 5.1,
-                дальше не идёт — нет смысла мерить текст у сломанной разметки.
-              </p>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 5 из 6 · после генерации</div>
+              <h1>Контроль качества</h1>
+              <p class="view-sub">Здесь видно только три вещи: открывается ли страница, не дублирует ли другие и достаточно ли высок итоговый балл.</p>
             </div>
-            <div class="view-actions">
-              <button class="btn" id="recomputeBtn">
-                <span data-ico-sm="refresh"></span> Пересчитать уникальность
-              </button>
-            </div>
+            <div class="view-actions"><button class="btn" id="recomputeBtn"><span data-ico-sm="refresh"></span> Перепроверить страницы</button></div>
           </div>
 
-          <div class="gate" id="gateLevels">
+          <div class="flow-steps" aria-label="Порядок работы">
+            <span class="done">1. Данные</span><span class="done">2. ИИ-анализ</span><span class="done">3. Каркас</span><span class="done">4. Генерация</span><span class="active">5. Контроль</span><span>6. Страницы</span>
+          </div>
 
-            <div class="gate-level" id="lvl-1">
-              <div class="gate-n">5.1</div>
-              <div class="gate-body">
-                <div class="gate-title">Блокировки <span class="pill ok">работает</span></div>
-                <div class="gate-desc">
-                  Сломан HTML, остались заглушки <code>{{…}}</code>, два H1, нет title —
-                  сразу брак, без обсуждения.
-                </div>
-                <div class="gate-checks" id="lvl1Checks"></div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl1Val">—</div>
-                <div class="gate-stat-k">прошло уровень</div>
-              </div>
-            </div>
-
-            <div class="gate-level soon" id="lvl-2">
-              <div class="gate-n">5.2</div>
-              <div class="gate-body">
-                <div class="gate-title">Факты <span class="pill soon">бэкенд в работе</span></div>
-                <div class="gate-desc">
-                  Все ли данные из строки дошли до текста и нет ли выдуманных цифр.
-                  Доля подтверждённого ниже 60% → брак.
-                </div>
-                <div class="stub" style="margin-top:12px;">
-                  <div class="stub-text">
-                    Сейчас проверка бинарная: любой непопавший факт валит страницу целиком.
-                    Нужно две метрики вместо одного флажка:
-                  </div>
-                  <ul class="stub-list">
-                    <li><b>Покрытие данных</b> — сколько полей строки реально упомянуто в тексте</li>
-                    <li><b>Поддержанность цифр</b> — каждое чи��ло в тексте есть в исходных данных</li>
-                    <li>Список потерянных фактов и список подозрительных чисел в карточке страницы</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl2Val">—</div>
-                <div class="gate-stat-k">покрытие данных</div>
-              </div>
-            </div>
-
-            <div class="gate-level" id="lvl-3">
-              <div class="gate-n">5.3</div>
-              <div class="gate-body">
-                <div class="gate-title">Уникальность <span class="pill ok">по словам работает</span></div>
-                <div class="gate-desc">
-                  Шинглы против всего корпуса проекта плюс повторы блоков внутри страницы.
-                  Обвязка каркаса из сравнения вычитается, иначе все страницы казались бы похожими.
-                </div>
-                <div class="gate-checks" id="lvl3Checks"></div>
-                <div class="stub" style="margin-top:12px;">
-                  <div class="stub-head">
-                    <span class="pill soon">Отложено</span>
-                    <span class="stub-title">Уникальность по смыслу (эмбеддинги)</span>
-                  </div>
-                  <div class="stub-text">
-                    Шинглы ловят перестановку слов, но не ловят пересказ другими словами.
-                    Векторное сравнение закрывает эту дыру. По вашему решению — позже.
-                  </div>
-                </div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl3Val">—</div>
-                <div class="gate-stat-k">средняя уникальность</div>
-              </div>
-            </div>
-
-            <div class="gate-level" id="lvl-4">
-              <div class="gate-n">5.4</div>
-              <div class="gate-body">
-                <div class="gate-title">Качество <span class="pill ok">работает</span></div>
-                <div class="gate-desc">
-                  Измерения сводятся в один балл от 0 до 100. Тошнота, водность и
-                  читаемость из балла убраны — Google их не использует, и их вес
-                  перешёл на уникальность, плотность фактов и перелинковку.
-                </div>
-                <div class="gate-checks" id="lvl4Checks"></div>
-              </div>
-              <div class="gate-stat">
-                <div class="gate-stat-v" id="lvl4Val">—</div>
-                <div class="gate-stat-k">средний балл</div>
-              </div>
-            </div>
+          <div class="quality-summary" id="gateLevels">
+            <div class="quality-card"><span class="quality-num" id="lvl1Val">—</span><div><b>Технически исправны</b><p>HTML, заголовок, мета и обязательные поля собраны без ошибок.</p><div class="gate-checks" id="lvl1Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl3Val">—</span><div><b>Не похожи на дубли</b><p>Сравнение с остальными страницами и проверка повторов внутри текста.</p><div class="gate-checks" id="lvl3Checks"></div></div></div>
+            <div class="quality-card"><span class="quality-num" id="lvl4Val">—</span><div><b>Средний балл</b><p>Общая оценка качества от 0 до 100. Подробности доступны в карточке страницы.</p><div class="gate-checks" id="lvl4Checks"></div></div></div>
           </div>
 
           <div class="panel" id="gateCfg">
             <div class="panel-head">
-              <div class="panel-head-body">
-                <div class="panel-title">Настройка гейта <span class="pill neutral" id="gateOffPill">—</span></div>
-                <div class="panel-sub">
-                  Пороги и список проверок. Всё, что Google официально не использует,
-                  выключено — такие проверки только валили нормальные страницы.
-                </div>
-              </div>
-              <div class="panel-tools">
-                <button class="btn btn-sm" id="gateReset">По умолчанию</button>
-                <button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button>
-              </div>
+              <div class="panel-head-body"><div class="panel-title">Правила допуска <span class="pill neutral" id="gateOffPill">—</span></div><div class="panel-sub">Обычные значения уже выставлены. Меняйте их только если понимаете последствия.</div></div>
+              <div class="panel-tools"><button class="btn btn-sm" id="gateReset">Вернуть обычные</button><button class="btn btn-sm btn-primary" id="gateSave">Сохранить</button></div>
             </div>
             <div class="panel-body">
-              <div class="up-row">
-                <div class="field">
-                  <div class="field-label">Уникальность, % не ниже</div>
-                  <input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80">
-                </div>
-                <div class="field">
-                  <div class="field-label">Самоповторы, не выше</div>
-                  <input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08">
-                </div>
-                <div class="field">
-                  <div class="field-label">Похожие блоки, не выше</div>
-                  <input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6">
-                </div>
-                <div class="field">
-                  <div class="field-label">Пропуск, балл ≥</div>
-                  <input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80">
-                </div>
-                <div class="field">
-                  <div class="field-label">Перегенерация, балл ≥</div>
-                  <input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60">
-                </div>
+              <div class="up-row gate-thresholds">
+                <div class="field"><div class="field-label">Уникальность от, %</div><input class="input input-sm" id="gateUniq" type="number" min="0" max="95" step="1" value="80"></div>
+                <div class="field"><div class="field-label">Самоповторы до</div><input class="input input-sm" id="gateSelfRep" type="number" min="0" max="1" step="0.01" value="0.08"></div>
+                <div class="field"><div class="field-label">Похожие блоки до</div><input class="input input-sm" id="gateIntra" type="number" min="0" max="1" step="0.05" value="0.6"></div>
+                <div class="field"><div class="field-label">Готова от, баллов</div><input class="input input-sm" id="gatePass" type="number" min="0" max="100" step="1" value="80"></div>
+                <div class="field"><div class="field-label">Переделать от</div><input class="input input-sm" id="gateRedo" type="number" min="0" max="100" step="1" value="60"></div>
               </div>
-              <div id="gateChecks"></div>
+              <details class="gate-details"><summary>Показать отдельные технические проверки</summary><div id="gateChecks" class="mt-2"></div></details>
               <div class="note mt-3" id="gateNote"></div>
             </div>
           </div>
 
-          <div class="hr-label">Развилка по баллу</div>
-
+          <div class="hr-label">Результат проверки</div>
           <div class="fork">
-            <div class="fork-card pass">
-              <div class="fork-range">≥ 80</div>
-              <div class="fork-name">Пропуск</div>
-              <div class="fork-count" id="forkPass">—</div>
-              <div class="fork-note">Страница идёт в обвязку</div>
-            </div>
-            <div class="fork-card redo">
-              <div class="fork-range">60 — 80</div>
-              <div class="fork-name">Перегенерация</div>
-              <div class="fork-count" id="forkRedo">—</div>
-              <div class="fork-note">Максимум два раза, потом отклонение</div>
-            </div>
-            <div class="fork-card drop">
-              <div class="fork-range">&lt; 60</div>
-              <div class="fork-name">Отклонена</div>
-              <div class="fork-count" id="forkDrop">—</div>
-              <div class="fork-note">Навсегда, без повторных попыток</div>
-            </div>
+            <div class="fork-card pass"><div class="fork-range">≥ 80</div><div class="fork-name">Готовы</div><div class="fork-count" id="forkPass">—</div><div class="fork-note">Можно выгружать</div></div>
+            <div class="fork-card redo"><div class="fork-range">60 — 80</div><div class="fork-name">Нужно переделать</div><div class="fork-count" id="forkRedo">—</div><div class="fork-note">Перегенерировать после проверки причин</div></div>
+            <div class="fork-card drop"><div class="fork-range">&lt; 60</div><div class="fork-name">Отклонены</div><div class="fork-count" id="forkDrop">—</div><div class="fork-note">Не попадут в выгрузку</div></div>
           </div>
 
           <div class="grid grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Распределение баллов</div>
-                  <div class="panel-sub">Горб слева означает проблему в каркасе или промпте, а не в отдельных страницах</div>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="hist" id="scoreHist"></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Самые частые причины брака</div>
-                  <div class="panel-sub">Что именно править в каркасе или промпте</div>
-                </div>
-              </div>
-              <div class="panel-body" id="failReasons"></div>
-            </div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Распределение баллов</div><div class="panel-sub">Если большинство слева — исправляйте каркас, а не отдельные страницы.</div></div></div><div class="panel-body"><div class="hist" id="scoreHist"></div></div></div>
+            <div class="panel"><div class="panel-head"><div class="panel-head-body"><div class="panel-title">Главные причины отклонения</div><div class="panel-sub">Сначала исправляйте самую частую.</div></div></div><div class="panel-body" id="failReasons"></div></div>
           </div>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════
+        <!-- ═════════════════���════════════════════════════════════════
              ЭКРАН 6 — СТРАНИЦЫ
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-pages">
           <div class="view-head">
             <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Результат конвейера</div>
+              <div class="view-eyebrow"><i class="dot"></i>Шаг 6 из 6 · готовый результат</div>
               <h1>Страницы</h1>
               <p class="view-sub">Клик по баллу открывает все проверки страницы по уровням гейта.</p>
             </div>
@@ -8721,59 +8561,6 @@ load();
         </section>
 
         <!-- ══════════════════════════════════════════════════════════
-             ЭКРАН 11 — ВЫГРУЗКА
-             ══════════════════════════════════════════════════════════ -->
-        <section class="view" id="view-export">
-          <div class="view-head">
-            <div class="view-head-body">
-              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
-              <h1>Выгрузка</h1>
-              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
-            </div>
-          </div>
-
-          <div class="grid grid-2">
-            <div class="panel accent">
-              <div class="panel-body">
-                <div class="export-hero">
-                  <span class="export-ico" data-ico="download"></span>
-                  <div>
-                    <div class="export-n" id="exportCount">—</div>
-                    <div class="export-t">страниц готово к выгрузке</div>
-                  </div>
-                </div>
-                <div class="btn-row mt-3">
-                  <button class="btn btn-dark btn-lg" id="exportBtn">
-                    <span data-ico-sm="download"></span> Скачать ZIP
-                  </button>
-                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
-                </div>
-                <div class="muted mt-2" id="exportDomainHint" hidden></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-head-body">
-                  <div class="panel-title">Состав архива</div>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="checks-list">
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
-                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
-                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ══════════════════════════════════════════════════════════
              ЭКРАН 10 — ПРАВИЛА ПРОЕКТА
              ══════════════════════════════════════════════════════════ -->
         <section class="view" id="view-rules">
@@ -8809,8 +8596,8 @@ load();
             <div class="panel">
               <div class="panel-head">
                 <div class="panel-head-body">
-                  <div class="panel-title">Базовые пороги проекта</div>
-                  <div class="panel-sub">Два главных числа. Полный список проверок — в «Генерация → Гейт качества»</div>
+                  <div class="panel-title">Пороги гейта</div>
+                  <div class="panel-sub">Уровни 5.3 и 5.4</div>
                 </div>
               </div>
               <div class="panel-body">
@@ -8833,8 +8620,8 @@ load();
           <div class="panel" id="designPanel">
             <div class="panel-head">
               <div class="panel-head-body">
-                <div class="panel-title">Оформление генерируемых страниц</div>
-                <div class="panel-sub">Вид сайта на выходе, а не тема интерфейса. Меняется когда угодно, порядок блоков берётся из паспорта</div>
+                <div class="panel-title">Внешний вид страниц</div>
+                <div class="panel-sub">Цвета, шрифты и радиусы. Структуру уже выбрал ИИ на шаге анализа</div>
               </div>
               <span class="pill" id="designPill">—</span>
             </div>
@@ -8842,7 +8629,7 @@ load();
               <div class="theme-grid" id="themeGrid"></div>
 
               <div class="field mt-3">
-                <span class="field-label">Макет под тип страницы</span>
+                <span class="field-label">Структура, выбранная ИИ</span>
                 <span class="field-hint" id="layoutHint"></span>
               </div>
 
@@ -8900,13 +8687,65 @@ load();
           </div>
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════
+             ЭКРАН 11 — ВЫГРУЗКА
+             ══════════════════════════════════════════════════════════ -->
+        <section class="view" id="view-export">
+          <div class="view-head">
+            <div class="view-head-body">
+              <div class="view-eyebrow"><i class="dot"></i>Готовый результат</div>
+              <h1>Выгрузка</h1>
+              <p class="view-sub">В архив попадают только страницы в статусе «Готова». Папка site/ кладётся в корень сайта как есть.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="panel accent">
+              <div class="panel-body">
+                <div class="export-hero">
+                  <span class="export-ico" data-ico="download"></span>
+                  <div>
+                    <div class="export-n" id="exportCount">—</div>
+                    <div class="export-t">страниц готово к выгрузке</div>
+                  </div>
+                </div>
+                <div class="btn-row mt-3">
+                  <button class="btn btn-dark btn-lg" id="exportBtn">
+                    <span data-ico-sm="download"></span> Скачать ZIP
+                  </button>
+                  <button class="btn" id="exportSitemapBtn"><span data-ico-sm="file"></span> Только sitemap.xml</button>
+                </div>
+                <div class="muted mt-2" id="exportDomainHint" hidden></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-head-body">
+                  <div class="panel-title">Состав архива</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="checks-list">
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">site/&lt;slug&gt;/index.html</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">data/&lt;slug&gt;.json — поля страницы</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">sitemap.xml с lastmod</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">robots.txt со ссылкой на карту</span><span class="check-val">есть</span></div>
+                  <div class="check-row ok"><span class="check-mark" data-ico-sm="check"></span><span class="check-name">canonical по домену проекта</span><span class="check-val">есть</span></div>
+                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Блок внутренних ссылок</span><span class="check-val">блок 6</span></div>
+                  <div class="check-row"><span class="check-mark" data-ico-sm="lock"></span><span class="check-name">Разбивка по волнам</span><span class="check-val">блок 7</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </main>
   </div>
 </div>
 
-<script src="app.js?v=29"></script>
+<script src="app.js?v=28"></script>
 
 <script>
 /* ==========================================================================
@@ -8919,10 +8758,10 @@ const PID = new URLSearchParams(location.search).get('id');
 
 const VIEWS = {
   data:     'Данные',
-  passport: 'Паспорт проекта',
+  passport: 'ИИ-анализ',
   frame:    'Каркас',
   generate: 'Генерация',
-  gate:     'Гейт качества',
+  gate:     'Контроль качества',
   pages:    'Страницы',
   wiring:   'Обвязка',
   waves:    'Публикация волнами',
@@ -8930,20 +8769,6 @@ const VIEWS = {
   rules:    'Правила проекта',
   export:   'Выгрузка',
 };
-
-/* Шесть экранов вместо одиннадцати пунктов меню.
-   Секции (.view) не удалены и не переписаны — один экран показывает несколько секций стопкой. */
-const SCREENS = {
-  data:     { label: 'Данные и паспорт', views: ['data', 'passport'] },
-  frame:    { label: 'Каркас',            views: ['frame'] },
-  generate: { label: 'Генерация и гейт',  views: ['generate', 'gate'] },
-  pages:    { label: 'Страницы и обвязка', views: ['pages', 'wiring'] },
-  publish:  { label: 'Публикация',        views: ['waves', 'feedback', 'export'] },
-  rules:    { label: 'Правила проекта',   views: ['rules'] },
-};
-
-const VIEW_SCREEN = {};
-Object.keys(SCREENS).forEach(id => SCREENS[id].views.forEach(v => { VIEW_SCREEN[v] = id; }));
 
 const S = {
   project: null,
@@ -8953,7 +8778,6 @@ const S = {
   pages: [],
   models: [],
   view: 'data',
-  screen: 'data',
   parallel: 1,
   taskFilter: 'all',
   pagesSort: 'new',
@@ -9006,7 +8830,7 @@ async function boot() {
   registerCommands();
 
   const start = (location.hash || '').replace('#', '');
-  go(start || 'data');
+  go(VIEWS[start] ? start : 'data');
 
   loadKeys();
   loadTasks(true);
@@ -9169,40 +8993,16 @@ async function runGscSync(btn) {
    РОУТЕР
    ====================================================================== */
 
-function go(target) {
-  /* target — или экран ('publish'), или секция ('feedback'): старые ссылки и анкоры работают как раньше. */
-  const asView   = VIEWS[target] ? target : null;
-  const screen   = SCREENS[target] ? target : (asView ? VIEW_SCREEN[asView] : 'data');
-  const sc       = SCREENS[screen] || SCREENS.data;
-  const view     = asView && sc.views.indexOf(asView) >= 0 ? asView : sc.views[0];
+function go(view) {
+  if (!VIEWS[view]) view = 'data';
+  S.view = view;
 
-  S.screen = screen;
-  S.view   = view;
-
-  $$('.view').forEach(v => v.classList.toggle('is-active', sc.views.indexOf(v.id.slice(5)) >= 0));
-  $$('.nav-item[data-screen]').forEach(b => b.classList.toggle('is-active', b.dataset.screen === screen));
-  $$('.nav-sub').forEach(el => { el.hidden = el.dataset.screen !== screen; });
-  $$('.nav-jump').forEach(b => b.classList.toggle('is-active', b.dataset.jump === view));
-
-  $('#crumbView').textContent = sc.label;
+  $$('.view').forEach(v => v.classList.toggle('is-active', v.id === 'view-' + view));
+  $$('.nav-item[data-view]').forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
+  $('#crumbView').textContent = VIEWS[view];
   history.replaceState(null, '', '#' + view);
   $('.canvas').scrollTop = 0;
 
-  sc.views.forEach(initView);
-
-  if (view !== sc.views[0]) {
-    const el = $('#view-' + view);
-    if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  }
-}
-
-/* Секция открыта в текущем экране — нужно для фоновых обновлений. */
-function screenHas(view) {
-  const sc = SCREENS[S.screen];
-  return !!sc && sc.views.indexOf(view) >= 0;
-}
-
-function initView(view) {
   if (view === 'frame' && !S.loaded.chat) { S.loaded.chat = true; loadChat(); }
   if (view === 'passport') initPassport();
   if (view === 'gate')  { renderGate(); initGateConfig(); }
@@ -9214,8 +9014,7 @@ function initView(view) {
 }
 
 function bindStatic() {
-  $$('.nav-item[data-screen]').forEach(b => b.onclick = () => go(b.dataset.screen));
-  $$('.nav-jump').forEach(b => b.onclick = () => go(b.dataset.jump));
+  $$('.nav-item[data-view]').forEach(b => b.onclick = () => go(b.dataset.view));
   $('#projSwitch').onclick = () => location.href = 'index.html';
   $('#themeBtn').onclick = () => toggleTheme();
   $('#helpBtn').onclick = () => showShortcuts();
@@ -9228,7 +9027,7 @@ function bindStatic() {
     if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const byHotkey = $$('.nav-item[data-hotkey="' + e.key + '"]')[0];
-    if (byHotkey) { e.preventDefault(); go(byHotkey.dataset.screen); return; }
+    if (byHotkey) { e.preventDefault(); go(byHotkey.dataset.view); return; }
     if (e.key.toLowerCase() === 'g') { go('generate'); startGeneration(); }
     if (e.key.toLowerCase() === 'r') { e.preventDefault(); reloadAll(); }
   });
@@ -9294,7 +9093,7 @@ function bindStatic() {
   /* --- каркас --- */
   $$('#frameMode button').forEach(b => b.onclick = () => {
     $$('#frameMode button').forEach(x => x.classList.toggle('is-on', x === b));
-    ['chat', 'lib', 'edit'].forEach(m => $('#fmode-' + m).hidden = m !== b.dataset.fmode);
+    ['chat', 'edit'].forEach(m => $('#fmode-' + m).hidden = m !== b.dataset.fmode);
   });
   $('#chatSend').onclick = () => sendChat();
   $('#chatReload').onclick = () => loadChat();
@@ -9400,7 +9199,7 @@ function bindStatic() {
 function reloadAll() {
   loadKeys(); loadTasks(); loadPages();
   S.passport = null;
-  if (screenHas('passport')) initPassport(true);
+  if (S.view === 'passport') initPassport(true);
   toast.info('Обновлено');
 }
 
@@ -9584,12 +9383,6 @@ function buildLibraries() {
       `</span>` +
     `</label>`).join('');
 
-  $('#designLib').innerHTML = `<div class="cols">` + LIB_PAGE_TYPES.map(t =>
-    `<div class="col-card">` +
-      `<div class="col-name">${escHtml(t.name)}</div>` +
-      `<div class="col-note" style="margin-top:6px;">${escHtml(t.design)}</div>` +
-      `<div class="stub-inline" style="margin-top:10px;">заглушка</div>` +
-    `</div>`).join('') + `</div>`;
 
   $$('#typePick input, #stratPick input').forEach(inp => {
     inp.onchange = () => savePassportPick();
@@ -9707,6 +9500,20 @@ function renderPassport() {
     hydrateIcons(box);
   }
 
+  const rec = $('#aiRecommendation');
+  if (rec) {
+    if (!p.analyzed) {
+      rec.innerHTML = `<div class="empty compact"><div class="empty-title">Сначала запустите анализ</div><div class="empty-text">ИИ выберет структуру и стратегию по вашим колонкам и примерам строк.</div></div>`;
+    } else {
+      const type = LIB_PAGE_TYPES.find(x => x.id === p.page_type) || {};
+      const strat = LIB_STRATEGIES.find(x => x.id === p.strategy) || {};
+      rec.innerHTML = `<div class="ai-rec-grid">` +
+        `<div class="ai-rec"><span class="ai-rec-k">Структура страницы</span><b>${escHtml(type.name || p.page_type || '—')}</b><p>${escHtml(type.design || '')}</p></div>` +
+        `<div class="ai-rec"><span class="ai-rec-k">Стратегия ценности</span><b>${escHtml(strat.name || p.strategy || '—')}</b><p>${escHtml(strat.gives || '')}</p></div>` +
+        `</div>` + (p.layout_reason ? `<div class="note info mt-2"><div class="note-body"><b>Почему:</b> ${escHtml(p.layout_reason)}</div></div>` : '');
+    }
+  }
+
   const varied = st.varied_columns;
   $('#q1Box').innerHTML = (varied == null)
     ? passportSlot('Различающиеся колонки', null, 'Загрузите таблицу на вкладке «Д��нные».')
@@ -9746,6 +9553,7 @@ function paintPassportPicks() {
     const saved = inp.name === 'ptype' ? (p.page_type || '') : (p.strategy || '');
     const on = !!saved && inp.value === saved;
     inp.checked = on;
+    inp.disabled = !p.analyzed;
     card.classList.toggle('is-on', on);
     let mark = need.querySelector('.pick-db');
     if (on) {
@@ -9755,7 +9563,7 @@ function paintPassportPicks() {
         need.insertAdjacentElement('afterbegin', mark);
       }
       mark.className = 'pill ok pick-db';
-      mark.textContent = 'в базе';
+      mark.textContent = p.source === 'manual' ? 'выбрано вручную' : 'рекомендовано ИИ';
     } else if (mark) {
       mark.remove();
     }
@@ -10006,7 +9814,7 @@ async function extractFrame(btn) {
       checkFrameLive();
 
       $$('#frameMode button').forEach(x => x.classList.toggle('is-on', x.dataset.fmode === 'edit'));
-      ['chat', 'lib', 'edit'].forEach(k => $('#fmode-' + k).hidden = k !== 'edit');
+      ['chat', 'edit'].forEach(k => $('#fmode-' + k).hidden = k !== 'edit');
 
       if (res.problems && res.problems.length)
         toast.warn('Каркас извлечён с замечаниями', res.problems.slice(0, 2).join('; '));
@@ -10279,17 +10087,17 @@ function renderGate() {
   setText('#lvl2Val', 'нет');
   setText('#lvl3Val', failRate(3));
 
-  const scored = pages.filter(p => typeof pageScore(p) === 'number');
-  const avg = scored.length ? scored.reduce((s, p) => s + pageScore(p), 0) / scored.length : null;
+  const scored = pages.filter(p => typeof p.quality_score === 'number');
+  const avg = scored.length ? scored.reduce((s, p) => s + p.quality_score, 0) / scored.length : null;
   setText('#lvl4Val', avg === null ? '—' : avg.toFixed(0));
 
   /* развилка */
   const gcfg = (typeof GATE_CFG !== 'undefined' && GATE_CFG && GATE_CFG.config) || {};
   const passAt = Number(gcfg.pass_score) || 80;
   const redoAt = Number(gcfg.redo_score) || 60;
-  const pass = scored.filter(p => pageScore(p) >= passAt).length;
-  const redo = scored.filter(p => pageScore(p) >= redoAt && pageScore(p) < passAt).length;
-  const drop = scored.filter(p => pageScore(p) < redoAt).length;
+  const pass = scored.filter(p => p.quality_score >= passAt).length;
+  const redo = scored.filter(p => p.quality_score >= redoAt && p.quality_score < passAt).length;
+  const drop = scored.filter(p => p.quality_score < redoAt).length;
   setText('#forkPass', scored.length ? fmtNum(pass) : '—');
   setText('#forkRedo', scored.length ? fmtNum(redo) : '—');
   setText('#forkDrop', scored.length ? fmtNum(drop) : '—');
@@ -10301,7 +10109,7 @@ function renderGate() {
   const edges = [0, 40, 55, 68, 78, 88, 101];
   const labels = ['<40', '40–55', '55–68', '68–78', '78–88', '88+'];
   const counts = labels.map((_, i) =>
-    scored.filter(p => pageScore(p) >= edges[i] && pageScore(p) < edges[i + 1]).length);
+    scored.filter(p => p.quality_score >= edges[i] && p.quality_score < edges[i + 1]).length);
   const max = Math.max(1, ...counts);
   setHtml('#scoreHist', counts.map((n, i) =>
     `<div class="hist-col">` +
@@ -10353,16 +10161,16 @@ async function loadPages(silent) {
   }
   renderPageMetrics();
   renderPages();
-  if (screenHas('gate')) renderGate();
-  if (screenHas('wiring')) renderWiring();
-  if (screenHas('export')) renderExport();
+  if (S.view === 'gate') renderGate();
+  if (S.view === 'wiring') renderWiring();
+  if (S.view === 'export') renderExport();
 }
 
 function renderPageMetrics() {
   const p = S.pages || [];
   const ready = p.filter(x => x.status === 'ready');
-  const scored = p.filter(x => typeof pageScore(x) === 'number');
-  const avg = scored.length ? scored.reduce((s, x) => s + pageScore(x), 0) / scored.length : null;
+  const scored = p.filter(x => typeof x.quality_score === 'number');
+  const avg = scored.length ? scored.reduce((s, x) => s + x.quality_score, 0) / scored.length : null;
   const uniq = p.filter(x => typeof x.uniqueness === 'number');
   const avgU = uniq.length ? uniq.reduce((s, x) => s + x.uniqueness, 0) / uniq.length : null;
   const risky = uniq.filter(x => x.uniqueness < 0.75).length;
@@ -10382,7 +10190,7 @@ function visiblePages() {
   let rows = (S.pages || []).filter(p =>
     !q || (p.key || '').toLowerCase().includes(q) || (p.slug || '').toLowerCase().includes(q));
   if (S.pagesSort === 'score') {
-    rows = rows.slice().sort((a, b) => (pageScore(b) || 0) - (pageScore(a) || 0));
+    rows = rows.slice().sort((a, b) => (b.quality_score || 0) - (a.quality_score || 0));
   } else if (S.pagesSort === 'uniq') {
     rows = rows.slice().sort((a, b) => (a.uniqueness || 0) - (b.uniqueness || 0));
   } else {
@@ -10410,8 +10218,7 @@ function renderPages() {
   }
 
   body.innerHTML = rows.map((p, i) => {
-    const sc = pageScore(p);
-    const g = grade(sc);
+    const g = grade(p.quality_score);
     const u = typeof p.uniqueness === 'number' ? p.uniqueness : null;
     const uTone = u === null ? '' : (u >= 0.90 ? 'ok' : (u >= 0.75 ? 'warn' : 'bad'));
     const failed = (p.checks || []).filter(c => !c.passed).length;
@@ -10423,7 +10230,7 @@ function renderPages() {
         (failed ? ` <span class="pill bad">${failed} ${plural(failed, 'провал', 'провала', 'провалов')}</span>` : '') + `</td>` +
       `<td class="td-mono">${escHtml(p.slug || '—')}</td>` +
       `<td>${pill(p.status)}</td>` +
-      `<td><span class="score ${g.tone}">${sc == null ? '—' : Math.round(sc)}` +
+      `<td><span class="score ${g.tone}">${p.quality_score == null ? '—' : Math.round(p.quality_score)}` +
         `<i>${g.letter}</i></span></td>` +
       `<td><span class="uniq ${uTone}">${u === null ? '—' : u.toFixed(3)}</span></td>` +
       `<td>${modelTag(p.model, p.provider, p.model_returned)}</td>` +
@@ -10481,8 +10288,7 @@ async function openPageDrawer(pid) {
   if (!p) return;
   const checks = p.checks || [];
   const byLevel = lvl => checks.filter(c => checkLevel(c.check_name) === lvl);
-  const sc = pageScore(p);
-  const g = grade(sc);
+  const g = grade(p.quality_score);
 
   drawer.open({
     eyebrow: 'Страница #' + p.id,
@@ -10490,7 +10296,7 @@ async function openPageDrawer(pid) {
     body:
       `<div class="metrics" style="margin:0 0 18px;">` +
         `<div class="metric"><div class="metric-k">Балл</div>` +
-          `<div class="metric-v">${sc == null ? '—' : Math.round(sc)} <small>${g.letter}</small></div></div>` +
+          `<div class="metric-v">${p.quality_score == null ? '—' : Math.round(p.quality_score)} <small>${g.letter}</small></div></div>` +
         `<div class="metric"><div class="metric-k">Уникальность</div>` +
           `<div class="metric-v">${p.uniqueness == null ? '—' : p.uniqueness.toFixed(3)}</div></div>` +
         `<div class="metric"><div class="metric-k">Провалов</div>` +
@@ -10502,10 +10308,6 @@ async function openPageDrawer(pid) {
         `<button class="btn" data-dw-regen>${ico('redo', 15)} Перегенерировать</button>` +
       `</div>` +
       levelBlock('5.1 · Блокировки', 'сломанная разметка и заглушки', byLevel(1)) +
-      `<div class="check-group">` +
-        `<div class="check-group-head"><b>5.2 · Факты</b><span>заглушка — блок ещё не подключён</span></div>` +
-        `<div class="stub-text">Здесь появится доля фактов из строки, дошедших до текста, и список выдуманных чисел.</div>` +
-      `</div>` +
       levelBlock('5.3 · Уникальность', 'шинглы против всего корпуса', byLevel(3)) +
       levelBlock('5.4 · Качество', '18 измерений, балл 0–100', byLevel(4)),
   });
@@ -10682,7 +10484,7 @@ async function loadModels() {
     const res = await api.getModels();
     S.models = Array.isArray(res) ? res : (res.models || []);
   } catch (e) { S.models = []; }
-  if (screenHas('rules')) fillRules();
+  if (S.view === 'rules') fillRules();
 }
 
 /* ======================================================================
@@ -11634,9 +11436,6 @@ const CHECK_INFO = {
   title_length:           ['Длина title', '5.1'],
   description_length:     ['Длина description', '5.1'],
   heading_order:          ['Порядок заголовков', '5.1'],
-  facts:                  ['Факты из строки', '5.2'],
-  facts_coverage:         ['Покрытие данных', '5.2'],
-  facts_invented:         ['Выдуманные цифры', '5.2'],
   uniqueness:             ['Уникальность по словам', '5.3'],
   self_repetition:        ['Самоповторы', '5.3'],
   intra_page_similarity:  ['Повторы блоков внутри', '5.3'],
@@ -12553,7 +12352,7 @@ function initTableUpload() {
       const ok = await confirmDialog({
         title: 'Заменить все строки?',
         text: 'Текущие строки удалятся вместе с их задачами и страницами.',
-        confirm: 'Заменить',
+        confirm: 'Зам��нить',
         danger: true,
       });
       if (!ok) return;
@@ -12669,10 +12468,9 @@ function renderGateConfig() {
   if (pill) pill.textContent = off ? ('выключено ' + off) : 'все включены';
 
   const groups = [
-    ['5.1', '5.1 · Блокировки'],
-    ['5.2', '5.2 · Факты'],
-    ['5.3', '5.3 · Уникальность'],
-    ['5.4', '5.4 · Качество текста'],
+    ['5.1', 'Техническая исправность'],
+    ['5.3', 'Защита от дублей'],
+    ['5.4', 'Дополнительные проверки'],
   ];
 
   const html = groups.map(([lvl, title]) => {
@@ -12701,13 +12499,9 @@ function renderGateConfig() {
   const note = document.getElementById('gateNote');
   if (note) {
     note.innerHTML =
-      '<b>Гейт = только технический брак и дубли.</b> Удалены совсем: тошнота, ' +
-      'водность, индекс Флеша, meta keywords и число H2 — Google не использует ни ' +
-      'плотность слов, ни индексы читаемости, тег keywords игнорируется с 2009 года, ' +
-      'а количество заголовков не нормируется. <b>Объём текста больше не валит ' +
-      'страницу:</b> остался один предохранитель «Страница не пустая» — 900 символов, ' +
-      'а цель по объёму задаётся промптом и оценивается баллом. Отключённые ' +
-      'проверки не считаются при генерации и вычищаются из готовых страниц при сохранении.';
+      '<b>Как это работает.</b> Техническая ошибка или дубль блокируют страницу. ' +
+      'Итоговый балл помогает решить: выгружать, переделать или отклонить. ' +
+      'Проверка фактов сюда не входит: качество исходных данных оценивается раньше, на шаге ИИ-анализа.';
   }
 
   /* подписи развилки — из тех же настроек */
@@ -15803,4 +15597,41 @@ body.is-app { height: 100vh; overflow: hidden; }
 	margin-right: 3px;
 	border-radius: 2px;
 	background: var(--accent);
+}
+
+
+/* ===== UX cleanup 2026-09: linear project flow ===== */
+.flow-steps{display:flex;align-items:center;gap:6px;margin:0 0 24px;padding:6px;background:var(--surface-2,#f0efed);border:1px solid var(--line,#e6e5e3);border-radius:10px;overflow-x:auto}
+.flow-steps span{white-space:nowrap;padding:8px 12px;border-radius:7px;color:var(--muted,#7d7a75);font-size:12.5px;font-weight:600}
+.flow-steps span.done{color:var(--text,#2c2c2b)}
+.flow-steps span.active{background:var(--surface,#fff);color:var(--accent,#2783de);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ai-rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ai-rec{padding:20px;border:1px solid var(--line,#e6e5e3);border-radius:10px;background:var(--surface-2,#f9f8f7)}
+.ai-rec-k{display:block;margin-bottom:7px;color:var(--muted,#7d7a75);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.ai-rec b{font-size:18px}.ai-rec p{margin:7px 0 0;color:var(--muted,#7d7a75);line-height:1.45}
+.choice-details>summary{cursor:pointer;list-style:none}.choice-details>summary::-webkit-details-marker{display:none}.choice-details>summary small{display:block;margin-top:3px;color:var(--muted,#7d7a75);font-weight:400}.choice-details[open]>summary{border-bottom:1px solid var(--line,#e6e5e3)}
+.quality-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}.quality-card{display:flex;gap:16px;align-items:flex-start;padding:20px;border:1px solid var(--line,#e6e5e3);border-radius:10px;background:var(--surface,#fff)}.quality-card>div{min-width:0}.quality-card p{margin:5px 0 12px;color:var(--muted,#7d7a75);font-size:13px;line-height:1.45}.quality-num{min-width:54px;color:var(--accent,#2783de);font-size:26px;font-weight:750;line-height:1}.gate-thresholds{grid-template-columns:repeat(5,minmax(110px,1fr))}.gate-details>summary{cursor:pointer;color:var(--accent,#2783de);font-size:13px;font-weight:650}.nav-step{margin-left:auto;color:var(--muted,#7d7a75);font-size:11px}.empty.compact{padding:20px}
+@media(max-width:980px){.quality-summary{grid-template-columns:1fr}.gate-thresholds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.ai-rec-grid{grid-template-columns:1fr}.flow-steps{margin-left:-4px;margin-right:-4px}.flow-steps span{padding:8px 10px}.gate-thresholds{grid-template-columns:1fr}}
+
+/* Mobile app shell: bottom scrollable navigation, readable content */
+@media (max-width:760px){
+  body.is-app{height:100dvh;overflow:hidden}
+  .app{display:block;width:100%;height:100dvh;overflow:hidden}
+  .rail{position:fixed;top:auto;left:0;right:0;bottom:0;width:100%;height:68px;min-height:68px;border-right:0;border-top:1px solid var(--line);background:var(--rail);z-index:80}
+  .rail-head,.rail-foot,.nav-group-title{display:none!important}
+  .rail-nav{display:flex;align-items:stretch;gap:4px;padding:7px 10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .rail-nav::-webkit-scrollbar{display:none}
+  .nav-group{display:contents}
+  .nav-item{flex:0 0 auto;min-width:92px;height:52px;padding:6px 9px;justify-content:center;gap:6px;border-radius:8px}
+  .nav-item .nav-label{font-size:11.5px;white-space:nowrap;overflow:visible}
+  .nav-item .nav-ico{width:18px}
+  .nav-soon,.nav-count,.nav-step,.nav-state{display:none!important}
+  .shell{width:100%;height:calc(100dvh - 68px);min-height:0}
+  .topbar{height:56px;padding:0 14px;gap:8px}
+  .proj-switch{max-width:190px}.crumbs{display:none}.topbar-tools{margin-left:auto}.topbar-tools .icon-btn:nth-child(2),.topbar-tools .icon-btn:nth-child(4){display:none}
+  .canvas{padding:24px 16px 96px}
+  .view-head{flex-direction:column;gap:14px}.view-actions{width:100%;padding-top:0}.view-actions .btn{width:100%;min-height:44px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .panel-head{align-items:flex-start;flex-wrap:wrap}.panel-tools{width:100%;overflow-x:auto}
+  .quality-card{padding:16px}.quality-num{min-width:48px;font-size:24px}
 }
